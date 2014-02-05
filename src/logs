@@ -1,0 +1,5174 @@
+INFO: GM1 file name: /opt/crusader/gm/anim_armourer.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 11564
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 53
+INFO: Field #19: 47
+INFO: Field #20: 11564
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_baker.gm1
+INFO: ImageCount: 68
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 36360
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 68
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 53
+INFO: Field #20: 36360
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_blacksmith.gm1
+INFO: ImageCount: 199
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 198256
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 199
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 46
+INFO: Field #20: 198256
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_boiled_oil.gm1
+INFO: ImageCount: 138
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 223820
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 138
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 62
+INFO: Field #20: 223820
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_brewer.gm1
+INFO: ImageCount: 64
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 53532
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 64
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 52
+INFO: Field #19: 58
+INFO: Field #20: 53532
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_buildings2.gm1
+INFO: ImageCount: 33
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 83048
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 33
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 83048
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_campaign_map_flags.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 41828
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 27
+INFO: Field #19: 119
+INFO: Field #20: 41828
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_castle.gm1
+INFO: ImageCount: 126
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 754828
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 126
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 754828
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_chopping_block.gm1
+INFO: ImageCount: 21
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 38312
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 21
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 72
+INFO: Field #20: 38312
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_crusader_flag.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 38672
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 55
+INFO: Field #19: 129
+INFO: Field #20: 38672
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_dancing_bear.gm1
+INFO: ImageCount: 53
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 284528
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 53
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 284528
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_dog_cage.gm1
+INFO: ImageCount: 21
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 81028
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 21
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 81028
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_drawbridge.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 207604
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 90
+INFO: Field #19: 124
+INFO: Field #20: 207604
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_ducking_stool.gm1
+INFO: ImageCount: 10
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 73452
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 10
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 73452
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_dungeon.gm1
+INFO: ImageCount: 13
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 65060
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 13
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 92
+INFO: Field #19: 92
+INFO: Field #20: 65060
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_farmer.gm1
+INFO: ImageCount: 79
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 66916
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 79
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 48
+INFO: Field #20: 66916
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_flags.gm1
+INFO: ImageCount: 128
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 90660
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 128
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 41
+INFO: Field #19: 72
+INFO: Field #20: 90660
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_flag_small.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 9672
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 52
+INFO: Field #19: 52
+INFO: Field #20: 9672
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_fletcher.gm1
+INFO: ImageCount: 72
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 59436
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 72
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 28
+INFO: Field #20: 59436
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_gallows.gm1
+INFO: ImageCount: 20
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 24476
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 20
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 45
+INFO: Field #19: 35
+INFO: Field #20: 24476
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_gibbet.gm1
+INFO: ImageCount: 17
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 60888
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 17
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 60888
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_goods.gm1
+INFO: ImageCount: 192
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 555904
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 192
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 555904
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_heads.gm1
+INFO: ImageCount: 7
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 5564
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 7
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 41
+INFO: Field #19: 71
+INFO: Field #20: 5564
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_healer.gm1
+INFO: ImageCount: 42
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 60728
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 42
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 50
+INFO: Field #20: 60728
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_hunter.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 40196
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 60
+INFO: Field #20: 40196
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_inn.gm1
+INFO: ImageCount: 71
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 77356
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 71
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 77356
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_iron_miner.gm1
+INFO: ImageCount: 170
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 153020
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 170
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 43
+INFO: Field #19: 58
+INFO: Field #20: 153020
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_killing_pits.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 27484
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 55
+INFO: Field #20: 27484
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_market.gm1
+INFO: ImageCount: 18
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 32644
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 18
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 45
+INFO: Field #19: 69
+INFO: Field #20: 32644
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_maypole.gm1
+INFO: ImageCount: 52
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 115884
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 52
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 76
+INFO: Field #20: 115884
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_pitch_dugout.gm1
+INFO: ImageCount: 48
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 175280
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 48
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 6
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 110
+INFO: Field #13: 110
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 57
+INFO: Field #19: 64
+INFO: Field #20: 175280
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_poleturner.gm1
+INFO: ImageCount: 127
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 192388
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 127
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 57
+INFO: Field #20: 192388
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_quarry.gm1
+INFO: ImageCount: 323
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 367532
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 323
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 6
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 110
+INFO: Field #13: 110
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 53
+INFO: Field #19: 78
+INFO: Field #20: 367532
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_rack.gm1
+INFO: ImageCount: 21
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 113596
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 21
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 113596
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_shields.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 24296
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 24
+INFO: Field #20: 24296
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_stables.gm1
+INFO: ImageCount: 42
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 31628
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 42
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 46
+INFO: Field #19: 56
+INFO: Field #20: 31628
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_stake.gm1
+INFO: ImageCount: 20
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 40912
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 20
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 46
+INFO: Field #19: 70
+INFO: Field #20: 40912
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_stocks.gm1
+INFO: ImageCount: 7
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 9852
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 7
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 9852
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_tanner.gm1
+INFO: ImageCount: 76
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 71876
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 76
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 50
+INFO: Field #20: 71876
+INFO: Field #21: 2
+INFO: GM1 file name: /opt/crusader/gm/anim_tunnelors_guild.gm1
+INFO: ImageCount: 6
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 10680
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 6
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 10680
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_tunnels.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 111648
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 84
+INFO: Field #20: 111648
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_whitecaps.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 19388
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 49
+INFO: Field #20: 19388
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_windmill.gm1
+INFO: ImageCount: 75
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 237376
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 75
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 89
+INFO: Field #19: 94
+INFO: Field #20: 237376
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/anim_woodcutter.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 23324
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 55
+INFO: Field #20: 23324
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/army_units.gm1
+INFO: ImageCount: 24
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 40712
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 24
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 2
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 55
+INFO: Field #13: 55
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 26
+INFO: Field #19: 25
+INFO: Field #20: 40712
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/assasin_rope.gm1
+INFO: ImageCount: 7
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 8272
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 7
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 0
+INFO: Field #13: 0
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 0
+INFO: Field #17: 0
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 8272
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/blast3.gm1
+INFO: ImageCount: 152
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 558376
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 152
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 49
+INFO: Field #20: 558376
+INFO: Field #21: 255
+INFO: GM1 file name: /opt/crusader/gm/body_animal_burning_big.gm1
+INFO: ImageCount: 21
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 52824
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 21
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 66
+INFO: Field #19: 77
+INFO: Field #20: 52824
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_animal_burning_small.gm1
+INFO: ImageCount: 17
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 19672
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 17
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 45
+INFO: Field #19: 62
+INFO: Field #20: 19672
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_assasin.gm1
+INFO: ImageCount: 874
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 592752
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 874
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 592752
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_ballista.gm1
+INFO: ImageCount: 600
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1212396
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 600
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 64
+INFO: Field #19: 70
+INFO: Field #20: 1212396
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_grenadier.gm1
+INFO: ImageCount: 652
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 431300
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 652
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 431300
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_shortbow.gm1
+INFO: ImageCount: 960
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 712224
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 960
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 712224
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_slave.gm1
+INFO: ImageCount: 454
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 316712
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 454
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 67
+INFO: Field #20: 316712
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_slinger.gm1
+INFO: ImageCount: 746
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 495156
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 746
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 495156
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_arab_swordsman.gm1
+INFO: ImageCount: 456
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 364808
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 456
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 364808
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_archer.gm1
+INFO: ImageCount: 1176
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 839604
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1176
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 70
+INFO: Field #20: 839604
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_armourer.gm1
+INFO: ImageCount: 448
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 307468
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 448
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 69
+INFO: Field #20: 307468
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_baker.gm1
+INFO: ImageCount: 453
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 299420
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 453
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 64
+INFO: Field #20: 299420
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_ballista.gm1
+INFO: ImageCount: 344
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 684700
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 344
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 65
+INFO: Field #19: 85
+INFO: Field #20: 684700
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_battering_ram.gm1
+INFO: ImageCount: 209
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 342600
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 209
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 92
+INFO: Field #19: 97
+INFO: Field #20: 342600
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_bear.gm1
+INFO: ImageCount: 336
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 376136
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 336
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 71
+INFO: Field #20: 376136
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_blacksmith.gm1
+INFO: ImageCount: 712
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 472188
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 712
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 65
+INFO: Field #20: 472188
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_boy.gm1
+INFO: ImageCount: 656
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 239456
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 656
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 67
+INFO: Field #20: 239456
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_brazier.gm1
+INFO: ImageCount: 8
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 10012
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 8
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 66
+INFO: Field #20: 10012
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_brewer.gm1
+INFO: ImageCount: 448
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 341820
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 448
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 65
+INFO: Field #20: 341820
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_camel.gm1
+INFO: ImageCount: 270
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 437636
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 270
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 6
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 110
+INFO: Field #13: 110
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 46
+INFO: Field #19: 66
+INFO: Field #20: 437636
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_catapult.gm1
+INFO: ImageCount: 712
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1740020
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 712
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 100
+INFO: Field #19: 112
+INFO: Field #20: 1740020
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_chicken_brown.gm1
+INFO: ImageCount: 334
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 85580
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 334
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 85580
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_chicken.gm1
+INFO: ImageCount: 334
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 85580
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 334
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 85580
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_cow.gm1
+INFO: ImageCount: 396
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 569208
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 396
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 46
+INFO: Field #19: 66
+INFO: Field #20: 569208
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_crossbowman.gm1
+INFO: ImageCount: 680
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 544404
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 680
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 54
+INFO: Field #19: 70
+INFO: Field #20: 544404
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_crow.gm1
+INFO: ImageCount: 208
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 40612
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 208
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 49
+INFO: Field #20: 40612
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_deer.gm1
+INFO: ImageCount: 484
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 298896
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 484
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 62
+INFO: Field #20: 298896
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_disease.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 102724
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 49
+INFO: Field #20: 102724
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_dog.gm1
+INFO: ImageCount: 481
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 206520
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 481
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 64
+INFO: Field #20: 206520
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_drunkard.gm1
+INFO: ImageCount: 272
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 176592
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 272
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 52
+INFO: Field #19: 68
+INFO: Field #20: 176592
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_farmer.gm1
+INFO: ImageCount: 1440
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1009716
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1440
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 1009716
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fighting_monk.gm1
+INFO: ImageCount: 488
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 355440
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 488
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 355440
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fire2.gm1
+INFO: ImageCount: 49
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 101316
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 49
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 82
+INFO: Field #20: 101316
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fire_eater.gm1
+INFO: ImageCount: 217
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 168912
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 217
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 66
+INFO: Field #20: 168912
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fire.gm1
+INFO: ImageCount: 64
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 104488
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 64
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 74
+INFO: Field #20: 104488
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fireman.gm1
+INFO: ImageCount: 476
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 336016
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 476
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 336016
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_fletcher.gm1
+INFO: ImageCount: 576
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 399008
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 576
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 53
+INFO: Field #19: 67
+INFO: Field #20: 399008
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_gate.gm1
+INFO: ImageCount: 12
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 20636
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 12
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 50
+INFO: Field #20: 20636
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_ghost.gm1
+INFO: ImageCount: 128
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 109556
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 128
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 67
+INFO: Field #20: 109556
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_girl.gm1
+INFO: ImageCount: 656
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 286872
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 656
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 67
+INFO: Field #20: 286872
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_healer.gm1
+INFO: ImageCount: 304
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 249048
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 304
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 68
+INFO: Field #20: 249048
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_horse_archer.gm1
+INFO: ImageCount: 666
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1020224
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 666
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 8
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 150
+INFO: Field #13: 150
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 69
+INFO: Field #19: 95
+INFO: Field #20: 1020224
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_horse_archer_top.gm1
+INFO: ImageCount: 666
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 403020
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 666
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 8
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 150
+INFO: Field #13: 150
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 68
+INFO: Field #19: 95
+INFO: Field #20: 403020
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_horse_trader.gm1
+INFO: ImageCount: 128
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 213500
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 128
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 64
+INFO: Field #20: 213500
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_hunter.gm1
+INFO: ImageCount: 1096
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 820460
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1096
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 68
+INFO: Field #20: 820460
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_info.gm1
+INFO: ImageCount: 1
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 6488
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 50
+INFO: Field #20: 6488
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_innkeeper.gm1
+INFO: ImageCount: 360
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 263012
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 360
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 67
+INFO: Field #20: 263012
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_iron_miner.gm1
+INFO: ImageCount: 304
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 195664
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 304
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 64
+INFO: Field #20: 195664
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_jester.gm1
+INFO: ImageCount: 560
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 398552
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 560
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 64
+INFO: Field #20: 398552
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_juggler.gm1
+INFO: ImageCount: 244
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 171304
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 244
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 66
+INFO: Field #20: 171304
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_knight.gm1
+INFO: ImageCount: 376
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 767840
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 376
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 8
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 150
+INFO: Field #13: 150
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 69
+INFO: Field #19: 95
+INFO: Field #20: 767840
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_knight_top.gm1
+INFO: ImageCount: 968
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1048728
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 968
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 8
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 150
+INFO: Field #13: 150
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 68
+INFO: Field #19: 95
+INFO: Field #20: 1048728
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_ladder_bearer.gm1
+INFO: ImageCount: 320
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 460304
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 320
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 93
+INFO: Field #19: 97
+INFO: Field #20: 460304
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_lady.gm1
+INFO: ImageCount: 472
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 584760
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 472
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 68
+INFO: Field #20: 584760
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_lion.gm1
+INFO: ImageCount: 440
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 442764
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 440
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 71
+INFO: Field #20: 442764
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_lord.gm1
+INFO: ImageCount: 764
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1157916
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 764
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 64
+INFO: Field #19: 97
+INFO: Field #20: 1157916
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_maceman.gm1
+INFO: ImageCount: 952
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 704432
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 952
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 67
+INFO: Field #20: 704432
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_man_burning.gm1
+INFO: ImageCount: 312
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 444972
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 312
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 56
+INFO: Field #19: 73
+INFO: Field #20: 444972
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_mangonel.gm1
+INFO: ImageCount: 488
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1001528
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 488
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 95
+INFO: Field #19: 100
+INFO: Field #20: 1001528
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_miller.gm1
+INFO: ImageCount: 444
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 221452
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 444
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 67
+INFO: Field #20: 221452
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_missile_2.gm1
+INFO: ImageCount: 144
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 31684
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 144
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 50
+INFO: Field #20: 31684
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_missile_cow.gm1
+INFO: ImageCount: 29
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 32508
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 29
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 6
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 110
+INFO: Field #13: 110
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 52
+INFO: Field #19: 58
+INFO: Field #20: 32508
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_missile_fire.gm1
+INFO: ImageCount: 144
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 22372
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 144
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 2
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 55
+INFO: Field #13: 55
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 28
+INFO: Field #19: 27
+INFO: Field #20: 22372
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_missile.gm1
+INFO: ImageCount: 184
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 25008
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 184
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 2
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 55
+INFO: Field #13: 55
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 27
+INFO: Field #19: 28
+INFO: Field #20: 25008
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_mother.gm1
+INFO: ImageCount: 288
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 192864
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 288
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 67
+INFO: Field #20: 192864
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_ox.gm1
+INFO: ImageCount: 344
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 795920
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 344
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 63
+INFO: Field #20: 795920
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_peasant.gm1
+INFO: ImageCount: 464
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 274980
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 464
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 70
+INFO: Field #20: 274980
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_pikeman.gm1
+INFO: ImageCount: 602
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 512900
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 602
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 69
+INFO: Field #20: 512900
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_pitch_worker.gm1
+INFO: ImageCount: 296
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 172584
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 296
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 65
+INFO: Field #20: 172584
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_poleturner.gm1
+INFO: ImageCount: 728
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 506940
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 728
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 64
+INFO: Field #20: 506940
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_priest.gm1
+INFO: ImageCount: 320
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 264940
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 320
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 65
+INFO: Field #20: 264940
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_rabbit.gm1
+INFO: ImageCount: 432
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 139772
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 432
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 54
+INFO: Field #19: 69
+INFO: Field #20: 139772
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_saladin.gm1
+INFO: ImageCount: 636
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 676512
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 636
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 64
+INFO: Field #19: 85
+INFO: Field #20: 676512
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_seagull.gm1
+INFO: ImageCount: 144
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 28092
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 144
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 49
+INFO: Field #20: 28092
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_shield.gm1
+INFO: ImageCount: 137
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 354848
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 137
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 77
+INFO: Field #20: 354848
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_siege_engineer.gm1
+INFO: ImageCount: 828
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 573068
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 828
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 64
+INFO: Field #20: 573068
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_siege_tower.gm1
+INFO: ImageCount: 89
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 262584
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 89
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 10
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 250
+INFO: Field #13: 250
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 128
+INFO: Field #19: 196
+INFO: Field #20: 262584
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_spearman.gm1
+INFO: ImageCount: 1112
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 721748
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1112
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 70
+INFO: Field #20: 721748
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_splash.gm1
+INFO: ImageCount: 24
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 4252
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 24
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 49
+INFO: Field #20: 4252
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_steam.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 28444
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 50
+INFO: Field #20: 28444
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_stonemason.gm1
+INFO: ImageCount: 440
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 282648
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 440
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 63
+INFO: Field #20: 282648
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_swordsman.gm1
+INFO: ImageCount: 432
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 394712
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 432
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 79
+INFO: Field #20: 394712
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_tanner.gm1
+INFO: ImageCount: 536
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 351964
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 536
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 50
+INFO: Field #19: 64
+INFO: Field #20: 351964
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_tent.gm1
+INFO: ImageCount: 3
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 16388
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 3
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 7
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 130
+INFO: Field #13: 130
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 65
+INFO: Field #19: 95
+INFO: Field #20: 16388
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_trader.gm1
+INFO: ImageCount: 256
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 193096
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 256
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 66
+INFO: Field #20: 193096
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_trebutchet.gm1
+INFO: ImageCount: 576
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 1383332
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 576
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 10
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 250
+INFO: Field #13: 250
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 119
+INFO: Field #19: 191
+INFO: Field #20: 1383332
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_tunnelor.gm1
+INFO: ImageCount: 584
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 402964
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 584
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 66
+INFO: Field #20: 402964
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_wolf.gm1
+INFO: ImageCount: 832
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 471896
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 832
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 51
+INFO: Field #19: 71
+INFO: Field #20: 471896
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/body_woodcutter.gm1
+INFO: ImageCount: 1032
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 728836
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1032
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 70
+INFO: Field #20: 728836
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/cracks.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 7568
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 7568
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/cursors.gm1
+INFO: ImageCount: 105
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 168796
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 105
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 67
+INFO: Field #20: 168796
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/enemy_faces.gm1
+INFO: ImageCount: 4
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 32396
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 4
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 0
+INFO: Field #13: 0
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 0
+INFO: Field #17: 0
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 32396
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/face800-blank.gm1
+INFO: ImageCount: 6
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 1345224
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 6
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1345224
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/float_pop_circ.gm1
+INFO: ImageCount: 218
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 393816
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 218
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 29
+INFO: Field #19: 39
+INFO: Field #20: 393816
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/floats.gm1
+INFO: ImageCount: 348
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 148620
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 348
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 148620
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/floats_new.gm1
+INFO: ImageCount: 312
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 595420
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 312
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 49
+INFO: Field #19: 79
+INFO: Field #20: 595420
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/font_slanted.gm1
+INFO: ImageCount: 44
+INFO: ImageClass: Compressed font
+INFO: ImageSize: 7988
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 44
+INFO: Field #4: 0
+INFO: Field #5: 4
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 7988
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/font_stronghold_aa.gm1
+INFO: ImageCount: 795
+INFO: ImageClass: Compressed font
+INFO: ImageSize: 202411
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 795
+INFO: Field #4: 0
+INFO: Field #5: 4
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 202411
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/font_stronghold.gm1
+INFO: ImageCount: 477
+INFO: ImageClass: Compressed font
+INFO: ImageSize: 60312
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 477
+INFO: Field #4: 0
+INFO: Field #5: 4
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 60312
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/icons_front_end_builder.gm1
+INFO: ImageCount: 72
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 104876
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 72
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 104876
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/icons_front_end_combat.gm1
+INFO: ImageCount: 72
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 115544
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 72
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 115544
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/icons_front_end_economics.gm1
+INFO: ImageCount: 72
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 115544
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 72
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 115544
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/icons_front_end.gm1
+INFO: ImageCount: 20
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 488944
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 20
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 90
+INFO: Field #19: 90
+INFO: Field #20: 488944
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/icons_placeholders.gm1
+INFO: ImageCount: 216
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 966020
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 216
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 966020
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_army.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 77284
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 77284
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_buttons.gm1
+INFO: ImageCount: 113
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 1070920
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 113
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1070920
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_icons2.gm1
+INFO: ImageCount: 760
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 2280292
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 760
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 0
+INFO: Field #13: 0
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 0
+INFO: Field #17: 0
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 2280292
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_icons3.gm1
+INFO: ImageCount: 307
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 611348
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 307
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 611348
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_ruins.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 42988
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 0
+INFO: Field #13: 0
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 0
+INFO: Field #17: 0
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 42988
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/interface_slider_bar.gm1
+INFO: ImageCount: 8
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 28404
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 8
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 28404
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/killing_pits.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 8448
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 8448
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/mapedit_buttons.gm1
+INFO: ImageCount: 237
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 1644008
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 237
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1644008
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/mini_cursors.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 10440
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 3
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 75
+INFO: Field #13: 75
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 36
+INFO: Field #19: 37
+INFO: Field #20: 10440
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/oil_dropped.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 41088
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 41088
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/pitch_ditches.gm1
+INFO: ImageCount: 8
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 5448
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 8
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 5448
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/puff of smoke.gm1
+INFO: ImageCount: 16
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 38408
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 16
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 48
+INFO: Field #19: 50
+INFO: Field #20: 38408
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/rock_chips.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed 16 bit image
+INFO: ImageSize: 1136
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 1
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1136
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/scribe.gm1
+INFO: ImageCount: 44
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 578452
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 44
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 6
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 110
+INFO: Field #13: 110
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 578452
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/skirmish_trail_icons.gm1
+INFO: ImageCount: 130
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 219224
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 130
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 39
+INFO: Field #19: 84
+INFO: Field #20: 219224
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/smoke-30x30.gm1
+INFO: ImageCount: 32
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 8816
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 32
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 1
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 10
+INFO: Field #19: 20
+INFO: Field #20: 8816
+INFO: Field #21: 195
+INFO: GM1 file name: /opt/crusader/gm/super chicken.gm1
+INFO: ImageCount: 2
+INFO: ImageClass: Compressed const size image
+INFO: ImageSize: 36468
+INFO: Field #0: 1
+INFO: Field #1: 0
+INFO: Field #2: 0
+INFO: Field #3: 2
+INFO: Field #4: 0
+INFO: Field #5: 6
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 36468
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_buildings1.gm1
+INFO: ImageCount: 442
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 335984
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 442
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 335984
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_buildings2.gm1
+INFO: ImageCount: 1239
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 1393496
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1239
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1393496
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_burnt.gm1
+INFO: ImageCount: 64
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 33792
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 64
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 33792
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_castle.gm1
+INFO: ImageCount: 1596
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 2303108
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1596
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 2303108
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_chevrons.gm1
+INFO: ImageCount: 512
+INFO: ImageClass: Uncompressed bitmap
+INFO: ImageSize: 491520
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 512
+INFO: Field #4: 0
+INFO: Field #5: 5
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 491520
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_churches.gm1
+INFO: ImageCount: 455
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 490520
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 455
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 490520
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_cliffs.gm1
+INFO: ImageCount: 50
+INFO: ImageClass: Uncompressed bitmap
+INFO: ImageSize: 471360
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 50
+INFO: Field #4: 0
+INFO: Field #5: 5
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 471360
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_data.gm1
+INFO: ImageCount: 321
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 169540
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 321
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 169540
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_farmland.gm1
+INFO: ImageCount: 62
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 67880
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 62
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 67880
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_flatties.gm1
+INFO: ImageCount: 46
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 26008
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 46
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 0
+INFO: Field #13: 0
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 0
+INFO: Field #17: 0
+INFO: Field #18: 0
+INFO: Field #19: 0
+INFO: Field #20: 26008
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_goods.gm1
+INFO: ImageCount: 1032
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 1022628
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1032
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 1022628
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_land3.gm1
+INFO: ImageCount: 315
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 321716
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 315
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 1
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 321716
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_land8.gm1
+INFO: ImageCount: 512
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 370048
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 512
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 370048
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_land_and_stones.gm1
+INFO: ImageCount: 512
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 348952
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 512
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 348952
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_land_macros.gm1
+INFO: ImageCount: 1344
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 810580
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1344
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 810580
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_rivers.gm1
+INFO: ImageCount: 4
+INFO: ImageClass: Uncompressed bitmap (other)
+INFO: ImageSize: 117972
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 4
+INFO: Field #4: 0
+INFO: Field #5: 7
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 117972
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_rocks8.gm1
+INFO: ImageCount: 544
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 665388
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 544
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 665388
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_rocks_chevrons.gm1
+INFO: ImageCount: 64
+INFO: ImageClass: Uncompressed bitmap
+INFO: ImageSize: 69120
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 64
+INFO: Field #4: 0
+INFO: Field #5: 5
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 69120
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_ruins.gm1
+INFO: ImageCount: 112
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 110952
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 112
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 110952
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_sea8.gm1
+INFO: ImageCount: 1060
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 625784
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1060
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 625784
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_sea_new_01.gm1
+INFO: ImageCount: 1536
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 885288
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 1536
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 1
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 885288
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_walls.gm1
+INFO: ImageCount: 72
+INFO: ImageClass: Uncompressed bitmap
+INFO: ImageSize: 719100
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 72
+INFO: Field #4: 0
+INFO: Field #5: 5
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 719100
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tile_workshops.gm1
+INFO: ImageCount: 2016
+INFO: ImageClass: Tile Object
+INFO: ImageSize: 3197004
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 2016
+INFO: Field #4: 0
+INFO: Field #5: 3
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 0
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 30
+INFO: Field #13: 30
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 15
+INFO: Field #19: 15
+INFO: Field #20: 3197004
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_apple.gm1
+INFO: ImageCount: 101
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 544728
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 101
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 86
+INFO: Field #19: 120
+INFO: Field #20: 544728
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_birch.gm1
+INFO: ImageCount: 148
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 554952
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 148
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 60
+INFO: Field #19: 146
+INFO: Field #20: 554952
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_cactii.gm1
+INFO: ImageCount: 17
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 23656
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 17
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 11
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 180
+INFO: Field #13: 180
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 89
+INFO: Field #19: 122
+INFO: Field #20: 23656
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/Tree_Chestnut.gm1
+INFO: ImageCount: 148
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 691712
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 148
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 77
+INFO: Field #19: 135
+INFO: Field #20: 691712
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_oak.gm1
+INFO: ImageCount: 148
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 474984
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 148
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 58
+INFO: Field #19: 150
+INFO: Field #20: 474984
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_pine.gm1
+INFO: ImageCount: 148
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 585112
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 148
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 9
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 185
+INFO: Field #13: 185
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 59
+INFO: Field #19: 181
+INFO: Field #20: 585112
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_shrub1.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 42536
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 44
+INFO: Field #19: 64
+INFO: Field #20: 42536
+INFO: Field #21: 0
+INFO: GM1 file name: /opt/crusader/gm/tree_shrub2.gm1
+INFO: ImageCount: 25
+INFO: ImageClass: Compressed animation
+INFO: ImageSize: 65660
+INFO: Field #0: 1
+INFO: Field #1: 1
+INFO: Field #2: 0
+INFO: Field #3: 25
+INFO: Field #4: 0
+INFO: Field #5: 2
+INFO: Field #6: 0
+INFO: Field #7: 0
+INFO: Field #8: 5
+INFO: Field #9: 0
+INFO: Field #10: 0
+INFO: Field #11: 0
+INFO: Field #12: 100
+INFO: Field #13: 100
+INFO: Field #14: 0
+INFO: Field #15: 0
+INFO: Field #16: 1
+INFO: Field #17: 1
+INFO: Field #18: 47
+INFO: Field #19: 81
+INFO: Field #20: 65660
+INFO: Field #21: 0

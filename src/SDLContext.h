@@ -3,8 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-#include <exception>
-#include "Exceptions.h"
+#include "errors.h"
 
 class SDLContext
 {

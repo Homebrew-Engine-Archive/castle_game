@@ -10,3 +10,4 @@ SDLContext::~SDLContext() throw()
 {
     SDL_Quit();
 }
+
