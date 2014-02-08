@@ -5,23 +5,26 @@
 #include <vector>
 #include <algorithm>
 
-#include <cassert>
-
 #include <SDL2/SDL.h>
 
 #include "tgx.h"
-
-const size_t GM1_HEADER_FIELDS = 22;
-
-typedef std::array<Uint32, GM1_HEADER_FIELDS> GM1Header;
 
 const size_t GM1_PALETTE_COUNT = 10;
 
 const size_t GM1_PALETTE_SIZE = 256;
 
+const size_t GM1_TGX8_TRANSPARENT_INDEX = 0;
+const size_t GM1_TGX8_SHADOW_INDEX = 1;
+
 typedef std::array<Uint16, GM1_PALETTE_SIZE> GM1Palette;
 
 const GM1Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
+
+const size_t GM1_HEADER_FIELDS = 22;
+
+const size_t GM1_IMAGE_HEADER_SIZE = 16;
+
+typedef std::array<Uint32, GM1_HEADER_FIELDS> GM1Header;
 
 // struct GM1Header
 // {
@@ -29,9 +32,16 @@ const GM1Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
 //     Uint32 imageCount;
 //     Uint32 unknown2;
 //     Uint32 imageClass;
-//     Uint32 unknown3[14];
+//     Uint32 unknown3[2];
+//     Uint32 sizeCategory;
+//     Uint32 unknown4[3];
+//     Uint32 width;
+//     Uint32 height;
+//     Uint32 unknown5[4];
+//     Uint32 anchorX;
+//     Uint32 anchorY;
 //     Uint32 imageSize;
-//     Uint32 unknown4; 
+//     Uint32 unknown6; 
 // };
 
 constexpr Uint32 GetGM1ImageCount(const GM1Header &hdr)
@@ -67,13 +77,24 @@ constexpr Uint32 GetGM1ImageSize(const GM1Header &hdr)
     return hdr[20];
 }
 
-const size_t GM1_IMAGE_HEADER_SIZE = 16;
+constexpr Uint32 GetGM1AnchorX(const GM1Header &hdr)
+{
+    return hdr[18];
+}
+
+constexpr Uint32 GetGM1AnchorY(const GM1Header &hdr)
+{
+    return hdr[19];
+}
+
+ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr);
 
 enum class TileAlignment : Uint8 {
     Left,
     Right,
     Center,
-    None};
+    None
+};
 
 struct GM1ImageHeader
 {
@@ -90,14 +111,6 @@ struct GM1ImageHeader
     Uint8 flags;
 };
 
-void DebugPrint_GM1Header(const GM1Header &header);
-void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header);
-
-ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr);
-void ReadGM1Header(SDL_RWops *src, GM1Header *hdr);
-void ReadGM1Palette(SDL_RWops *src, GM1Palette *pal);
-void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr);
-
 enum class PaletteSet : size_t {
     Blue = 1,
     Red = 2,
@@ -109,49 +122,51 @@ enum class PaletteSet : size_t {
     Green = 8
 };
 
-struct GM1Image
+struct Frame
 {
-    GM1Image(SDL_RWops *src, Uint32 size, const GM1ImageHeader &hdr, ImageEncoding enc)
-        throw (EOFError, FormatError);
- 
+    Frame(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    SDL_Texture* BuildTexture(SDL_Renderer *renderer, const GM1Palette &palette) const;
+    const static ImageEncoding encoding = ImageEncoding::TGX8;
+    Uint32 width;
+    Uint32 height;
+    std::vector<Uint8> buffer;
     GM1ImageHeader header;
-    ImageEncoding encoding;
-    
-    // Written by compressed and uncompressed bitmaps, and tile decorations
-    // TGX16, TileObject and Bitmap encodings
-    // if encoding is Bitmap => width: header.width, height : header.height - 7
-    // if encoding is TGX16 => width: header.width, height : header.height
-    // if encoding is TileObject => width: header.boxWidth, height: header.tileY + TILE_RHOMBUS_HEIGHT
-    std::vector<Uint16> tgx16buff;
-
-    // Written only by animations (TGX8)
-    std::vector<Uint8> tgx8buff;                         // header.width * header.height
-    
-    // Written only by tile objects (TileObject)
-    std::vector<Uint16> tileBuff;                        // TILE_RHOMBUS_HEIGHT * TILE_RHOMBUS_WIDTH
-
-    SDL_Texture * CreateAnimationTexture(SDL_Renderer *renderer, const GM1Palette &pal = EMPTY_PALETTE);
-    SDL_Texture * CreateBitmapTexture(SDL_Renderer *renderer, const GM1Palette &pal = EMPTY_PALETTE);
-
-    // Combining tile with image
-    SDL_Texture * CreateTileTexture(SDL_Renderer *renderer, const GM1Palette &pal = EMPTY_PALETTE);
-
-    Uint32 Width() const;
-    Uint32 Height() const;
 };
 
-struct GM1Collection
+struct Bitmap
 {
-    GM1Collection(SDL_RWops *src) throw (EOFError, FormatError);
+    Bitmap(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
+    const static ImageEncoding encoding = ImageEncoding::Bitmap;
+    Uint32 width;
+    Uint32 height;
+    mutable std::vector<Uint16> buffer;
+    GM1ImageHeader header;
+};
 
-    Uint32 ImageCount() const;
-    GM1ImageClass ImageClass() const;
-    Uint32 ImageSize() const;
-    GM1Palette GetPalette(const PaletteSet &ps) const;
-    
-    GM1Header gm1Header;
-    std::vector<GM1Palette> palettes;
-    std::vector<GM1Image> images;   
+struct TileObject
+{
+    TileObject(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
+    const static ImageEncoding encoding = ImageEncoding::TileObject;
+    Uint32 width;
+    Uint32 height;
+    Uint32 boxWidth;
+    Uint32 boxOffset;
+    mutable std::vector<Uint16> tile;
+    mutable std::vector<Uint16> box;
+    GM1ImageHeader header;
+};
+
+struct TGX16
+{
+    TGX16(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
+    const static ImageEncoding encoding = ImageEncoding::TGX16;
+    Uint32 width;
+    Uint32 height;
+    mutable std::vector<Uint16> buffer;
+    GM1ImageHeader header;
 };
 
 struct GM1CollectionScheme
@@ -160,53 +175,21 @@ struct GM1CollectionScheme
     std::vector<GM1Palette> palettes;
     std::vector<Uint32> offsets, sizes;
     std::vector<GM1ImageHeader> headers;
-    GM1CollectionScheme(SDL_RWops *src)
+    explicit GM1CollectionScheme(SDL_RWops *src)
         throw (EOFError, FormatError);
 };
 
-struct GM1Entry
-{
-    template<class Image>
-    GM1Entry(SDL_RWops *src, Sint64 offset, const GM1CollectionScheme &scheme, size_t index)
-        throw (EOFError, FormatError);
-};
-
-struct Animation
-{
-    Animation(const GM1ImageHeader &header);
-    void Read(SDL_RWops *src, size_t size);
-    Uint32 width;
-    Uint32 height;
-    std::vector<Uint8> buffer;
-};
-
-struct Bitmap
-{
-    Bitmap(const GM1ImageHeader &header);
-    void Read(SDL_RWops *src, size_t size);
-    Uint32 width;
-    Uint32 height;
-    std::vector<Uint16> buffer;
-};
-
-struct TileObject
-{
-    TileObject(const GM1ImageHeader &header);
-    void Read(SDL_RWops *src, size_t size);
-    Uint32 width;
-    Uint32 height;
-    Uint32 boxWidth;
-    std::vector<Uint16> tile;
-    std::vector<Uint16> box;
-};
-
-struct TGX16
-{
-    TGX16(const GM1ImageHeader &header);
-    void Read(SDL_RWops *src, size_t size);
-    Uint32 width;
-    Uint32 height;
-    std::vector<Uint16> buffer;
-};
+void BlitBuffer(const Uint16 *src, Uint32 srcWidth, Uint32 srcHeight,
+                Uint16 *dst, Uint32 dstWidth, Uint32 x, Uint32 y);
+void DebugPrint_GM1Header(const GM1Header &header);
+void DebugPrint_GM1Palette(const GM1Palette &palette);
+void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header);
+void ReadGM1Header(SDL_RWops *src, GM1Header *hdr);
+void ReadGM1Palette(SDL_RWops *src, GM1Palette *pal);
+void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr);
+void ReadFrameSet(SDL_RWops *, const GM1CollectionScheme &, std::vector<Frame> &);
+void ReadBitmapSet(SDL_RWops *, const GM1CollectionScheme &, std::vector<Bitmap> &);
+void ReadTGX16Set(SDL_RWops *, const GM1CollectionScheme &, std::vector<TGX16> &);
+void ReadTileSet(SDL_RWops *, const GM1CollectionScheme &, std::vector<TileObject> &);
 
 #endif

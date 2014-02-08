@@ -24,8 +24,8 @@ const size_t TILE_RHOMBUS_HEIGHT = 16;
 
 const size_t TILE_RHOMBUS_PIXELS = TILE_RHOMBUS_WIDTH * TILE_RHOMBUS_HEIGHT;
 
-// Magenta for 16 bit transparency
-const Uint16 TGX_TRANSPARENT_RGB16 = 0x7C1F;
+// Magenta for 16 bit transparency (7c1f as i thought earlier)
+const Uint16 TGX_TRANSPARENT_RGB16 = 0xF81F;
 
 // There are no such constant RGB8 value
 // Better took it from palette
@@ -108,6 +108,6 @@ void ReadTGXImage16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Ui
 void ReadTGXImage8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg);
 
 // Wrapper for SDL_CreateRGBSurfaceFrom
-SDL_Surface * CreateRGBSurfaceFromTGX16(Uint16 *buff, Uint32 width, Uint32 height);
+SDL_Surface* CreateRGBSurfaceFromTGX16(Uint16 *buff, Uint32 width, Uint32 height);
 
 #endif

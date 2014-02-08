@@ -1,34 +1,33 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <memory>
-
-#include <SDL2/SDL.h>
-
 #include "main.h"
-#include "errors.h"
-#include "tgx.h"
-#include "gm1.h"
-#include "SDLContext.h"
 
 int main()
 {
     SDLContext sdl(SDL_INIT_EVERYTHING);
+    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+    
     SDL_Window *wnd;
     SDL_Renderer *renderer;
     if(0 != SDL_CreateWindowAndRenderer(640, 480, 0, &wnd, &renderer))
         throw SDLError("SDL_CreateWindowAndRenderer");
-    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 
-    std::vector<std::string> files = LoadStringList(std::string("gm1list.txt"));
-    if(files.empty())
-        throw "No files to load.";
-    
-    CollectionCursor cursor(renderer, files);
+    SDL_RWops *src = SDL_RWFromFile("/opt/stronghold/gm/tree_apple.gm1", "rb");
+    GM1CollectionScheme scheme(src);
+    DebugPrint_GM1Header(scheme.header);
+
+    std::vector<Frame> frames;
+    ReadFrameSet(src, scheme, frames);
+
+    std::vector<Frame> slice;
+    for(size_t i = 0; i < 24; ++i) {
+        slice.push_back(frames[i]);
+    }
+
+    Animation anim(scheme.header, frames);
+
     bool quit = false;
     while(!quit) {
         SDL_Event e;
+        SDL_PumpEvents();
         if(SDL_PollEvent(&e)) {
             switch(e.type) {
             case SDL_QUIT:
@@ -39,177 +38,189 @@ int main()
                 case SDLK_ESCAPE:
                     quit = true;
                     break;
-                case SDLK_TAB:
-                    cursor.SelectCollection(-1);
-                    break;
-                case SDLK_RETURN:
-                    cursor.SelectCollection(1);
-                    break;
                 case SDLK_LEFT:
-                    cursor.Collection()->SelectImage(-1);
+                    anim.Prev();
                     break;
                 case SDLK_RIGHT:
-                    cursor.Collection()->SelectImage(1);
+                    anim.Next();
                     break;
-                case SDLK_UP:
-                    cursor.Collection()->SelectPalette(-1);
-                    break;
-                case SDLK_DOWN:
-                    cursor.Collection()->SelectPalette(1);
+                case SDLK_RETURN:
+                    SDL_Log("# %d", anim.index);
+                    DebugPrint_GM1ImageHeader(anim.CurrentFrame().header);
                     break;
                 }
                 break;
             }
         }
-
-        if(cursor.Collection()->Image() != NULL) {
-            int width, height;
-            SDL_GetWindowSize(wnd, &width, &height);
-            // if((width != cursor.Collection()->Width())
-            //    || (height != cursor.Collection()->Height()))
-            //     SDL_SetWindowSize(wnd, cursor.Collection()->Width(), cursor.Collection()->Height());
-            SDL_RenderCopy(renderer, cursor.Collection()->Image(), NULL, NULL);
+        while(SDL_PollEvent(&e)) {
+            if(e.type == SDL_QUIT) {
+                SDL_PushEvent(&e);
+                break;
+            }
         }
+
+        auto &frame = anim.CurrentFrame();
+        auto palette = scheme.palettes[1];
+        auto texture  = frame.BuildTexture(renderer, palette);
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_Rect src = anim.Box();
+        SDL_Rect dst = anim.ShiftedBox(0, anim.CurrentOffset());
+
+        int width, height;
+        SDL_GetWindowSize(wnd, &width, &height);
+        SDL_Rect screen;
+        screen.x = 0;
+        screen.y = 0;
+        screen.w = width;
+        screen.h = height;
+
+        int posX = GetGM1AnchorX(scheme.header);
+        int posY = GetGM1AnchorY(scheme.header);
+        
+        // if(width != (int)frame.width || height != (int)frame.height)
+        //     SDL_SetWindowSize(wnd, frame.width, frame.height);
+
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_RenderFillRect(renderer, &screen);
+        // DrawIsmetricAxes(renderer, posX, posY, frame.width, frame.height);
+        DrawFrontalAxes(renderer, posX, posY, width, height);
+        SDL_RenderCopy(renderer, texture, &src, &dst);
+        SDL_DestroyTexture(texture);
+        
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
     }
-    
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(wnd);
     
     return 0;
 }
 
-ImageCursor::ImageCursor(SDL_Renderer *render, std::shared_ptr<GM1Collection> arc)
-    : arc(arc)
-    , paletteIndex(0)
-    , textureIndex(0)
-    , render(render)
-    , lastTexture(NULL)
-    , invalidated(true)
+Animation::Animation(const GM1Header &header, const std::vector<Frame> &frames)
+    : frames(frames)
+    , index(0)
+    , header(header)
 {
-}
-
-ImageCursor::~ImageCursor()
-{
-    if(lastTexture != NULL)
-        SDL_DestroyTexture(lastTexture);
-}
-
-int ImageCursor::Height()
-{
-    return arc->images[textureIndex].Height();
-}
-
-int ImageCursor::Width()
-{
-    return arc->images[textureIndex].Width();
-}
-
-void ImageCursor::SelectPalette(int shift)
-{
-    paletteIndex = (paletteIndex + GM1_PALETTE_COUNT + shift) % GM1_PALETTE_COUNT;
-    invalidated = true;
-}
-
-void ImageCursor::SelectImage(int shift)
-{
-    textureIndex = (textureIndex + arc->ImageCount() + shift) % arc->ImageCount();
-    invalidated = true;
-}
-
-SDL_Texture *ImageCursor::Image()
-{
-    if(invalidated) {
-        if(lastTexture != NULL)
-            SDL_DestroyTexture(lastTexture);
-        lastTexture = BuildTextureFromCollection(render, arc, textureIndex, paletteIndex);
-        SDL_Log("# %d [%d]", textureIndex, paletteIndex);
-        DebugPrint_GM1ImageHeader(arc->images[textureIndex].header);
-        invalidated = false;
-    }
-    return lastTexture;
-}
-
-CollectionCursor::CollectionCursor(SDL_Renderer *render, const std::vector<std::string> &list)
-    : list(list)
-    , currentIndex(0)
-    , invalidated(true)
-    , render(render)
-    , cursor()
-{
-}
-
-CollectionCursor::~CollectionCursor()
-{
-}
-
-std::shared_ptr<ImageCursor> CollectionCursor::CreateImageCursor()
-{
-    std::string filename = list[currentIndex];
-    return std::make_shared<ImageCursor>(render, LoadCollection(filename));
-}
-
-void CollectionCursor::SelectCollection(int shift)
-{
-    currentIndex = (currentIndex + shift + list.size()) % list.size();
-    invalidated = true;
-}
-
-std::shared_ptr<ImageCursor> CollectionCursor::Collection()
-{
-    if(invalidated) {
-        cursor = CreateImageCursor();        
-        invalidated = false;
-    }
-    return cursor;
-}
-
-SDL_Texture* BuildTextureFromCollection(SDL_Renderer *renderer, const std::shared_ptr<GM1Collection> &arc, size_t textureIndex, size_t paletteIndex)
-{
-    switch(arc->images[textureIndex].encoding) {
-    case ImageEncoding::TGX8:
-        return
-            arc->images[textureIndex].CreateAnimationTexture(
-            renderer,
-            arc->palettes[paletteIndex]);
-    case ImageEncoding::TileObject:
-        return arc->images[textureIndex].CreateTileTexture(renderer);
-    case ImageEncoding::Bitmap:
-    case ImageEncoding::TGX16:
-    default:
-        return arc->images[textureIndex].CreateBitmapTexture(
-            renderer);
+    for(const auto &frame : frames) {
+        offsets.push_back(EvalOffset(frame));
     }
 }
 
-std::shared_ptr<GM1Collection> LoadCollection(const std::string &filename)
+size_t Animation::ShiftIndex(int n) const
 {
-    std::shared_ptr<GM1Collection> arc;
-    SDL_RWops *src = SDL_RWFromFile(filename.c_str(), "rb");
-    SDL_Log("GM1 file name: %s", filename.c_str());
-    if(src == NULL)
-        throw std::invalid_argument(filename);
-    try {
-        arc = std::make_shared<GM1Collection>(src);
-    } catch(const EOFError &e) {
-        SDL_Log("EOF reached: %s", e.what());
-    } catch(const FormatError &e) {
-        SDL_Log("Error happened while encoding: %s", e.what());
-    }
-    SDL_RWclose(src);
-    return arc;
+    return (index + n + frames.size()) % frames.size();
 }
 
-std::vector<std::string> LoadStringList(const std::string &filename)
+size_t Animation::GetNextIndex() const
 {
-    std::ifstream fin(filename);
-    std::vector<std::string> list;
+    return ShiftIndex(1);
+}
+
+size_t Animation::GetPrevIndex() const
+{
+    return ShiftIndex(-1);
+}
+
+void Animation::Next()
+{
+    index = GetNextIndex();
+}
+
+void Animation::Prev()
+{
+    index = GetPrevIndex();
+}
+
+const Frame& Animation::CurrentFrame() const
+{
+    return frames[index];
+}
+
+bool IsAnchoredPixel(Uint8 pixel)
+{
+    return (pixel != GM1_TGX8_TRANSPARENT_INDEX)
+        && (pixel != GM1_TGX8_SHADOW_INDEX);
+}
+
+bool IsAnchoredLine(const Uint8 *scanline, Uint32 width)
+{
+    for(size_t i = 0; i < width; ++i) {
+        if(IsAnchoredPixel(scanline[i]))
+            return true;
+    }
+    return false;
+}
+
+int Animation::EvalOffset(const Frame &frame) const
+{
+    int anchorX = GetGM1AnchorX(header);
+    int anchorY = GetGM1AnchorY(header);
+
+    int offset = 0;
+    for(int y = 0; y < anchorY; ++y) {
+        const Uint8 *rowPixels = frame.buffer.data() + (anchorY - y) * frame.width;
+        size_t pos = std::max(0, (int)(anchorX - TILE_RHOMBUS_WIDTH / 2));
+        size_t size = std::min(TILE_RHOMBUS_WIDTH, frame.width - pos);
+        if(IsAnchoredLine(rowPixels + pos, size)) {
+            offset = y;
+            break;
+        }
+    }
+
+    return offset;
+}
+
+int Animation::CurrentOffset() const
+{
+    return offsets[index];
+}
+
+SDL_Rect Animation::Box() const
+{
+    SDL_Rect r;
+    r.x = 0;
+    r.y = 0;
+    r.w = CurrentFrame().width;
+    r.h = CurrentFrame().height;
+    return r;
+}
+
+SDL_Rect Animation::ShiftedBox(int dx, int dy) const
+{
+    SDL_Rect r = Box();
+    r.x += dx;
+    r.y += dy;
+    return r;
+}
+
+void DrawFrontalAxes(SDL_Renderer *renderer, int cx, int cy, int width, int height)
+{
+    Uint8 r, g, b, a;
+    SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawLine(renderer, 0, cy, width, cy);
+    SDL_RenderDrawLine(renderer, cx, 0, cx, height);
+    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+}
+
+void DrawIsometricAxes(SDL_Renderer *renderer, int cx, int cy, int width, int height)
+{
+    int h1 = (std::abs(cx - width) * TILE_RHOMBUS_HEIGHT) / TILE_RHOMBUS_WIDTH;
+    int h2 = (cx * TILE_RHOMBUS_HEIGHT) / TILE_RHOMBUS_WIDTH;
+    SDL_RenderDrawLine(renderer, 0, cy - h2, cx, cy);
+    SDL_RenderDrawLine(renderer, width, cy - h1, cx, cy);
+}
+
+template<class OutputIterator>
+void LoadStringList(const std::string &filename, OutputIterator out)
+{
+    using namespace std;
+    ifstream fin(filename);
     while(!fin.eof()) {
-        std::string s;
-        std::getline(fin, s);
+        string s;
+        getline(fin, s);
         if(!s.empty())
-            list.push_back(s);
+            *out++ = s;
     }
-    return list;
 }

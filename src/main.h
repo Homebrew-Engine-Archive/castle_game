@@ -1,54 +1,46 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include <functional>
+#include <iostream>
+#include <fstream>
+#include <initializer_list>
 #include <vector>
-#include <memory>
 #include <string>
+#include <memory>
+#include <algorithm>
+
 #include <SDL2/SDL.h>
 
+#include "animation.h"
+#include "SDLContext.h"
 #include "errors.h"
-#include "gm1.h"
 #include "tgx.h"
+#include "gm1.h"
 
-std::vector<std::string> LoadStringList(const std::string &filename);
-std::shared_ptr<GM1Collection> LoadCollection(const std::string &filename);
-SDL_Texture* BuildTextureFromCollection(SDL_Renderer *renderer, const std::shared_ptr<GM1Collection> &arc, size_t imageIndex, size_t paletteIndex);
+void DrawIsometricAxes(SDL_Renderer *renderer, int cx, int cy, int width, int height);
 
-class ImageCursor
+void DrawFrontalAxes(SDL_Renderer *renderer, int cx, int cy, int width, int height);
+
+template<class OutputIterator>
+void LoadStringList(const std::string &filename, OutputIterator output);
+
+struct Animation
 {
-    std::shared_ptr<GM1Collection> arc;
-    size_t paletteIndex;
-    size_t textureIndex;
-    SDL_Renderer *render;
-    SDL_Texture *lastTexture;
-    bool invalidated;
-    
-public:
-    ImageCursor(SDL_Renderer *render, std::shared_ptr<GM1Collection> arc);
-    ~ImageCursor();
-    void SelectPalette(int shift);
-    void SelectImage(int shift);
-    int Width();
-    int Height();
-    SDL_Texture *Image();
-};
-
-class CollectionCursor
-{
-    std::vector<std::string> list;
-    size_t currentIndex;
-    bool invalidated;
-    SDL_Renderer *render;
-    std::shared_ptr<ImageCursor> cursor;
-    
-    std::shared_ptr<ImageCursor> CreateImageCursor();
-    
-public:
-    CollectionCursor(SDL_Renderer *render, const std::vector<std::string> &list);
-    ~CollectionCursor();
-    std::shared_ptr<ImageCursor> Collection();
-    void SelectCollection(int shift);
+    Animation(const GM1Header &header, const std::vector<Frame> &frames);
+    size_t ShiftIndex(int n) const;
+    size_t GetNextIndex() const;
+    size_t GetPrevIndex() const;
+    void Next();
+    void Prev();    
+    const Frame& CurrentFrame() const;
+    int CurrentOffset() const;
+    int EvalOffset(const Frame &frame) const;
+    const std::vector<Frame> &frames;
+    std::vector<int> offsets;
+    size_t index;
+    const GM1Header &header;
+    SDL_Rect Box() const;
+    SDL_Rect ShiftedBox(int dx, int dy) const;
 };
 
 #endif
