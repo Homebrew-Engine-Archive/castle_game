@@ -22,8 +22,6 @@ const GM1Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
 
 const size_t GM1_HEADER_FIELDS = 22;
 
-const size_t GM1_IMAGE_HEADER_SIZE = 16;
-
 typedef std::array<Uint32, GM1_HEADER_FIELDS> GM1Header;
 
 // struct GM1Header
@@ -44,10 +42,14 @@ typedef std::array<Uint32, GM1_HEADER_FIELDS> GM1Header;
 //     Uint32 unknown6; 
 // };
 
+// const Sint64 GM1_HEADER_SIZE = 88;
+
 constexpr Uint32 GetGM1ImageCount(const GM1Header &hdr)
 {
     return hdr[3];
 }
+
+const size_t GM1_IMAGE_HEADER_SIZE = 16;
 
 enum class GM1ImageClass : Uint32 {
     TGX16 = 1,                                           // TGX16
@@ -122,10 +124,21 @@ enum class PaletteSet : size_t {
     Green = 8
 };
 
+struct GM1CollectionScheme
+{
+    explicit GM1CollectionScheme(SDL_RWops *src) throw (EOFError, FormatError);
+    GM1Header header;
+    std::vector<GM1Palette> palettes;
+    std::vector<Uint32> offsets, sizes;
+    std::vector<GM1ImageHeader> headers;
+};
+
 struct Frame
 {
-    Frame(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    Frame(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+        throw (EOFError, FormatError);
     SDL_Texture* BuildTexture(SDL_Renderer *renderer, const GM1Palette &palette) const;
+    inline Uint8 Get(Uint32 x, Uint32 y) const { return buffer[y * width + x]; }
     const static ImageEncoding encoding = ImageEncoding::TGX8;
     Uint32 width;
     Uint32 height;
@@ -135,7 +148,8 @@ struct Frame
 
 struct Bitmap
 {
-    Bitmap(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    Bitmap(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+        throw (EOFError, FormatError);
     SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
     const static ImageEncoding encoding = ImageEncoding::Bitmap;
     Uint32 width;
@@ -146,7 +160,8 @@ struct Bitmap
 
 struct TileObject
 {
-    TileObject(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    TileObject(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+        throw (EOFError, FormatError);
     SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
     const static ImageEncoding encoding = ImageEncoding::TileObject;
     Uint32 width;
@@ -160,23 +175,14 @@ struct TileObject
 
 struct TGX16
 {
-    TGX16(SDL_RWops *src, const GM1ImageHeader &header, size_t size);
+    TGX16(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+        throw (EOFError, FormatError);
     SDL_Texture* BuildTexture(SDL_Renderer *renderer) const;
     const static ImageEncoding encoding = ImageEncoding::TGX16;
     Uint32 width;
     Uint32 height;
     mutable std::vector<Uint16> buffer;
     GM1ImageHeader header;
-};
-
-struct GM1CollectionScheme
-{
-    GM1Header header;
-    std::vector<GM1Palette> palettes;
-    std::vector<Uint32> offsets, sizes;
-    std::vector<GM1ImageHeader> headers;
-    explicit GM1CollectionScheme(SDL_RWops *src)
-        throw (EOFError, FormatError);
 };
 
 void BlitBuffer(const Uint16 *src, Uint32 srcWidth, Uint32 srcHeight,

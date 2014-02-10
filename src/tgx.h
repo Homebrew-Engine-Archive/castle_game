@@ -89,6 +89,8 @@ constexpr const char * GetTokenTypeName(TokenType t)
         : "Repeat";
 }
 
+Sint64 GetAvailableBytes(SDL_RWops *src);
+
 /**
  * Checks whether device has given amount of `bytes' to be read.
  * Returns immediately.

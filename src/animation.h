@@ -1,8 +1,10 @@
 #ifndef ANIMATION_H_
 #define ANIMATION_H_
 
+#include <map>
 #include <string>
 #include <vector>
+
 #include <SDL2/SDL.h>
 
 #include "gm1.h"
@@ -24,24 +26,6 @@ enum class AnimationClass : Uint32 {
     Victory                                              // swordman, mace
 };
 
-// int GetFramesCount(AnimationClass anim)
-// {
-//     switch(anim) {
-//     case AnimationClass::Walk: return 16;                // maceman
-//     case AnimationClass::Run: return 16;                 // maceman
-//     case AnimationClass::Idle1: return 16;               // maceman
-//     case AnimationClass::Idle2: return 16;               // maceman
-//     case AnimationClass::Idle3: return 24;               // swordman
-//     case AnimationClass::DeathArrow: return 24;          // maceman, showrdman
-//     case AnimationClass::DeathMelee1: return 24;         // swordman
-//     case AnimationClass::Dig: return 16;                 // maceman
-//     case AnimationClass::Fall: return 8;                 // maceman
-//     case AnimationClass::RemoveLadder: return 1;         // pikeman
-//     case AnimationClass::AttackMelee: return 24;         // swordman
-//     case AnimationClass::Victory: return 16;             // swordman
-//     }
-// }
-
 enum class Direction : int {
     NorthEast,
     East,
@@ -54,7 +38,7 @@ enum class Direction : int {
 };
 
 // Most of unit animations
-static const std::vector<Direction> EIGHT_DIRECTION = {
+static const std::vector<Direction> DIRECTION_FULL = {
     Direction::NorthEast,
     Direction::East,
     Direction::SouthEast,
@@ -66,7 +50,7 @@ static const std::vector<Direction> EIGHT_DIRECTION = {
 };
 
 // I saw archers melee combat and maceman victory
-static const std::vector<Direction> FOUR_DIRECTION = {
+static const std::vector<Direction> DIRECTION_MAIN = {
     Direction::East,
     Direction::South,
     Direction::West,
@@ -74,16 +58,26 @@ static const std::vector<Direction> FOUR_DIRECTION = {
 };
 
 // Most of deaths, idle, building animations
-static const std::vector<Direction> FRONT_ONLY = {
+static const std::vector<Direction> DIRECTION_FRONT = {
     Direction::South
 };
 
-struct FrameSequence
+class AnimationBuilder
 {
-    int frameCount;
-    const std::vector<Direction> &dirs;
-    const std::string &tag;
-    FrameSequence(int frameCount, const std::vector<Direction> &dirs, const std::string &tag);
+    const GM1CollectionScheme &scheme;
+    const std::vector<Frame> &frames;
+    size_t position;
+public:
+    AnimationBuilder(const GM1CollectionScheme &scheme, const std::vector<Frame> &frames);
+    void Read(size_t frameCount, const std::vector<Direction> &dirs, std::map<Direction, std::vector<Frame>> &result);
+    void Read(size_t frameCount, std::vector<Frame> &result);
+};
+
+struct Archer
+{
+    Archer(const GM1CollectionScheme &scheme, const std::vector<Frame> &frames);
+    std::vector<Frame> aware, idle, deathArrow, deathMelee1, deathMelee2;
+    std::map<Direction, std::vector<Frame>> walk, run, shot, shotUp, shotDown, attack, dig, tilt, climb, fall;    
 };
 
 #endif

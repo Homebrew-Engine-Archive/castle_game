@@ -80,13 +80,18 @@ void ReadTGXImage(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *p
         ReadTGXToken(src, &token);
         
         if(!CheckTokenType(token)) {
-            SDL_LogDebug(SDL_LOG_PRIORITY_WARN, "Wrong TGXToken type %d",
-                         token);
+            Uint32 pos = static_cast<Uint32>(SDL_RWseek(src, 0, RW_SEEK_CUR));
+            SDL_Log("%08x: Wrong TGXToken type %d",
+                    pos, token);
             throw FormatError("Wrong token type");
         }
         
-        if(!CheckTokenLength(token))
+        if(!CheckTokenLength(token)) {
+            Uint32 pos = static_cast<Uint32>(SDL_RWseek(src, 0, RW_SEEK_CUR));
+            SDL_Log("%08x: Wrong TGXToken length %d",
+                    pos, token);
             throw FormatError("Wrong token length");
+        }
 
         if(GetTokenType(token) != TokenType::Newline) {
             if(pImg + GetTokenLength(token) > pEnd)

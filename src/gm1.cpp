@@ -123,7 +123,7 @@ void DebugPrint_GM1Header(const GM1Header &header)
     SDL_Log("ImageClass: %s", GetGM1ImageClassName(GetGM1ImageClass(header)));
     SDL_Log("ImageSize: %d", GetGM1ImageSize(header));
     for(size_t i = 0; i < GM1_HEADER_FIELDS; ++i) {
-        SDL_Log("Field #%d: %d\t%s", i, header[i], GetGM1HeaderFieldName(i));
+        SDL_Log("Field #%d:\t%d --\t%s", i, header[i], GetGM1HeaderFieldName(i));
     }    
 }
 
@@ -157,6 +157,7 @@ GM1CollectionScheme::GM1CollectionScheme(SDL_RWops *src)
 }
 
 Frame::Frame(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+    throw (EOFError, FormatError)
     : width(header.width), height(header.height)
     , buffer(width * height, TGX_TRANSPARENT_RGB8)
     , header(header)
@@ -178,6 +179,7 @@ SDL_Texture* Frame::BuildTexture(SDL_Renderer *renderer, const GM1Palette &palet
 }
 
 Bitmap::Bitmap(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+    throw (EOFError, FormatError)
     : width(header.width)
       // I don't know why it have been coded this way. It just working.
     , height(header.height - 7)
@@ -196,6 +198,7 @@ SDL_Texture* Bitmap::BuildTexture(SDL_Renderer *renderer) const
 }
 
 TGX16::TGX16(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+    throw (EOFError, FormatError)
     : width(header.width)
     , height(header.height)
     , header(header)
@@ -213,6 +216,7 @@ SDL_Texture* TGX16::BuildTexture(SDL_Renderer *renderer) const
 }
 
 TileObject::TileObject(SDL_RWops *src, const GM1ImageHeader &header, size_t size)
+    throw (EOFError, FormatError)
     : width(TILE_RHOMBUS_WIDTH)
     , height(TILE_RHOMBUS_HEIGHT + header.tileY)
     , boxWidth(header.boxWidth)
@@ -222,7 +226,7 @@ TileObject::TileObject(SDL_RWops *src, const GM1ImageHeader &header, size_t size
     , header(header)
 {
     ReadTile(src, tile.data());
-    ReadTGXImage16(src, size, boxWidth, height, box.data());
+    ReadTGXImage16(src, size - TILE_BYTES, boxWidth, height, box.data());
 }
 
 SDL_Texture* TileObject::BuildTexture(SDL_Renderer *renderer) const
@@ -253,20 +257,24 @@ bool CheckCompatible(ImageEncoding lhs, ImageEncoding rhs)
 
 template<class ImageClass>
 void ReadSet(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<ImageClass> &images)
-{ 
+{
     Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
 
     if(!CheckCompatible(ImageClass::encoding, GetGM1ImageEncoding(scheme.header)))
         throw FormatError("Invalid image class");
-    
-    auto count = GetGM1ImageCount(scheme.header);    
+
+    auto count = GetGM1ImageCount(scheme.header);
     images.reserve(count);
+    
     for(size_t index = 0; index < count; ++index) {
         SDL_RWseek(src, origin, RW_SEEK_SET);
         if(SDL_RWseek(src, scheme.offsets[index], RW_SEEK_CUR) < 0)
             throw EOFError("Invalid image offset");
-        if(!CheckBytesAvailable(src, scheme.sizes[index]))
+        if(!CheckBytesAvailable(src, scheme.sizes[index])) {
+            SDL_Log("There are only %d bytes, but need %d.",
+                    (int)GetAvailableBytes(src), (int)scheme.sizes[index]);
             throw EOFError("Invalid image size");
+        }
         images.emplace_back(src, scheme.headers[index], scheme.sizes[index]);
     }
 }
