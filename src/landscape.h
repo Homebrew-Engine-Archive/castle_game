@@ -3,28 +3,49 @@
 
 #include <SDL2/SDL.h>
 
-enum class ViewMode : Uint32 {
-    Normal,
-    Flat,
-    Low
-};
+#include "SDLRenderer.h"
 
-enum class ViewDirection : Uint32 {
-    Front,
-    Left,
-    Back,
-    Right
-};
-
-enum class LandscapeClass : Uint32 {
+enum class LandscapeClass : int {
+    Pebbles,
+    Stones,
+    Rocks,
+    Boulders,
     Dirt,
-    
+    Grass,
+    Land,
+    Iron,
+    Beach,
+    River,
+    Ford,                                                // River
+    Ripple,                                              // River
+    Swamp,
+    Oil,                                                 // Swamp
+    Sea,
+    Mash                                                 // Sea
 };
 
-struct AbstractTile
+enum class RockClass : int {
+    LargeRock,                                           // 4x4
+    StandardRock,                                        // 3x3
+    SmallRock,                                           // 2x2
+    TinyRock                                             // 1x1
+};
+
+enum class TreeClass : int {
+    Apple,
+    Oak,
+    Pine,
+    Chestnut,
+    Birch,
+    Shrub
+};
+
+struct Tile
 {
-    virtual bool IsPassable() const = 0;
-    virtual void Draw(const SDL_Rect *rect, ViewMode mode = Normal, ViewDirection dir = Front) = 0;
+    Tile(LandscapeClass land, int height);
+    void Draw(SDLRenderer &renderer) const;
+    int height;
+    LandscapeClass landscape;
 };
 
 #endif

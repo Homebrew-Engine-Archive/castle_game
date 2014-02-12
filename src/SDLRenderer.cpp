@@ -17,3 +17,13 @@ void SDLRenderer::Present()
 {
     SDL_RenderPresent(m_R);
 }
+
+SDL_Renderer* SDLRenderer::GetRenderer()
+{
+    return m_R;
+}
+
+SDL_Texture* SDLRenderer::CreateTextureFromSurface(SDLSurface &surface)
+{
+    return SDL_CreateTextureFromSurface(m_R, surface.GetSurface());
+}

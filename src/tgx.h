@@ -17,7 +17,9 @@ const Uint32 MAX_TGX_HEIGHT = 4096;
 const size_t TILE_BYTES = 512;
 
 // Width of rhombus rows in pixels.
-const size_t TILE_PIXELS_PER_ROW[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
+const size_t TILE_PIXELS_PER_ROW[] = {
+    2, 6, 10, 14, 18, 22, 26, 30,
+    30, 26, 22, 18, 14, 10, 6, 2};
 
 const size_t TILE_RHOMBUS_WIDTH = 30;
 const size_t TILE_RHOMBUS_HEIGHT = 16;
@@ -44,6 +46,36 @@ const Uint32 TGX_RGB16_RMASK = 0x7C00;
 const Uint32 TGX_RGB16_GMASK = 0x3E0;
 const Uint32 TGX_RGB16_BMASK = 0x1F;
 const Uint32 TGX_RGB16_AMASK = 0;
+
+const Uint32 TGX_RGB16_ASHIFT = 15;
+const Uint32 TGX_RGB16_RSHIFT = 10;
+const Uint32 TGX_RGB16_GSHIFT = 5;
+const Uint32 TGX_RGB16_BSHIFT = 0;
+
+constexpr int GetChannel(Uint16 color, Uint32 mask, Uint32 shift)
+{
+    return ((color & mask) >> shift) * 255 / ((0xFFFF & mask) >> shift);
+}
+
+constexpr int GetRed(Uint16 color)
+{
+    return GetChannel(color, TGX_RGB16_RMASK, TGX_RGB16_RSHIFT);
+}
+
+constexpr int GetGreen(Uint16 color)
+{
+    return GetChannel(color, TGX_RGB16_GMASK, TGX_RGB16_GSHIFT);
+}
+
+constexpr int GetBlue(Uint16 color)
+{
+    return GetChannel(color, TGX_RGB16_BMASK, TGX_RGB16_BSHIFT);
+}
+
+constexpr int GetAlpha(Uint16 color)
+{
+    return GetChannel(color, TGX_RGB16_AMASK, TGX_RGB16_ASHIFT);
+}
 
 struct TGXHeader
 {
@@ -106,10 +138,7 @@ void ReadBitmap(SDL_RWops *src, Uint32 size, Uint16 *pixels);
 
 void ReadTile(SDL_RWops *src, Uint16 *pixels);
 
-void ReadTGXImage16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *pImg);
-void ReadTGXImage8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg);
-
-// Wrapper for SDL_CreateRGBSurfaceFrom
-SDL_Surface* CreateRGBSurfaceFromTGX16(Uint16 *buff, Uint32 width, Uint32 height);
+void ReadTGX16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *pImg);
+void ReadTGX8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg);
 
 #endif

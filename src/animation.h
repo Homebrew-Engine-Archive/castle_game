@@ -62,6 +62,11 @@ static const std::vector<Direction> DIRECTION_FRONT = {
     Direction::South
 };
 
+struct Frame
+{
+    std::shared_ptr<SDLSurface> surface;
+};
+
 class AnimationBuilder
 {
     const GM1CollectionScheme &scheme;

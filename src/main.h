@@ -20,5 +20,13 @@
 #include "errors.h"
 #include "tgx.h"
 #include "gm1.h"
+#include "landscape.h"
+
+int InputEventFilter(void*, SDL_Event*);
+
+template<class OutputIterator>
+void LoadStringList(const char *filename, OutputIterator out);
+
+bool IsFileExists(SDL_RWops *src);
 
 #endif

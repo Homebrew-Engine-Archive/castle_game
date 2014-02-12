@@ -41,12 +41,10 @@ bool CheckTGXSize(Uint32 width, Uint32 height)
 template<class P>
 void ReadPixelArray(SDL_RWops *src, P *buffer, Uint32 count);
 
+// Uint16 spec
 template<>
 void ReadPixelArray(SDL_RWops *src, Uint16 *buffer, Uint32 count)
 {
-    // if(!CheckBytesAvailable(src, sizeof(Uint16) * count))
-    //     throw EOFError("ReadPixelArray<Uint16>");
-
     SDL_RWread(src, buffer, count, sizeof(Uint16));
 
     if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
@@ -55,17 +53,15 @@ void ReadPixelArray(SDL_RWops *src, Uint16 *buffer, Uint32 count)
     }
 }
 
+// Uint8 spec
 template<>
 void ReadPixelArray(SDL_RWops *src, Uint8 *buffer, Uint32 count)
 {
-    // if(!CheckBytesAvailable(src, sizeof(Uint8) * count))
-    //     throw EOFError("ReadPixelArray<Uint8>");
-
     SDL_RWread(src, buffer, count, sizeof(Uint8));
 }
 
 template<class P>
-void ReadTGXImage(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *pImg)
+void ReadTGX(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *pImg)
 {
     TGXToken token;
     
@@ -124,14 +120,14 @@ void ReadTGXImage(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *p
     }
 }
 
-void ReadTGXImage16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *pImg)
+void ReadTGX16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *pImg)
 {
-    ReadTGXImage<Uint16>(src, size, width, height, pImg);
+    ReadTGX<Uint16>(src, size, width, height, pImg);
 }
 
-void ReadTGXImage8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg)
+void ReadTGX8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg)
 {
-    ReadTGXImage<Uint8>(src, size, width, height, pImg);
+    ReadTGX<Uint8>(src, size, width, height, pImg);
 }
 
 void ReadTGXHeader(SDL_RWops *src, TGXHeader *hdr)
@@ -145,9 +141,6 @@ void ReadTGXHeader(SDL_RWops *src, TGXHeader *hdr)
 
 void ReadTGXToken(SDL_RWops *src, TGXToken *token)
 {
-    // Very slow
-    // if(!CheckBytesAvailable(src, sizeof(TGXToken)))
-    //      throw EOFError("ReadTGXToken");
     SDL_RWread(src, token, 1, sizeof(TGXToken));
 }
 
@@ -158,21 +151,12 @@ void ReadBitmap(SDL_RWops *src, Uint32 size, Uint16 *pixels)
 
 void ReadTile(SDL_RWops *src, Uint16 *pixels)
 {
+    if(!CheckBytesAvailable(src, TILE_BYTES))
+        throw EOFError("ReadTile");
+    
     for(size_t row = 0; row < TILE_RHOMBUS_HEIGHT; ++row) {
         size_t offset = (TILE_RHOMBUS_WIDTH - TILE_PIXELS_PER_ROW[row]) / 2;
         ReadPixelArray<Uint16>(src, pixels + offset, TILE_PIXELS_PER_ROW[row]);
         pixels += TILE_RHOMBUS_WIDTH;
     }
-}
-
-SDL_Surface * CreateRGBSurfaceFromTGX16(Uint16 *buff, Uint32 width, Uint32 height)
-{
-    return SDL_CreateRGBSurfaceFrom(
-        buff,
-        width, height, sizeof(Uint16) * 8,
-        width * sizeof(Uint16),
-        TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
 }
