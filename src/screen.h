@@ -9,12 +9,13 @@
 class Screen
 {
 public:
-    virtual void Draw(const SDLRenderer &renderer, const SDL_Rect &dstrect) = 0;
+    virtual void Draw(SDLRenderer &renderer) = 0;
     virtual void OnMouseMotion(const SDL_MouseMotionEvent &event) = 0;
-    virtual void OnMouseButton(const SDL_MouseButtonEvent &event) = 0;
-    virtual void OnKeyboard(const SDL_Keyboard &event) = 0;
+    virtual void OnMouseButtonDown(const SDL_MouseButtonEvent &event) = 0;
+    virtual void OnMouseButtonUp(const SDL_MouseButtonEvent &event) = 0;
+    virtual void OnKeyDown(const SDL_KeyboardEvent &event) = 0;
+    virtual void OnKeyUp(const SDL_KeyboardEvent &event) = 0;
 
-    virtual void EnterEventLoop() = 0;
     virtual std::unique_ptr<Screen> NextScreen() = 0;
 };
 

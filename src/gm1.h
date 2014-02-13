@@ -5,12 +5,12 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <tuple>
 
 #include <SDL2/SDL.h>
 
 #include "tgx.h"
 #include "SDLSurface.h"
-#include "SDLRect.h"
 
 const size_t GM1_PALETTE_COUNT = 10;
 const size_t GM1_PALETTE_COLORS = 256;
@@ -44,7 +44,7 @@ const GM1Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
 // GM1Header should be represented as constant-size array now an further.
 // Array is easier to read (endianness and alignment), easier
 // to access (there are only 3 of 21 fields we really need)
-// and easier to print. Let use array, guys!
+// and easier to print. Let's use arrays, guys!
 typedef std::array<Uint32, GM1_HEADER_FIELDS> GM1Header;
 
 enum class ImageEncoding : Uint32 {
@@ -73,27 +73,27 @@ enum class PaletteSet : size_t {
     Green = 8    
 };
 
-constexpr Uint32 GetGM1ImageCount(const GM1Header &hdr)
+inline constexpr Uint32 GetGM1ImageCount(const GM1Header &hdr)
 {
     return hdr[3];
 }
 
-constexpr Uint32 GetGM1ImageSize(const GM1Header &hdr)
+inline constexpr Uint32 GetGM1ImageSize(const GM1Header &hdr)
 {
     return hdr[20];
 }
 
-constexpr Uint32 GetGM1AnchorX(const GM1Header &hdr)
+inline constexpr Uint32 GetGM1AnchorX(const GM1Header &hdr)
 {
     return hdr[18];
 }
 
-constexpr Uint32 GetGM1AnchorY(const GM1Header &hdr)
+inline constexpr Uint32 GetGM1AnchorY(const GM1Header &hdr)
 {
     return hdr[19];
 }
 
-constexpr Uint32 GetGM1ImageClass(const GM1Header &hdr)
+inline constexpr Uint32 GetGM1ImageClass(const GM1Header &hdr)
 {
     return hdr[5];
 }
@@ -128,23 +128,19 @@ struct GM1Entry
     std::shared_ptr<SDLSurface> surface;
 };
 
+std::tuple<Uint32, Uint32> EvalSurfaceSize(const GM1Header &gm1, const GM1ImageHeader &header);
+
+std::shared_ptr<SDLSurface> AllocGM1DrawingPlain(const GM1CollectionScheme &scheme);
+
+void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<GM1Entry> &entries);
+
 ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr);
-
-void DebugPrint_GM1Header(const GM1Header &header);
-void DebugPrint_GM1Palette(const GM1Palette &palette);
-void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header);
-
-void ReadGM1Header(SDL_RWops *src, GM1Header *hdr);
-void ReadGM1Palette(SDL_RWops *src, GM1Palette *pal);
-void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr);
 
 std::shared_ptr<SDLSurface>
 LoadTGX16Surface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size);
 
-
 std::shared_ptr<SDLSurface>
 LoadTGX8Surface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size);
-
 
 std::shared_ptr<SDLSurface>
 LoadBitmapSurface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size);
@@ -154,24 +150,5 @@ LoadTileSurface(SDL_RWops *src);
 
 std::shared_ptr<SDLSurface>
 LoadTileObjectSurface(SDL_RWops *src, const GM1ImageHeader &header, Sint64 size);
-
-void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<GM1Entry> &entries);
-
-// class GM1
-// {
-//     GM1Header gm1;
-//     std::vector<GM1ImageHeader> headers;
-//     std::vector<Uint32> sizes, offsets;
-//     std::vector<GM1Palette> palettes;
-
-//     std::vector<SDLSurface> surfaces;
-    
-// public:
-//     GM1(const std::string &filename);
-
-//     size_t Size() const;
-//     SDLSurface& Get(size_t index);
-//     const SDLSurface& Get(size_t index) const;
-// };
 
 #endif

@@ -6,7 +6,8 @@ SDLWindow::SDLWindow(const char * title, int width, int height)
         title,
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        width, height, 0);
+        width, height,
+        SDL_WINDOW_OPENGL);
     if(m_wnd == NULL)
         throw SDLError(SDL_GetError());
 }

@@ -26,13 +26,16 @@ public:
     
     ~SDLSurface();
 
-    void Blit(SDLSurface &src, SDLRect &dstrect, const SDLRect &srcrect = SDLRect());
+    void Blit(
+        SDLSurface &src,
+        SDL_Rect *dstrect,
+        const SDL_Rect *srcrect = NULL);
 
     void SetColorKey(Uint32 color, bool enable = true);
     
     SDL_Surface* GetSurface();
     const SDL_Surface* GetSurface() const;
-    SDLRect GetRect() const;
+    SDL_Rect GetRect() const;
 
     void* Bits();
     const void* Bits() const;

@@ -13,6 +13,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "game.h"
 #include "animation.h"
 #include "SDLContext.h"
 #include "SDLWindow.h"
@@ -22,11 +23,7 @@
 #include "gm1.h"
 #include "landscape.h"
 
-int InputEventFilter(void*, SDL_Event*);
-
 template<class OutputIterator>
 void LoadStringList(const char *filename, OutputIterator out);
-
-bool IsFileExists(SDL_RWops *src);
 
 #endif

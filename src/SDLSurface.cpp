@@ -31,18 +31,23 @@ const SDL_Surface* SDLSurface::GetSurface() const
     return surface;
 }
 
-SDLRect SDLSurface::GetRect() const
+SDL_Rect SDLSurface::GetRect() const
 {
-    return SDLRect(surface->w, surface->h);
+    SDL_Rect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = surface->w;
+    rect.h = surface->h;
+    return rect;
 }
 
-void SDLSurface::Blit(SDLSurface &src, SDLRect &dstrect, const SDLRect &srcrect)
+void SDLSurface::Blit(SDLSurface &src, SDL_Rect *dstrect, const SDL_Rect *srcrect)
 {
     bool locked = SDL_MUSTLOCK(surface);
     if(locked)
         SDL_LockSurface(surface);
 
-    if(0 != SDL_BlitSurface(src.GetSurface(), srcrect.GetRect(), surface, dstrect.GetRect())) {
+    if(0 != SDL_BlitSurface(src.GetSurface(), srcrect, surface, dstrect)) {
         throw SDLError(SDL_GetError());
     }
     if(locked)

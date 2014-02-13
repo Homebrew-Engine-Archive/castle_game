@@ -6,7 +6,7 @@ Tile::Tile(LandscapeClass land, int height)
 {
 }
 
-void Tile::Draw(SDLRenderer &renderer) const
+void Tile::Draw(SDLRenderer &) const
 {
     switch(landscape) {    
     case LandscapeClass::Pebbles:
