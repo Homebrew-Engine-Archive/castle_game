@@ -1,6 +1,8 @@
 #ifndef SDLSURFACE_H_
 #define SDLSURFACE_H_
 
+#include <algorithm>
+
 #include <SDL2/SDL.h>
 
 #include "errors.h"
@@ -36,6 +38,8 @@ public:
     SDL_Surface* GetSurface();
     const SDL_Surface* GetSurface() const;
     SDL_Rect GetRect() const;
+
+    void Fill(Uint32 color);
 
     void* Bits();
     const void* Bits() const;

@@ -70,9 +70,13 @@ void SDLRenderer::RegisterDrawingPlain(
             name,
             DrawingPlain()));
 
+    SDL_Texture *texture =
+        SDL_CreateTextureFromSurface(rndr, surface->GetSurface());
+
     if(iterAndResult.second) {
         DrawingPlain &plain = iterAndResult.first->second;
-        plain.surface = surface;
+        //plain.surface = surface;
+        plain.texture = texture;
         plain.rects = rects;
     }
 }
@@ -96,12 +100,16 @@ void SDLRenderer::CopyDrawingPlain(
     }
 
     const DrawingPlain &plain = result->second;
+
+    SDL_Texture *texture = plain.texture;
+    SDL_RenderCopy(rndr, texture, srcrect, dstrect);    
+    return;
     
     if(!plain.surface) {
         SDL_Log("Drawing plain %s is invalid.", name.c_str());
         return;
     }
-
+    
     SDL_Surface *surface = plain.surface->GetSurface();
     if(SDL_BlitSurface(surface, srcrect, frameBuffer, dstrect)) {
         SDL_Log("Blit surface %s failed: %s",
@@ -151,6 +159,8 @@ void SDLRenderer::EndFrame()
         SDL_Log("No active buffers to flush!");
         return;
     }
+
+    return;
     
     SDL_Texture *tmp =
         SDL_CreateTextureFromSurface(rndr, frameBuffer);

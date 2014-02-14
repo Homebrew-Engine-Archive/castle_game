@@ -42,6 +42,27 @@ SDL_Rect SDLSurface::GetRect() const
     return rect;
 }
 
+void SDLSurface::Fill(Uint32 color)
+{
+    Uint32 width = surface->w;
+    Uint32 height = surface->h;
+    switch(surface->format->BytesPerPixel) {
+    case 1: {
+        Uint8 *bits = reinterpret_cast<Uint8*>(surface->pixels);
+        std::fill(bits, bits + (width*height), color);
+        break;
+    }
+    case 2: {
+        Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
+        std::fill(bits, bits + (width*height), color);
+        break;
+    }
+    default:
+        SDL_Log("Filling surface format unsupported.");
+        break;
+    }
+}
+
 void SDLSurface::Blit(SDLSurface &src, SDL_Rect *dstrect, const SDL_Rect *srcrect)
 {
     bool locked = SDL_MUSTLOCK(surface);

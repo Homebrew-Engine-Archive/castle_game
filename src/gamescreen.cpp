@@ -4,7 +4,7 @@ static const size_t WORK = 10000;
 
 void GameScreen::Draw(SDLRenderer &renderer)
 {
-    auto name = std::string("gm/anim_castle.gm1");
+    auto name = std::string("gm/tile_land8.gm1");
 
     renderer.BeginFrame();
     for(size_t i = 0; i < WORK; ++i) {
@@ -12,7 +12,7 @@ void GameScreen::Draw(SDLRenderer &renderer)
 
         SDL_Rect src = MakeRect(
             rand() % 1200, rand() % 1000,
-            rand() % 100, rand() % 100);
+            rect.w, rect.h);
         
         renderer.CopyDrawingPlain(name, &rect, &src);
     }

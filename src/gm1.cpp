@@ -95,6 +95,9 @@ struct TGX8
     static Uint32 AlphaMask() {
         return AMASK_DEFAULT;
     }
+    static Uint32 ColorKey() {
+        return GM1_TGX8_TRANSPARENT_INDEX;
+    }
     static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
         auto buffer = LoadTGX8Surface(src, Width(header), Height(header), size);
         auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
@@ -124,6 +127,9 @@ struct TileObject
     }
     static Uint32 AlphaMask() {
         return TGX_RGB16_AMASK;
+    }
+    static Uint32 ColorKey() {
+        return TGX_TRANSPARENT_RGB16;
     }
     static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
         auto tile = LoadTileSurface(src);
@@ -158,6 +164,9 @@ struct TGX16
     static Uint32 AlphaMask() {
         return TGX_RGB16_AMASK;
     }
+    static Uint32 ColorKey() {
+        return TGX_TRANSPARENT_RGB16;
+    }
     static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
         auto buffer = LoadTGX16Surface(src, Width(header), Height(header), size);
         auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
@@ -188,6 +197,9 @@ struct Bitmap
     static Uint32 AlphaMask() {
         return TGX_RGB16_AMASK;
     }
+    static Uint32 ColorKey() {
+        return TGX_TRANSPARENT_RGB16;
+    }
     static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
         auto buffer = LoadBitmapSurface(src, Width(header), Height(header), size);
         auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
@@ -215,6 +227,9 @@ std::shared_ptr<SDLSurface> LoadDrawingPlainEntries(SDL_RWops *src, const GM1Col
         std::make_shared<SDLSurface>(
             width, height, depth,
             rmask, gmask, bmask, amask);
+
+    plain->SetColorKey(EntryClass::ColorKey());
+    plain->Fill(EntryClass::ColorKey());
     
     for(size_t i = 0; i < GetGM1ImageCount(scheme.header); ++i) {
         SDL_RWseek(src, origin + scheme.offsets[i], RW_SEEK_SET);
@@ -363,7 +378,7 @@ std::shared_ptr<SDLSurface> LoadTGX16Surface(SDL_RWops *src, Uint32 width, Uint3
     frame->SetColorKey(TGX_TRANSPARENT_RGB16);
 
     Uint16 *bits = reinterpret_cast<Uint16*>(frame->Bits());
-    std::fill(bits, bits + width * height, TGX_TRANSPARENT_RGB16);
+    frame->Fill(TGX_TRANSPARENT_RGB16);
     ReadTGX16(src, size, width, height, bits);
 
     return frame;
@@ -381,7 +396,7 @@ std::shared_ptr<SDLSurface> LoadTGX8Surface(SDL_RWops *src, Uint32 width, Uint32
     frame->SetColorKey(GM1_TGX8_TRANSPARENT_INDEX);
 
     Uint8 *bits = reinterpret_cast<Uint8*>(frame->Bits());
-    std::fill(bits, bits + width * height, GM1_TGX8_TRANSPARENT_INDEX);
+    frame->Fill(GM1_TGX8_TRANSPARENT_INDEX);
     ReadTGX8(src, size, width, height, bits);
 
     return frame;
@@ -399,7 +414,7 @@ std::shared_ptr<SDLSurface> LoadBitmapSurface(SDL_RWops *src, Uint32 width, Uint
     bitmap->SetColorKey(TGX_TRANSPARENT_RGB16);
 
     Uint16 *bits = reinterpret_cast<Uint16*>(bitmap->Bits());
-    std::fill(bits, bits + width * height, TGX_TRANSPARENT_RGB16);
+    bitmap->Fill(TGX_TRANSPARENT_RGB16);
     ReadBitmap(src, size, bits);
 
     return bitmap;
@@ -420,7 +435,7 @@ std::shared_ptr<SDLSurface> LoadTileSurface(SDL_RWops *src)
     tile->SetColorKey(TGX_TRANSPARENT_RGB16);
 
     Uint16 *bits = reinterpret_cast<Uint16*>(tile->Bits());
-    std::fill(bits, bits + width * height, TGX_TRANSPARENT_RGB16);
+    tile->Fill(TGX_TRANSPARENT_RGB16);
     ReadTile(src, bits);
 
     return tile;
@@ -439,8 +454,7 @@ std::shared_ptr<SDLSurface> LoadTileObjectSurface(SDL_RWops *src, const GM1Image
         TGX_RGB16_AMASK);
     
     surface->SetColorKey(TGX_TRANSPARENT_RGB16);
-    Uint16 *bits = reinterpret_cast<Uint16*>(surface->Bits());
-    std::fill(bits, bits + width * height, TGX_TRANSPARENT_RGB16);
+    surface->Fill(TGX_TRANSPARENT_RGB16);
 
     auto tile = LoadTileSurface(src);
     SDL_Rect tilerect;

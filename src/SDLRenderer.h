@@ -2,6 +2,7 @@
 #define SDLRENDERER_H_
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -15,6 +16,7 @@
 struct DrawingPlain
 {
     std::shared_ptr<SDLSurface> surface;
+    SDL_Texture *texture;
     std::vector<SDL_Rect> rects;
 };
 
@@ -22,7 +24,7 @@ class SDLRenderer
 {
     SDL_Renderer *rndr;
 
-    std::map<
+    std::unordered_map<
         std::string,
         DrawingPlain> resources;
 
