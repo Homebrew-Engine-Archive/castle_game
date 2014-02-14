@@ -3,7 +3,7 @@
 SDLRenderer::SDLRenderer(SDLWindow &window)
 {
     rndr = SDL_CreateRenderer(
-        window.GetWindow(), -1, 0);
+        window.GetWindow(), -1, SDL_RENDERER_ACCELERATED);
     if(rndr == NULL)
         throw SDLError(SDL_GetError());
 
@@ -31,7 +31,7 @@ void SDLRenderer::ResizeOutput(int width, int height)
 {
     if(frameBuffer != NULL)
         SDL_FreeSurface(frameBuffer);
-
+    
     frameBuffer =
         SDL_CreateRGBSurface(
             0, width, height, 16,
@@ -39,6 +39,8 @@ void SDLRenderer::ResizeOutput(int width, int height)
             TGX_RGB16_GMASK,
             TGX_RGB16_BMASK,
             TGX_RGB16_AMASK);
+    
+    SDL_SetColorKey(frameBuffer, SDL_TRUE, 0);
 }
 
 void SDLRenderer::Present()
@@ -53,19 +55,26 @@ SDL_Renderer* SDLRenderer::GetRenderer()
 
 void SDLRenderer::RegisterDrawingPlain(
     const std::string &name,
-    std::shared_ptr<SDLSurface> surface)
+    std::shared_ptr<SDLSurface> surface,
+    const std::vector<SDL_Rect> &rects)
 {
-    auto result = surfaces.find(name);
+    auto result = resources.find(name);
     
-    if(result != surfaces.end()) {
+    if(result != resources.end()) {
         SDL_Log("Drawing plain %s already registered.",
                 name.c_str());
     }
-    
-    surfaces.insert(
+
+    auto iterAndResult = resources.insert(
         std::make_pair(
             name,
-            surface));
+            DrawingPlain()));
+
+    if(iterAndResult.second) {
+        DrawingPlain &plain = iterAndResult.first->second;
+        plain.surface = surface;
+        plain.rects = rects;
+    }
 }
 
 void SDLRenderer::CopyDrawingPlain(
@@ -73,63 +82,54 @@ void SDLRenderer::CopyDrawingPlain(
     const SDL_Rect *srcrect,
     SDL_Rect *dstrect)
 {
-    if(frameBuffer == NULL || !bfBufferInProgress) {
+    if(!bfBufferInProgress) {
         SDL_Log("No active buffer available.");
         return;
     }
     
-    auto result = surfaces.find(name);
+    auto result = resources.find(name);
 
-    if(result == surfaces.end()) {
+    if(result == resources.end()) {
         SDL_Log("No such drawing plain %s registered.",
             name.c_str());
         return;
     }
 
-    std::shared_ptr<SDLSurface> surface =
-        result->second;
+    const DrawingPlain &plain = result->second;
     
-    if(!surface) {
+    if(!plain.surface) {
         SDL_Log("Drawing plain %s is invalid.", name.c_str());
         return;
     }
 
-    SDL_BlitSurface(surface->GetSurface(), srcrect,
-                    frameBuffer, dstrect);
-}
-
-void SDLRenderer::RegisterSurfaceRect(
-    const std::string &name,
-    size_t index,
-    const SDL_Rect &rect)
-{
-    auto key = std::make_pair(name, index);
-    auto result = layouts.find(key);
-
-    if(result != layouts.end()) {
-        SDL_Log("Rect is already registered in (%s, %d).",
-                name.c_str(), index);
+    SDL_Surface *surface = plain.surface->GetSurface();
+    if(SDL_BlitSurface(surface, srcrect, frameBuffer, dstrect)) {
+        SDL_Log("Blit surface %s failed: %s",
+                name.c_str(), SDL_GetError());
         return;
     }
-    
-    layouts.insert(
-        std::make_pair(key, rect));
 }
 
 SDL_Rect SDLRenderer::QuerySurfaceRect(
     const std::string &name,
     size_t index)
 {
-    auto key = std::make_pair(name, index);
-    auto result = layouts.find(key);
-
-    if(result == layouts.end()) {
-        SDL_Log("No such rect found in (%s, %d).",
-                name.c_str(), index);
+    auto result = resources.find(name);
+    if(result == resources.end()) {
+        SDL_Log("No such rect found in %s.",
+                name.c_str());
         return SDL_Rect();
     }
 
-    return result->second;
+
+    const DrawingPlain &plain = result->second;
+    if(plain.rects.size() <= index) {
+        SDL_Log("No rect with such index %d.",
+                index);
+        return SDL_Rect();
+    }
+    
+    return plain.rects[index];
 }
 
 void SDLRenderer::BeginFrame()
@@ -147,12 +147,21 @@ void SDLRenderer::BeginFrame()
 
 void SDLRenderer::EndFrame()
 {
-    SDL_Texture *texture =
+    if(!bfBufferInProgress) {
+        SDL_Log("No active buffers to flush!");
+        return;
+    }
+    
+    SDL_Texture *tmp =
         SDL_CreateTextureFromSurface(rndr, frameBuffer);
-
-    if(texture != NULL) {
-        SDL_RenderCopy(rndr, texture, NULL, NULL);
-        SDL_DestroyTexture(texture);
+    
+    if(tmp != NULL) {
+        if(SDL_RenderCopy(rndr, tmp, NULL, NULL)) {
+            SDL_Log("Failure coping texture: %s",
+                    SDL_GetError());
+        }
+        
+        SDL_DestroyTexture(tmp);
     } else {
         SDL_Log("Can't create texture: %s",
                 SDL_GetError());

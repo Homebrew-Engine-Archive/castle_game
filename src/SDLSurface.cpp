@@ -12,6 +12,7 @@ SDLSurface::SDLSurface(
     surface = SDL_CreateRGBSurface(
         0, width, height, depth,
         rmask, gmask, bmask, amask);
+    
     if(surface == NULL)
         throw SDLError(SDL_GetError());
 }

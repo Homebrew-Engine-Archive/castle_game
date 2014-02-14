@@ -12,19 +12,19 @@
 #include "SDLWindow.h"
 #include "SDLSurface.h"
 
+struct DrawingPlain
+{
+    std::shared_ptr<SDLSurface> surface;
+    std::vector<SDL_Rect> rects;
+};
+
 class SDLRenderer
 {
     SDL_Renderer *rndr;
 
     std::map<
         std::string,
-        std::shared_ptr<SDLSurface>> surfaces;
-
-    std::map<
-        std::pair<
-            std::string,
-            size_t>,
-        SDL_Rect> layouts;
+        DrawingPlain> resources;
 
     SDL_Surface *frameBuffer;
     bool bfBufferInProgress;
@@ -43,17 +43,13 @@ public:
 
     void RegisterDrawingPlain(
         const std::string &name,
-        std::shared_ptr<SDLSurface>);
+        std::shared_ptr<SDLSurface>,
+        const std::vector<SDL_Rect> &rects);
     
     void CopyDrawingPlain(
         const std::string &name,
         const SDL_Rect *srcrect,
         SDL_Rect *dstrect = NULL);
-
-    void RegisterSurfaceRect(
-        const std::string &name,
-        size_t index,
-        const SDL_Rect &rect);    
 
     SDL_Rect QuerySurfaceRect(
         const std::string &name,

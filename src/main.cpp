@@ -16,26 +16,18 @@ int main()
         SDL_RWops *src = SDL_RWFromFile(file.c_str(), "rb");
         try {
             GM1CollectionScheme scheme(src);
-            std::vector<GM1Entry> entries;
-            LoadEntries(src, scheme, entries);
-            std::shared_ptr<SDLSurface> surface =
-                AllocGM1DrawingPlain(scheme);            
-            for(size_t i = 0; i < entries.size(); ++i) {
-                SDL_Rect r = MakeRect(
-                    scheme.headers[i].posX,
-                    scheme.headers[i].posY,
-                    entries[i].surface->Width(),
-                    entries[i].surface->Height());
-                renderer.RegisterSurfaceRect(file, i, r);
-                surface->Blit(*entries[i].surface, &r);
-            }
-            renderer.RegisterDrawingPlain(file, surface);
+            std::vector<SDL_Rect> rects;
+            shared_ptr<SDLSurface> plain =
+                LoadDrawingPlain(src, scheme, rects);
+            renderer.RegisterDrawingPlain(file, plain, rects);
         } catch(const EOFError &eof) {
             SDL_Log("An error occured while reading %s", file.c_str());
             SDL_Log("\t%s", eof.what());
+            return -1;
         } catch(const FormatError &fmt) {
             SDL_Log("An error occured while decoding %s", file.c_str());
             SDL_Log("\t%s", fmt.what());
+            return -1;
         }        
         SDL_RWclose(src);
     }
@@ -73,7 +65,9 @@ int main()
 
         // Drop last second's frame counter
         if(ms_EndLastSecond + 1000 < ms_CurrentTime) {
-            SDL_Log("FPS: %d", n_FrameCountLastSecond);
+            Uint32 ms_Delay = ms_EndLastFrame - ms_BeginLastFrame;
+            SDL_Log("FPS: %d\tDelay, ms: %d",
+                    n_FrameCountLastSecond, ms_Delay);
             
             n_FrameCountLastSecond = 0;
             ms_EndLastSecond = ms_CurrentTime;
@@ -100,7 +94,7 @@ int main()
         
         SDL_Event e;
         SDL_PumpEvents();
-        if(SDL_WaitEventTimeout(&e, ms_UpToNextFrame)) {
+        while(SDL_PollEvent(&e)) {
             switch(e.type) {
             case SDL_QUIT:
                 game.OnQuit();

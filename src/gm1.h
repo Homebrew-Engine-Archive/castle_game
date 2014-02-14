@@ -122,17 +122,11 @@ struct GM1CollectionScheme
     std::vector<GM1ImageHeader> headers;
 };
 
-struct GM1Entry
-{
-    GM1Entry(SDL_RWops *src, const GM1Header &gm1, const GM1ImageHeader &header, Sint64 size);
-    std::shared_ptr<SDLSurface> surface;
-};
-
 std::tuple<Uint32, Uint32> EvalSurfaceSize(const GM1Header &gm1, const GM1ImageHeader &header);
 
 std::shared_ptr<SDLSurface> AllocGM1DrawingPlain(const GM1CollectionScheme &scheme);
 
-void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<GM1Entry> &entries);
+void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<std::shared_ptr<SDLSurface>> &entries);
 
 ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr);
 
@@ -150,5 +144,8 @@ LoadTileSurface(SDL_RWops *src);
 
 std::shared_ptr<SDLSurface>
 LoadTileObjectSurface(SDL_RWops *src, const GM1ImageHeader &header, Sint64 size);
+
+std::shared_ptr<SDLSurface>
+LoadDrawingPlain(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<SDL_Rect> &rects);
 
 #endif

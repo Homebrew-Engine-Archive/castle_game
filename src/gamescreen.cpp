@@ -1,6 +1,6 @@
 #include "gamescreen.h"
 
-static const int WORK = 1000;
+static const size_t WORK = 10000;
 
 void GameScreen::Draw(SDLRenderer &renderer)
 {
@@ -21,17 +21,17 @@ void GameScreen::Draw(SDLRenderer &renderer)
 
 void GameScreen::OnMouseMotion(const SDL_MouseMotionEvent &event)
 {
-
+    (void)event;
 }
 
 void GameScreen::OnMouseButtonDown(const SDL_MouseButtonEvent &event)
 {
-    
+    (void)event;    
 }
 
 void GameScreen::OnMouseButtonUp(const SDL_MouseButtonEvent &event)
 {
-
+    (void)event;
 }
 
 void GameScreen::OnKeyDown(const SDL_KeyboardEvent &event)
@@ -41,7 +41,7 @@ void GameScreen::OnKeyDown(const SDL_KeyboardEvent &event)
 
 void GameScreen::OnKeyUp(const SDL_KeyboardEvent &event)
 {
-
+    (void)event;
 }
 
 std::unique_ptr<Screen> GameScreen::NextScreen()

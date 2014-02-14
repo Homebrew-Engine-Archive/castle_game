@@ -39,24 +39,26 @@ std::shared_ptr<SDLSurface> AllocGM1DrawingPlain(const GM1CollectionScheme &sche
         height = std::max(height, h + header.posY);
     }
 
-    Uint32 rmask = TGX_RGB16_RMASK;
-    Uint32 gmask = TGX_RGB16_GMASK;
-    Uint32 bmask = TGX_RGB16_BMASK;
-    Uint32 amask = TGX_RGB16_AMASK;
-    
-    Uint32 depth = 16;
+    Uint32 rmask;
+    Uint32 gmask;
+    Uint32 bmask;
+    Uint32 amask;
+    Uint32 colorKey;
+    Uint32 depth;
     
     if(GetGM1ImageEncoding(scheme.header) == ImageEncoding::TGX8) {
         rmask = RMASK_DEFAULT;
         gmask = GMASK_DEFAULT;
         bmask = BMASK_DEFAULT;
         amask = AMASK_DEFAULT;
+        colorKey = GM1_TGX8_TRANSPARENT_INDEX;
         depth = 8;
     } else {
         rmask = TGX_RGB16_RMASK;
         gmask = TGX_RGB16_GMASK;
         bmask = TGX_RGB16_BMASK;
         amask = TGX_RGB16_AMASK;
+        colorKey = TGX_TRANSPARENT_RGB16;
         depth = 16;
     }
 
@@ -64,8 +66,201 @@ std::shared_ptr<SDLSurface> AllocGM1DrawingPlain(const GM1CollectionScheme &sche
         std::make_shared<SDLSurface>(
             width, height, depth,
             rmask, gmask, bmask, amask);
+
+    surface->SetColorKey(colorKey);
     
     return surface;
+}
+
+struct TGX8
+{
+    static Uint32 Width(const GM1ImageHeader &header) {
+        return header.width;
+    }
+    static Uint32 Height(const GM1ImageHeader &header) {
+        return header.height;
+    }
+    static Uint32 Depth() {
+        return 8;
+    }
+    static Uint32 RedMask() {
+        return RMASK_DEFAULT;
+    }
+    static Uint32 GreenMask() {
+        return GMASK_DEFAULT;
+    }
+    static Uint32 BlueMask() {
+        return BMASK_DEFAULT;
+    }
+    static Uint32 AlphaMask() {
+        return AMASK_DEFAULT;
+    }
+    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
+        auto buffer = LoadTGX8Surface(src, Width(header), Height(header), size);
+        auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
+        surface->Blit(*buffer, &rect);
+    }
+};
+
+struct TileObject
+{
+    static Uint32 Width(const GM1ImageHeader &) {
+        return TILE_RHOMBUS_WIDTH;
+    }
+    static Uint32 Height(const GM1ImageHeader &header) {
+        return TILE_RHOMBUS_HEIGHT + header.tileY;
+    }
+    static Uint32 Depth() {
+        return 16;
+    }
+    static Uint32 RedMask() {
+        return TGX_RGB16_RMASK;
+    }
+    static Uint32 GreenMask() {
+        return TGX_RGB16_GMASK;
+    }
+    static Uint32 BlueMask() {
+        return TGX_RGB16_BMASK;
+    }
+    static Uint32 AlphaMask() {
+        return TGX_RGB16_AMASK;
+    }
+    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
+        auto tile = LoadTileSurface(src);
+        auto tilerect = MakeRect(header.posX, header.posY + header.tileY, Width(header), TILE_RHOMBUS_HEIGHT);
+        surface->Blit(*tile, &tilerect);
+        auto box = LoadTGX16Surface(src, Width(header), Height(header), size - TILE_BYTES);
+        auto boxrect = MakeRect(header.posX + header.hOffset, header.posY, header.boxWidth, Height(header));
+        surface->Blit(*box, &boxrect);
+    }
+};
+
+struct TGX16
+{
+    static Uint32 Width(const GM1ImageHeader &header) {
+        return header.width;
+    }
+    static Uint32 Height(const GM1ImageHeader &header) {
+        return header.height;
+    }
+    static Uint32 Depth() {
+        return 16;
+    }
+    static Uint32 RedMask() {
+        return TGX_RGB16_RMASK;
+    }
+    static Uint32 GreenMask() {
+        return TGX_RGB16_GMASK;
+    }
+    static Uint32 BlueMask() {
+        return TGX_RGB16_BMASK;
+    }
+    static Uint32 AlphaMask() {
+        return TGX_RGB16_AMASK;
+    }
+    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
+        auto buffer = LoadTGX16Surface(src, Width(header), Height(header), size);
+        auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
+        surface->Blit(*buffer, &rect);
+    }
+};
+
+struct Bitmap
+{
+    static Uint32 Width(const GM1ImageHeader &header) {
+        return header.width;
+    }
+    static Uint32 Height(const GM1ImageHeader &header) {
+        return header.height - 7;
+    }
+    static Uint32 Depth() {
+        return 16;
+    }
+    static Uint32 RedMask() {
+        return TGX_RGB16_RMASK;
+    }
+    static Uint32 GreenMask() {
+        return TGX_RGB16_GMASK;
+    }
+    static Uint32 BlueMask() {
+        return TGX_RGB16_BMASK;
+    }
+    static Uint32 AlphaMask() {
+        return TGX_RGB16_AMASK;
+    }
+    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
+        auto buffer = LoadBitmapSurface(src, Width(header), Height(header), size);
+        auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
+        surface->Blit(*buffer, &rect);
+    }
+};    
+
+template<class EntryClass>
+std::shared_ptr<SDLSurface> LoadDrawingPlainEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, Sint64 origin, std::vector<SDL_Rect> &rects)
+{
+    Uint32 width = 0;
+    Uint32 height = 0;
+    for(const auto &header : scheme.headers) {
+        width = std::max(width, header.posX + EntryClass::Width(header));
+        height = std::max(height, header.posY + EntryClass::Height(header));
+    }
+
+    Uint32 depth = EntryClass::Depth();
+    Uint32 rmask = EntryClass::RedMask();
+    Uint32 gmask = EntryClass::GreenMask();
+    Uint32 bmask = EntryClass::BlueMask();
+    Uint32 amask = EntryClass::AlphaMask();
+
+    std::shared_ptr<SDLSurface> plain =
+        std::make_shared<SDLSurface>(
+            width, height, depth,
+            rmask, gmask, bmask, amask);
+    
+    for(size_t i = 0; i < GetGM1ImageCount(scheme.header); ++i) {
+        SDL_RWseek(src, origin + scheme.offsets[i], RW_SEEK_SET);
+        EntryClass::Load(src, scheme.sizes[i], scheme.headers[i], plain);
+        rects.push_back(
+            MakeRect(
+                scheme.headers[i].posX,
+                scheme.headers[i].posY,
+                EntryClass::Width(scheme.headers[i]),
+                EntryClass::Height(scheme.headers[i])));
+    }
+    
+    return plain;
+}
+
+std::shared_ptr<SDLSurface> LoadDrawingPlain(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<SDL_Rect> &rects)
+{
+    Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
+    size_t count = GetGM1ImageCount(scheme.header);
+
+    Uint32 lastByte = 0;
+    for(size_t i = 0; i < count; ++i) {
+        lastByte = std::max(lastByte, scheme.offsets[i] + scheme.sizes[i]);
+    }
+    
+    Sint64 size = SDL_RWsize(src);
+    if(origin + lastByte > size) {
+        SDL_Log("Last byte found at %d, but there is EOF at %d",
+                static_cast<int>(origin + lastByte),
+                static_cast<int>(size));
+        throw EOFError("Check eof failed");
+    }
+
+    ImageEncoding encoding = GetGM1ImageEncoding(scheme.header);
+    switch(encoding) {
+    case ImageEncoding::Bitmap:
+        return LoadDrawingPlainEntries<Bitmap>(src, scheme, origin, rects);
+    case ImageEncoding::TGX16:
+        return LoadDrawingPlainEntries<TGX16>(src, scheme, origin, rects);
+    case ImageEncoding::TGX8:
+        return LoadDrawingPlainEntries<TGX8>(src, scheme, origin, rects);
+    case ImageEncoding::TileObject:
+        return LoadDrawingPlainEntries<TileObject>(src, scheme, origin, rects);
+    default:
+        throw FormatError("Unknown encoding");
+    }
 }
 
 ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr)
@@ -105,54 +300,50 @@ GM1CollectionScheme::GM1CollectionScheme(SDL_RWops *src)
         ReadGM1ImageHeader(src, &header);
 }
 
-GM1Entry::GM1Entry(SDL_RWops *src, const GM1Header &gm1, const GM1ImageHeader &header, Sint64 size)
+std::shared_ptr<SDLSurface> LoadEntrySurface(SDL_RWops *src, const GM1Header &gm1, const GM1ImageHeader &header, Sint64 size)
 {
     switch(GetGM1ImageEncoding(gm1)) {
     case ImageEncoding::Bitmap:
-        // Bitmap height is 7 pixels less than given. I don't know why.
-        surface = std::shared_ptr<SDLSurface>(
-            LoadBitmapSurface(src, header.width, header.height - 7, size));
+        // I don't know why: header.height - 7
+        return LoadBitmapSurface(src, header.width, header.height - 7, size);
         break;
     case ImageEncoding::TGX16:
-        surface = std::shared_ptr<SDLSurface>(
-            LoadTGX16Surface(src, header.width, header.height, size));
+        return LoadTGX16Surface(src, header.width, header.height, size);
         break;
     case ImageEncoding::TGX8:
-        surface = std::shared_ptr<SDLSurface>(
-            LoadTGX8Surface(src, header.width, header.height, size));
+        return LoadTGX8Surface(src, header.width, header.height, size);
         break;
     case ImageEncoding::TileObject:
-        surface = std::shared_ptr<SDLSurface>(
-            LoadTileObjectSurface(src, header, size));
+        return LoadTileObjectSurface(src, header, size);
         break;
-    case ImageEncoding::Unknown:
+    default:
         throw FormatError("Unknown encoding");
     }
 }
 
-void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<GM1Entry> &entries)
+void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<std::shared_ptr<SDLSurface>> &entries)
 {
     Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
 
     auto count = GetGM1ImageCount(scheme.header);
-    entries.reserve(count);
-
+    entries.resize(count);
+    
+    Uint32 lastByte = 0;
     for(size_t index = 0; index < count; ++index) {
-        SDL_RWseek(src, origin, RW_SEEK_SET);
-        if(SDL_RWseek(src, scheme.offsets[index], RW_SEEK_CUR) < 0) {
-            SDL_Log("RW has only %d bytes, trying offset to %d.",
-                    static_cast<int>(SDL_RWsize(src)),
-                    static_cast<int>(origin + scheme.offsets[index]));
-            throw EOFError("Invalid image offset");
-        }
-        if(!CheckBytesAvailable(src, scheme.sizes[index])) {
-            SDL_Log("There are only %d bytes, but need %d.",
-                    static_cast<int>(GetAvailableBytes(src)),
-                    static_cast<int>(scheme.sizes[index]));
-            throw EOFError("Invalid image size");
-        }
+        lastByte = std::max(lastByte, scheme.offsets[index] + scheme.sizes[index]);
+    }
 
-        entries.emplace_back(
+    Uint32 size = SDL_RWsize(src);
+    if(origin + lastByte > size) {
+        SDL_Log("Last byte found at %d, but there is EOF at %d",
+                origin + lastByte,
+                size);
+        throw EOFError("Check eof failed");
+    }
+    
+    for(size_t index = 0; index < count; ++index) {
+        SDL_RWseek(src, origin + scheme.offsets[index], RW_SEEK_SET);
+        entries[index] = LoadEntrySurface(
             src,
             scheme.header,
             scheme.headers[index],
@@ -246,6 +437,7 @@ std::shared_ptr<SDLSurface> LoadTileObjectSurface(SDL_RWops *src, const GM1Image
         TGX_RGB16_GMASK,
         TGX_RGB16_BMASK,
         TGX_RGB16_AMASK);
+    
     surface->SetColorKey(TGX_TRANSPARENT_RGB16);
     Uint16 *bits = reinterpret_cast<Uint16*>(surface->Bits());
     std::fill(bits, bits + width * height, TGX_TRANSPARENT_RGB16);
