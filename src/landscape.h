@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "SDLRenderer.h"
+#include "renderer.h"
 
 enum class LandscapeClass : int {
     Pebbles,
@@ -43,7 +43,7 @@ enum class TreeClass : int {
 struct Tile
 {
     Tile(LandscapeClass land, int height);
-    void Draw(SDLRenderer &renderer) const;
+    void Draw(Renderer &renderer) const;
     int height;
     LandscapeClass landscape;
 };

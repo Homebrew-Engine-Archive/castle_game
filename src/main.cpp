@@ -6,32 +6,19 @@ int main()
 {
     SDLContext(SDL_INIT_EVERYTHING);
     SDLWindow window("SH", 1200, 768);
-    SDLRenderer renderer(window);
+    Renderer renderer(window);
 
     vector<string> files;
-    LoadStringList("gm1list.txt", back_inserter(files));
+    LoadStringList("gm/gm1list.txt", back_inserter(files));
     
     for(const auto &file : files) {
         SDL_Log("Reading %s", file.c_str());
         SDL_RWops *src = SDL_RWFromFile(file.c_str(), "rb");
-        try {
-            GM1CollectionScheme scheme(src);
-            std::vector<SDL_Rect> rects;
-            shared_ptr<SDLSurface> plain =
-                LoadDrawingPlain(src, scheme, rects);
-            renderer.RegisterDrawingPlain(file, plain, rects);
-        } catch(const EOFError &eof) {
-            SDL_Log("An error occured while reading %s", file.c_str());
-            SDL_Log("\t%s", eof.what());
-            return -1;
-        } catch(const FormatError &fmt) {
-            SDL_Log("An error occured while decoding %s", file.c_str());
-            SDL_Log("\t%s", fmt.what());
-            return -1;
-        }        
+        gm1::Collection collection(src);
+        renderer.LoadGM1Atlas(src, collection);
         SDL_RWclose(src);
     }
-
+    
     Game game;
 
     bool flag_Quit = false;
@@ -82,14 +69,6 @@ int main()
             flag_Initial = false;
             flag_Redraw = true;
             ms_LastTimeElapsed = ms_CurrentTime;
-        }
-
-        Uint32 ms_UpToNextFrame;
-        if(ms_CurrentTime <= ms_BeginLastFrame + ms_Interval) {
-            ms_UpToNextFrame = 
-                (ms_BeginLastFrame + ms_Interval) - ms_CurrentTime;
-        } else {
-            ms_UpToNextFrame = 0;
         }
         
         SDL_Event e;

@@ -25,7 +25,7 @@ void Game::OnQuit()
 {
 }
 
-void Game::OnFrame(SDLRenderer &renderer)
+void Game::OnFrame(Renderer &renderer)
 {
     m_ActiveScreen->Draw(renderer);
 }
@@ -59,7 +59,7 @@ void Game::OnKeyUp(const SDL_KeyboardEvent &event)
     m_ActiveScreen->OnKeyUp(event);
 }
 
-void Game::OnTimeElapsed(Uint32 ms)
+void Game::OnTimeElapsed(Uint32)
 {
     
 }

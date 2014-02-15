@@ -52,6 +52,7 @@ const Uint32 TGX_RGB16_RSHIFT = 10;
 const Uint32 TGX_RGB16_GSHIFT = 5;
 const Uint32 TGX_RGB16_BSHIFT = 0;
 
+// Returns color component in range of [0..256)
 constexpr int GetChannel(Uint16 color, Uint32 mask, Uint32 shift)
 {
     return ((color & mask) >> shift) * 255 / ((0xFFFF & mask) >> shift);
@@ -121,24 +122,16 @@ constexpr const char * GetTokenTypeName(TokenType t)
         : "Repeat";
 }
 
-Sint64 GetAvailableBytes(SDL_RWops *src);
-
 /**
  * Checks whether device has given amount of `bytes' to be read.
  * Returns immediately.
  */
-bool CheckBytesAvailable(SDL_RWops *src, Sint64 bytes) throw();
+bool CheckBytesAvailable(SDL_RWops *, Sint64 bytes);
 
-bool CheckTGXSize(Uint32 width, Uint32 height);
-
-void ReadTGXHeader(SDL_RWops *src, TGXHeader *header);
-void ReadTGXToken(SDL_RWops *src, TGXToken *token);
-
-void ReadBitmap(SDL_RWops *src, Uint32 size, Uint16 *pixels);
-
-void ReadTile(SDL_RWops *src, Uint16 *pixels);
-
-void ReadTGX16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *pImg);
-void ReadTGX8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *pImg);
+void ReadTGXHeader(SDL_RWops *, TGXHeader *header);
+void ReadBitmap(SDL_RWops *, Uint32 size, Uint16 *pixels);
+void ReadTile(SDL_RWops *, Uint16 *pixels);
+void ReadTGX16(SDL_RWops *, Uint32 size, Uint32 width, Uint32 height, Uint16 *);
+void ReadTGX8(SDL_RWops *, Uint32 size, Uint32 width, Uint32 height, Uint8 *);
 
 #endif

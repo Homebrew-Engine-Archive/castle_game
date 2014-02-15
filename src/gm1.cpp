@@ -1,85 +1,86 @@
 #include "gm1.h"
 
-static void ReadGM1Header(SDL_RWops *src, GM1Header *hdr);
-static void ReadGM1Palette(SDL_RWops *src, GM1Palette *palette);
-static void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr);
-static bool ReadIntSequenceLE16(SDL_RWops *src, Uint16 *data, Uint32 count);
-static bool ReadIntSequenceLE32(SDL_RWops *src, Uint32 *data, Uint32 count);
-static const char* GetGM1ImageClassName(Uint32 imageClass);
-static const char* GetGM1HeaderFieldName(size_t num);
-static void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header);
-static void DebugPrint_GM1Header(const GM1Header &header);
-static void DebugPrint_GM1Palette(const GM1Palette &palette);
+NAMESPACE_BEGIN(gm1)
 
-std::tuple<Uint32, Uint32> EvalSurfaceSize(const GM1Header &gm1, const GM1ImageHeader &header)
+static void ReadHeader(SDL_RWops *, Header *);
+static void ReadPalette(SDL_RWops *, Palette *);
+static void ReadImageHeader(SDL_RWops *, ImageHeader *);
+static bool ReadIntSequenceLE16(SDL_RWops *, Uint16 *, Uint32);
+static bool ReadIntSequenceLE32(SDL_RWops *, Uint32 *, Uint32);
+static const char* GetImageClassName(Uint32);
+static const char* GetHeaderFieldName(size_t);
+static void LoadTGX16Surface(SDL_RWops *, std::shared_ptr<Surface>, Sint64);
+static void LoadTGX8Surface(SDL_RWops *, std::shared_ptr<Surface>, Sint64);
+static void LoadBitmapSurface(SDL_RWops *, std::shared_ptr<Surface>, Sint64);
+static void LoadTileSurface(SDL_RWops *, std::shared_ptr<Surface>);
+
+template<class EntryClass>
+static std::shared_ptr<Surface> LoadAtlasEntries(
+    SDL_RWops *, const Collection &, Sint64);
+
+template<class EntryClass>
+static std::shared_ptr<Surface> AllocateSurface(Uint32 width, Uint32 height);
+
+template<class EntryClass>
+static void EvalAtlasPartitionFor(
+    const Collection &, std::vector<SDL_Rect> &);
+
+Collection::Collection(SDL_RWops *src)
+    throw(GM1Error)
 {
-    switch(GetGM1ImageEncoding(gm1)) {
-    case ImageEncoding::TGX16:
-        return std::make_tuple(header.width, header.height);
-    case ImageEncoding::TGX8:
-        return std::make_tuple(header.width, header.height);
-    case ImageEncoding::TileObject:
-        return std::make_tuple(TILE_RHOMBUS_WIDTH, TILE_RHOMBUS_HEIGHT + header.tileY);
-    case ImageEncoding::Bitmap:
-        return std::make_tuple(header.width, header.height - 7);
-    default:
-        return std::make_tuple(0, 0);
-    }
+    ReadHeader(src, &header);
+    if(!CheckBytesAvailable(src, GetImageSize(header)))
+        throw GM1Error("EOF while GetImageSize");
+    Uint32 count = GetImageCount(header);
+
+    palettes.resize(GM1_PALETTE_COUNT);
+    for(Palette &palette : palettes)
+        ReadPalette(src, &palette);
+
+    offsets.resize(count);
+    ReadIntSequenceLE32(src, offsets.data(), offsets.size());
+    
+    sizes.resize(count);
+    ReadIntSequenceLE32(src, sizes.data(), sizes.size());
+
+    headers.resize(count);
+    for(ImageHeader &header : headers)
+        ReadImageHeader(src, &header);
 }
 
-std::shared_ptr<SDLSurface> AllocGM1DrawingPlain(const GM1CollectionScheme &scheme)
+const SDL_Palette *CreateSDLPaletteFrom(const Palette &gm1pal)
 {
-    Uint32 width = 0;
-    Uint32 height = 0;
-    
-    for(const auto &header : scheme.headers) {
-        Uint32 w, h;
-        std::tie(w, h) = EvalSurfaceSize(scheme.header, header);
-        width = std::max(width, w + header.posX);
-        height = std::max(height, h + header.posY);
+    SDL_Palette *palette = SDL_AllocPalette(GM1_PALETTE_COLORS);
+    if(palette == NULL)
+        throw SDLError(SDL_GetError());
+
+    std::vector<SDL_Color> colors;
+    colors.reserve(GM1_PALETTE_COLORS);
+    for(Uint16 color: gm1pal) {
+        SDL_Color c;
+        c.r = GetRed(color);
+        c.g = GetGreen(color);
+        c.b = GetBlue(color);
+        c.a = GetAlpha(color);
+        colors.push_back(c);
     }
-
-    Uint32 rmask;
-    Uint32 gmask;
-    Uint32 bmask;
-    Uint32 amask;
-    Uint32 colorKey;
-    Uint32 depth;
     
-    if(GetGM1ImageEncoding(scheme.header) == ImageEncoding::TGX8) {
-        rmask = RMASK_DEFAULT;
-        gmask = GMASK_DEFAULT;
-        bmask = BMASK_DEFAULT;
-        amask = AMASK_DEFAULT;
-        colorKey = GM1_TGX8_TRANSPARENT_INDEX;
-        depth = 8;
-    } else {
-        rmask = TGX_RGB16_RMASK;
-        gmask = TGX_RGB16_GMASK;
-        bmask = TGX_RGB16_BMASK;
-        amask = TGX_RGB16_AMASK;
-        colorKey = TGX_TRANSPARENT_RGB16;
-        depth = 16;
+    if(SDL_SetPaletteColors(palette, &colors[0], 0, GM1_PALETTE_COLORS)) {
+        SDL_FreePalette(palette);
+        throw SDLError(SDL_GetError());
     }
-
-    std::shared_ptr<SDLSurface> surface =
-        std::make_shared<SDLSurface>(
-            width, height, depth,
-            rmask, gmask, bmask, amask);
-
-    surface->SetColorKey(colorKey);
     
-    return surface;
+    return palette;
 }
 
 struct TGX8
 {
-    static Uint32 Width(const GM1ImageHeader &header) {
+    static Uint32 Width(const ImageHeader &header) {
         return header.width;
     }
-    static Uint32 Height(const GM1ImageHeader &header) {
+    static Uint32 Height(const ImageHeader &header) {
         return header.height;
-    }
+    }    
     static Uint32 Depth() {
         return 8;
     }
@@ -97,9 +98,44 @@ struct TGX8
     }
     static Uint32 ColorKey() {
         return GM1_TGX8_TRANSPARENT_INDEX;
+    }    
+    static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, std::shared_ptr<Surface> surface) {
+        auto buffer = AllocateSurface<TGX8>(Width(header), Height(header));
+        LoadTGX8Surface(src, buffer, size);
+        auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
+        surface->Blit(*buffer, &rect);
     }
-    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
-        auto buffer = LoadTGX8Surface(src, Width(header), Height(header), size);
+};
+
+struct TGX16
+{
+    static Uint32 Width(const ImageHeader &header) {
+        return header.width;
+    }
+    static Uint32 Height(const ImageHeader &header) {
+        return header.height;
+    }    
+    static Uint32 Depth() {
+        return 16;
+    }
+    static Uint32 RedMask() {
+        return TGX_RGB16_RMASK;
+    }
+    static Uint32 GreenMask() {
+        return TGX_RGB16_GMASK;
+    }
+    static Uint32 BlueMask() {
+        return TGX_RGB16_BMASK;
+    }
+    static Uint32 AlphaMask() {
+        return TGX_RGB16_AMASK;
+    }
+    static Uint32 ColorKey() {
+        return TGX_TRANSPARENT_RGB16;
+    }    
+    static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, std::shared_ptr<Surface> surface) {
+        auto buffer = AllocateSurface<TGX16>(Width(header), Height(header));
+        LoadTGX16Surface(src, buffer, size);
         auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
         surface->Blit(*buffer, &rect);
     }
@@ -107,10 +143,10 @@ struct TGX8
 
 struct TileObject
 {
-    static Uint32 Width(const GM1ImageHeader &) {
+    static Uint32 Width(const ImageHeader &) {
         return TILE_RHOMBUS_WIDTH;
     }
-    static Uint32 Height(const GM1ImageHeader &header) {
+    static Uint32 Height(const ImageHeader &header) {
         return TILE_RHOMBUS_HEIGHT + header.tileY;
     }
     static Uint32 Depth() {
@@ -130,58 +166,28 @@ struct TileObject
     }
     static Uint32 ColorKey() {
         return TGX_TRANSPARENT_RGB16;
-    }
-    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
-        auto tile = LoadTileSurface(src);
+    }    
+    static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, std::shared_ptr<Surface> surface) {
+        auto tile = AllocateSurface<TileObject>(TILE_RHOMBUS_WIDTH, TILE_RHOMBUS_HEIGHT);
+        LoadTileSurface(src, tile);
         auto tilerect = MakeRect(header.posX, header.posY + header.tileY, Width(header), TILE_RHOMBUS_HEIGHT);
         surface->Blit(*tile, &tilerect);
-        auto box = LoadTGX16Surface(src, Width(header), Height(header), size - TILE_BYTES);
+        auto box = AllocateSurface<TGX16>(header.boxWidth, Height(header));
+        LoadTGX16Surface(src, box, size - TILE_BYTES);
         auto boxrect = MakeRect(header.posX + header.hOffset, header.posY, header.boxWidth, Height(header));
         surface->Blit(*box, &boxrect);
     }
 };
 
-struct TGX16
-{
-    static Uint32 Width(const GM1ImageHeader &header) {
-        return header.width;
-    }
-    static Uint32 Height(const GM1ImageHeader &header) {
-        return header.height;
-    }
-    static Uint32 Depth() {
-        return 16;
-    }
-    static Uint32 RedMask() {
-        return TGX_RGB16_RMASK;
-    }
-    static Uint32 GreenMask() {
-        return TGX_RGB16_GMASK;
-    }
-    static Uint32 BlueMask() {
-        return TGX_RGB16_BMASK;
-    }
-    static Uint32 AlphaMask() {
-        return TGX_RGB16_AMASK;
-    }
-    static Uint32 ColorKey() {
-        return TGX_TRANSPARENT_RGB16;
-    }
-    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
-        auto buffer = LoadTGX16Surface(src, Width(header), Height(header), size);
-        auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
-        surface->Blit(*buffer, &rect);
-    }
-};
-
 struct Bitmap
 {
-    static Uint32 Width(const GM1ImageHeader &header) {
+    static Uint32 Width(const ImageHeader &header) {
         return header.width;
     }
-    static Uint32 Height(const GM1ImageHeader &header) {
+    static Uint32 Height(const ImageHeader &header) {
+        // Nobody knows why
         return header.height - 7;
-    }
+    }    
     static Uint32 Depth() {
         return 16;
     }
@@ -199,281 +205,153 @@ struct Bitmap
     }
     static Uint32 ColorKey() {
         return TGX_TRANSPARENT_RGB16;
-    }
-    static void Load(SDL_RWops *src, Sint64 size, const GM1ImageHeader &header, std::shared_ptr<SDLSurface> surface) {
-        auto buffer = LoadBitmapSurface(src, Width(header), Height(header), size);
+    }    
+    static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, std::shared_ptr<Surface> surface) {
+        auto buffer = AllocateSurface<Bitmap>(Width(header), Height(header));
+        LoadBitmapSurface(src, buffer, size);
         auto rect = MakeRect(header.posX, header.posY, Width(header), Height(header));
         surface->Blit(*buffer, &rect);
     }
 };    
 
-template<class EntryClass>
-std::shared_ptr<SDLSurface> LoadDrawingPlainEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, Sint64 origin, std::vector<SDL_Rect> &rects)
+std::vector<SDL_Rect> EvalAtlasPartition(const Collection &gm1)
 {
-    Uint32 width = 0;
-    Uint32 height = 0;
-    for(const auto &header : scheme.headers) {
-        width = std::max(width, header.posX + EntryClass::Width(header));
-        height = std::max(height, header.posY + EntryClass::Height(header));
-    }
-
-    Uint32 depth = EntryClass::Depth();
-    Uint32 rmask = EntryClass::RedMask();
-    Uint32 gmask = EntryClass::GreenMask();
-    Uint32 bmask = EntryClass::BlueMask();
-    Uint32 amask = EntryClass::AlphaMask();
-
-    std::shared_ptr<SDLSurface> plain =
-        std::make_shared<SDLSurface>(
-            width, height, depth,
-            rmask, gmask, bmask, amask);
-
-    plain->SetColorKey(EntryClass::ColorKey());
-    plain->Fill(EntryClass::ColorKey());
+    std::vector<SDL_Rect> rects;
+    rects.reserve(GetImageCount(gm1.header));
     
-    for(size_t i = 0; i < GetGM1ImageCount(scheme.header); ++i) {
-        SDL_RWseek(src, origin + scheme.offsets[i], RW_SEEK_SET);
-        EntryClass::Load(src, scheme.sizes[i], scheme.headers[i], plain);
-        rects.push_back(
-            MakeRect(
-                scheme.headers[i].posX,
-                scheme.headers[i].posY,
-                EntryClass::Width(scheme.headers[i]),
-                EntryClass::Height(scheme.headers[i])));
+    Encoding encoding = GetEncoding(gm1.header);
+    switch(encoding) {
+    case Encoding::TGX8:
+        EvalAtlasPartitionFor<TGX8>(gm1, rects);
+        break;
+    case Encoding::TGX16:
+        EvalAtlasPartitionFor<TGX16>(gm1, rects);
+        break;
+    case Encoding::Bitmap:
+        EvalAtlasPartitionFor<Bitmap>(gm1, rects);
+        break;
+    case Encoding::TileObject:
+        EvalAtlasPartitionFor<TileObject>(gm1, rects);
+        break;
+    default:
+        throw GM1Error("Unknown encoding");
     }
     
-    return plain;
+    return rects;
 }
 
-std::shared_ptr<SDLSurface> LoadDrawingPlain(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<SDL_Rect> &rects)
+template<class EntryClass>
+static void EvalAtlasPartitionFor(const Collection &gm1, std::vector<SDL_Rect> &rects)
+{
+    auto count = GetImageCount(gm1.header);
+    for(size_t i = 0; i < count; ++i) {
+        auto header = gm1.headers[i];
+        rects.push_back(
+            MakeRect(
+                header.posX,
+                header.posY,
+                EntryClass::Width(header),
+                EntryClass::Height(header)));
+    }
+}
+
+std::shared_ptr<Surface> LoadAtlas(SDL_RWops *src, const Collection &gm1)
+    throw(GM1Error, TGXError, SDLError)
 {
     Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
-    size_t count = GetGM1ImageCount(scheme.header);
+    if(origin < 0)
+        throw SDLError(SDL_GetError());
+    size_t count = GetImageCount(gm1.header);
 
+    // Find collection size
     Uint32 lastByte = 0;
     for(size_t i = 0; i < count; ++i) {
-        lastByte = std::max(lastByte, scheme.offsets[i] + scheme.sizes[i]);
+        lastByte = std::max(lastByte, gm1.offsets[i] + gm1.sizes[i]);
     }
     
+    // Checking eof
     Sint64 size = SDL_RWsize(src);
     if(origin + lastByte > size) {
         SDL_Log("Last byte found at %d, but there is EOF at %d",
                 static_cast<int>(origin + lastByte),
                 static_cast<int>(size));
-        throw EOFError("Check eof failed");
+        throw GM1Error("EOF while LoadAtlas");
     }
 
-    ImageEncoding encoding = GetGM1ImageEncoding(scheme.header);
+    // Dispatch collection reading by image encoding class
+    Encoding encoding = GetEncoding(gm1.header);
     switch(encoding) {
-    case ImageEncoding::Bitmap:
-        return LoadDrawingPlainEntries<Bitmap>(src, scheme, origin, rects);
-    case ImageEncoding::TGX16:
-        return LoadDrawingPlainEntries<TGX16>(src, scheme, origin, rects);
-    case ImageEncoding::TGX8:
-        return LoadDrawingPlainEntries<TGX8>(src, scheme, origin, rects);
-    case ImageEncoding::TileObject:
-        return LoadDrawingPlainEntries<TileObject>(src, scheme, origin, rects);
+    case Encoding::Bitmap:
+        return LoadAtlasEntries<Bitmap>(src, gm1, origin);
+    case Encoding::TGX16:
+        return LoadAtlasEntries<TGX16>(src, gm1, origin);
+    case Encoding::TGX8:
+        return LoadAtlasEntries<TGX8>(src, gm1, origin);
+    case Encoding::TileObject:
+        return LoadAtlasEntries<TileObject>(src, gm1, origin);
     default:
-        throw FormatError("Unknown encoding");
+        throw GM1Error("Unknown encoding");
     }
 }
 
-ImageEncoding GetGM1ImageEncoding(const GM1Header &hdr)
+template<class EntryClass>
+static std::shared_ptr<Surface> LoadAtlasEntries(SDL_RWops *src, const Collection &gm1, Sint64 origin)
 {
-    switch(GetGM1ImageClass(hdr)) {
-    case 1: return ImageEncoding::TGX16;
-    case 2: return ImageEncoding::TGX8;
-    case 3: return ImageEncoding::TileObject;
-    case 4: return ImageEncoding::TGX16;
-    case 5: return ImageEncoding::Bitmap;
-    case 6: return ImageEncoding::TGX16;
-    case 7: return ImageEncoding::Bitmap;
-    default: return ImageEncoding::Unknown;
-    }
-}
-
-GM1CollectionScheme::GM1CollectionScheme(SDL_RWops *src)
-    throw (EOFError, FormatError)
-{
-    ReadGM1Header(src, &header);
-    if(!CheckBytesAvailable(src, GetGM1ImageSize(header)))
-        throw EOFError("GetGM1ImageSize");
-    Uint32 count = GetGM1ImageCount(header);
-
-    palettes.resize(GM1_PALETTE_COUNT);
-    for(GM1Palette &palette : palettes)
-        ReadGM1Palette(src, &palette);
-
-    offsets.resize(count);
-    ReadIntSequenceLE32(src, offsets.data(), offsets.size());
-    
-    sizes.resize(count);
-    ReadIntSequenceLE32(src, sizes.data(), sizes.size());
-
-    headers.resize(count);
-    for(GM1ImageHeader &header : headers)
-        ReadGM1ImageHeader(src, &header);
-}
-
-std::shared_ptr<SDLSurface> LoadEntrySurface(SDL_RWops *src, const GM1Header &gm1, const GM1ImageHeader &header, Sint64 size)
-{
-    switch(GetGM1ImageEncoding(gm1)) {
-    case ImageEncoding::Bitmap:
-        // I don't know why: header.height - 7
-        return LoadBitmapSurface(src, header.width, header.height - 7, size);
-        break;
-    case ImageEncoding::TGX16:
-        return LoadTGX16Surface(src, header.width, header.height, size);
-        break;
-    case ImageEncoding::TGX8:
-        return LoadTGX8Surface(src, header.width, header.height, size);
-        break;
-    case ImageEncoding::TileObject:
-        return LoadTileObjectSurface(src, header, size);
-        break;
-    default:
-        throw FormatError("Unknown encoding");
-    }
-}
-
-void LoadEntries(SDL_RWops *src, const GM1CollectionScheme &scheme, std::vector<std::shared_ptr<SDLSurface>> &entries)
-{
-    Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
-
-    auto count = GetGM1ImageCount(scheme.header);
-    entries.resize(count);
-    
-    Uint32 lastByte = 0;
-    for(size_t index = 0; index < count; ++index) {
-        lastByte = std::max(lastByte, scheme.offsets[index] + scheme.sizes[index]);
+    Uint32 width = 0;
+    Uint32 height = 0;
+    // Eval size for atlas
+    for(const auto &header : gm1.headers) {
+        width = std::max(width, header.posX + EntryClass::Width(header));
+        height = std::max(height, header.posY + EntryClass::Height(header));
     }
 
-    Uint32 size = SDL_RWsize(src);
-    if(origin + lastByte > size) {
-        SDL_Log("Last byte found at %d, but there is EOF at %d",
-                origin + lastByte,
-                size);
-        throw EOFError("Check eof failed");
+    std::shared_ptr<Surface> atlas =
+        AllocateSurface<EntryClass>(width, height);
+
+    // Dispatch reading entries to EntryClass::Load
+    for(size_t i = 0; i < GetImageCount(gm1.header); ++i) {
+        SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
+        EntryClass::Load(src, gm1.sizes[i], gm1.headers[i], atlas);
     }
     
-    for(size_t index = 0; index < count; ++index) {
-        SDL_RWseek(src, origin + scheme.offsets[index], RW_SEEK_SET);
-        entries[index] = LoadEntrySurface(
-            src,
-            scheme.header,
-            scheme.headers[index],
-            scheme.sizes[index]);
-    }
+    return atlas;
 }
 
-std::shared_ptr<SDLSurface> LoadTGX16Surface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size)
-{
-    auto frame = std::make_shared<SDLSurface>(
-        width, height, 16,
-        TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
-
-    frame->SetColorKey(TGX_TRANSPARENT_RGB16);
-
-    Uint16 *bits = reinterpret_cast<Uint16*>(frame->Bits());
-    frame->Fill(TGX_TRANSPARENT_RGB16);
-    ReadTGX16(src, size, width, height, bits);
-
-    return frame;
-}
-
-std::shared_ptr<SDLSurface> LoadTGX8Surface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size)
-{
-    auto frame = std::make_shared<SDLSurface>(
-        width, height, 8,
-        RMASK_DEFAULT,
-        GMASK_DEFAULT,
-        BMASK_DEFAULT,
-        AMASK_DEFAULT);
-
-    frame->SetColorKey(GM1_TGX8_TRANSPARENT_INDEX);
-
-    Uint8 *bits = reinterpret_cast<Uint8*>(frame->Bits());
-    frame->Fill(GM1_TGX8_TRANSPARENT_INDEX);
-    ReadTGX8(src, size, width, height, bits);
-
-    return frame;
-}
-
-std::shared_ptr<SDLSurface> LoadBitmapSurface(SDL_RWops *src, Uint32 width, Uint32 height, Sint64 size)
-{
-    auto bitmap = std::make_shared<SDLSurface>(
-        width, height, 16,
-        TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
-
-    bitmap->SetColorKey(TGX_TRANSPARENT_RGB16);
-
-    Uint16 *bits = reinterpret_cast<Uint16*>(bitmap->Bits());
-    bitmap->Fill(TGX_TRANSPARENT_RGB16);
-    ReadBitmap(src, size, bits);
-
-    return bitmap;
-}
-
-std::shared_ptr<SDLSurface> LoadTileSurface(SDL_RWops *src)
-{
-    Uint32 width = TILE_RHOMBUS_WIDTH;
-    Uint32 height = TILE_RHOMBUS_HEIGHT;
-    
-    auto tile = std::make_shared<SDLSurface>(
-        width, height, 16,
-        TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
-
-    tile->SetColorKey(TGX_TRANSPARENT_RGB16);
-
-    Uint16 *bits = reinterpret_cast<Uint16*>(tile->Bits());
-    tile->Fill(TGX_TRANSPARENT_RGB16);
-    ReadTile(src, bits);
-
-    return tile;
-}
-
-std::shared_ptr<SDLSurface> LoadTileObjectSurface(SDL_RWops *src, const GM1ImageHeader &header, Sint64 size)
-{
-    Uint32 width = TILE_RHOMBUS_WIDTH;
-    Uint32 height = TILE_RHOMBUS_HEIGHT + header.tileY;
-    
-    auto surface = std::make_shared<SDLSurface>(
-        width, height, 16,
-        TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
-    
-    surface->SetColorKey(TGX_TRANSPARENT_RGB16);
-    surface->Fill(TGX_TRANSPARENT_RGB16);
-
-    auto tile = LoadTileSurface(src);
-    SDL_Rect tilerect;
-    tilerect.x = 0;
-    tilerect.y = header.tileY;
-    tilerect.w = TILE_RHOMBUS_WIDTH;
-    tilerect.h = TILE_RHOMBUS_HEIGHT;
-    surface->Blit(*tile, &tilerect);
-    
-    auto box = LoadTGX16Surface(
-        src, header.boxWidth, height, size - TILE_BYTES);
-    SDL_Rect boxrect;
-    boxrect.x = header.hOffset;
-    boxrect.y = 0;
-    boxrect.w = header.boxWidth;
-    boxrect.h = height;
-    surface->Blit(*box, &boxrect);
-
+template<class EntryClass>
+static std::shared_ptr<Surface> AllocateSurface(Uint32 width, Uint32 height) {
+    auto surface = std::make_shared<Surface>(
+        width, height, EntryClass::Depth(),
+        EntryClass::RedMask(),
+        EntryClass::GreenMask(),
+        EntryClass::BlueMask(),
+        EntryClass::AlphaMask());
+    surface->SetColorKey(EntryClass::ColorKey());
+    surface->Fill(EntryClass::ColorKey());
     return surface;
+}
+
+static void LoadTGX16Surface(SDL_RWops *src, std::shared_ptr<Surface> surface, Sint64 size)
+{
+    Uint16 *bits = reinterpret_cast<Uint16*>(surface->Bits());
+    ReadTGX16(src, size, surface->Width(), surface->Height(), bits);
+}
+
+static void LoadTGX8Surface(SDL_RWops *src, std::shared_ptr<Surface> surface, Sint64 size)
+{
+    Uint8 *bits = reinterpret_cast<Uint8*>(surface->Bits());
+    ReadTGX8(src, size, surface->Width(), surface->Height(), bits);
+}
+
+static void LoadBitmapSurface(SDL_RWops *src, std::shared_ptr<Surface> surface, Sint64 size)
+{
+    Uint16 *bits = reinterpret_cast<Uint16*>(surface->Bits());
+    ReadBitmap(src, size, bits);
+}
+
+static void LoadTileSurface(SDL_RWops *src, std::shared_ptr<Surface> surface/*, Sint64 size = TILE_BYTES */)
+{
+    Uint16 *bits = reinterpret_cast<Uint16*>(surface->Bits());
+    ReadTile(src, bits);
 }
 
 static bool ReadIntSequenceLE32(SDL_RWops *src, Uint32 *data, Uint32 count)
@@ -494,22 +372,22 @@ static bool ReadIntSequenceLE16(SDL_RWops *src, Uint16 *data, Uint32 count)
     return true;
 }
 
-static void ReadGM1Header(SDL_RWops *src, GM1Header *hdr)
-{
+static void ReadHeader(SDL_RWops *src, Header *hdr)
+{    
     if(!ReadIntSequenceLE32(src, &(*hdr)[0], GM1_HEADER_FIELDS))
-        throw EOFError("ReadGM1Header");
+        throw GM1Error("EOF while ReadHeader");
 }
 
-static void ReadGM1Palette(SDL_RWops *src, GM1Palette *palette)
+static void ReadPalette(SDL_RWops *src, Palette *palette)
 {
     if(!ReadIntSequenceLE16(src, &(*palette)[0], GM1_PALETTE_COLORS))
-        throw EOFError("ReadGM1Palette");
+        throw GM1Error("EOF while ReadPalette");
 }
 
-static void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr)
+static void ReadImageHeader(SDL_RWops *src, ImageHeader *hdr)
 {
-    if(!CheckBytesAvailable(src, GM1_IMAGE_HEADER_SIZE))
-        throw EOFError("ReadGM1ImageHeader");
+    if(!CheckBytesAvailable(src, GM1_IMAGE_HEADER_BYTES))
+        throw GM1Error("EOF while ReadImageHeader");
         
     hdr->width      = SDL_ReadLE16(src);
     hdr->height     = SDL_ReadLE16(src);
@@ -524,7 +402,21 @@ static void ReadGM1ImageHeader(SDL_RWops *src, GM1ImageHeader *hdr)
     hdr->flags      = SDL_ReadU8(src);
 }
 
-static const char * GetGM1ImageClassName(Uint32 cl)
+Encoding GetEncoding(const Header &hdr)
+{
+    switch(GetImageClass(hdr)) {
+    case 1: return Encoding::TGX16;
+    case 2: return Encoding::TGX8;
+    case 3: return Encoding::TileObject;
+    case 4: return Encoding::TGX16;
+    case 5: return Encoding::Bitmap;
+    case 6: return Encoding::TGX16;
+    case 7: return Encoding::Bitmap;
+    default: return Encoding::Unknown;
+    }
+}
+
+static const char * GetImageClassName(Uint32 cl)
 {
     switch(cl) {
     case 1: return "Compressed 16 bit image";
@@ -538,7 +430,7 @@ static const char * GetGM1ImageClassName(Uint32 cl)
     }
 }
 
-static const char* GetGM1HeaderFieldName(size_t i)
+static const char* GetHeaderFieldName(size_t i)
 {
     switch(i) {
     case 3: return "Image Count";
@@ -553,7 +445,7 @@ static const char* GetGM1HeaderFieldName(size_t i)
     }
 }
 
-static void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header)
+void VerbosePrintImageHeader(const ImageHeader &header)
 {
     SDL_Log("Width: %d", header.width);
     SDL_Log("Height: %d", header.height);
@@ -568,18 +460,19 @@ static void DebugPrint_GM1ImageHeader(const GM1ImageHeader &header)
     SDL_Log("Flags: %d", header.flags);
 }
 
-static void DebugPrint_GM1Header(const GM1Header &header)
+void VerbosePrintHeader(const Header &header)
 {
-    SDL_Log("ImageCount: %d", GetGM1ImageCount(header));
-    SDL_Log("ImageClass: %s", GetGM1ImageClassName(GetGM1ImageClass(header)));
-    SDL_Log("ImageSize: %d", GetGM1ImageSize(header));
+    SDL_Log("ImageCount: %d", GetImageCount(header));
+    SDL_Log("ImageClass: %s", GetImageClassName(GetImageClass(header)));
     for(size_t i = 0; i < GM1_HEADER_FIELDS; ++i) {
-        SDL_Log("Field #%d: %d --\t%s", i, header[i], GetGM1HeaderFieldName(i));
+        SDL_Log("Field #%d: %d --\t%s", i, header[i], GetHeaderFieldName(i));
     }    
 }
 
-static void DebugPrint_GM1Palette(const GM1Palette &palette)
+void VerbosePrintPalette(const Palette &palette)
 {
     for(size_t i = 0; i < palette.size(); ++i)
         SDL_Log("# %03d:\t%4x", i, palette[i]);
 }
+    
+NAMESPACE_END(gm1)

@@ -1,5 +1,5 @@
-#ifndef SDLSURFACE_H_
-#define SDLSURFACE_H_
+#ifndef SURFACE_H_
+#define SURFACE_H_
 
 #include <algorithm>
 
@@ -13,11 +13,12 @@ const int GMASK_DEFAULT = 0;
 const int BMASK_DEFAULT = 0;
 const int AMASK_DEFAULT = 0;
 
-class SDLSurface
+class Surface
 {
     SDL_Surface *surface;
+    
 public:
-    SDLSurface(
+    Surface(
         Uint32 width,
         Uint32 height,
         Uint32 depth,
@@ -26,10 +27,10 @@ public:
         Uint32 bmask,
         Uint32 amask);
     
-    ~SDLSurface();
+    ~Surface();
 
     void Blit(
-        SDLSurface &src,
+        Surface &src,
         SDL_Rect *dstrect,
         const SDL_Rect *srcrect = NULL);
 
@@ -37,7 +38,6 @@ public:
     
     SDL_Surface* GetSurface();
     const SDL_Surface* GetSurface() const;
-    SDL_Rect GetRect() const;
 
     void Fill(Uint32 color);
 

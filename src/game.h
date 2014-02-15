@@ -7,7 +7,7 @@
 
 #include "gamescreen.h"
 #include "screen.h"
-#include "SDLRenderer.h"
+#include "renderer.h"
 
 class Game
 {
@@ -22,7 +22,7 @@ public:
     ~Game();
 
     void OnTimeElapsed(Uint32 ms);
-    void OnFrame(SDLRenderer &renderer);
+    void OnFrame(Renderer &renderer);
     void OnKeyDown(const SDL_KeyboardEvent &event);
     void OnKeyUp(const SDL_KeyboardEvent &event);
     void OnMouseMotion(const SDL_MouseMotionEvent &event);

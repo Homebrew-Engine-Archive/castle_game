@@ -6,12 +6,12 @@
 #include <SDL2/SDL.h>
 
 #include "screen.h"
-#include "SDLRenderer.h"
+#include "renderer.h"
 
 class GameScreen : public Screen
 {
 public:
-    void Draw(SDLRenderer &renderer);
+    void Draw(Renderer &renderer);
     void OnMouseMotion(const SDL_MouseMotionEvent &event);
     void OnMouseButtonDown(const SDL_MouseButtonEvent &event);
     void OnMouseButtonUp(const SDL_MouseButtonEvent &event);

@@ -4,12 +4,12 @@
 #include <memory>
 #include <SDL2/SDL.h>
 
-#include "SDLRenderer.h"
+#include "renderer.h"
 
 class Screen
 {
 public:
-    virtual void Draw(SDLRenderer &renderer) = 0;
+    virtual void Draw(Renderer &renderer) = 0;
     virtual void OnMouseMotion(const SDL_MouseMotionEvent &event) = 0;
     virtual void OnMouseButtonDown(const SDL_MouseButtonEvent &event) = 0;
     virtual void OnMouseButtonUp(const SDL_MouseButtonEvent &event) = 0;

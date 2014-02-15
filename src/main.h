@@ -17,7 +17,7 @@
 #include "animation.h"
 #include "SDLContext.h"
 #include "SDLWindow.h"
-#include "SDLRenderer.h"
+#include "renderer.h"
 #include "errors.h"
 #include "tgx.h"
 #include "gm1.h"
