@@ -23,6 +23,5 @@
 #define DEFINE_ERROR_TYPE(name) DEFINE_ERROR_SUBTYPE(name, std::exception)
 
 DEFINE_ERROR_TYPE(SDLError);
-DEFINE_ERROR_TYPE(IOError);
 
 #endif

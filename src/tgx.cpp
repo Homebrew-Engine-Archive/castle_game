@@ -2,11 +2,9 @@
 
 NAMESPACE_BEGIN(tgx)
 
-static int PopCount(Uint32 n);
-static bool CheckTokenType(const TGXToken &token);
-static bool CheckTokenLength(const TGXToken &token);
-static void ReadTGXToken(SDL_RWops *src, TGXToken *token);
-static bool CheckTGXSize(Uint32 width, Uint32 height);
+static const char *GetTokenTypeName(TokenType t);
+static TokenType ExtractTokenType(const Token &token);
+static Uint32 ExtractTokenLength(const Token &token);
 
 template<class P>
 void ReadPixelArray(SDL_RWops *src, P *bits, Uint32 count);
@@ -30,109 +28,82 @@ void ReadPixelArray(SDL_RWops *src, Uint8 *bits, Uint32 count)
     SDL_RWread(src, bits, count, sizeof(Uint8));
 }
 
-static void ReadTGXToken(SDL_RWops *src, TGXToken *token)
-{
-    SDL_RWread(src, token, 1, sizeof(TGXToken));
-}
-
-static bool CheckTokenType(const TGXToken &token)
-{
-    // There should be only single non-zero bit.
-    return (PopCount(token >> 5) <= 1);
-}
-
-// Hamming weight, count non-zero bits in the number
-static int PopCount(Uint32 n)
-{
-#ifdef __builtin_popcount
-    return __builtin_popcount(n);
-#else
-    n = n - ((n >> 1) & 0x55555555);
-    n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-    return (((n + (n >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
-#endif
-}
-
-static bool CheckTokenLength(const TGXToken &token)
-{
-    // Length for Newline token should be always equal to 1
-    return (GetTokenType(token) != TokenType::Newline)
-        || (GetTokenLength(token) == 1);
-}
-
-static bool CheckTGXSize(Uint32 width, Uint32 height)
-{
-    return (width <= MAX_TGX_WIDTH) && (height <= MAX_TGX_HEIGHT);
-}
-
 template<class P>
 static void ReadTGX(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *bits)
 {   
     P *start = bits;
     P *end = bits + (width * height);
-
-    if(!CheckTGXSize(width, height))
-        throw TGXError("TGX size exceeded");
     
     Sint64 origin = SDL_RWseek(src, 0, RW_SEEK_CUR);
     if(origin < 0)
-        throw TGXError("can't seek anymore");
+        throw TGXError("File not seekable");
+
+    if(ReadableBytes(src) < size)
+        throw TGXError("EOF while ReadTGX");
     
     while(SDL_RWseek(src, 0, RW_SEEK_CUR) < origin + size) {
-        TGXToken token;
-        ReadTGXToken(src, &token);
+        Token token;
+        SDL_RWread(src, &token, 1, sizeof(Token));
 
-        Uint32 tokenLength = GetTokenLength(token);
-        TokenType tokenType = GetTokenType(token);
-        
-        if(!CheckTokenType(token)) {
-            Sint64 pos = SDL_RWseek(src, 0, RW_SEEK_CUR);
-            SDL_Log("%08x: Wrong token type %d",
-                    static_cast<Uint32>(pos),
-                    static_cast<Uint32>(tokenType));
-            throw TGXError("Wrong token type");
-        }
-        
-        if(!CheckTokenLength(token)) {
-            Sint64 pos = SDL_RWseek(src, 0, RW_SEEK_CUR);
-            SDL_Log("%08x: Wrong token length %d",
-                    static_cast<Uint32>(pos),
-                    static_cast<Uint32>(tokenLength));
-            throw TGXError("Wrong token length");
-        }
+        Uint32 length = ExtractTokenLength(token);
+        TokenType type = ExtractTokenType(token);
 
-        if(tokenType != TokenType::Newline) {
-            if(bits + tokenLength > end)
+        if(type != TokenType::Newline) {
+            if(bits + length > end) {
+                SDL_LogDebug(SDL_LOG_PRIORITY_ERROR,
+                             "at %08x buffer overflow: w=%d, h=%d, bpp=%d, size=%d, TT=%s, TL=%d",
+                             width, height, sizeof(P), size,
+                             GetTokenTypeName(type), length);
                 throw TGXError("Buffer overflow");
+            }
         }
         
-        switch(tokenType) {
+        switch(type) {
         case TokenType::Stream:
             {
-                ReadPixelArray<P>(src, bits, tokenLength);
-                bits += tokenLength;
+                ReadPixelArray<P>(src, bits, length);
+                bits += length;
                 break;
             }            
         case TokenType::Repeat:
             {
                 P pixel;
                 ReadPixelArray<P>(src, &pixel, 1);
-                std::fill(bits, bits + tokenLength, pixel);
-                bits += tokenLength;
+                std::fill(bits, bits + length, pixel);
+                bits += length;
                 break;
             }            
         case TokenType::Transparent:
             {
-                bits += tokenLength;
+                bits += length;
                 break;
             }
         case TokenType::Newline:
             {
+                // Most probably there was an error, throw just in case
+                if(length != 1) {
+                    Sint64 pos = SDL_RWseek(src, 0, RW_SEEK_CUR);
+                    SDL_LogDebug(SDL_LOG_PRIORITY_WARN,
+                                 "at %08x wrong token length %d",
+                                 static_cast<Uint32>(pos),
+                                 static_cast<Uint32>(length));
+                    throw TGXError("Wrong token length");
+                }
+                
                 // This thing advances `bits` to newline position
                 // e.i. position times width
                 if((bits - start) % width != 0)
                     bits += width - (bits - start) % width - 1;
                 break;
+            }
+        case TokenType::Unknown:
+            {
+                Sint64 pos = SDL_RWseek(src, 0, RW_SEEK_CUR);
+                SDL_LogDebug(SDL_LOG_PRIORITY_WARN,
+                             "at %08x unknown token type %d",
+                             static_cast<Uint32>(pos),
+                             static_cast<Uint32>(type));
+                throw TGXError("Wrong token type");
             }
         }
     }
@@ -148,10 +119,10 @@ void ReadTGX8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *b
     ReadTGX<Uint8>(src, size, width, height, bits);
 }
 
-void ReadTGXHeader(SDL_RWops *src, TGXHeader *hdr)
+void ReadHeader(SDL_RWops *src, Header *hdr)
 {
-    if(ReadableBytes(src) < sizeof(TGXHeader))
-        throw TGXError("EOF while ReadTGXHeader");
+    if(ReadableBytes(src) < sizeof(Header))
+        throw TGXError("EOF while ReadHeader");
     
     hdr->width = SDL_ReadLE32(src);
     hdr->height = SDL_ReadLE32(src);
@@ -168,16 +139,18 @@ void ReadTile(SDL_RWops *src, Uint16 *bits)
         throw TGXError("EOF while ReadTile");
     
     for(size_t row = 0; row < TILE_RHOMBUS_HEIGHT; ++row) {
-        size_t offset = (TILE_RHOMBUS_WIDTH - TILE_PIXELS_PER_ROW[row]) / 2;
-        ReadPixelArray<Uint16>(src, bits + offset, TILE_PIXELS_PER_ROW[row]);
-        bits += TILE_RHOMBUS_WIDTH;
+        size_t width = TILE_PIXELS_PER_ROW[row];
+        size_t pitch = TILE_RHOMBUS_WIDTH;
+        size_t offset = (pitch - width) / 2;
+        ReadPixelArray<Uint16>(src, bits + offset, width);
+        bits += pitch;
     }
 }
 
 Surface LoadTGX(SDL_RWops *src)
 {
-    TGXHeader header;
-    ReadTGXHeader(src, &header);
+    Header header;
+    ReadHeader(src, &header);
 
     Uint32 rmask = TGX_RGB16_RMASK;
     Uint32 gmask = TGX_RGB16_GMASK;
@@ -196,6 +169,37 @@ Surface LoadTGX(SDL_RWops *src)
     ReadTGX<Uint16>(src, size, width, height, bits);
 
     return surface;
+}
+
+static Uint32 ExtractTokenLength(const Token &token)
+{
+    // Lower 5 bits represent range between [1..32]
+    return (token & 0x1f) + 1;
+}
+
+static TokenType ExtractTokenType(const Token &token)
+{
+    // Higher 3 bits
+    switch(token >> 5) {
+    case TGX_TOKEN_TYPE_STREAM: return TokenType::Stream;
+    case TGX_TOKEN_TYPE_TRANSPARENT: return TokenType::Transparent;
+    case TGX_TOKEN_TYPE_REPEAT: return TokenType::Repeat;
+    case TGX_TOKEN_TYPE_NEWLINE: return TokenType::Newline;
+    default:
+        return TokenType::Unknown;
+    }
+}
+
+static const char * GetTokenTypeName(TokenType t)
+{
+    switch(t) {
+    case TokenType::Transparent: return "Transparent";
+    case TokenType::Stream: return "Stream";
+    case TokenType::Newline: return "Newline";
+    case TokenType::Repeat: return "Repeat";
+    default:
+        return "Unknown";
+    }
 }
 
 NAMESPACE_END(tgx)

@@ -14,12 +14,6 @@
 
 DEFINE_ERROR_TYPE(TGXError);
 
-// This dimensions used primary for checking
-// consistency of data, not for limiting real images.
-// However, it is assumed that there is no image larger than this.
-const Uint32 MAX_TGX_WIDTH = 4096;
-const Uint32 MAX_TGX_HEIGHT = 4096;
-
 const size_t TILE_BYTES = 512;
 
 // Width of rhombus rows in pixels.
@@ -58,17 +52,9 @@ const Uint32 TGX_RGB16_RSHIFT = 10;
 const Uint32 TGX_RGB16_GSHIFT = 5;
 const Uint32 TGX_RGB16_BSHIFT = 0;
 
-struct TGXHeader
-{
-    Uint32 width;
-    Uint32 height;
-};
-
-typedef Uint8 TGXToken;
-
 // union TGXToken
 // {
-//     Uint8 tokenByte;
+//     Uint8 type;
 //     struct
 //     {
 //         Uint8 length : 5;
@@ -78,59 +64,56 @@ typedef Uint8 TGXToken;
 //     } data;
 // };
 
-enum class TokenType : Uint8 {Stream, Transparent, Repeat, Newline};
+const Uint32 TGX_TOKEN_TYPE_STREAM      = 0x0;
+const Uint32 TGX_TOKEN_TYPE_TRANSPARENT = 0x1;
+const Uint32 TGX_TOKEN_TYPE_REPEAT      = 0x2;
+const Uint32 TGX_TOKEN_TYPE_NEWLINE     = 0x4;
 
 NAMESPACE_BEGIN(tgx)
 
+enum class TokenType : Uint8 {
+    Stream,
+    Transparent,
+    Repeat,
+    Newline,
+    Unknown
+};
+
+struct Header
+{
+    Uint32 width;
+    Uint32 height;
+};
+
+typedef Uint8 Token;
+
 // Returns color component in range of [0..256)
-inline int GetChannel(Uint16 color, Uint32 mask, Uint32 shift)
+constexpr int GetChannel(Uint16 color, Uint32 mask, Uint32 shift)
 {
     return ((color & mask) >> shift) * 255 / ((0xFFFF & mask) >> shift);
 }
 
-inline int GetRed(Uint16 color)
+constexpr int GetRed(Uint16 color)
 {
     return GetChannel(color, TGX_RGB16_RMASK, TGX_RGB16_RSHIFT);
 }
 
-inline int GetGreen(Uint16 color)
+constexpr int GetGreen(Uint16 color)
 {
     return GetChannel(color, TGX_RGB16_GMASK, TGX_RGB16_GSHIFT);
 }
 
-inline int GetBlue(Uint16 color)
+constexpr int GetBlue(Uint16 color)
 {
     return GetChannel(color, TGX_RGB16_BMASK, TGX_RGB16_BSHIFT);
 }
 
-inline int GetAlpha(Uint16 color)
+constexpr int GetAlpha(Uint16 color)
 {
     return GetChannel(color, TGX_RGB16_AMASK, TGX_RGB16_ASHIFT);
 }
 
-inline TokenType GetTokenType(const TGXToken &token)
-{
-    return (token & 0x20) ? TokenType::Transparent
-        : (token & 0x40) ? TokenType::Repeat
-        : (token & 0x80) ? TokenType::Newline
-        : TokenType::Stream;
-}
-
-inline Uint32 GetTokenLength(const TGXToken &token)
-{
-    // Lo 5 subsequent bits
-    return (token & 0x1f) + 1;
-}
-
-inline const char * GetTokenTypeName(TokenType t)
-{
-    return t == TokenType::Transparent ? "Transparent"
-        : t == TokenType::Stream ? "Stream"
-        : t == TokenType::Newline ? "Newline"
-        : "Repeat";
-}
-
-void ReadTGXHeader(SDL_RWops *, TGXHeader *header);
+void ReadHeader(SDL_RWops *, Header *header);
 void ReadBitmap(SDL_RWops *, Uint32 size, Uint16 *pixels);
 void ReadTile(SDL_RWops *, Uint16 *pixels);
 void ReadTGX16(SDL_RWops *, Uint32 size, Uint32 width, Uint32 height, Uint16 *);

@@ -53,8 +53,8 @@ public:
     
     void BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect);
     
-    int LoadImage(const std::string &filename);
-    int LoadImageCollection(const std::string &filename);
+    bool LoadImage(const std::string &filename);
+    bool LoadImageCollection(const std::string &filename);
 };
 
 #endif

@@ -37,7 +37,7 @@ void LoadingScreen::OnFrame(Renderer &renderer)
     bar.y = 374;
     bar.w = 200 * GetPercentageComplete();
     bar.h = 20;
-    renderer.FillRect(&bar, SDL_Map(rgb));
+    renderer.FillRect(&bar);
 }
 
 double LoadingScreen::GetPercentageComplete() const

@@ -70,7 +70,7 @@ void Renderer::BlitImage(const std::string &name, const SDL_Rect *srcrect, const
     }
 }
 
-int Renderer::LoadImage(const std::string &filename)
+bool Renderer::LoadImage(const std::string &filename)
 {
     SDL_Log("LoadImage: %s", filename.c_str());
     try {
@@ -78,7 +78,7 @@ int Renderer::LoadImage(const std::string &filename)
             SDL_RWFromFile(filename.c_str(), "rb"));
 
         if(!src)
-            throw IOError("file not readable");
+            throw IOException("file not readable");
         
         Surface image = tgx::LoadTGX(src.get());
         
@@ -88,13 +88,13 @@ int Renderer::LoadImage(const std::string &filename)
     } catch(const std::exception &e) {
         SDL_Log("LoadImage %s error: %s",
                 filename.c_str(), e.what());
-        return -1;
+        return false;
     }
-    
-    return 0;
+
+    return true;
 }
 
-int Renderer::LoadImageCollection(const std::string &filename)
+bool Renderer::LoadImageCollection(const std::string &filename)
 {
     SDL_Log("LoadImageCollection: %s", filename.c_str());
     try {
@@ -102,7 +102,7 @@ int Renderer::LoadImageCollection(const std::string &filename)
             SDL_RWFromFile(filename.c_str(), "rb"));
 
         if(!src)
-            throw IOError("file not readable");
+            throw IOException("file not readable");
         
         gm1::Collection gm1(src.get());
         Surface atlas = gm1::LoadAtlas(src.get(), gm1);
@@ -111,8 +111,8 @@ int Renderer::LoadImageCollection(const std::string &filename)
     } catch(const std::exception &e) {
         SDL_Log("LoadImageCollection %s error: %s",
                 filename.c_str(), e.what());
-        return -1;
+        return 0;
     }
 
-    return 0;
+    return true;
 }
