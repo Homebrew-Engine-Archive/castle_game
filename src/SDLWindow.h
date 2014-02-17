@@ -8,6 +8,7 @@
 class SDLWindow
 {
     mutable SDL_Window *m_wnd;
+    
 public:
     SDLWindow(const char *title, int width, int height);
     ~SDLWindow();
@@ -15,6 +16,8 @@ public:
     const SDL_Window* GetWindow() const;
     SDL_Window* GetWindow();
 
+    void Resize(int w, int h);
+    
     SDL_Rect Rect() const;
 };
 

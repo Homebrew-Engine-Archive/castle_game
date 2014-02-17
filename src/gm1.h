@@ -10,17 +10,12 @@
 
 #include <SDL2/SDL.h>
 
+#include "macrosota.h"
 #include "errors.h"
 #include "tgx.h"
 #include "surface.h"
+#include "rw.h"
 
-#define NAMESPACE_BEGIN(ns) namespace ns {
-#define NAMESPACE_END(ns) }
-
-NAMESPACE_BEGIN(gm1)
-
-DECLARE_ERROR_TYPE(GM1Error);
-    
 const size_t GM1_PALETTE_COUNT = 10;
 const size_t GM1_PALETTE_COLORS = 256;
 const size_t GM1_TGX8_TRANSPARENT_INDEX = 0;
@@ -29,9 +24,9 @@ const size_t GM1_IMAGE_HEADER_BYTES = 16;
 const size_t GM1_HEADER_FIELDS = 22;
 const size_t GM1_HEADER_BYTES = 88;
 
-typedef std::array<Uint16, GM1_PALETTE_COLORS> Palette;
+DEFINE_ERROR_TYPE(GM1Error);
 
-const Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
+NAMESPACE_BEGIN(gm1)
 
 // struct Header
 // {
@@ -55,33 +50,10 @@ const Palette EMPTY_PALETTE = {{TGX_TRANSPARENT_RGB16}};
 // Array is easier to read (endianness and alignment), easier
 // to access (there are only 3 of 21 fields we really need)
 // and easier to print. Let's use arrays, guys!
-    
+
 typedef std::array<Uint32, GM1_HEADER_FIELDS> Header;
 
-inline constexpr Uint32 GetImageCount(const Header &hdr)
-{
-    return hdr[3];
-}
-
-inline constexpr Uint32 GetImageSize(const Header &hdr)
-{
-    return hdr[20];
-}
-
-inline constexpr Uint32 GetAnchorX(const Header &hdr)
-{
-    return hdr[18];
-}
-
-inline constexpr Uint32 GetAnchorY(const Header &hdr)
-{
-    return hdr[19];
-}
-
-inline constexpr Uint32 GetImageClass(const Header &hdr)
-{
-    return hdr[5];
-}
+typedef std::array<Uint16, GM1_PALETTE_COLORS> Palette;
 
 enum class Encoding : Uint32 {
     TGX16,
@@ -135,19 +107,43 @@ struct Collection
     std::vector<Uint32> offsets, sizes;
     std::vector<ImageHeader> headers;
 };
-    
+
+inline constexpr Uint32 GetImageCount(const Header &hdr)
+{
+    return hdr[3];
+}
+
+inline constexpr Uint32 GetImageSize(const Header &hdr)
+{
+    return hdr[20];
+}
+
+inline constexpr Uint32 GetAnchorX(const Header &hdr)
+{
+    return hdr[18];
+}
+
+inline constexpr Uint32 GetAnchorY(const Header &hdr)
+{
+    return hdr[19];
+}
+
+inline constexpr Uint32 GetImageClass(const Header &hdr)
+{
+    return hdr[5];
+}
+
 void VerbosePrintImageHeader(const ImageHeader &);
 void VerbosePrintHeader(const Header &);
 void VerbosePrintPalette(const Palette &);
-    
-std::shared_ptr<Surface>
-LoadAtlas(SDL_RWops *src, const Collection &scheme)
+
+Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
     throw(GM1Error, TGXError, SDLError);
 
-std::vector<SDL_Rect>
-EvalAtlasPartition(const Collection &scheme);
+std::vector<SDL_Rect> EvalAtlasPartition(const Collection &scheme);
 
 Encoding GetEncoding(const Header &);
+
 const SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
 
 NAMESPACE_END(gm1)

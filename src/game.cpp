@@ -2,14 +2,7 @@
 
 Game::Game()
 {
-    m_CurrentMouseInvalid = true;
-    m_CurrentMouseX = 0;
-    m_CurrentMouseY = 0;
-
-    m_ActiveScreen = std::unique_ptr<GameScreen>(
-        new GameScreen);
-
-    m_Closed = false;
+    m_closed = false;
 }
 
 Game::~Game()
@@ -18,48 +11,60 @@ Game::~Game()
 
 bool Game::IsClosed() const
 {
-    return m_Closed;
-}
-
-void Game::OnQuit()
-{
+    return m_closed;
 }
 
 void Game::OnFrame(Renderer &renderer)
 {
-    m_ActiveScreen->Draw(renderer);
+    if(m_frontscreen) {
+        if(auto nextscreen = m_frontscreen->NextScreen()) {
+            m_frontscreen = std::move(nextscreen);
+        }
+        m_frontscreen->OnFrame(renderer);
+    }
 }
 
-void Game::OnMouseMotion(const SDL_MouseMotionEvent &event)
+void Game::OnEvent(const SDL_Event &event)
 {
-    m_CurrentMouseX = event.x;
-    m_CurrentMouseY = event.y;
-    m_CurrentMouseInvalid = false;
+    switch(event.type) {
+    case SDL_KEYDOWN:
+        OnKeyDown(event.key);
+        break;
+    case SDL_KEYUP:
+        OnKeyUp(event.key);
+        break;
+    case SDL_MOUSEBUTTONDOWN:
+        OnMouseButtonDown(event.button);
+        break;
+    case SDL_MOUSEBUTTONUP:
+        OnMouseButtonUp(event.button);
+        break;
+    case SDL_MOUSEMOTION:
+        OnMouseMotion(event.motion);
+        break;
+    default:
+        break;
+    }
+    if(m_frontscreen)
+        m_frontscreen->OnEvent(event);
 }
 
-void Game::OnMouseButtonDown(const SDL_MouseButtonEvent &event)
+void Game::OnMouseMotion(const SDL_MouseMotionEvent &)
 {
-    m_ActiveScreen->OnMouseButtonDown(event);
 }
 
-void Game::OnMouseButtonUp(const SDL_MouseButtonEvent &event)
+void Game::OnMouseButtonDown(const SDL_MouseButtonEvent &)
 {
-    m_ActiveScreen->OnMouseButtonUp(event);
 }
 
-void Game::OnKeyDown(const SDL_KeyboardEvent &event)
+void Game::OnMouseButtonUp(const SDL_MouseButtonEvent &)
 {
-    if(event.keysym.sym == SDLK_ESCAPE)
-        m_Closed = true;
-    m_ActiveScreen->OnKeyDown(event);
 }
 
-void Game::OnKeyUp(const SDL_KeyboardEvent &event)
+void Game::OnKeyDown(const SDL_KeyboardEvent &)
 {
-    m_ActiveScreen->OnKeyUp(event);
 }
 
-void Game::OnTimeElapsed(Uint32)
+void Game::OnKeyUp(const SDL_KeyboardEvent &)
 {
-    
 }

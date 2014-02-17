@@ -8,11 +8,11 @@
 #include <string>
 #include <memory>
 #include <algorithm>
-#include <map>
+#include <set>
 #include <limits>
-
 #include <SDL2/SDL.h>
 
+#include "screen.h"
 #include "game.h"
 #include "animation.h"
 #include "SDLContext.h"
@@ -22,8 +22,5 @@
 #include "tgx.h"
 #include "gm1.h"
 #include "landscape.h"
-
-template<class OutputIterator>
-void LoadStringList(const char *filename, OutputIterator out);
 
 #endif

@@ -2,8 +2,8 @@
 
 SDLContext::SDLContext(int flags) throw(SDLError)
 {
-    if(0 != SDL_Init(flags))
-        throw SDLError("SDL_Init");
+    if(SDL_Init(flags))
+        throw SDLError(SDL_GetError());
     SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 }
 

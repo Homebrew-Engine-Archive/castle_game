@@ -27,6 +27,11 @@ const SDL_Window* SDLWindow::GetWindow() const
     return m_wnd;
 }
 
+void SDLWindow::Resize(int w, int h)
+{
+    SDL_SetWindowSize(m_wnd, w, h);
+}
+
 SDL_Rect SDLWindow::Rect() const
 {
     int width, height;

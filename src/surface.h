@@ -16,37 +16,54 @@ const int AMASK_DEFAULT = 0;
 class Surface
 {
     SDL_Surface *surface;
+
+    bool Unique(SDL_Surface *) const;
+    void IncRefCount(SDL_Surface *);
+    void DecRefCount(SDL_Surface *);
     
 public:
-    Surface(
-        Uint32 width,
-        Uint32 height,
-        Uint32 depth,
-        Uint32 rmask,
-        Uint32 gmask,
-        Uint32 bmask,
-        Uint32 amask);
+    Surface();
+    
+    Surface(Uint32 width,
+            Uint32 height,
+            Uint32 depth,
+            Uint32 rmask,
+            Uint32 gmask,
+            Uint32 bmask,
+            Uint32 amask);
+
+    Surface(SDL_Surface *s);
+    
+    Surface(const Surface &that);
     
     ~Surface();
 
-    void Blit(
-        Surface &src,
-        SDL_Rect *dstrect,
-        const SDL_Rect *srcrect = NULL);
+    void Assign(SDL_Surface *);
 
-    void SetColorKey(Uint32 color, bool enable = true);
+    bool Null() const;
     
-    SDL_Surface* GetSurface();
-    const SDL_Surface* GetSurface() const;
+    operator SDL_Surface *() const;
+    
+    Surface &operator=(const Surface &that);
 
-    void Fill(Uint32 color);
-
-    void* Bits();
-    const void* Bits() const;
-
-    int Width() const;
-    int Height() const;
+    SDL_Surface *Get() const;
+    SDL_Surface *operator->() const;
     
 };
+
+void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
+                 Surface &dst, SDL_Rect *dstrect);
+
+void FillRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
+
+void SetColorKey(Surface &s, Uint32 color, bool enabled = true);
+
+SDL_Rect MakeRect(int x, int y, int w, int h);
+
+SDL_Rect MakeRect(int w, int h);
+
+SDL_Rect MakeEmptyRect();
+
+
 
 #endif

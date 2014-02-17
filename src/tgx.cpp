@@ -1,5 +1,7 @@
 #include "tgx.h"
 
+NAMESPACE_BEGIN(tgx)
+
 static int PopCount(Uint32 n);
 static bool CheckTokenType(const TGXToken &token);
 static bool CheckTokenLength(const TGXToken &token);
@@ -136,13 +138,6 @@ static void ReadTGX(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P 
     }
 }
 
-bool CheckBytesAvailable(SDL_RWops *src, Sint64 bytes)
-{
-    Sint64 size = SDL_RWsize(src);
-    Sint64 pos = SDL_RWseek(src, 0, RW_SEEK_CUR);
-    return !((pos + bytes > size) || (size < 0) || (pos < 0));
-}
-
 void ReadTGX16(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint16 *bits)
 {
     ReadTGX<Uint16>(src, size, width, height, bits);
@@ -155,7 +150,7 @@ void ReadTGX8(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, Uint8 *b
 
 void ReadTGXHeader(SDL_RWops *src, TGXHeader *hdr)
 {
-    if(!CheckBytesAvailable(src, sizeof(TGXHeader)))
+    if(ReadableBytes(src) < sizeof(TGXHeader))
         throw TGXError("EOF while ReadTGXHeader");
     
     hdr->width = SDL_ReadLE32(src);
@@ -169,7 +164,7 @@ void ReadBitmap(SDL_RWops *src, Uint32 size, Uint16 *bits)
 
 void ReadTile(SDL_RWops *src, Uint16 *bits)
 {
-    if(!CheckBytesAvailable(src, TILE_BYTES))
+    if(ReadableBytes(src) < TILE_BYTES)
         throw TGXError("EOF while ReadTile");
     
     for(size_t row = 0; row < TILE_RHOMBUS_HEIGHT; ++row) {
@@ -178,3 +173,29 @@ void ReadTile(SDL_RWops *src, Uint16 *bits)
         bits += TILE_RHOMBUS_WIDTH;
     }
 }
+
+Surface LoadTGX(SDL_RWops *src)
+{
+    TGXHeader header;
+    ReadTGXHeader(src, &header);
+
+    Uint32 rmask = TGX_RGB16_RMASK;
+    Uint32 gmask = TGX_RGB16_GMASK;
+    Uint32 bmask = TGX_RGB16_BMASK;
+    Uint32 amask = TGX_RGB16_AMASK;
+    Uint32 depth = 16;
+    Uint32 width = header.width;
+    Uint32 height = header.height;
+    
+    Surface surface(
+        width, height, depth,
+        rmask, gmask, bmask, amask);
+    
+    Uint32 size = ReadableBytes(src);
+    Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
+    ReadTGX<Uint16>(src, size, width, height, bits);
+
+    return surface;
+}
+
+NAMESPACE_END(tgx)

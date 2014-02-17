@@ -11,13 +11,15 @@
 class GameScreen : public Screen
 {
 public:
-    void Draw(Renderer &renderer);
-    void OnMouseMotion(const SDL_MouseMotionEvent &event);
-    void OnMouseButtonDown(const SDL_MouseButtonEvent &event);
-    void OnMouseButtonUp(const SDL_MouseButtonEvent &event);
-    void OnKeyDown(const SDL_KeyboardEvent &event);
-    void OnKeyUp(const SDL_KeyboardEvent &event);
+    GameScreen();
+    ~GameScreen();
+    
+    void OnFrame(Renderer &renderer);
+    void OnEvent(const SDL_Event &event);
+    void OnEnterEventLoop();
 
+    bool Closed() const;
+    
     std::unique_ptr<Screen> NextScreen();
 };
 
