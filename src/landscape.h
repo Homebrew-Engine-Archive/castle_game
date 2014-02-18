@@ -5,22 +5,24 @@
 
 #include "renderer.h"
 
+const int CHEVRONS_HEIGHT_THRESHOLD = 20;
+
 enum class LandscapeClass : int {
     Pebbles,
     Stones,
     Rocks,
     Boulders,
     Dirt,
-    Grass,
+    Grass,                                               // zero-high
     Land,
     Iron,
-    Beach,
+    Beach,                                               // zero-high
     River,
     Ford,                                                // River
     Ripple,                                              // River
     Swamp,
     Oil,                                                 // Swamp
-    Sea,
+    Sea,                                                 // zero-high
     Mash                                                 // Sea
 };
 
@@ -40,12 +42,6 @@ enum class TreeClass : int {
     Shrub
 };
 
-struct Tile
-{
-    Tile(LandscapeClass land, int height);
-    void Draw(Renderer &renderer) const;
-    int height;
-    LandscapeClass landscape;
-};
+
 
 #endif

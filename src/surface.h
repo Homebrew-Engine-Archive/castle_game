@@ -46,6 +46,8 @@ public:
     
     Surface &operator=(const Surface &that);
 
+    bool operator==(const Surface &that);
+
     SDL_Surface *Get() const;
     SDL_Surface *operator->() const;
     

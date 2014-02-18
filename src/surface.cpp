@@ -42,6 +42,11 @@ Surface &Surface::operator=(const Surface &that)
     return *this;
 }
 
+bool Surface::operator==(const Surface &that)
+{
+    return that.Get() == surface;
+}
+
 Surface::~Surface()
 {
     Assign(NULL);

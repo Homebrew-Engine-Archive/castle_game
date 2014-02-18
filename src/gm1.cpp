@@ -206,8 +206,8 @@ struct TileObject
     static Uint32 ColorKey() {
         return TGX_TRANSPARENT_RGB16;
     }
-    
-    void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &surface) {
+
+    static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &surface) {
         Surface tile = AllocateSurface<TileObject>(
             TILE_RHOMBUS_WIDTH, TILE_RHOMBUS_HEIGHT);
         LoadTileSurface(src, tile);
@@ -375,13 +375,10 @@ static Surface LoadAtlasEntries(SDL_RWops *src, const Collection &gm1, Sint64 or
 
     Surface atlas = AllocateSurface<EntryClass>(width, height);
 
-    EntryClass reader;
-
     // Dispatch reading entries to EntryClass::Load
     for(size_t i = 0; i < GetImageCount(gm1.header); ++i) {
         SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
-        //EntryClass::Load(src, gm1.sizes[i], gm1.headers[i], atlas);
-        reader.Load(src, gm1.sizes[i], gm1.headers[i], atlas);
+        EntryClass::Load(src, gm1.sizes[i], gm1.headers[i], atlas);
     }
     
     return atlas;

@@ -5,6 +5,7 @@ LoadingScreen::LoadingScreen(Renderer &renderer)
     , m_closed(false)
     , m_completed(0)
 {
+    renderer.LoadImage("gfx/frontend_loading.tgx");
     LoadPreloadsList("gm/preloads.txt");
     m_total = m_files.size();
 }
@@ -23,14 +24,14 @@ void LoadingScreen::OnEnterEventLoop()
         m_files.erase(m_files.begin());
         ++m_completed;
         if(m_files.empty())
-            m_nextscr.reset(new GameScreen);
+             m_nextscr.reset(new GameScreen);
     }
 }
 
 void LoadingScreen::OnFrame(Renderer &renderer)
 {
     renderer.Clear();
-//    renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
+    renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
 
     SDL_Rect bar;
     bar.x = 412;

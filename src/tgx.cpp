@@ -29,7 +29,7 @@ void ReadPixelArray(SDL_RWops *src, Uint8 *bits, Uint32 count)
 }
 
 template<class P>
-static void ReadTGX(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *bits)
+void ReadTGX(SDL_RWops *src, Uint32 size, Uint32 width, Uint32 height, P *bits)
 {   
     P *start = bits;
     P *end = bits + (width * height);
