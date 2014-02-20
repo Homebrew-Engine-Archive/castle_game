@@ -98,6 +98,35 @@ Surface::operator SDL_Surface *() const
     return surface;
 }
 
+Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
+{
+    Uint32 width = (srcrect == NULL
+                ? src->w
+                : srcrect->w);
+    Uint32 height = (srcrect == NULL
+                     ? src->h
+                     : srcrect->h);
+    Uint32 depth = src->format->BitsPerPixel;
+    Uint32 rmask = src->format->Rmask;
+    Uint32 gmask = src->format->Gmask;
+    Uint32 bmask = src->format->Bmask;
+    Uint32 amask = src->format->Amask;
+    
+    Surface dst(
+        width, height, depth,
+        rmask, gmask, bmask, amask);
+
+    Uint32 key;
+    if(0 == SDL_GetColorKey(src, &key)) {
+        SDL_SetColorKey(dst, SDL_TRUE, key);
+        SDL_FillRect(dst, NULL, key);
+    }
+    
+    BlitSurface(src, srcrect, dst, NULL);
+    
+    return dst;
+}
+
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
                  Surface &dst, SDL_Rect *dstrect)
 {
@@ -157,4 +186,9 @@ SDL_Rect MakeEmptyRect()
     r.w = 0;
     r.h = 0;
     return r;
+}
+
+bool RectIsEmpty(const SDL_Rect &rect)
+{
+    return rect.w == 0 || rect.h == 0;
 }

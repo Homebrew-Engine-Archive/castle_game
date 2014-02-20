@@ -144,7 +144,7 @@ std::vector<SDL_Rect> EvalAtlasPartition(const Collection &scheme);
 
 Encoding GetEncoding(const Header &);
 
-const SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
+SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
 
 NAMESPACE_END(gm1)
 

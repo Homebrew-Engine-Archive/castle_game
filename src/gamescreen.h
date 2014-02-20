@@ -10,16 +10,25 @@
 #include "screen.h"
 #include "renderer.h"
 
-enum class Zoom : uint32_t {
-    Normal,
-    Large
-};
-
-enum class Orient : uint32_t {
+enum class Orient : int {
     Front,
     Left,
     Right,
     Back
+};
+
+enum class BuildingCategory : int {
+    Castle,
+    Industry,
+    Farming,
+    Weaponary,
+    Civil,
+    Production
+};
+
+enum class CursorMode : int {
+    Normal,
+    Delete
 };
 
 Orient PrevRotation(Orient rot);
@@ -31,9 +40,15 @@ class GameScreen : public Screen
     Uint32 m_cursorX;
     Uint32 m_cursorY;
     bool m_cursorInvalid;
-    SDL_Rect m_viewport;
+    int m_viewportX;
+    int m_viewportY;
+    int m_viewportRadius;
     Orient m_viewportOrient;
-    Zoom m_viewportZoom;
+    bool m_flatView;
+    bool m_lowView;
+    bool m_zoomedOut;
+    bool m_hiddenUI;
+    CursorMode m_cursorMode;
     
 public:
     GameScreen();
@@ -44,7 +59,7 @@ public:
     void OnEnterEventLoop();
 
     void HandleWindowEvent(const SDL_WindowEvent &event);
-    bool SlideViewport(int dx, int dy);
+    void SlideViewport(int dx, int dy);
     
     bool Closed() const;
     

@@ -45,6 +45,34 @@ void Renderer::FillRect(const SDL_Rect *rect)
     SDL_RenderFillRect(rndr, rect);
 }
 
+SDL_Rect Renderer::OutputRect() const
+{
+    int w, h;
+    if(SDL_GetRendererOutputSize(rndr, &w, &h)) {
+        SDL_Log("SDL_GetRendererOutputSize failed: %s", SDL_GetError());
+        return MakeEmptyRect();
+    }
+
+    return MakeRect(w, h);
+}
+
+void Renderer::BlitCollectionImage(const std::string &filename, size_t index)
+{
+    Surface surface = atlasStorage[filename];
+    SDL_Palette *palette = atlasPalettes[filename];
+    const SDL_Rect &rect = atlasPartition[filename][index];
+
+    Surface dst = CopySurface(surface, &rect);
+    
+    if(dst->format->BitsPerPixel == 8) {
+        SDL_SetSurfacePalette(dst, palette);
+    }
+    
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(rndr, dst);
+    SDL_RenderCopy(rndr, texture, NULL, NULL);
+    SDL_DestroyTexture(texture);
+}
+
 void Renderer::BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect)
 {
     auto searchResult = imageStorage.find(name);
@@ -108,6 +136,9 @@ bool Renderer::LoadImageCollection(const std::string &filename)
         Surface atlas = gm1::LoadAtlas(src.get(), gm1);
         atlasStorage.insert(
             std::make_pair(filename, atlas));
+        atlasPartition[filename] = gm1::EvalAtlasPartition(gm1);
+        atlasPalettes[filename] = gm1::CreateSDLPaletteFrom(gm1.palettes[3]);
+        
     } catch(const std::exception &e) {
         SDL_Log("LoadImageCollection %s error: %s",
                 filename.c_str(), e.what());

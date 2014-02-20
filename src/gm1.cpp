@@ -7,10 +7,6 @@ static void ReadPalette(SDL_RWops *, Palette *);
 static void ReadImageHeader(SDL_RWops *, ImageHeader *);
 static const char* GetImageClassName(Uint32);
 static const char* GetHeaderFieldName(size_t);
-static void LoadTGX16Surface(SDL_RWops *, Surface &, Sint64);
-static void LoadTGX8Surface(SDL_RWops *, Surface &, Sint64);
-static void LoadBitmapSurface(SDL_RWops *, Surface &, Sint64);
-static void LoadTileSurface(SDL_RWops *, Surface &);
 
 template<class EntryClass>
 static Surface LoadAtlasEntries(SDL_RWops *, const Collection &, Sint64);
@@ -48,7 +44,7 @@ Collection::Collection(SDL_RWops *src)
         ReadImageHeader(src, &header);
 }
 
-const SDL_Palette *CreateSDLPaletteFrom(const Palette &gm1pal)
+SDL_Palette *CreateSDLPaletteFrom(const Palette &gm1pal)
 {
     SDL_Palette *palette = SDL_AllocPalette(GM1_PALETTE_COLORS);
     if(palette == NULL)
@@ -112,7 +108,7 @@ struct TGX8
         Uint32 height = Height(header);
         
         Surface buffer = AllocateSurface<TGX8>(width, height);
-        LoadTGX8Surface(src, buffer, size);
+        tgx::LoadTGX8Surface(src, size, buffer);
 
         SDL_Rect whither = MakeRect(
             header.posX,
@@ -162,7 +158,7 @@ struct TGX16
         Uint32 height = Height(header);
         
         Surface buffer = AllocateSurface<TGX16>(width, height);
-        LoadTGX16Surface(src, buffer, size);
+        tgx::LoadTGX16Surface(src, size, buffer);
         
         SDL_Rect whither = MakeRect(
             header.posX,
@@ -210,7 +206,7 @@ struct TileObject
     static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &surface) {
         Surface tile = AllocateSurface<TileObject>(
             TILE_RHOMBUS_WIDTH, TILE_RHOMBUS_HEIGHT);
-        LoadTileSurface(src, tile);
+        tgx::LoadTileSurface(src, tile);
         
         SDL_Rect tilerect = MakeRect(
             header.posX,
@@ -221,7 +217,7 @@ struct TileObject
         
         Surface box = AllocateSurface<TGX16>(
             header.boxWidth, Height(header));
-        LoadTGX16Surface(src, box, size - TILE_BYTES);
+        tgx::LoadTGX16Surface(src, size - TILE_BYTES, box);
         
         SDL_Rect boxrect = MakeRect(
             header.posX + header.hOffset,
@@ -272,7 +268,7 @@ struct Bitmap
         Uint32 height = Height(header);
         
         Surface buffer = AllocateSurface<Bitmap>(width, height);
-        LoadBitmapSurface(src, buffer, size);
+        tgx::LoadBitmapSurface(src, size, buffer);
         
         SDL_Rect whither = MakeRect(
             header.posX,
@@ -349,12 +345,12 @@ Surface LoadAtlas(SDL_RWops *src, const Collection &gm1)
     // Dispatch collection reading by image encoding class
     Encoding encoding = GetEncoding(gm1.header);
     switch(encoding) {
-    case Encoding::Bitmap:
-        return LoadAtlasEntries<Bitmap>(src, gm1, origin);
-    case Encoding::TGX16:
-        return LoadAtlasEntries<TGX16>(src, gm1, origin);
     case Encoding::TGX8:
         return LoadAtlasEntries<TGX8>(src, gm1, origin);
+    case Encoding::TGX16:
+        return LoadAtlasEntries<TGX16>(src, gm1, origin);
+    case Encoding::Bitmap:
+        return LoadAtlasEntries<Bitmap>(src, gm1, origin);
     case Encoding::TileObject:
         return LoadAtlasEntries<TileObject>(src, gm1, origin);
     default:
@@ -391,34 +387,10 @@ static Surface AllocateSurface(Uint32 width, Uint32 height) {
         EntryClass::RedMask(),
         EntryClass::GreenMask(),
         EntryClass::BlueMask(),
-        EntryClass::AlphaMask());    
+        EntryClass::AlphaMask());
     SetColorKey(sf, EntryClass::ColorKey());
     FillRect(sf, NULL, EntryClass::ColorKey());
     return sf;
-}
-
-static void LoadTGX16Surface(SDL_RWops *src, Surface &surface, Sint64 size)
-{
-    Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    tgx::ReadTGX16(src, size, surface->w, surface->h, bits);
-}
-
-static void LoadTGX8Surface(SDL_RWops *src, Surface &surface, Sint64 size)
-{
-    Uint8 *bits = reinterpret_cast<Uint8*>(surface->pixels);
-    tgx::ReadTGX8(src, size, surface->w, surface->h, bits);
-}
-
-static void LoadBitmapSurface(SDL_RWops *src, Surface &surface, Sint64 size)
-{
-    Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    tgx::ReadBitmap(src, size, bits);
-}
-
-static void LoadTileSurface(SDL_RWops *src, Surface &surface/*, Sint64 size = TILE_BYTES */)
-{
-    Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    tgx::ReadTile(src, bits);
 }
 
 static void ReadHeader(SDL_RWops *src, Header *hdr)

@@ -15,24 +15,27 @@
 #include "surface.h"
 #include "rw.h"
 
-struct Atlas
+struct DestroyRendererDeleter
 {
-    SDL_Texture *texture;
-    Surface surface;
-    std::vector<SDL_Rect> rects;
-    std::vector<gm1::ImageHeader> headers;
-    const SDL_Palette *palettes;
-    Uint32 imageCount;
-    size_t paletteCount;
-    Uint32 anchorX;
-    Uint32 anchorY;
-    Uint32 colorKey;
+    void operator()(SDL_Renderer *renderer) const {
+        if(renderer != NULL) {
+            SDL_DestroyRenderer(renderer);
+        }
+    };
 };
 
 class Renderer
 {
     SDL_Renderer *rndr;
 
+    std::map<
+        std::string,
+        std::vector<SDL_Rect>> atlasPartition;
+
+    std::map<
+        std::string,
+        SDL_Palette*> atlasPalettes;
+    
     std::map<
         std::string,
         Surface> atlasStorage;
@@ -45,6 +48,8 @@ public:
     Renderer(SDLWindow &window);
     ~Renderer();
 
+    SDL_Rect OutputRect() const;
+    
     void BeginFrame();
     void EndFrame();
     void Clear();
@@ -52,6 +57,7 @@ public:
     void FillRect(const SDL_Rect *rect);
     
     void BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect);
+    void BlitCollectionImage(const std::string &filename, size_t index);
     
     bool LoadImage(const std::string &filename);
     bool LoadImageCollection(const std::string &filename);

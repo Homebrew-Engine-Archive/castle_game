@@ -53,12 +53,16 @@ public:
     
 };
 
+Surface CopySurface(const Surface &src, const SDL_Rect *srcrect);
+
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
                  Surface &dst, SDL_Rect *dstrect);
 
 void FillRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
 void SetColorKey(Surface &s, Uint32 color, bool enabled = true);
+
+bool RectIsEmpty(const SDL_Rect &rect);
 
 SDL_Rect MakeRect(int x, int y, int w, int h);
 

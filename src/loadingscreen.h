@@ -13,6 +13,8 @@
 #include "screen.h"
 #include "gm1.h"
 #include "renderer.h"
+#include "textrenderer.h"
+#include "font.h"
 
 class LoadingScreen : public Screen
 {
@@ -25,7 +27,7 @@ class LoadingScreen : public Screen
 
     double GetPercentageComplete() const;
 
-    void LoadPreloadsList(const std::string &filename);
+    void SetPreloadsList(const std::string &filename);
 
 public:
     LoadingScreen(Renderer &renderer);

@@ -1,25 +1,43 @@
 #include "gamescreen.h"
 
-static const size_t SPRITES = 10000;
-
 GameScreen::GameScreen()
+    : m_cursorX(0)
+    , m_cursorY(0)
+    , m_cursorInvalid(true)
+    , m_viewportX(0)
+    , m_viewportY(0)
+    , m_viewportRadius(1)
+    , m_viewportOrient(Orient::Front)
+    , m_flatView(false)
+    , m_lowView(false)
+    , m_zoomedOut(false)
+    , m_hiddenUI(false)
+    , m_cursorMode(CursorMode::Normal)
 {
 }
 
 GameScreen::~GameScreen()
 {
-    SDL_Log("%08x::~GameScreen()", this);
+    SDL_LogDebug(
+        SDL_LOG_PRIORITY_INFO,
+        "%08x::~GameScreen()",
+        this);
 }
 
 void GameScreen::OnFrame(Renderer &renderer)
 {
     if(!m_cursorInvalid) {
-        
+        int dx = 0;
+        int dy = 0;
+        SlideViewport(dx, dy);
     }
+
+    renderer.Clear();
+    //renderer.BeginFrame();
+    SDL_Log("GameScreen::OnFrame()");
+    renderer.BlitCollectionImage("gm/tree_apple.gm1", 23);
     
-    auto name = std::string("gm/tile_land3.gm1");
-    renderer.BeginFrame();
-    renderer.EndFrame();
+    //renderer.EndFrame();
 }
 
 void GameScreen::OnEnterEventLoop()
@@ -50,9 +68,10 @@ bool GameScreen::Closed() const
     return false;
 }
 
-bool GameScreen::SlideViewport(int dx, int dy)
+void GameScreen::SlideViewport(int dx, int dy)
 {
-    return true;
+    m_viewportX += dx;
+    m_viewportY += dy;
 }
 
 std::unique_ptr<Screen> GameScreen::NextScreen()

@@ -6,13 +6,12 @@ LoadingScreen::LoadingScreen(Renderer &renderer)
     , m_completed(0)
 {
     renderer.LoadImage("gfx/frontend_loading.tgx");
-    LoadPreloadsList("gm/preloads.txt");
+    SetPreloadsList("gm/preloads.txt");
     m_total = m_files.size();
 }
 
 LoadingScreen::~LoadingScreen()
 {
-    SDL_Log("%08x::~LoadingScreen()", this);
 }
 
 void LoadingScreen::OnEnterEventLoop()
@@ -23,8 +22,10 @@ void LoadingScreen::OnEnterEventLoop()
         renderer.LoadImageCollection(*nextfile);
         m_files.erase(m_files.begin());
         ++m_completed;
-        if(m_files.empty())
+        if(m_files.empty()) {
              m_nextscr.reset(new GameScreen);
+             m_closed = true;
+        }
     }
 }
 
@@ -34,10 +35,10 @@ void LoadingScreen::OnFrame(Renderer &renderer)
     renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
 
     SDL_Rect bar;
-    bar.x = 412;
-    bar.y = 374;
-    bar.w = 200 * GetPercentageComplete();
-    bar.h = 20;
+    bar.x = 0;
+    bar.y = 0;
+    bar.w = 1024 * GetPercentageComplete();
+    bar.h = 10;
     renderer.FillRect(&bar);
 }
 
@@ -64,7 +65,7 @@ bool LoadingScreen::Closed() const
     return m_closed;
 }
 
-void LoadingScreen::LoadPreloadsList(const std::string &fn)
+void LoadingScreen::SetPreloadsList(const std::string &fn)
 {
     std::ifstream fin(fn);
     std::string buffer;
