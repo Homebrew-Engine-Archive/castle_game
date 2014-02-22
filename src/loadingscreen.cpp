@@ -33,10 +33,10 @@ static int HandleEvents()
     return 0;
 }
 
-static void DrawLoadProgress(Renderer &renderer, double done)
+static void DrawLoadingScreen(Renderer &renderer, double done)
 {
     renderer.Clear();
-    renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
+    // renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
         
     SDL_Rect bar;
     bar.x = 0;
@@ -59,7 +59,7 @@ int RunLoadingScreen(Renderer &renderer)
     size_t completed = 0;
 
     Uint32 lastDrawn = 0;
-    const Uint32 frameRate = 4;
+    const Uint32 frameRate = 8;
     const Uint32 frameDelay = 1000 / frameRate;
     
     for(const auto &filename : files) {
@@ -68,7 +68,7 @@ int RunLoadingScreen(Renderer &renderer)
 
         if(lastDrawn + frameDelay < currentTime) {
             lastDrawn = currentTime;
-            DrawLoadProgress(
+            DrawLoadingScreen(
                 renderer,
                 static_cast<double>(completed) / total);
         }

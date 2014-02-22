@@ -78,8 +78,6 @@ struct Header
     Uint32 height;
 };
 
-typedef Uint8 Token;
-
 // Returns color component in range of [0..256)
 constexpr int GetChannel(Uint16 color, int mask, int shift)
 {
@@ -106,10 +104,10 @@ constexpr int GetAlpha(Uint16)
     return 255;
 }
 
-void LoadTGX16Surface(SDL_RWops *src, Sint64 size, Surface &surface);
-void LoadTGX8Surface(SDL_RWops *src, Sint64 size, Surface &surface);
-void LoadBitmapSurface(SDL_RWops *src, Sint64 size, Surface &surface);
-void LoadTileSurface(SDL_RWops *src, Surface &surface);
+int LoadTGX16Surface(SDL_RWops *src, Sint64 size, Surface &surface);
+int LoadTGX8Surface(SDL_RWops *src, Sint64 size, Surface &surface);
+int LoadBitmapSurface(SDL_RWops *src, Sint64 size, Surface &surface);
+int LoadTileSurface(SDL_RWops *src, Sint64 size, Surface &surface);
 
 Surface LoadTGX(SDL_RWops *src);
 

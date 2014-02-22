@@ -27,6 +27,7 @@ void GameScreen::Draw(Renderer &renderer)
     }
 
     renderer.Clear();
+    renderer.BlitCollectionImage("gm/body_woodcutter.gm1", 51);
     renderer.Present();
 }
 
@@ -47,7 +48,7 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
         break;
     case SDL_KEYDOWN:
         {
-            m_closed = true;
+            return false;
         }
         break;
     }

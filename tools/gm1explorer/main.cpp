@@ -161,8 +161,8 @@ int explorer_main(const std::string &filename)
 
         gm1::VerbosePrintHeader(collection.header);
 
-        std::vector<SDL_Rect> partition =
-            gm1::EvalAtlasPartition(collection);
+        std::vector<SDL_Rect> partition;
+        gm1::PartitionAtlas(collection, partition);
         
         viewer_t viewer(collection, atlas, partition);
         viewer.enter_event_loop();

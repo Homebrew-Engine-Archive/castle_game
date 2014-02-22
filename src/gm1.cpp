@@ -100,7 +100,7 @@ struct TGX8
     }
     
     static Uint32 ColorKey() {
-        return GM1_TGX8_TRANSPARENT_INDEX;
+        return TGX_TRANSPARENT_RGB8;
     }
 
     static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &atlas) {
@@ -206,7 +206,7 @@ struct TileObject
     static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &surface) {
         Surface tile = AllocateSurface<TileObject>(
             TILE_RHOMBUS_WIDTH, TILE_RHOMBUS_HEIGHT);
-        tgx::LoadTileSurface(src, tile);
+        tgx::LoadTileSurface(src, TILE_BYTES, tile);
         
         SDL_Rect tilerect = MakeRect(
             header.posX,

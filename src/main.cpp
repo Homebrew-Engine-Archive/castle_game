@@ -8,7 +8,10 @@ int main()
     SDLWindow window("SH", 1024, 768);
     Renderer renderer(window);
 
-    RunLoadingScreen(renderer);
+    if(RunLoadingScreen(renderer)) {
+        SDL_Log("Loading has been interrupted.");
+        return 0;
+    }
     
     Screen *rootScreen = new GameScreen;
 
@@ -18,7 +21,7 @@ int main()
 
     bool quit = false;
     
-    while(quit) {
+    while(!quit) {
 
         const Uint32 frameStart = SDL_GetTicks();
         
