@@ -8,48 +8,38 @@ int main()
     SDLWindow window("SH", 1024, 768);
     Renderer renderer(window);
 
-    std::unique_ptr<Screen> rootScreen(
-        new LoadingScreen(renderer));
+    RunLoadingScreen(renderer);
+    
+    Screen *rootScreen = new GameScreen;
+
+    bool frameLimit = true;
+    const Uint32 frameRate = 16;
+    const Uint32 frameInterval = 1000 / frameRate;
 
     bool quit = false;
     
-    Uint32 lastTime = 0;
-    const Uint32 frameRate = 16;
-    const Uint32 frameInterval = 1000 / frameRate;
-    
-    while(!quit && rootScreen) {
-        const Uint32 currentTime = SDL_GetTicks();
+    while(quit) {
+
+        const Uint32 frameStart = SDL_GetTicks();
         
-        if(lastTime + frameInterval > currentTime) {
-            SDL_Event e;
-            rootScreen->OnEnterEventLoop();
-            while(SDL_PollEvent(&e)) {
-                switch(e.type) {
-                case SDL_QUIT:
+        SDL_Event e;
+        while(SDL_PollEvent(&e)) {
+            switch(e.type) {
+            case SDL_QUIT:
+                quit = true;
+                break;
+            default:
+                if(!rootScreen->HandleEvent(e))
                     quit = true;
-                    break;
-                case SDL_KEYDOWN:
-                    switch(e.key.keysym.sym) {
-                        case SDLK_ESCAPE:
-                            quit = true;
-                            break;
-                    default:
-                        rootScreen->OnEvent(e);
-                        break;
-                    }
-                default:
-                    rootScreen->OnEvent(e);
-                    break;
-                }
+                break;
             }
-        } else {
-            lastTime = currentTime;
-            rootScreen->OnFrame(renderer);
-            renderer.Present();
         }
 
-        if(rootScreen->Closed()) {
-            rootScreen = std::move(rootScreen->NextScreen());
+        rootScreen->Draw(renderer);
+        
+        const Uint32 frameEnd = SDL_GetTicks();
+        if(frameLimit && (frameEnd - frameStart) < frameInterval) {
+            SDL_Delay((frameEnd - frameStart));
         }
     }
     

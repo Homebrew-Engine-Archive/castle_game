@@ -37,8 +37,8 @@ Orient NextRotation(Orient rot);
 class GameScreen : public Screen
 {
     GameMap m_map;
-    Uint32 m_cursorX;
-    Uint32 m_cursorY;
+    int m_cursorX;
+    int m_cursorY;
     bool m_cursorInvalid;
     int m_viewportX;
     int m_viewportY;
@@ -49,21 +49,18 @@ class GameScreen : public Screen
     bool m_zoomedOut;
     bool m_hiddenUI;
     CursorMode m_cursorMode;
+    bool m_closed;
     
 public:
     GameScreen();
     ~GameScreen();
     
-    void OnFrame(Renderer &renderer);
-    void OnEvent(const SDL_Event &event);
-    void OnEnterEventLoop();
+    void Draw(Renderer &renderer);
+    bool HandleEvent(const SDL_Event &event);
 
     void HandleWindowEvent(const SDL_WindowEvent &event);
-    void SlideViewport(int dx, int dy);
+    void AdjustViewport(const SDL_Rect &screen);
     
-    bool Closed() const;
-    
-    std::unique_ptr<Screen> NextScreen();
 };
 
 #endif

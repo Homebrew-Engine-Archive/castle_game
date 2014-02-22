@@ -18,34 +18,19 @@ GameScreen::GameScreen()
 
 GameScreen::~GameScreen()
 {
-    SDL_LogDebug(
-        SDL_LOG_PRIORITY_INFO,
-        "%08x::~GameScreen()",
-        this);
 }
 
-void GameScreen::OnFrame(Renderer &renderer)
+void GameScreen::Draw(Renderer &renderer)
 {
     if(!m_cursorInvalid) {
-        int dx = 0;
-        int dy = 0;
-        SlideViewport(dx, dy);
+        AdjustViewport(renderer.OutputRect());
     }
 
     renderer.Clear();
-    //renderer.BeginFrame();
-    SDL_Log("GameScreen::OnFrame()");
-    renderer.BlitCollectionImage("gm/tree_apple.gm1", 23);
-    
-    //renderer.EndFrame();
+    renderer.Present();
 }
 
-void GameScreen::OnEnterEventLoop()
-{
-
-}
-
-void GameScreen::OnEvent(const SDL_Event &event)
+bool GameScreen::HandleEvent(const SDL_Event &event)
 {
     switch(event.type) {
     case SDL_WINDOWEVENT:
@@ -60,25 +45,27 @@ void GameScreen::OnEvent(const SDL_Event &event)
             m_cursorY = event.motion.y;
         }
         break;
+    case SDL_KEYDOWN:
+        {
+            m_closed = true;
+        }
+        break;
     }
+    return true;
 }
 
-bool GameScreen::Closed() const
+void GameScreen::AdjustViewport(const SDL_Rect &screen)
 {
-    return false;
-}
+    if(screen.w == m_cursorX)
+        ++m_viewportX;
+    else if(0 == m_cursorX)
+        --m_viewportX;
 
-void GameScreen::SlideViewport(int dx, int dy)
-{
-    m_viewportX += dx;
-    m_viewportY += dy;
+    if(screen.h == m_cursorY)
+        ++m_viewportY;
+    else if(0 == m_cursorY)
+        --m_viewportY;
 }
-
-std::unique_ptr<Screen> GameScreen::NextScreen()
-{
-    return nullptr;
-}
-
 
 void GameScreen::HandleWindowEvent(const SDL_WindowEvent &window)
 {

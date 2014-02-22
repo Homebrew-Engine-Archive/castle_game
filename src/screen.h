@@ -9,11 +9,8 @@
 class Screen
 {
 public:
-    virtual void OnEnterEventLoop() = 0;
-    virtual void OnFrame(Renderer &renderer) = 0;
-    virtual void OnEvent(const SDL_Event &event) = 0;
-    virtual std::unique_ptr<Screen> NextScreen() = 0;
-    virtual bool Closed() const = 0;
+    virtual void Draw(Renderer &renderer) = 0;
+    virtual bool HandleEvent(const SDL_Event &event) = 0;
 };
 
 #endif

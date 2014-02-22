@@ -15,7 +15,7 @@ template<class EntryClass>
 static Surface AllocateSurface(Uint32 width, Uint32 height);
 
 template<class EntryClass>
-static void EvalAtlasPartitionFor(const Collection &, std::vector<SDL_Rect> &);
+static void PartitionEntryClass(const Collection &, std::vector<SDL_Rect> &);
 
 Collection::Collection(SDL_RWops *src)
     throw(GM1Error)
@@ -279,47 +279,6 @@ struct Bitmap
     }
 };    
 
-std::vector<SDL_Rect> EvalAtlasPartition(const Collection &gm1)
-{
-    std::vector<SDL_Rect> rects;
-    rects.reserve(GetImageCount(gm1.header));
-    
-    Encoding encoding = GetEncoding(gm1.header);
-    switch(encoding) {
-    case Encoding::TGX8:
-        EvalAtlasPartitionFor<TGX8>(gm1, rects);
-        break;
-    case Encoding::TGX16:
-        EvalAtlasPartitionFor<TGX16>(gm1, rects);
-        break;
-    case Encoding::Bitmap:
-        EvalAtlasPartitionFor<Bitmap>(gm1, rects);
-        break;
-    case Encoding::TileObject:
-        EvalAtlasPartitionFor<TileObject>(gm1, rects);
-        break;
-    default:
-        throw GM1Error("Unknown encoding");
-    }
-    
-    return rects;
-}
-
-template<class EntryClass>
-static void EvalAtlasPartitionFor(const Collection &gm1, std::vector<SDL_Rect> &rects)
-{
-    auto count = GetImageCount(gm1.header);
-    for(size_t i = 0; i < count; ++i) {
-        auto header = gm1.headers[i];
-        rects.push_back(
-            MakeRect(
-                header.posX,
-                header.posY,
-                EntryClass::Width(header),
-                EntryClass::Height(header)));
-    }
-}
-
 Surface LoadAtlas(SDL_RWops *src, const Collection &gm1)
     throw(GM1Error, TGXError, SDLError)
 {
@@ -380,8 +339,46 @@ static Surface LoadAtlasEntries(SDL_RWops *src, const Collection &gm1, Sint64 or
     return atlas;
 }
 
+void PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &rects)
+{
+    rects.reserve(rects.size() + GetImageCount(gm1.header));
+    
+    Encoding encoding = GetEncoding(gm1.header);
+    switch(encoding) {
+    case Encoding::TGX8:
+        PartitionEntryClass<TGX8>(gm1, rects);
+        break;
+    case Encoding::TGX16:
+        PartitionEntryClass<TGX16>(gm1, rects);
+        break;
+    case Encoding::Bitmap:
+        PartitionEntryClass<Bitmap>(gm1, rects);
+        break;
+    case Encoding::TileObject:
+        PartitionEntryClass<TileObject>(gm1, rects);
+        break;
+    default:
+        throw GM1Error("Unknown encoding");
+    }
+}
+
 template<class EntryClass>
-static Surface AllocateSurface(Uint32 width, Uint32 height) {
+static void PartitionEntryClass(const Collection &gm1, std::vector<SDL_Rect> &rects)
+{
+    Uint32 count = GetImageCount(gm1.header);
+    for(size_t i = 0; i < count; ++i) {
+        const ImageHeader &header = gm1.headers[i];
+        const SDL_Rect rect = MakeRect(
+            header.posX, header.posY,
+            EntryClass::Width(header),
+            EntryClass::Height(header));
+        rects.push_back(rect);
+    }
+}
+
+template<class EntryClass>
+static Surface AllocateSurface(Uint32 width, Uint32 height)
+{
     Surface sf(
         width, height, EntryClass::Depth(),
         EntryClass::RedMask(),

@@ -1,22 +1,20 @@
 #ifndef TEXTURE_H_
 #define TEXTURE_H_
 
-struct BaseTexture
+#include <SDL2/SDL.h>
+#include "renderer.h"
+
+class Texture
 {
-    virtual void Blit(SDL_Renderer *renderer, const SDL_Rect *srcrect, SDL_Rect *dstrect) = 0;
+public:
+    virtual void Draw(Renderer &renderer, const SDL_Rect *srcrect, const SDL_Rect *dstrect) = 0;
 };
 
-class Texture : public BaseTexture
+class Sprite : public Texture
 {
-    SDL_Texture *texture;
-    std::vector<SDL_Rect> rects;
-    std::vector<gm1::ImageHeaders> headers;
-    gm1::Header header;
-    const SDL_Palette *palettes;
-    size_t palettesCount;
-    
 public:
-    
+    Sprite(Texture &texture, const SDL_Rect &rect);
+    void Draw(Renderer &renderer, const SDL_Rect *srcrect, const SDL_Rect *dstrect);
 };
 
 #endif

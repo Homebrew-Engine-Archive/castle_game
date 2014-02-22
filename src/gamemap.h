@@ -23,9 +23,8 @@ class GameMap
 public:
     GameMap();
     ~GameMap();
-    
     SDL_Rect GetLocationRect(const GameMapLocation &loc) const;
-    GameMapLocation GetLocationAtPoint(int x, int y, int sx, int sy, int w, int h) const;
+    GameMapLocation GetLocationAtPoint(int x, int y) const;
     
 };
 

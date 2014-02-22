@@ -4,16 +4,16 @@ NAMESPACE_BEGIN(tgx)
 
 static const char *GetTokenTypeName(TokenType);
 static TokenType ExtractTokenType(const Token &token);
-static int ExtractTokenLength(const Token &token);
+static size_t ExtractTokenLength(const Token &token);
 
 template<class P>
-bool ReadPixelArray(SDL_RWops *src, P *bits, Uint32 count);
+bool ReadPixelArray(SDL_RWops *src, P *bits, size_t count);
 
 // Uint16 spec
 template<>
-bool ReadPixelArray(SDL_RWops *src, Uint16 *bits, Uint32 count)
+bool ReadPixelArray(SDL_RWops *src, Uint16 *bits, size_t count)
 {
-    auto num = SDL_RWread(src, bits, count, sizeof(Uint16));
+    size_t num = SDL_RWread(src, bits, count, sizeof(Uint16));
 
     if(num < count)
         return false;
@@ -28,17 +28,17 @@ bool ReadPixelArray(SDL_RWops *src, Uint16 *bits, Uint32 count)
 
 // Uint8 spec
 template<>
-bool ReadPixelArray(SDL_RWops *src, Uint8 *bits, Uint32 count)
+bool ReadPixelArray(SDL_RWops *src, Uint8 *bits, size_t count)
 {
-    auto num = SDL_RWread(src, bits, count, sizeof(Uint8));
+    size_t num = SDL_RWread(src, bits, count, sizeof(Uint8));
     return (num == count);
 }
 
 template<class Pixel>
 void ReadTGX(SDL_RWops *src, Sint64 size, int pitch, size_t bufferSize, Pixel *bits)
-{   
+{
     Pixel *start = bits;
-    Pixel *end = bits + bufferSize;
+    Pixel *end = start + bufferSize;
     
     Sint64 origin = SDL_RWtell(src);
     if(origin < 0)
@@ -51,7 +51,7 @@ void ReadTGX(SDL_RWops *src, Sint64 size, int pitch, size_t bufferSize, Pixel *b
         Token token;
         SDL_RWread(src, &token, 1, sizeof(Token));
 
-        int length = ExtractTokenLength(token);
+        size_t length = ExtractTokenLength(token);
         TokenType type = ExtractTokenType(token);
 
         if(type != TokenType::Newline) {
@@ -154,60 +154,52 @@ void ReadUncompressed(SDL_RWops *src, Sint64 size, int pitch, int width, size_t 
 
 void LoadTGX16Surface(SDL_RWops *src, Sint64 size, Surface &surface)
 {
-    int locked = SDL_MUSTLOCK(surface);
-
-    if(locked)
+    auto locked = SDL_MUSTLOCK(surface);
+    if(locked != 0)
         SDL_LockSurface(surface);
-    
     Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    size_t bufferSize = surface->pitch * surface->h;
-    ReadTGX<Uint16>(src, size, surface->pitch, bufferSize, bits);
-
-    if(locked)
+    const int pitch = surface->pitch;
+    const size_t bufferSize = pitch * surface->h;
+    ReadTGX<Uint16>(src, size, pitch, bufferSize, bits);
+    if(locked != 0)
         SDL_UnlockSurface(surface);
 }
 
 void LoadTGX8Surface(SDL_RWops *src, Sint64 size, Surface &surface)
 {
-    int locked = SDL_MUSTLOCK(surface);
-
-    if(locked)
+    auto locked = SDL_MUSTLOCK(surface);
+    if(locked != 0)
         SDL_LockSurface(surface);
-    
     Uint8 *bits = reinterpret_cast<Uint8*>(surface->pixels);
-    size_t bufferSize = surface->pitch * surface->h;
-    ReadTGX<Uint8>(src, size, surface->pitch, bufferSize, bits);
-
-    if(locked)
+    const int pitch = surface->pitch;
+    const size_t bufferSize = pitch * surface->h;
+    ReadTGX<Uint8>(src, size, pitch, bufferSize, bits);
+    if(locked != 0)
         SDL_UnlockSurface(surface);
 }
 
 void LoadBitmapSurface(SDL_RWops *src, Sint64 size, Surface &surface)
 {
-    int locked = SDL_MUSTLOCK(surface);
-
+    auto locked = SDL_MUSTLOCK(surface);
     if(locked)
         SDL_LockSurface(surface);
-    
     Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    size_t bufferSize = surface->pitch * surface->h;
-    ReadUncompressed(src, size, surface->w, surface->pitch, bufferSize, bits);
-
-    if(locked)
+    const int pitch = surface->pitch;
+    const int width = surface->w;
+    const size_t bufferSize = pitch * surface->h;
+    ReadUncompressed(src, size, width, pitch, bufferSize, bits);
+    if(locked != 0)
         SDL_UnlockSurface(surface);
 }
 
 void LoadTileSurface(SDL_RWops *src/*, Sint64 size = TILE_BYTES */, Surface &surface)
 {
-    int locked = SDL_MUSTLOCK(surface);
-
-    if(locked)
+    auto locked = SDL_MUSTLOCK(surface);
+    if(locked != 0)
         SDL_LockSurface(surface);
-    
     Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
     ReadTile(src, surface->pitch, bits);
-
-    if(locked)
+    if(locked != 0)
         SDL_UnlockSurface(surface);
 }
 
@@ -227,16 +219,16 @@ Surface LoadTGX(SDL_RWops *src)
     Surface surface(
         width, height, depth,
         rmask, gmask, bmask, amask);
-    
-    Uint32 size = ReadableBytes(src);
+
     Uint16 *bits = reinterpret_cast<Uint16*>(surface->pixels);
-    size_t bufferSize = width * height;
+    const Uint32 size = ReadableBytes(src);
+    const size_t bufferSize = width * height;
     ReadTGX<Uint16>(src, size, width, bufferSize, bits);
 
     return surface;
 }
 
-static int ExtractTokenLength(const Token &token)
+static size_t ExtractTokenLength(const Token &token)
 {
     // Lower 5 bits represent range between [1..32]
     return (token & 0x1f) + 1;

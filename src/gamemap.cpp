@@ -10,7 +10,7 @@ GameMap::~GameMap()
 
 }
 
-GameMapLocation GameMap::GetLocationAtPoint(int, int, int, int, int, int) const
+GameMapLocation GameMap::GetLocationAtPoint(int, int) const
 {
     GameMapLocation loc;
     return loc;

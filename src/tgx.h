@@ -29,8 +29,7 @@ const size_t TILE_RHOMBUS_PIXELS = TILE_RHOMBUS_WIDTH * TILE_RHOMBUS_HEIGHT;
 // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
 const Uint16 TGX_TRANSPARENT_RGB16 = 0xF81F;
 
-// There are no such constant RGB8 value
-// Better took it from palette
+// Palette's first entry
 const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 
 // Five bits for the RED alert under the uporin
@@ -42,10 +41,10 @@ const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 // One bit to rule them all, one bit to find them
 // One bit to bring them all, and in the ARGB bind them
 // In the land of grass where some sprites lie
-const Uint16 TGX_RGB16_AMASK = 0;
-const Uint16 TGX_RGB16_RMASK = 0x7C00;                   // 0111110000000000
-const Uint16 TGX_RGB16_GMASK = 0x3E0;                    // 0000001111100000
-const Uint16 TGX_RGB16_BMASK = 0x1F;                     // 0000000000011111
+const int TGX_RGB16_AMASK = 0;
+const int TGX_RGB16_RMASK = 0x7C00;                   // 0111110000000000
+const int TGX_RGB16_GMASK = 0x3E0;                    // 0000001111100000
+const int TGX_RGB16_BMASK = 0x1F;                     // 0000000000011111
 
 const int TGX_RGB16_ASHIFT = 15;
 const int TGX_RGB16_RSHIFT = 10;
@@ -70,10 +69,6 @@ enum class TokenType : int {
     Repeat = 2,
     Newline = 4
 };
-// const int TGX_TOKEN_TYPE_STREAM      = 0;                // 000
-// const int TGX_TOKEN_TYPE_TRANSPARENT = 1;                // 001
-// const int TGX_TOKEN_TYPE_REPEAT      = 2;                // 010
-// const int TGX_TOKEN_TYPE_NEWLINE     = 4;                // 100
 
 NAMESPACE_BEGIN(tgx)
 
@@ -86,7 +81,7 @@ struct Header
 typedef Uint8 Token;
 
 // Returns color component in range of [0..256)
-constexpr int GetChannel(Uint16 color, Uint16 mask, int shift)
+constexpr int GetChannel(Uint16 color, int mask, int shift)
 {
     return ((color & mask) >> shift) * 255 / ((0xffff & mask) >> shift);
 }

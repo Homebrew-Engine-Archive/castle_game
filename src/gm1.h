@@ -139,12 +139,9 @@ void VerbosePrintPalette(const Palette &);
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
     throw(GM1Error, TGXError, SDLError);
-
-std::vector<SDL_Rect> EvalAtlasPartition(const Collection &scheme);
-
 Encoding GetEncoding(const Header &);
-
 SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
+void PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
 
 NAMESPACE_END(gm1)
 

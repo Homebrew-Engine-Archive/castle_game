@@ -136,7 +136,11 @@ bool Renderer::LoadImageCollection(const std::string &filename)
         Surface atlas = gm1::LoadAtlas(src.get(), gm1);
         atlasStorage.insert(
             std::make_pair(filename, atlas));
-        atlasPartition[filename] = gm1::EvalAtlasPartition(gm1);
+
+        std::vector<SDL_Rect> partition;
+        gm1::PartitionAtlas(gm1, partition);
+        atlasPartition[filename] = partition;
+        
         atlasPalettes[filename] = gm1::CreateSDLPaletteFrom(gm1.palettes[3]);
         
     } catch(const std::exception &e) {
