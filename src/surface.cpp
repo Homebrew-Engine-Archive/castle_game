@@ -14,7 +14,8 @@ Surface::Surface(
         rmask, gmask, bmask, amask);
     
     if(surface == NULL)
-        throw SDLError(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
+
 }
 
 Surface::Surface()
@@ -25,19 +26,30 @@ Surface::Surface()
 Surface::Surface(const Surface &that)
     : surface(that)
 {
-    IncRefCount(surface);
+    if(surface != NULL)
+        IncRefCount(surface);
 }
 
 Surface::Surface(SDL_Surface *s)
 {
-    IncRefCount(surface);
+    if(surface != NULL)
+        IncRefCount(surface);
     Assign(s);
 }
 
 Surface &Surface::operator=(const Surface &that)
 {
     SDL_Surface *s = that.Get();
-    IncRefCount(s);
+    if(s != NULL)
+        IncRefCount(s);
+    Assign(s);
+    return *this;
+}
+
+Surface &Surface::operator=(SDL_Surface *s)
+{
+    if(s != NULL)
+        IncRefCount(s);
     Assign(s);
     return *this;
 }
@@ -54,28 +66,28 @@ Surface::~Surface()
 
 void Surface::Assign(SDL_Surface *s)
 {
-    if(Unique(surface))
-        SDL_FreeSurface(surface);
-    else
-        DecRefCount(surface);
+    if(surface != NULL) {
+        if(Unique(surface))
+            SDL_FreeSurface(surface);
+        else
+            DecRefCount(surface);
+    }
     surface = s;
 }
 
 void Surface::IncRefCount(SDL_Surface *s)
 {
-    if(s != NULL)
-        ++s->refcount;
+    ++s->refcount;
 }
 
 void Surface::DecRefCount(SDL_Surface *s)
 {
-    if(s != NULL)
-        --s->refcount;
+    --s->refcount;
 }
 
 bool Surface::Unique(SDL_Surface *s) const
 {
-    return s && s->refcount == 1;
+    return s->refcount == 1;
 }
 
 bool Surface::Null() const
@@ -96,6 +108,27 @@ SDL_Surface *Surface::operator->() const
 Surface::operator SDL_Surface *() const
 {
     return surface;
+}
+
+SurfaceLocker::SurfaceLocker(Surface &surface)
+    : object(surface)
+    , locked(0)
+{
+    if(!object.Null()) {
+        locked = SDL_MUSTLOCK(object);
+        if(locked) {
+            if(SDL_LockSurface(object)) {
+                throw std::runtime_error(SDL_GetError());
+            }
+        }
+    }
+}
+
+SurfaceLocker::~SurfaceLocker()
+{
+    if(locked && !object.Null()) {
+        SDL_UnlockSurface(object);
+    }
 }
 
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
@@ -127,8 +160,7 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
     return dst;
 }
 
-void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
-                 Surface &dst, SDL_Rect *dstrect)
+void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
 {
     int srclocked = SDL_MUSTLOCK(src);
     int dstlocked = SDL_MUSTLOCK(dst);
@@ -139,7 +171,7 @@ void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
         SDL_LockSurface(dst);
 
     if(SDL_BlitSurface(src, srcrect, dst, dstrect)) {
-        throw SDLError(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
     }
     
     if(srclocked)

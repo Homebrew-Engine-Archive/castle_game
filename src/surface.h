@@ -1,11 +1,10 @@
 #ifndef SURFACE_H_
 #define SURFACE_H_
 
+#include <stdexcept>
 #include <algorithm>
-
 #include <SDL2/SDL.h>
 
-#include "errors.h"
 #include "SDLRect.h"
 
 const int RMASK_DEFAULT = 0;
@@ -33,7 +32,6 @@ public:
             Uint32 amask);
 
     Surface(SDL_Surface *s);
-    
     Surface(const Surface &that);
     
     ~Surface();
@@ -45,6 +43,7 @@ public:
     operator SDL_Surface *() const;
     
     Surface &operator=(const Surface &that);
+    Surface &operator=(SDL_Surface *s);
 
     bool operator==(const Surface &that);
 
@@ -53,10 +52,18 @@ public:
     
 };
 
+class SurfaceLocker
+{
+    Surface &object;
+    int locked;
+public:
+    SurfaceLocker(Surface &surface);
+    ~SurfaceLocker();
+};
+
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect);
 
-void BlitSurface(const Surface &src, const SDL_Rect *srcrect,
-                 Surface &dst, SDL_Rect *dstrect);
+void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 
 void FillRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 

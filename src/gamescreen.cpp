@@ -36,7 +36,7 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
     switch(event.type) {
     case SDL_WINDOWEVENT:
         {
-            HandleWindowEvent(event.window);
+            LogWindowEvent(event.window);
         }
         break;
     case SDL_MOUSEMOTION:
@@ -51,6 +51,10 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
             return false;
         }
         break;
+    case SDL_QUIT:
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -68,7 +72,7 @@ void GameScreen::AdjustViewport(const SDL_Rect &screen)
         --m_viewportY;
 }
 
-void GameScreen::HandleWindowEvent(const SDL_WindowEvent &window)
+void GameScreen::LogWindowEvent(const SDL_WindowEvent &window)
 {
     switch (window.event) {
     case SDL_WINDOWEVENT_SHOWN:

@@ -36,7 +36,7 @@ static int HandleEvents()
 static void DrawLoadingScreen(Renderer &renderer, double done)
 {
     renderer.Clear();
-    // renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
+    renderer.BlitImage("gfx/frontend_loading.tgx", NULL, NULL);
         
     SDL_Rect bar;
     bar.x = 0;

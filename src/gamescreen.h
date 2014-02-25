@@ -58,7 +58,7 @@ public:
     void Draw(Renderer &renderer);
     bool HandleEvent(const SDL_Event &event);
 
-    void HandleWindowEvent(const SDL_WindowEvent &event);
+    void LogWindowEvent(const SDL_WindowEvent &event);
     void AdjustViewport(const SDL_Rect &screen);
     
 };

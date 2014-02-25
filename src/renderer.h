@@ -1,16 +1,15 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <stdexcept>
 #include <set>
 #include <map>
 #include <vector>
 #include <string>
-
 #include <SDL2/SDL.h>
 
 #include "tgx.h"
 #include "gm1.h"
-#include "errors.h"
 #include "SDLWindow.h"
 #include "surface.h"
 #include "rw.h"

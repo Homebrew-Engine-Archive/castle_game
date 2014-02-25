@@ -1,6 +1,8 @@
 #ifndef RW_H_
 #define RW_H_
 
+#include <string>
+#include <vector>
 #include <exception>
 #include <memory>
 #include <SDL2/SDL.h>
@@ -10,19 +12,26 @@ struct RWCloseDeleter
     void operator()(SDL_RWops *src) const;
 };
 
-struct IOException : public std::exception
+struct file_not_readable { };
+
+class FileBuffer
 {
-    const char * what_arg;
-    explicit IOException(const char *what_arg)
-        throw()
-        : what_arg(what_arg)
-        {}
-    virtual const char *what() const throw() {
-        return what_arg;
-    }
+    std::vector<Uint8> buffer;
+
+    void ReadFile(const char *filename, const char *mode);
+    
+public:
+    FileBuffer(const char *filename, const char *mode) throw (file_not_readable);
+    FileBuffer(const std::string &filename, const char *mode) throw (file_not_readable);
+    ~FileBuffer();
+
+    const Uint8 *to_uint8() const;
+    Uint8 *to_uint8();
+    Sint64 Size() const;
 };
 
-Uint32 ReadableBytes(SDL_RWops *src);
+
+Sint64 ReadableBytes(SDL_RWops *src);
 
 void ReadInt16Array(SDL_RWops *src, Uint16 *buffer, size_t num);
 void ReadInt32Array(SDL_RWops *src, Uint32 *buffer, size_t num);

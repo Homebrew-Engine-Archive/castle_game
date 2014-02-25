@@ -9,7 +9,7 @@ SDLWindow::SDLWindow(const char * title, int width, int height)
         width, height,
         SDL_WINDOW_OPENGL);
     if(m_wnd == NULL)
-        throw SDLError(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
 }
 
 SDLWindow::~SDLWindow()
@@ -25,9 +25,4 @@ SDL_Window* SDLWindow::GetWindow()
 const SDL_Window* SDLWindow::GetWindow() const
 {
     return m_wnd;
-}
-
-void SDLWindow::Resize(int w, int h)
-{
-    SDL_SetWindowSize(m_wnd, w, h);
 }

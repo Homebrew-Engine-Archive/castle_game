@@ -6,12 +6,11 @@
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
-#include <exception>
+#include <stdexcept>
 
 #include <SDL2/SDL.h>
 
 #include "macrosota.h"
-#include "errors.h"
 #include "tgx.h"
 #include "surface.h"
 #include "rw.h"
@@ -23,8 +22,6 @@ const size_t GM1_TGX8_SHADOW_INDEX = 1;
 const size_t GM1_IMAGE_HEADER_BYTES = 16;
 const size_t GM1_HEADER_FIELDS = 22;
 const size_t GM1_HEADER_BYTES = 88;
-
-DEFINE_ERROR_TYPE(GM1Error);
 
 NAMESPACE_BEGIN(gm1)
 
@@ -101,7 +98,7 @@ struct ImageHeader
 struct Collection
 {
     explicit Collection(SDL_RWops *src)
-        throw(GM1Error);
+        throw(std::runtime_error);
     Header header;
     std::vector<Palette> palettes;
     std::vector<Uint32> offsets, sizes;
@@ -138,7 +135,7 @@ void VerbosePrintHeader(const Header &);
 void VerbosePrintPalette(const Palette &);
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
-    throw(GM1Error, TGXError, SDLError);
+    throw(std::runtime_error);
 Encoding GetEncoding(const Header &);
 SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
 void PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);

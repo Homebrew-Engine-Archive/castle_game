@@ -1,18 +1,19 @@
 #ifndef TGX_H_
 #define TGX_H_
 
+#include <array>
+#include <vector>
 #include <memory>
 #include <iostream>
-#include <exception>
+#include <stdexcept>
 #include <algorithm>
 #include <SDL2/SDL.h>
 
+#include <cassert>
+
 #include "surface.h"
-#include "errors.h"
 #include "macrosota.h"
 #include "rw.h"
-
-DEFINE_ERROR_TYPE(TGXError);
 
 const size_t TILE_BYTES = 512;
 
@@ -51,6 +52,8 @@ const int TGX_RGB16_RSHIFT = 10;
 const int TGX_RGB16_GSHIFT = 5;
 const int TGX_RGB16_BSHIFT = 0;
 
+const int TGX_MAX_BPP = 16;
+
 // union TGXToken
 // {
 //     Uint8 type;
@@ -67,7 +70,7 @@ enum class TokenType : int {
     Stream = 0,
     Transparent = 1,
     Repeat = 2,
-    Newline = 4
+    LineFeed = 4
 };
 
 NAMESPACE_BEGIN(tgx)
@@ -104,12 +107,10 @@ constexpr int GetAlpha(Uint16)
     return 255;
 }
 
-int LoadTGX16Surface(SDL_RWops *src, Sint64 size, Surface &surface);
-int LoadTGX8Surface(SDL_RWops *src, Sint64 size, Surface &surface);
-int LoadBitmapSurface(SDL_RWops *src, Sint64 size, Surface &surface);
-int LoadTileSurface(SDL_RWops *src, Sint64 size, Surface &surface);
-
-Surface LoadTGX(SDL_RWops *src);
+int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface);
+int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface);
+int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface);
+Surface LoadStandaloneImage(SDL_RWops *src);
 
 NAMESPACE_END(tgx)
 

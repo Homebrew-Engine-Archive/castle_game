@@ -7,7 +7,7 @@ Renderer::Renderer(SDLWindow &window)
         SDL_RENDERER_ACCELERATED);
 
     if(rndr == NULL)
-        throw SDLError(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
 }
 
 Renderer::~Renderer()
@@ -102,23 +102,27 @@ bool Renderer::LoadImage(const std::string &filename)
 {
     SDL_Log("LoadImage: %s", filename.c_str());
     try {
-        std::unique_ptr<SDL_RWops, RWCloseDeleter> src(
-            SDL_RWFromFile(filename.c_str(), "rb"));
+        FileBuffer filebuff(filename.c_str(), "rb");
 
-        if(!src)
-            throw IOException("file not readable");
+        SDL_RWops *src = SDL_RWFromConstMem(filebuff.to_uint8(), filebuff.Size());
+        std::unique_ptr<SDL_RWops, RWCloseDeleter> autodeleter(src);
         
-        Surface image = tgx::LoadTGX(src.get());
+        if(src == NULL)
+            return false;
+
+        Surface image = tgx::LoadStandaloneImage(src);
         
         imageStorage.insert(
             std::make_pair(filename, image));
         
     } catch(const std::exception &e) {
-        SDL_Log("LoadImage %s error: %s",
+        SDL_Log("Exception in LoadImage: %s",
                 filename.c_str(), e.what());
         return false;
+    } catch(const file_not_readable &e) {
+        SDL_Log("File not readable");
+        return false;
     }
-
     return true;
 }
 
@@ -126,14 +130,16 @@ bool Renderer::LoadImageCollection(const std::string &filename)
 {
     SDL_Log("LoadImageCollection: %s", filename.c_str());
     try {
-        std::unique_ptr<SDL_RWops, RWCloseDeleter> src(
-            SDL_RWFromFile(filename.c_str(), "rb"));
+        FileBuffer filebuff(filename.c_str(), "rb");
 
-        if(!src)
-            throw IOException("file not readable");
+        SDL_RWops *src = SDL_RWFromConstMem(filebuff.to_uint8(), filebuff.Size());
+        std::unique_ptr<SDL_RWops, RWCloseDeleter> autodeleter(src);
+
+        if(src == NULL)
+            return false;
         
-        gm1::Collection gm1(src.get());
-        Surface atlas = gm1::LoadAtlas(src.get(), gm1);
+        gm1::Collection gm1(src);
+        Surface atlas = gm1::LoadAtlas(src, gm1);
         atlasStorage.insert(
             std::make_pair(filename, atlas));
 
@@ -146,8 +152,10 @@ bool Renderer::LoadImageCollection(const std::string &filename)
     } catch(const std::exception &e) {
         SDL_Log("LoadImageCollection %s error: %s",
                 filename.c_str(), e.what());
-        return 0;
+        return false;
+    } catch(const file_not_readable &e) {
+        SDL_Log("File not readable: %s", filename.c_str());
+        return false;
     }
-
     return true;
 }

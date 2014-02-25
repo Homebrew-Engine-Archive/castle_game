@@ -1,14 +1,13 @@
 #ifndef SDLCONTEXT_H_
 #define SDLCONTEXT_H_
 
+#include <stdexcept>
 #include <SDL2/SDL.h>
-
-#include "errors.h"
 
 class SDLContext
 {
 public:
-    SDLContext(int flags) throw(SDLError);
+    SDLContext(int flags) throw(std::runtime_error);
     ~SDLContext() throw();
 };
 

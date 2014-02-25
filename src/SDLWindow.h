@@ -1,9 +1,8 @@
 #ifndef SDLWINDOW_H_
 #define SDLWINDOW_H_
 
+#include <stdexcept>
 #include <SDL2/SDL.h>
-
-#include "errors.h"
 
 struct DestoryWindowDeleter
 {
@@ -24,8 +23,6 @@ public:
 
     const SDL_Window* GetWindow() const;
     SDL_Window* GetWindow();
-
-    void Resize(int w, int h);
 };
 
 #endif
