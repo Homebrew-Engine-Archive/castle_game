@@ -145,14 +145,9 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
     Uint8 *dst = reinterpret_cast<Uint8*>(surface->pixels);
     Uint8 *dstBegin = dst;
     Uint8 *dstEnd = dst + dstBytes;
-    
-    // First position in src which we won't read unless overrun will happen
+    Uint8 *dstNextLine = dst + pitchBytes;
     Sint64 npos = SDL_RWtell(src) + size;
-    
-    // src might be overran
     bool overrun = false;
-
-    // surface pixels might be overflowed
     bool overflow = false;
 
     while(SDL_RWtell(src) < npos) {
@@ -167,17 +162,21 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
                     SDL_Log("LineFeed token length should be 1");
                     return -1;
                 }
-                dst += pitchBytes - (dst - dstBegin) % pitchBytes;
-                if(dst > dstEnd)
-                    overflow = true;
+                if(dst > dstNextLine) {
+                    SDL_Log("dstNextLine is %d bytes ahead dst", (dst - dstNextLine));
+                }
+                dst = dstNextLine;
+                dstNextLine += pitchBytes;
             }
             break;
             
         case TokenType::Transparent:
             {
-                dst += length * bytesPerPixel;
-                if(dst > dstEnd)
+                if(dst < dstEnd) {
+                    dst += length * bytesPerPixel;
+                } else {
                     overflow = true;
+                }
             }
             break;
             
@@ -213,18 +212,24 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
 
         default:
             {
-                SDL_Log("Undefined token");
+                SDL_Log("Undefined token: %02X", token);
                 return -1;
             }
             break;
         }
 
         if(overflow) {
-            SDL_Log("Destination buffer overflow");
+            SDL_Log("Token: %s, Length: %d, Dst: %d, Src: %d, Overflow",
+                    GetTokenTypeName(type), length,
+                    (dst - dstBegin),
+                    static_cast<int>(SDL_RWtell(src)));
             return -1;
         }
         if(overrun) {
-            SDL_Log("Source buffer overrun");
+            SDL_Log("Token: %s, Length: %d, Dst: %d, Src: %d, Overrun",
+                    GetTokenTypeName(type), length,
+                    (dst - dstBegin),
+                    static_cast<int>(SDL_RWtell(src)));
             return -1;
         }
     }

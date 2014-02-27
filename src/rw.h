@@ -33,8 +33,8 @@ public:
 
 Sint64 ReadableBytes(SDL_RWops *src);
 
-void ReadInt16Array(SDL_RWops *src, Uint16 *buffer, size_t num);
-void ReadInt32Array(SDL_RWops *src, Uint32 *buffer, size_t num);
-void ReadInt8Array(SDL_RWops *src, Uint8 *buffer, size_t num);
+void ReadInt16ArrayLE(SDL_RWops *src, Uint16 *buffer, size_t num);
+void ReadInt32ArrayLE(SDL_RWops *src, Uint32 *buffer, size_t num);
+void ReadInt8ArrayLE(SDL_RWops *src, Uint8 *buffer, size_t num);
 
 #endif

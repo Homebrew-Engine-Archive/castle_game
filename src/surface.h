@@ -78,8 +78,6 @@ void DrawAlphaFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
 void FillAlphaRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
-void SetColorKey(Surface &s, Uint32 color, bool enabled = true);
-
 bool RectIsEmpty(const SDL_Rect &rect);
 
 SDL_Rect MakeRect(int x, int y, int w, int h);

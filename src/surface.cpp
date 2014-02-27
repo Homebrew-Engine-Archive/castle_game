@@ -206,11 +206,6 @@ void FillAlphaRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
     SDL_Log("FillAlphaRect: not implemented");
 }
 
-void SetColorKey(Surface &dst, Uint32 color, bool enabled)
-{
-    SDL_SetColorKey(dst, enabled, color);
-}
-
 SDL_Rect MakeRect(int x, int y, int w, int h)
 {
     SDL_Rect r;

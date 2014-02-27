@@ -32,12 +32,12 @@ Collection::Collection(SDL_RWops *src)
     if(ReadableBytes(src) < sizeof(Uint32) * count)
         throw std::runtime_error("EOF while reading offsets");
     offsets.resize(count);
-    ReadInt32Array(src, offsets.data(), offsets.size());
+    ReadInt32ArrayLE(src, offsets.data(), offsets.size());
 
     if(ReadableBytes(src) < sizeof(Uint32) * count)
         throw std::runtime_error("EOF while reading sizes");
     sizes.resize(count);
-    ReadInt32Array(src, sizes.data(), sizes.size());
+    ReadInt32ArrayLE(src, sizes.data(), sizes.size());
 
     headers.resize(count);
     for(ImageHeader &hdr : headers)
@@ -390,9 +390,9 @@ static Surface AllocateSurface(Uint32 width, Uint32 height)
         SDL_Log("SDL_CreateRGBSurface failed: %s", SDL_GetError());
         return Surface();
     }
-    
-    SetColorKey(sf, EntryClass::ColorKey());
+
     SDL_FillRect(sf, NULL, EntryClass::ColorKey());
+    SDL_SetColorKey(sf, SDL_TRUE, EntryClass::ColorKey());
     return sf;
 }
 
@@ -400,7 +400,7 @@ static void ReadHeader(SDL_RWops *src, Header *hdr)
 {
     if(ReadableBytes(src) < GM1_HEADER_BYTES)
         throw std::runtime_error("EOF while ReadHeader");
-    ReadInt32Array(src, &(*hdr)[0], GM1_HEADER_FIELDS);
+    ReadInt32ArrayLE(src, &(*hdr)[0], GM1_HEADER_FIELDS);
 }
 
 static void ReadPalette(SDL_RWops *src, Palette *palette)
@@ -408,7 +408,7 @@ static void ReadPalette(SDL_RWops *src, Palette *palette)
     if(ReadableBytes(src) < sizeof(Palette))
         throw std::runtime_error("EOF while ReadPalette");
     
-    ReadInt16Array(src, &(*palette)[0], GM1_PALETTE_COLORS);
+    ReadInt16ArrayLE(src, &(*palette)[0], GM1_PALETTE_COLORS);
 }
 
 static void ReadImageHeader(SDL_RWops *src, ImageHeader *hdr)

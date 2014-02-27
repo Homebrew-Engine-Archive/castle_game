@@ -90,7 +90,6 @@ public:
             imageIndex, gm1::GetImageCount(collection.header), n);
         paletteIndex = SetIndex(
             paletteIndex, GM1_PALETTE_COUNT, m);
-        resize_window(rects[imageIndex]);
         gm1::VerbosePrintImageHeader(collection.headers[imageIndex]);
     }
     
@@ -110,6 +109,9 @@ public:
             break;
         case SDLK_DOWN:
             PickImageAndPalette(0, -1);
+            break;
+        case SDLK_RETURN:
+            resize_window(rects[imageIndex]);
             break;
         }
     }
@@ -159,7 +161,7 @@ int explorer_main(const std::string &filename)
         Surface atlas = gm1::LoadAtlas(src, collection);
         SDL_RWclose(src);
 
-        VerbosePrintCollection(collection);
+        gm1::VerbosePrintHeader(collection.header);
 
         std::vector<SDL_Rect> partition;
         gm1::PartitionAtlas(collection, partition);        

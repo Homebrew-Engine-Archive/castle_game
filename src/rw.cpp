@@ -14,7 +14,7 @@ Sint64 ReadableBytes(SDL_RWops *src)
         : size - pos;
 }
 
-void ReadInt32Array(SDL_RWops *src, Uint32 *buffer, size_t num)
+void ReadInt32ArrayLE(SDL_RWops *src, Uint32 *buffer, size_t num)
 {
     SDL_RWread(src, buffer, num, sizeof(Uint32));
 
@@ -24,7 +24,7 @@ void ReadInt32Array(SDL_RWops *src, Uint32 *buffer, size_t num)
     }
 }
 
-void ReadInt16Array(SDL_RWops *src, Uint16 *buffer, size_t num)
+void ReadInt16ArrayLE(SDL_RWops *src, Uint16 *buffer, size_t num)
 {
     SDL_RWread(src, buffer, num, sizeof(Uint16));
 
@@ -34,7 +34,7 @@ void ReadInt16Array(SDL_RWops *src, Uint16 *buffer, size_t num)
     }
 }
 
-void ReadInt8Array(SDL_RWops *src, Uint8 *buffer, size_t num)
+void ReadInt8ArrayLE(SDL_RWops *src, Uint8 *buffer, size_t num)
 {
     SDL_RWread(src, buffer, num, sizeof(Uint8));
 
