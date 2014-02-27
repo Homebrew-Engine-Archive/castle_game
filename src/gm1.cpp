@@ -323,7 +323,7 @@ static Surface LoadAtlasEntries(SDL_RWops *src, const Collection &gm1, Sint64 or
     Uint32 width = 0;
     Uint32 height = 0;
     // Eval size for atlas
-    for(const auto &header : gm1.headers) {
+    for(const ImageHeader &header : gm1.headers) {
         width = std::max(width, header.posX + EntryClass::Width(header));
         height = std::max(height, header.posY + EntryClass::Height(header));
     }
@@ -379,8 +379,8 @@ static void PartitionEntryClass(const Collection &gm1, std::vector<SDL_Rect> &re
 template<class EntryClass>
 static Surface AllocateSurface(Uint32 width, Uint32 height)
 {
-    Surface sf(
-        width, height, EntryClass::Depth(),
+    Surface sf = SDL_CreateRGBSurface(
+        0, width, height, EntryClass::Depth(),
         EntryClass::RedMask(),
         EntryClass::GreenMask(),
         EntryClass::BlueMask(),
@@ -392,7 +392,7 @@ static Surface AllocateSurface(Uint32 width, Uint32 height)
     }
     
     SetColorKey(sf, EntryClass::ColorKey());
-    FillRect(sf, NULL, EntryClass::ColorKey());
+    SDL_FillRect(sf, NULL, EntryClass::ColorKey());
     return sf;
 }
 
@@ -500,6 +500,36 @@ void VerbosePrintPalette(const Palette &palette)
 {
     for(size_t i = 0; i < palette.size(); ++i)
         SDL_Log("# %03d:\t%4x", i, palette[i]);
+}
+
+void VerbosePrintCollection(const Collection &gm1)
+{
+    SDL_Log("--- GM1 header ---");
+    VerbosePrintHeader(gm1.header);
+    SDL_Log("--- end GM1 header ---");
+    for(size_t index = 0; index < gm1.palettes.size(); ++index) {
+        SDL_Log("--- GM1 Palette #%d ---", index);
+        VerbosePrintPalette(gm1.palettes[index]);
+        SDL_Log("--- end GM1 Palette #%d ---", index);
+    }
+    for(size_t i = 0; i < gm1.offsets.size(); ++i) {
+        SDL_Log("Offset #%d:\t%d", i, gm1.offsets[i]);
+    }
+    for(size_t i = 0; i < gm1.sizes.size(); ++i) {
+        SDL_Log("Size #%d:\t%d", i, gm1.sizes[i]);
+    }
+    for(size_t i = 0; i < gm1.headers.size(); ++i) {
+        SDL_Log("--- Image header #%d ---", i);
+        VerbosePrintImageHeader(gm1.headers[i]);
+        SDL_Log("--- end image header #%d ---", i);
+    }
+    Sint64 origin = GM1_HEADER_BYTES
+        + GM1_IMAGE_HEADER_BYTES * GetImageCount(gm1.header)
+        + GM1_PALETTE_COLORS * GM1_PALETTE_COUNT * sizeof(Uint16)
+        + sizeof(Uint32) * GetImageCount(gm1.header)
+        + sizeof(Uint32) * GetImageCount(gm1.header);
+    SDL_Log("Data entry point at %d",
+            static_cast<int>(origin));
 }
 
 NAMESPACE_END(gm1)

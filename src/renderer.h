@@ -42,7 +42,7 @@ class Renderer
     std::map<
         std::string,
         Surface> imageStorage;
-
+    
 public:
     Renderer(SDLWindow &window);
     ~Renderer();

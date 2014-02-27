@@ -1,21 +1,50 @@
 #include "surface.h"
 
-Surface::Surface(
-    Uint32 width,
-    Uint32 height,
-    Uint32 depth,
-    Uint32 rmask,
-    Uint32 gmask,
-    Uint32 bmask,
-    Uint32 amask)
+SurfaceLocker::SurfaceLocker(const Surface &surface)
+    : object(surface)
+    , locked(false)
+{
+    if(!object.Null()) {
+        if(SDL_MUSTLOCK(object)) {
+            if(0 == SDL_LockSurface(object))
+                locked = true;
+        }
+    }
+}
+
+SurfaceLocker::~SurfaceLocker()
+{
+    if(locked && !object.Null()) {
+        SDL_UnlockSurface(object);
+    }
+}
+
+ColorKeyLocker::ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color)
+    : object(surface)
+{
+    if(!object.Null()) {
+        oldEnabled =
+            (0 == SDL_GetColorKey(object, &oldColor));
+        SDL_SetColorKey(object, enabled, color);
+    }
+}
+
+ColorKeyLocker::~ColorKeyLocker()
+{
+    if(!object.Null()) {
+        SDL_SetColorKey(object, oldEnabled, oldColor);
+    }
+}
+
+Surface::Surface(int width, int height, int depth, Uint32 rmask, Uint32 gmask, Uint32 bmask, Uint32 amask)
 {
     surface = SDL_CreateRGBSurface(
         0, width, height, depth,
         rmask, gmask, bmask, amask);
-    
-    if(surface == NULL)
-        throw std::runtime_error(SDL_GetError());
-
+    if(surface != NULL) {
+        IncRefCount(surface);
+        LogAllocation(surface);
+    }
 }
 
 Surface::Surface()
@@ -23,18 +52,25 @@ Surface::Surface()
 {
 }
 
+Surface::~Surface()
+{
+    Assign(NULL);
+}
+
 Surface::Surface(const Surface &that)
-    : surface(that)
+    : surface(that.Get())
 {
     if(surface != NULL)
         IncRefCount(surface);
 }
 
 Surface::Surface(SDL_Surface *s)
+    : surface(s)
 {
-    if(surface != NULL)
+    if(surface != NULL) {
+        LogAllocation(surface);
         IncRefCount(surface);
-    Assign(s);
+    }
 }
 
 Surface &Surface::operator=(const Surface &that)
@@ -59,18 +95,15 @@ bool Surface::operator==(const Surface &that)
     return that.Get() == surface;
 }
 
-Surface::~Surface()
-{
-    Assign(NULL);
-}
-
 void Surface::Assign(SDL_Surface *s)
 {
     if(surface != NULL) {
-        if(Unique(surface))
+        if(Unique(surface)) {
+            LogDestruction(surface);
             SDL_FreeSurface(surface);
-        else
+        } else {
             DecRefCount(surface);
+        }
     }
     surface = s;
 }
@@ -87,7 +120,9 @@ void Surface::DecRefCount(SDL_Surface *s)
 
 bool Surface::Unique(SDL_Surface *s) const
 {
-    return s->refcount == 1;
+    // One reference for `s' surface itself (it is just allocated that way)
+    // And the other is for our surface member
+    return s->refcount <= 2;
 }
 
 bool Surface::Null() const
@@ -105,30 +140,21 @@ SDL_Surface *Surface::operator->() const
     return surface;
 }
 
+void Surface::LogAllocation(SDL_Surface *s) const
+{
+    numAllocated += 1;
+    //SDL_Log("Surface allocated: %08X", s);
+}
+
+void Surface::LogDestruction(SDL_Surface *s) const
+{
+    numDestroyed += 1;
+    //SDL_Log("Surface freed: %08X", s);
+}
+
 Surface::operator SDL_Surface *() const
 {
     return surface;
-}
-
-SurfaceLocker::SurfaceLocker(Surface &surface)
-    : object(surface)
-    , locked(0)
-{
-    if(!object.Null()) {
-        locked = SDL_MUSTLOCK(object);
-        if(locked) {
-            if(SDL_LockSurface(object)) {
-                throw std::runtime_error(SDL_GetError());
-            }
-        }
-    }
-}
-
-SurfaceLocker::~SurfaceLocker()
-{
-    if(locked && !object.Null()) {
-        SDL_UnlockSurface(object);
-    }
 }
 
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
@@ -145,44 +171,39 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
     Uint32 bmask = src->format->Bmask;
     Uint32 amask = src->format->Amask;
     
-    Surface dst(
-        width, height, depth,
+    Surface dst = SDL_CreateRGBSurface(
+        0, width, height, depth,
         rmask, gmask, bmask, amask);
-
-    Uint32 key;
-    if(0 == SDL_GetColorKey(src, &key)) {
-        SDL_SetColorKey(dst, SDL_TRUE, key);
-        SDL_FillRect(dst, NULL, key);
-    }
     
+    Uint32 key;
+    bool enabled = 
+        (0 == SDL_GetColorKey(src, &key));
+    
+    ColorKeyLocker lock(src, SDL_FALSE, key);
     BlitSurface(src, srcrect, dst, NULL);
+    SDL_SetColorKey(dst, enabled, key);
     
     return dst;
 }
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
 {
-    int srclocked = SDL_MUSTLOCK(src);
-    int dstlocked = SDL_MUSTLOCK(dst);
-    
-    if(srclocked)
-        SDL_LockSurface(src);
-    if(dstlocked)
-        SDL_LockSurface(dst);
+    SurfaceLocker srcLock(src);
+    SurfaceLocker dstLock(dst);
 
     if(SDL_BlitSurface(src, srcrect, dst, dstrect)) {
         throw std::runtime_error(SDL_GetError());
     }
-    
-    if(srclocked)
-        SDL_UnlockSurface(src);
-    if(dstlocked)
-        SDL_UnlockSurface(dst);
 }
 
-void FillRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+void DrawAlphaFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 {
-    SDL_FillRect(dst, dstrect, color);
+    SDL_Log("DrawAlphaFrame: not implemented");
+}
+
+void FillAlphaRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+{
+    SDL_Log("FillAlphaRect: not implemented");
 }
 
 void SetColorKey(Surface &dst, Uint32 color, bool enabled)
@@ -224,3 +245,6 @@ bool RectIsEmpty(const SDL_Rect &rect)
 {
     return rect.w == 0 || rect.h == 0;
 }
+
+Sint64 Surface::numAllocated = 0;
+Sint64 Surface::numDestroyed = 0;

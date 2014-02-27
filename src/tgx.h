@@ -38,10 +38,10 @@ const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 // Five for mortal BLUE
 // Doomed to be blue
 // And one bit - for the ALPHA lord on its alpha throne
-// In the land of grass where some sprites lie
+// In the land of sprites where some shadows was
 // One bit to rule them all, one bit to find them
 // One bit to bring them all, and in the ARGB bind them
-// In the land of grass where some sprites lie
+// In the land of sprites where some shadows was
 const int TGX_RGB16_AMASK = 0;
 const int TGX_RGB16_RMASK = 0x7C00;                   // 0111110000000000
 const int TGX_RGB16_GMASK = 0x3E0;                    // 0000001111100000

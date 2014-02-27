@@ -1,6 +1,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <array>
 #include <iostream>
 #include <fstream>
 #include <initializer_list>
@@ -12,11 +13,9 @@
 #include <limits>
 
 #include <SDL2/SDL.h>
-#include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
+#include "surface.h"
 #include "gamescreen.h"
 #include "screen.h"
 #include "animation.h"
@@ -27,11 +26,7 @@
 #include "gm1.h"
 #include "landscape.h"
 #include "loadingscreen.h"
-
-class Server
-{
-public:
-    
-};
+#include "network.h"
+#include "gamereactor.h"
 
 #endif

@@ -23,8 +23,8 @@ Surface LoadStandaloneImage(SDL_RWops *src)
     Uint32 width = header.width;
     Uint32 height = header.height;
     
-    Surface surface(
-        width, height, depth,
+    Surface surface = SDL_CreateRGBSurface(
+        0, width, height, depth,
         rmask, gmask, bmask, amask);
     
     if(surface.Null()) {
@@ -43,7 +43,7 @@ Surface LoadStandaloneImage(SDL_RWops *src)
 
 static int ReadHeader(SDL_RWops *src, Header *hdr)
 {
-    if(ReadableBytes(src) < sizeof(Header)) {
+    if(ReadableBytes(src) < 2 * sizeof(Uint32)) {
         SDL_Log("Source overrun");
         return -1;
     }
@@ -51,7 +51,7 @@ static int ReadHeader(SDL_RWops *src, Header *hdr)
     hdr->width = SDL_ReadLE32(src);
     hdr->height = SDL_ReadLE32(src);
     return 0;
-}    
+}
 
 int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface)
 {
@@ -72,8 +72,13 @@ int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface)
 
 int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
 {
-    if(size < TILE_BYTES) {
+    if(ReadableBytes(src) < size) {
         SDL_Log("Source buffer overrun");
+        return -1;
+    }
+
+    if(size < TILE_BYTES) {
+        SDL_Log("Given size too small");
         return -1;
     }
 
@@ -89,7 +94,10 @@ int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
         size_t length = TILE_PIXELS_PER_ROW[y];
         size_t offset = (width - length) / 2;
 
-        SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
+        if(SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length) != length) {
+            SDL_Log("Source buffer overrun");
+            return -1;
+        }
         dst += pitchBytes;
     }
     
@@ -110,6 +118,7 @@ static TokenType ExtractTokenType(const Uint8 &token)
 
 static const char * GetTokenTypeName(TokenType type)
 {
+    UNUSED(GetTokenTypeName);
     switch(type) {
     case TokenType::Transparent: return "Transparent";
     case TokenType::Stream: return "Stream";
@@ -130,24 +139,27 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
 {
     SurfaceLocker lock(surface);
 
-    size_t bytesPerPixel = surface->format->BytesPerPixel;
+    int bytesPerPixel = surface->format->BytesPerPixel;
     int pitchBytes = surface->pitch;
     int dstBytes = pitchBytes * surface->h;
     Uint8 *dst = reinterpret_cast<Uint8*>(surface->pixels);
     Uint8 *dstBegin = dst;
+    Uint8 *dstEnd = dst + dstBytes;
     
     // First position in src which we won't read unless overrun will happen
     Sint64 npos = SDL_RWtell(src) + size;
     
-    // Overrun happen
+    // src might be overran
     bool overrun = false;
+
+    // surface pixels might be overflowed
+    bool overflow = false;
 
     while(SDL_RWtell(src) < npos) {
         Uint8 token = SDL_ReadU8(src);
         TokenType type = ExtractTokenType(token);
         size_t length = ExtractTokenLength(token);
-        int bytesWritten = std::distance(dstBegin, dst);
-                
+
         switch(type) {
         case TokenType::LineFeed:
             {
@@ -155,43 +167,46 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
                     SDL_Log("LineFeed token length should be 1");
                     return -1;
                 }
-                size_t x = bytesWritten % pitchBytes;
-                if(x != 0) {
-                    dst += pitchBytes - x - 1;
-                }
+                dst += pitchBytes - (dst - dstBegin) % pitchBytes;
+                if(dst > dstEnd)
+                    overflow = true;
             }
             break;
             
         case TokenType::Transparent:
             {
-                if(bytesWritten <= dstBytes) {
-                    dst += length * bytesPerPixel;
-                }
+                dst += length * bytesPerPixel;
+                if(dst > dstEnd)
+                    overflow = true;
             }
             break;
             
         case TokenType::Stream:
             {
-                if(bytesWritten <= dstBytes) {
+                if(dst + length * bytesPerPixel <= dstEnd) {
                     if(SDL_RWread(src, dst, bytesPerPixel, length) == length) {
                         dst += length * bytesPerPixel;
                     } else {
                         overrun = true;
                     }
+                } else {
+                    overflow = true;
                 }
             }
             break;
 
         case TokenType::Repeat:
             {
-                if(bytesWritten <= dstBytes) {
-                    Uint8 pixel[TGX_MAX_BPP / 8];
-                    if(SDL_RWread(src, pixel, 1, bytesPerPixel) == bytesPerPixel) {
-                        RepeatPixel(pixel, dst, bytesPerPixel, length);
+                if(dst + length * bytesPerPixel <= dstEnd) {
+                    // Read single pixel `length' times
+                    if(SDL_RWread(src, dst, bytesPerPixel, 1) == 1) {
+                        RepeatPixel(dst, dst, bytesPerPixel, length);
                         dst += length * bytesPerPixel;
                     } else {
                         overrun = true;
                     }
+                } else {
+                    overflow = true;
                 }
             }
             break;
@@ -204,12 +219,12 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
             break;
         }
 
-        if(bytesWritten > dstBytes) {
-            SDL_Log("Buffer overflow");
+        if(overflow) {
+            SDL_Log("Destination buffer overflow");
             return -1;
         }
         if(overrun) {
-            SDL_Log("Source overrun");
+            SDL_Log("Source buffer overrun");
             return -1;
         }
     }

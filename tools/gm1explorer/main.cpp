@@ -159,10 +159,10 @@ int explorer_main(const std::string &filename)
         Surface atlas = gm1::LoadAtlas(src, collection);
         SDL_RWclose(src);
 
-        gm1::VerbosePrintHeader(collection.header);
+        VerbosePrintCollection(collection);
 
         std::vector<SDL_Rect> partition;
-        gm1::PartitionAtlas(collection, partition);
+        gm1::PartitionAtlas(collection, partition);        
         
         viewer_t viewer(collection, atlas, partition);
         viewer.enter_event_loop();

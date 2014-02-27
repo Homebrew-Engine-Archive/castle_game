@@ -48,7 +48,12 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
         break;
     case SDL_KEYDOWN:
         {
-            return false;
+            switch(event.key.keysym.sym) {
+            case SDLK_ESCAPE:
+                return false;
+            default:
+                return true;
+            }
         }
         break;
     case SDL_QUIT:

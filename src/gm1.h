@@ -130,9 +130,10 @@ inline constexpr Uint32 GetImageClass(const Header &hdr)
     return hdr[5];
 }
 
-void VerbosePrintImageHeader(const ImageHeader &);
-void VerbosePrintHeader(const Header &);
-void VerbosePrintPalette(const Palette &);
+void VerbosePrintImageHeader(const ImageHeader &header);
+void VerbosePrintHeader(const Header &gm1);
+void VerbosePrintPalette(const Palette &palette);
+void VerbosePrintCollection(const Collection &collection);
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
     throw(std::runtime_error);

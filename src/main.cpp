@@ -2,6 +2,21 @@
 
 using namespace std;
 
+enum class ScreenIdentity : int {
+    MainMenuScreen,
+    MilitaryScreen,
+    /* |---> */MilitaryCampaignScreen,
+    /* |---> */SiegeScreen,
+    /* |---> */InvasionScreen,
+    /* +---> */MultiplayerScreen,
+    EconomicScreen,
+    /* |---> */EconomicCampaignScreen,
+    /* |---> */EconomicMissionScreen,
+    /* +---> */SandboxScreen,
+    MapEditorScreen,
+    GameScreen
+};
+
 int main()
 {
     SDLContext(SDL_INIT_EVERYTHING);
@@ -15,21 +30,20 @@ int main()
     
     Screen *rootScreen = new GameScreen;
     
-    bool quit = false;
-    const bool frameLimit = false;
+    const bool frameLimit = true;
     const int frameRate = 16;
     const int frameInterval = 1000 / frameRate;
     const int pollRate = 66;
     const int pollInterval = 1000 / pollRate;
-    
+
+    bool quit = false;
     int lastFrame = 0;
     int lastPoll = 0;
     
     boost::asio::io_service io;
-    boost::asio::ip::tcp::acceptor acceptor(io);
-    boost::asio::ip::tcp::socket socket(io);
 
-    boost::asio::deadline_timer timer(io, boost::posix_time::seconds(1));
+    Server server(io, 4500);
+    server.StartAccept();
     
     while(!quit) {
         const int pollStart = SDL_GetTicks();
@@ -52,16 +66,14 @@ int main()
 
         if(frameLimit) {
             const int delayStart = SDL_GetTicks();
-            const int tickDelta = delayStart - pollStart;
             const int nextTick =
                 std::min(lastPoll + pollInterval,
                          lastFrame + frameInterval);
-            if(tickDelta < nextTick) {
-                SDL_Delay(nextTick - tickDelta);
+            if(delayStart < nextTick) {
+                SDL_Delay(nextTick - delayStart);
             }
         }
     }
     
     return 0;
 }
-

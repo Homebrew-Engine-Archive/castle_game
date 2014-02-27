@@ -58,19 +58,23 @@ SDL_Rect Renderer::OutputRect() const
 
 void Renderer::BlitCollectionImage(const std::string &filename, size_t index)
 {
-    Surface surface = atlasStorage[filename];
-    SDL_Palette *palette = atlasPalettes[filename];
-    const SDL_Rect &rect = atlasPartition[filename][index];
+    auto searchResult = atlasStorage.find(filename);
 
-    Surface dst = CopySurface(surface, &rect);
+    if(searchResult != atlasStorage.end()) {
+        Surface surface = searchResult->second;
+        SDL_Palette *palette = atlasPalettes[filename];
+        const SDL_Rect &rect = atlasPartition[filename][index];
+
+        Surface dst = CopySurface(surface, &rect);
     
-    if(dst->format->BitsPerPixel == 8) {
-        SDL_SetSurfacePalette(dst, palette);
+        if(dst->format->BitsPerPixel == 8) {
+            SDL_SetSurfacePalette(dst, palette);
+        }
+    
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(rndr, dst);
+        SDL_RenderCopy(rndr, texture, NULL, NULL);
+        SDL_DestroyTexture(texture);
     }
-    
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(rndr, dst);
-    SDL_RenderCopy(rndr, texture, NULL, NULL);
-    SDL_DestroyTexture(texture);
 }
 
 void Renderer::BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect)
