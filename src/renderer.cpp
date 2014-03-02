@@ -1,133 +1,134 @@
 #include "renderer.h"
 
 Renderer::Renderer(SDLWindow &window)
+    : fbTexture(NULL)
 {
-    rndr = SDL_CreateRenderer(
+    renderer = SDL_CreateRenderer(
         window.GetWindow(), -1,
-        SDL_RENDERER_ACCELERATED);
+        0);
 
-    if(rndr == NULL)
+    if(renderer == NULL)
         throw std::runtime_error(SDL_GetError());
+
+    int width, height;
+    if(SDL_GetRendererOutputSize(renderer, &width, &height)) {
+        throw std::runtime_error(SDL_GetError());
+    }
+    ReallocateStreamingTexture(width, height);
+    std::clog << "ReallocateStreamingTexture: ";
+    std::clog << "Width=" << width <<',';
+    std::clog << "Height=" << height;
+    std::clog << std::endl;
 }
 
 Renderer::~Renderer()
 {
-    SDL_DestroyRenderer(rndr);
+    fbSurface.reset();
+    SDL_DestroyTexture(fbTexture);
+    SDL_DestroyRenderer(renderer);
 }
 
-void Renderer::Present()
+void Renderer::ReallocateStreamingTexture(int width, int height)
 {
-    SDL_RenderPresent(rndr);
+    if(fbTexture != NULL) {
+        SDL_DestroyTexture(fbTexture);
+        fbTexture = NULL;
+    }
+
+    fbFormat = SDL_PIXELFORMAT_ARGB8888;
+    
+    fbTexture = SDL_CreateTexture(
+        renderer, fbFormat,
+        SDL_TEXTUREACCESS_STREAMING,
+        width, height);
+    
+    if(fbTexture == NULL) {
+        std::cerr << "SDL_CreateTexture failed: " << SDL_GetError() << std::endl;
+    }
 }
 
-void Renderer::BeginFrame()
+Surface Renderer::BeginFrame()
 {
-    if(SDL_RenderSetClipRect(rndr, NULL)) {
-        SDL_Log("Can't reset clip rect.");
+    if(fbSurface.Null()) {
+        int width;
+        int height;
+        if(SDL_QueryTexture(fbTexture, NULL, NULL, &width, &height)) {
+            std::cerr << "SDL_QueryTexture failed: " << SDL_GetError() << std::endl;
+        }
+
+        int nativePitch;
+        void *nativePixels;
+        if(SDL_LockTexture(fbTexture, NULL, &nativePixels, &nativePitch)) {
+            std::cerr << "SDL_LockTexture failed: " << SDL_GetError() << std::endl;
+            return fbSurface;
+        }
+        
+        fbSurface = AllocateStreamingSurface(nativePixels, width, height, nativePitch);
+        if(fbSurface.Null()) {
+            std::cerr << "Can't allocate framebuffer" << std::endl;
+            SDL_UnlockTexture(fbTexture);
+            return fbSurface;
+        }
+    }
+    
+    return fbSurface;
+}
+
+Surface Renderer::AllocateStreamingSurface(void *pixels, int width, int height, int pitch)
+{
+    Uint32 rmask;
+    Uint32 gmask;
+    Uint32 bmask;
+    Uint32 amask;
+    int bpp;
+
+    if(!SDL_PixelFormatEnumToMasks(fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
+        std::cerr << "SDL_PixelFormatEnumToMasks failed: " << std::endl;
+        return Surface();
     }
 
-    if(SDL_RenderSetViewport(rndr, NULL)) {
-        SDL_Log("Can't reset viewport.");
+    Surface surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+    if(surface.Null()) {
+        std::cerr << "SDL_CreateRGBSurfaceFrom failed: " << SDL_GetError() << std::endl;
     }
+    
+    return surface;
 }
 
 void Renderer::EndFrame()
 {
-}
-
-void Renderer::Clear()
-{
-    SDL_RenderClear(rndr);
-}
-
-void Renderer::FillRect(const SDL_Rect *rect)
-{
-    SDL_RenderFillRect(rndr, rect);
-}
-
-SDL_Rect Renderer::OutputRect() const
-{
-    int w, h;
-    if(SDL_GetRendererOutputSize(rndr, &w, &h)) {
-        SDL_Log("SDL_GetRendererOutputSize failed: %s", SDL_GetError());
-        return MakeEmptyRect();
+    if(!fbSurface.Null()) {
+        fbSurface.reset();
+        SDL_UnlockTexture(fbTexture);
     }
 
-    return MakeRect(w, h);
-}
-
-void Renderer::BlitCollectionImage(const std::string &filename, size_t index)
-{
-    auto searchResult = atlasStorage.find(filename);
-
-    if(searchResult != atlasStorage.end()) {
-        Surface surface = searchResult->second;
-        SDL_Palette *palette = atlasPalettes[filename];
-        const SDL_Rect &rect = atlasPartition[filename][index];
-
-        Surface dst = CopySurface(surface, &rect);
+    SDL_RenderClear(renderer);
     
-        if(dst->format->BitsPerPixel == 8) {
-            SDL_SetSurfacePalette(dst, palette);
-        }
-    
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(rndr, dst);
-        SDL_RenderCopy(rndr, texture, NULL, NULL);
-        SDL_DestroyTexture(texture);
+    if(SDL_RenderCopy(renderer, fbTexture, NULL, NULL)) {
+        std::cerr << "SDL_RenderCopy failed: " << SDL_GetError() << std::endl;
     }
+
+    SDL_RenderPresent(renderer);
 }
 
-void Renderer::BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect)
-{
-    auto searchResult = imageStorage.find(name);
-
-    if(searchResult != imageStorage.end()) {
-        Surface surface = searchResult->second;
-        
-        SDL_Texture *texture =
-            SDL_CreateTextureFromSurface(rndr, surface);
-        
-        if(texture == NULL) {
-            SDL_LogDebug(SDL_LOG_PRIORITY_ERROR, "Unable to create texture: %s",
-                         SDL_GetError());
-            return;
-        }
-
-        if(SDL_RenderCopy(rndr, texture, srcrect, dstrect)) {
-            SDL_LogDebug(SDL_LOG_PRIORITY_ERROR, "Unable to blit texture: %s",
-                         SDL_GetError());
-        }
-
-        SDL_DestroyTexture(texture);        
-    }
-}
-
-bool Renderer::LoadImage(const std::string &filename)
+Surface Renderer::LoadImage(const std::string &filename)
 {
     SDL_Log("LoadImage: %s", filename.c_str());
     try {
         FileBuffer filebuff(filename.c_str(), "rb");
-
-        SDL_RWops *src = SDL_RWFromConstMem(filebuff.to_uint8(), filebuff.Size());
-        std::unique_ptr<SDL_RWops, RWCloseDeleter> autodeleter(src);
+        scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
         
-        if(src == NULL)
-            return false;
-
-        Surface image = tgx::LoadStandaloneImage(src);
+        if(!src)
+            throw std::runtime_error("Can't alloc file buff");
         
-        imageStorage.insert(
-            std::make_pair(filename, image));
+        return tgx::LoadStandaloneImage(src.get());
         
     } catch(const std::exception &e) {
-        SDL_Log("Exception in LoadImage: %s",
-                filename.c_str(), e.what());
-        return false;
-    } catch(const file_not_readable &e) {
-        SDL_Log("File not readable");
-        return false;
+        std::cerr << "Exception in LoadImage: " << std::endl;
+        std::cerr << '\t' << filename.c_str() << std::endl;
+        std::cerr << '\t' << e.what() << std::endl;
+        return Surface();
     }
-    return true;
 }
 
 bool Renderer::LoadImageCollection(const std::string &filename)
@@ -135,31 +136,110 @@ bool Renderer::LoadImageCollection(const std::string &filename)
     SDL_Log("LoadImageCollection: %s", filename.c_str());
     try {
         FileBuffer filebuff(filename.c_str(), "rb");
+        scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
 
-        SDL_RWops *src = SDL_RWFromConstMem(filebuff.to_uint8(), filebuff.Size());
-        std::unique_ptr<SDL_RWops, RWCloseDeleter> autodeleter(src);
-
-        if(src == NULL)
-            return false;
+        if(!src)
+            throw std::runtime_error("file not readable");
         
-        gm1::Collection gm1(src);
-        Surface atlas = gm1::LoadAtlas(src, gm1);
-        atlasStorage.insert(
-            std::make_pair(filename, atlas));
+        gm1::Collection gm1(src.get());
+        Surface atlas = gm1::LoadAtlas(src.get(), gm1);
 
-        std::vector<SDL_Rect> partition;
-        gm1::PartitionAtlas(gm1, partition);
-        atlasPartition[filename] = partition;
+        CacheEntry entry = { gm1, atlas };
+        m_cache.insert(std::make_pair(filename, entry));
         
-        atlasPalettes[filename] = gm1::CreateSDLPaletteFrom(gm1.palettes[3]);
+        return true;
         
     } catch(const std::exception &e) {
-        SDL_Log("LoadImageCollection %s error: %s",
-                filename.c_str(), e.what());
-        return false;
-    } catch(const file_not_readable &e) {
-        SDL_Log("File not readable: %s", filename.c_str());
+        std::cerr << "Exception in LoadImageCollection: " << std::endl;
+        std::cerr << '\t' << filename << std::endl;
+        std::cerr << '\t' << e.what() << std::endl;
         return false;
     }
-    return true;
+}
+
+static void PrintDriverInfo(const SDL_RendererInfo &info)
+{           
+    std::clog << "\tname: ";
+    std::clog << info.name;
+    std::clog << std::endl;
+            
+    std::clog << "\tnum_texture_formats: ";
+    std::clog << std::dec;
+    std::clog << info.num_texture_formats;
+    std::clog << std::endl;
+            
+    std::clog << "\tmax_texture_width: ";
+    std::clog << std::dec;
+    std::clog << info.max_texture_width;
+    std::clog << std::endl;
+            
+    std::clog << "\tmax_texture_height: ";
+    std::clog << std::dec;
+    std::clog << info.max_texture_height;
+    std::clog << std::endl;
+
+    std::clog << "\ttexture_formats: ";
+    if(info.num_texture_formats == 0) {
+        std::clog << "None";
+    } else {
+        for(size_t index = 0; index < info.num_texture_formats; ++index) {
+            std::clog << std::hex;
+            std::clog << info.texture_formats[index];
+            std::clog << " ";
+        }
+    }
+    std::clog << std::endl;
+
+#define PRINT_FLAG_IF_ANY(flags, flag)          \
+    if(flags & flag)                            \
+        std::clog << #flag << " | ";
+            
+    std::clog << "\tflags: ";
+    if(info.flags != 0) {
+        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_SOFTWARE);
+        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_ACCELERATED);
+        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_PRESENTVSYNC);
+        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_TARGETTEXTURE);
+    } else {
+        std::clog << "None";
+    }
+    std::clog << std::endl;
+#undef PRINT_FLAG_IF_ANY
+}
+
+void EnumRenderDrivers()
+{
+    int num = SDL_GetNumRenderDrivers();
+
+    std::clog << "Drivers avialable: ";
+    std::clog << std::dec << num;
+    std::clog << std::endl;
+
+    for(int index = 0; index < num; ++index) {
+        SDL_RendererInfo info;
+        std::clog << "Driver with index: ";
+        std::clog << std::dec;
+        std::clog << index;
+        std::clog << std::endl;
+        if(SDL_GetRenderDriverInfo(index, &info)) {
+            std::clog << "Can't query driver info";
+            std::clog << std::endl;
+        } else {
+            PrintDriverInfo(info);
+        }
+    }
+}
+
+void PrintRendererInfo(SDL_Renderer *renderer)
+{
+    if(renderer == NULL) {
+        return;
+    }
+    std::clog << "Renderer info: " << std::endl;
+    SDL_RendererInfo info;
+    if(SDL_GetRendererInfo(renderer, &info)) {
+        std::clog << "\tCan't query renderer info" << std::endl;
+    } else {
+        PrintDriverInfo(info);
+    }
 }

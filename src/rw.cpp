@@ -1,8 +1,9 @@
 #include "rw.h"
 
-void RWCloseDeleter::operator()(SDL_RWops *src) const
+scoped_rwops RWFromFileBuffer(const FileBuffer &buffer)
 {
-    SDL_RWclose(src);
+    scoped_rwops src(SDL_RWFromConstMem(buffer.Data(), buffer.Size()));
+    return std::move(src);
 }
 
 Sint64 ReadableBytes(SDL_RWops *src)
@@ -41,46 +42,46 @@ void ReadInt8ArrayLE(SDL_RWops *src, Uint8 *buffer, size_t num)
 }
 
 FileBuffer::FileBuffer(const char *filename, const char *mode)
-    throw (file_not_readable)
+    throw (std::runtime_error)
 {
     ReadFile(filename, mode);
 }
 
 FileBuffer::FileBuffer(const std::string &filename, const char *mode)
-    throw (file_not_readable)
+    throw (std::runtime_error)
 {
     ReadFile(filename.c_str(), mode);
 }
 
+FileBuffer::FileBuffer(SDL_RWops *src)
+    throw (std::runtime_error)
+{
+    ReadRW(src);
+}
+
 void FileBuffer::ReadFile(const char *filename, const char *mode)
 {
-    try {
-        SDL_RWops *src = SDL_RWFromFile(filename, mode);
-        std::unique_ptr<SDL_RWops, RWCloseDeleter> autodeleter(src);
-        
-        if(src == NULL)
-            throw file_not_readable();
-        
-        Sint64 size = SDL_RWsize(src);
-        buffer.resize(size);
-        if(SDL_RWread(src, to_uint8(), sizeof(Uint8), size) != size)
-            throw file_not_readable();
-        
-    } catch(const std::exception &e) {
-        SDL_Log("Exception in FileBuffer: %s", e.what());
-        throw file_not_readable();
-    } catch(...) {
-        SDL_Log("Unknown exception in FileBuffer");
-        throw file_not_readable();
+    scoped_rwops src(SDL_RWFromFile(filename, mode));
+    ReadRW(src.get());
+}
+
+void FileBuffer::ReadRW(SDL_RWops *src)
+{
+    if(src == NULL)
+        throw std::runtime_error("file not readable");
+    Sint64 bytes = ReadableBytes(src);
+    buffer.resize(bytes);
+    if(SDL_RWread(src, Data(), sizeof(Uint8), bytes) != bytes) {
+        throw std::runtime_error("eof unexpected");
     }
 }
 
-const Uint8 *FileBuffer::to_uint8() const
+const Uint8 *FileBuffer::Data() const
 {
     return &buffer[0];
 }
 
-Uint8 *FileBuffer::to_uint8()
+Uint8 *FileBuffer::Data()
 {
     return &buffer[0];
 }

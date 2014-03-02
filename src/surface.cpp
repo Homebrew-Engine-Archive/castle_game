@@ -36,125 +36,77 @@ ColorKeyLocker::~ColorKeyLocker()
     }
 }
 
-Surface::Surface(int width, int height, int depth, Uint32 rmask, Uint32 gmask, Uint32 bmask, Uint32 amask)
+Surface::~Surface()
 {
-    surface = SDL_CreateRGBSurface(
-        0, width, height, depth,
-        rmask, gmask, bmask, amask);
-    if(surface != NULL) {
-        IncRefCount(surface);
-        LogAllocation(surface);
-    }
+    SDL_FreeSurface(m_surface);
 }
 
 Surface::Surface()
-    : surface(NULL)
+    : m_surface(NULL)
 {
-}
-
-Surface::~Surface()
-{
-    Assign(NULL);
-}
-
-Surface::Surface(const Surface &that)
-    : surface(that.Get())
-{
-    if(surface != NULL)
-        IncRefCount(surface);
 }
 
 Surface::Surface(SDL_Surface *s)
-    : surface(s)
+    : m_surface(s)
 {
-    if(surface != NULL) {
-        LogAllocation(surface);
-        IncRefCount(surface);
-    }
 }
 
-Surface &Surface::operator=(const Surface &that)
+Surface::Surface(const Surface &that)
+    : m_surface(that.m_surface)
 {
-    SDL_Surface *s = that.Get();
-    if(s != NULL)
-        IncRefCount(s);
-    Assign(s);
-    return *this;
+    AddRef(m_surface);
 }
 
 Surface &Surface::operator=(SDL_Surface *s)
 {
-    if(s != NULL)
-        IncRefCount(s);
     Assign(s);
+    return *this;
+}
+
+Surface &Surface::operator=(const Surface &that)
+{
+    AddRef(that.m_surface);
+    Assign(that.m_surface);
     return *this;
 }
 
 bool Surface::operator==(const Surface &that)
 {
-    return that.Get() == surface;
+    return that.m_surface == m_surface;
 }
 
 void Surface::Assign(SDL_Surface *s)
 {
-    if(surface != NULL) {
-        if(Unique(surface)) {
-            LogDestruction(surface);
-            SDL_FreeSurface(surface);
-        } else {
-            DecRefCount(surface);
-        }
-    }
-    surface = s;
+    // SDL_FreeSurface manages refcount by itself
+    // Suddenly.
+    SDL_FreeSurface(m_surface);
+    m_surface = s;
 }
 
-void Surface::IncRefCount(SDL_Surface *s)
+void Surface::AddRef(SDL_Surface *surf)
 {
-    ++s->refcount;
-}
-
-void Surface::DecRefCount(SDL_Surface *s)
-{
-    --s->refcount;
-}
-
-bool Surface::Unique(SDL_Surface *s) const
-{
-    // One reference for `s' surface itself (it is just allocated that way)
-    // And the other is for our surface member
-    return s->refcount <= 2;
+    if(surf != NULL)
+        ++surf->refcount;
 }
 
 bool Surface::Null() const
 {
-    return surface == NULL;
-}
-
-SDL_Surface *Surface::Get() const
-{
-    return surface;
+    return (m_surface == NULL);
 }
 
 SDL_Surface *Surface::operator->() const
 {
-    return surface;
-}
-
-void Surface::LogAllocation(SDL_Surface *s) const
-{
-    numAllocated += 1;
-    //SDL_Log("Surface allocated: %08X", s);
-}
-
-void Surface::LogDestruction(SDL_Surface *s) const
-{
-    numDestroyed += 1;
-    //SDL_Log("Surface freed: %08X", s);
+    return m_surface;
 }
 
 Surface::operator SDL_Surface *() const
 {
-    return surface;
+    return m_surface;
+}
+
+void Surface::reset()
+{
+    Assign(NULL);
 }
 
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
@@ -186,60 +138,142 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
     return dst;
 }
 
+Surface SubSurface(Surface &src, const SDL_Rect *rect)
+{
+    Uint32 x = (rect == NULL ? 0 : rect->x);
+    Uint32 y = (rect == NULL ? 0 : rect->y);
+    Uint32 width = (rect == NULL ? src->w : rect->w);
+    Uint32 height = (rect == NULL ? src->h : rect->h);
+    Uint32 depth = src->format->BitsPerPixel;
+    Uint32 rmask = src->format->Rmask;
+    Uint32 gmask = src->format->Gmask;
+    Uint32 bmask = src->format->Bmask;
+    Uint32 amask = src->format->Amask;
+    Uint32 bytesPerPixel = src->format->BytesPerPixel;
+    
+    Uint8 *pixels = (Uint8 *)src->pixels
+        + y * src->pitch
+        + x * bytesPerPixel;
+    
+    Surface dst = SDL_CreateRGBSurfaceFrom(
+        pixels, width, height, depth, src->pitch,
+        rmask, gmask, bmask, amask);
+    
+    Uint32 colorkey;
+    if(0 == SDL_GetColorKey(src, &colorkey)) {
+        SDL_SetColorKey(dst, SDL_TRUE, colorkey);
+    }
+    
+    return dst;
+}
+
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
 {
-    SurfaceLocker srcLock(src);
-    SurfaceLocker dstLock(dst);
-
     if(SDL_BlitSurface(src, srcrect, dst, dstrect)) {
         throw std::runtime_error(SDL_GetError());
     }
 }
 
-void DrawAlphaFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 {
-    SDL_Log("DrawAlphaFrame: not implemented");
+    SDL_Renderer *render = SDL_CreateSoftwareRenderer(dst);
+    SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
+
+    Uint8 r, g, b, a;
+    SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
+    SDL_SetRenderDrawColor(render, r, g, b, a);
+    SDL_RenderDrawRect(render, dstrect);
+    SDL_DestroyRenderer(render);
 }
 
-void FillAlphaRect(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 {
-    SDL_Log("FillAlphaRect: not implemented");
+    SDL_Renderer *render = SDL_CreateSoftwareRenderer(dst);
+    SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
+
+    Uint8 r, g, b, a;
+    SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
+    SDL_SetRenderDrawColor(render, r, g, b, a);
+    SDL_RenderFillRect(render, dstrect);
+    SDL_DestroyRenderer(render);
+}
+
+SDL_Rect AlignRect(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
+{
+    int xcenter = dst.x + (dst.w / 2);
+    int ycenter = dst.y + (dst.h / 2);
+
+    int xspace = std::max(0, dst.w - src.w);
+    int yspace = std::max(0, dst.h - src.h);
+
+    int xpos = x * xspace / 2;
+    int ypos = y * yspace / 2;
+
+    SDL_Rect rect;
+    rect.x = xcenter + xpos - (src.w / 2);
+    rect.y = ycenter + ypos - (src.h / 2);
+    rect.w = src.w;
+    rect.h = src.h;
+    return rect;
+}
+
+SDL_Rect PadIn(const SDL_Rect &src, int pad)
+{
+    if((src.w >= (2 * pad)) && (src.h >= (2 * pad))) {
+        return MakeRect(
+            src.x + pad,
+            src.y + pad,
+            src.w - 2 * pad,
+            src.h - 2 * pad);
+    }
+
+    return src;
+}
+
+SDL_Rect SurfaceBounds(const Surface &src)
+{
+    return (src.Null()
+            ? MakeEmptyRect()
+            : MakeRect(src->w, src->h));
 }
 
 SDL_Rect MakeRect(int x, int y, int w, int h)
 {
-    SDL_Rect r;
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
+    SDL_Rect r = {x, y, w, h};
     return r;
 }
 
 SDL_Rect MakeRect(int w, int h)
 {
-    SDL_Rect r;
-    r.x = 0;
-    r.h = 0;
-    r.w = w;
-    r.h = h;
+    SDL_Rect r = {0, 0, w, h};
     return r;
 }
 
 SDL_Rect MakeEmptyRect()
 {
-    SDL_Rect r;
-    r.x = 0;
-    r.y = 0;
-    r.w = 0;
-    r.h = 0;
+    SDL_Rect r = {0, 0, 0, 0};
     return r;
 }
 
-bool RectIsEmpty(const SDL_Rect &rect)
+bool HasPalette(Surface surface)
 {
-    return rect.w == 0 || rect.h == 0;
+    return !surface.Null()
+        && surface->format != NULL
+        && surface->format->BitsPerPixel == 8;
 }
 
-Sint64 Surface::numAllocated = 0;
-Sint64 Surface::numDestroyed = 0;
+NAMESPACE_BEGIN(std)
+
+std::ostream &operator<<(std::ostream &out, const SDL_Rect &R)
+{
+    out << R.w << 'x' << R.h;
+    if(R.x >= 0)
+        out << '+';
+    out << R.x;
+    if(R.y >= 0)
+        out << '+';
+    out << R.y;
+    return out;
+}
+
+NAMESPACE_END(std)

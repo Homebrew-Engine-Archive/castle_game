@@ -20,15 +20,8 @@ GameScreen::~GameScreen()
 {
 }
 
-void GameScreen::Draw(Renderer &renderer)
+void GameScreen::Draw(Renderer &)
 {
-    if(!m_cursorInvalid) {
-        AdjustViewport(renderer.OutputRect());
-    }
-
-    renderer.Clear();
-    renderer.BlitCollectionImage("gm/body_woodcutter.gm1", 51);
-    renderer.Present();
 }
 
 bool GameScreen::HandleEvent(const SDL_Event &event)

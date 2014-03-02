@@ -1,6 +1,7 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <iostream>
 #include <stdexcept>
 #include <set>
 #include <map>
@@ -8,6 +9,7 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+#include "streamingtexture.h"
 #include "tgx.h"
 #include "gm1.h"
 #include "SDLWindow.h"
@@ -25,41 +27,39 @@ struct DestroyRendererDeleter
 
 class Renderer
 {
-    SDL_Renderer *rndr;
+    SDL_Renderer *renderer;
 
-    std::map<
-        std::string,
-        std::vector<SDL_Rect>> atlasPartition;
+    typedef struct {
+        gm1::Collection gm1;
+        Surface atlas;
+    } CacheEntry;
 
-    std::map<
-        std::string,
-        SDL_Palette*> atlasPalettes;
-    
-    std::map<
-        std::string,
-        Surface> atlasStorage;
-    
-    std::map<
-        std::string,
-        Surface> imageStorage;
+    std::map<std::string, CacheEntry> m_cache;
+
+    void ReallocateStreamingTexture(int width, int height);
+    Surface AllocateStreamingSurface(void *pixels, int width, int height, int pitch);
+
+    Uint32 fbFormat;
+    SDL_Texture *fbTexture;
+
+    // Null when texture is unlocked
+    Surface fbSurface;
     
 public:
     Renderer(SDLWindow &window);
     ~Renderer();
 
-    SDL_Rect OutputRect() const;
+    inline SDL_Renderer *GetRenderer() { return renderer; }
     
-    void BeginFrame();
+    Surface BeginFrame();
     void EndFrame();
-    void Clear();
-    void Present();
-    void FillRect(const SDL_Rect *rect);
     
-    void BlitImage(const std::string &name, const SDL_Rect *srcrect, const SDL_Rect *dstrect);
-    void BlitCollectionImage(const std::string &filename, size_t index);
-    
-    bool LoadImage(const std::string &filename);
+    Surface LoadImage(const std::string &filename);
     bool LoadImageCollection(const std::string &filename);
+    
 };
+
+void EnumRenderDrivers();
+void PrintRendererInfo(SDL_Renderer *renderer);
 
 #endif

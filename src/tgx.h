@@ -43,12 +43,14 @@ const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 // One bit to bring them all, and in the ARGB bind them
 // In the land of sprites where some shadows was
 const int TGX_RGB16_AMASK = 0;
-const int TGX_RGB16_RMASK = 0x7C00;                   // 0111110000000000
-const int TGX_RGB16_GMASK = 0x3E0;                    // 0000001111100000
-const int TGX_RGB16_BMASK = 0x1F;                     // 0000000000011111
+const int TGX_RGB16_RMASK = 0x7c00;                   // 0111110000000000
+const int TGX_RGB16_GMASK = 0x3e0;                    // 0000001111100000
+//const int TGX_RGB16_RMASK = 0xf800;
+//const int TGX_RGB16_GMASK = 0x7e0;
+const int TGX_RGB16_BMASK = 0x1f;                     // 0000000000011111
 
-const int TGX_RGB16_ASHIFT = 15;
-const int TGX_RGB16_RSHIFT = 10;
+const int TGX_RGB16_ASHIFT = 0;
+const int TGX_RGB16_RSHIFT = 11;
 const int TGX_RGB16_GSHIFT = 5;
 const int TGX_RGB16_BSHIFT = 0;
 
@@ -106,6 +108,8 @@ constexpr int GetAlpha(Uint16)
 {
     return 255;
 }
+
+Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp);
 
 int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface);
 int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface);

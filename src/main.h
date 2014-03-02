@@ -12,7 +12,7 @@
 #include <set>
 #include <limits>
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <boost/asio/io_service.hpp>
 
 #include "surface.h"

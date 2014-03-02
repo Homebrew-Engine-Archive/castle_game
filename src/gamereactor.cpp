@@ -4,7 +4,7 @@ Action::Action()
 {
 }
 
-Action::Action(SDL_RWops *src, Sint64 numBytes)
+Action::Action(SDL_RWops *, Sint64 )
 {
     
 }
@@ -23,7 +23,7 @@ GameReactor::~GameReactor()
 
 }
 
-void PushAction(const Action &i, GameReactor &reactor)
+void PushAction(const Action &, GameReactor &)
 {
     
 }

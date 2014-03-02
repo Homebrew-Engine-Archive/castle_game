@@ -10,41 +10,18 @@ static int ReadHeader(SDL_RWops *src, Header *header);
 Surface LoadStandaloneImage(SDL_RWops *src)
 {
     Header header;
-    if(ReadHeader(src, &header)) {
-        SDL_Log("Can't read header");
-        return Surface();
-    }
-    
-    Uint32 rmask = TGX_RGB16_RMASK;
-    Uint32 gmask = TGX_RGB16_GMASK;
-    Uint32 bmask = TGX_RGB16_BMASK;
-    Uint32 amask = TGX_RGB16_AMASK;
-    Uint32 depth = 16;
-    Uint32 width = header.width;
-    Uint32 height = header.height;
-    
-    Surface surface = SDL_CreateRGBSurface(
-        0, width, height, depth,
-        rmask, gmask, bmask, amask);
-    
-    if(surface.Null()) {
-        SDL_Log("Can't allocate surface");
-        return Surface();
-    }
-    
-    Sint64 size = ReadableBytes(src);
-    if(DecodeTGX(src, size, surface)) {
-        SDL_Log("LoadSurface failed");
+    if(ReadHeader(src, &header) < 0) {
+        std::cerr << "ReadHeader failed" << std::endl;
         return Surface();
     }
 
-    return surface;
+    return LoadTGX(src, ReadableBytes(src), header.width, header.height, 16);
 }
 
 static int ReadHeader(SDL_RWops *src, Header *hdr)
 {
     if(ReadableBytes(src) < 2 * sizeof(Uint32)) {
-        SDL_Log("Source overrun");
+        std::cerr << "Buffer overrun" << std::endl;
         return -1;
     }
     
@@ -73,12 +50,12 @@ int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface)
 int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
 {
     if(ReadableBytes(src) < size) {
-        SDL_Log("Source buffer overrun");
+        std::cerr << "Source buffer overrun" << std::endl;
         return -1;
     }
 
     if(size < TILE_BYTES) {
-        SDL_Log("Given size too small");
+        std::cerr << "Incorrect size" << std::endl;
         return -1;
     }
 
@@ -94,10 +71,8 @@ int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
         size_t length = TILE_PIXELS_PER_ROW[y];
         size_t offset = (width - length) / 2;
 
-        if(SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length) != length) {
-            SDL_Log("Source buffer overrun");
-            return -1;
-        }
+        SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
+
         dst += pitchBytes;
     }
     
@@ -135,17 +110,47 @@ static void RepeatPixel(const Uint8 *pixel, Uint8 *buff, size_t size, size_t num
         std::copy(pixel, pixel + size, buff + i * size);
 }
 
+Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp)
+{
+    Uint32 rmask = RMASK_DEFAULT;
+    Uint32 gmask = GMASK_DEFAULT;
+    Uint32 bmask = BMASK_DEFAULT;
+    Uint32 amask = AMASK_DEFAULT;
+    if(bpp == 16) {
+        rmask = TGX_RGB16_RMASK;
+        gmask = TGX_RGB16_GMASK;
+        bmask = TGX_RGB16_BMASK;
+        amask = TGX_RGB16_AMASK;
+    }
+    
+    Surface surface = SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
+
+    if(surface.Null()) {
+        std::cerr << "SDL_CreateRGBSurface failed: ";
+        std::cerr << SDL_GetError();
+        std::cerr << std::endl;
+        return Surface();
+    }
+    
+    if(DecodeTGX(src, size, surface) < 0) {
+        std::cerr << "DecodeTGX failed" << std::endl;
+        return Surface();
+    }
+    
+    return surface;
+}
+
 int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
 {
     SurfaceLocker lock(surface);
 
     int bytesPerPixel = surface->format->BytesPerPixel;
-    int pitchBytes = surface->pitch;
-    int dstBytes = pitchBytes * surface->h;
+    int bytesPitch = surface->pitch;
+    int bytesDst = bytesPitch * surface->h;
     Uint8 *dst = reinterpret_cast<Uint8*>(surface->pixels);
     Uint8 *dstBegin = dst;
-    Uint8 *dstEnd = dst + dstBytes;
-    Uint8 *dstNextLine = dst + pitchBytes;
+    Uint8 *dstEnd = dst + bytesDst;
+    Uint8 *dstNextLine = dst + bytesPitch;
     Sint64 npos = SDL_RWtell(src) + size;
     bool overrun = false;
     bool overflow = false;
@@ -159,14 +164,17 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
         case TokenType::LineFeed:
             {
                 if(length != 1) {
-                    SDL_Log("LineFeed token length should be 1");
+                    std::cerr << "LineFeed token length should be 1" << std::endl;
                     return -1;
                 }
                 if(dst > dstNextLine) {
-                    SDL_Log("dstNextLine is %d bytes ahead dst", (dst - dstNextLine));
+                    std::cerr << "dstNextLine ahead dst by ";
+                    std::cerr << std::dec;
+                    std::cerr << (dst - dstNextLine);
+                    std::cerr << std::endl;
                 }
                 dst = dstNextLine;
-                dstNextLine += pitchBytes;
+                dstNextLine += bytesPitch;
             }
             break;
             
@@ -212,24 +220,32 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
 
         default:
             {
-                SDL_Log("Undefined token: %02X", token);
+                std::cerr << "Undefined token: ";
+                std::cerr << std::hex << token;
+                std::cerr << std::endl;
                 return -1;
             }
             break;
         }
 
         if(overflow) {
-            SDL_Log("Token: %s, Length: %d, Dst: %d, Src: %d, Overflow",
-                    GetTokenTypeName(type), length,
-                    (dst - dstBegin),
-                    static_cast<int>(SDL_RWtell(src)));
+            std::cerr << "Overflow ";
+            std::cerr << std::dec;
+            std::cerr << "Token=" << GetTokenTypeName(type) << ',';
+            std::cerr << "Length=" << length << ',';
+            std::cerr << "Dst=" << dst - dstBegin << ',';
+            std::cerr << "Src=" << SDL_RWtell(src);
+            std::cerr << std::endl;
             return -1;
         }
         if(overrun) {
-            SDL_Log("Token: %s, Length: %d, Dst: %d, Src: %d, Overrun",
-                    GetTokenTypeName(type), length,
-                    (dst - dstBegin),
-                    static_cast<int>(SDL_RWtell(src)));
+            std::cerr << "Overrun ";
+            std::cerr << std::dec;
+            std::cerr << "Token=" << GetTokenTypeName(type) << ',';
+            std::cerr << "Length=" << length << ',';
+            std::cerr << "Dst=" << dst - dstBegin << ',';
+            std::cerr << "Src=" << SDL_RWtell(src);
+            std::cerr << std::endl;
             return -1;
         }
     }

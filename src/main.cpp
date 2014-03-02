@@ -20,11 +20,16 @@ enum class ScreenIdentity : int {
 int main()
 {
     SDLContext(SDL_INIT_EVERYTHING);
+
+    EnumRenderDrivers();
+    
     SDLWindow window("SH", 1024, 768);
     Renderer renderer(window);
-    
+
+    PrintRendererInfo(renderer.GetRenderer());
+   
     if(RunLoadingScreen(renderer)) {
-        SDL_Log("Loading has been interrupted.");
+        std::cerr << "Loading has been interrupted" << std::endl;
         return 0;
     }
     
