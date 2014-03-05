@@ -15,12 +15,13 @@
 #include "SDL.h"
 #include <boost/asio/io_service.hpp>
 
+#include "rootscreen.h"
 #include "surface.h"
 #include "gamescreen.h"
 #include "screen.h"
 #include "animation.h"
-#include "SDLContext.h"
-#include "SDLWindow.h"
+#include "sdl_init.h"
+#include "window.h"
 #include "renderer.h"
 #include "tgx.h"
 #include "gm1.h"

@@ -1,10 +1,13 @@
 #ifndef GAMESCREEN_H_
 #define GAMESCREEN_H_
 
+class GameScreen;
+
 #include <memory>
 
 #include <SDL2/SDL.h>
 
+#include "rootscreen.h"
 #include "gamemap.h"
 #include "landscape.h"
 #include "screen.h"
@@ -36,6 +39,8 @@ Orient NextRotation(Orient rot);
 
 class GameScreen : public Screen
 {
+    RootScreen &m_root;
+    Renderer &m_renderer;
     GameMap m_map;
     int m_cursorX;
     int m_cursorY;
@@ -52,10 +57,10 @@ class GameScreen : public Screen
     bool m_closed;
     
 public:
-    GameScreen();
+    GameScreen(RootScreen &root, Renderer &renderer);
     ~GameScreen();
     
-    void Draw(Renderer &renderer);
+    void Draw();
     bool HandleEvent(const SDL_Event &event);
 
     void LogWindowEvent(const SDL_WindowEvent &event);

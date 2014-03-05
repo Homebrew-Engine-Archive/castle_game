@@ -1,24 +1,17 @@
 #include "renderer.h"
 
-Renderer::Renderer(SDLWindow &window)
+Renderer::Renderer(Window &window)
     : fbTexture(NULL)
+    , fbWidth(0)
+    , fbHeight(0)
+    , fbFormat(0)
 {
-    renderer = SDL_CreateRenderer(
-        window.GetWindow(), -1,
-        0);
-
+    SDL_Window *sdl_wnd = window.GetWindow();
+    renderer = SDL_CreateRenderer(sdl_wnd, -1, 0);
     if(renderer == NULL)
         throw std::runtime_error(SDL_GetError());
-
-    int width, height;
-    if(SDL_GetRendererOutputSize(renderer, &width, &height)) {
-        throw std::runtime_error(SDL_GetError());
-    }
-    ReallocateStreamingTexture(width, height);
-    std::clog << "ReallocateStreamingTexture: ";
-    std::clog << "Width=" << width <<',';
-    std::clog << "Height=" << height;
-    std::clog << std::endl;
+    SDL_GetWindowSize(sdl_wnd, &fbWidth, &fbHeight);
+    AdjustOutputSize(fbWidth, fbHeight);
 }
 
 Renderer::~Renderer()
@@ -28,53 +21,99 @@ Renderer::~Renderer()
     SDL_DestroyRenderer(renderer);
 }
 
-void Renderer::ReallocateStreamingTexture(int width, int height)
+bool Renderer::AllocFrameTexture(int width, int height)
 {
+    std::clog << "Allocating frame texture: " << std::endl
+              << std::dec
+              << "\tWidth = " << width << std::endl
+              << "\tHeight = " << height << std::endl;
+    
+    if((width == 0) || (height == 0)) {
+        std::cerr << "Size is zero. Abort allocation."
+                  << std::endl;
+        return false;
+    }
+    
+    if((fbTexture != NULL) && (width == fbWidth) && (height == fbHeight)) {
+        std::cerr << "Size of texture matches. Skip allocation."
+                  << std::endl;
+        return true;
+    }
+    
     if(fbTexture != NULL) {
         SDL_DestroyTexture(fbTexture);
-        fbTexture = NULL;
     }
-
-    fbFormat = SDL_PIXELFORMAT_ARGB8888;
     
+    fbWidth = width;
+    fbHeight = height;
+    fbFormat = SDL_PIXELFORMAT_ARGB8888;
     fbTexture = SDL_CreateTexture(
-        renderer, fbFormat,
+        renderer,
+        fbFormat,
         SDL_TEXTUREACCESS_STREAMING,
-        width, height);
+        fbWidth,
+        fbHeight);
     
     if(fbTexture == NULL) {
-        std::cerr << "SDL_CreateTexture failed: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_CreateTexture failed: "
+                  << SDL_GetError()
+                  << std::endl;
+        return false;
     }
+
+    return true;
 }
 
 Surface Renderer::BeginFrame()
 {
-    if(fbSurface.Null()) {
-        int width;
-        int height;
-        if(SDL_QueryTexture(fbTexture, NULL, NULL, &width, &height)) {
-            std::cerr << "SDL_QueryTexture failed: " << SDL_GetError() << std::endl;
-        }
-
-        int nativePitch;
-        void *nativePixels;
-        if(SDL_LockTexture(fbTexture, NULL, &nativePixels, &nativePitch)) {
-            std::cerr << "SDL_LockTexture failed: " << SDL_GetError() << std::endl;
-            return fbSurface;
-        }
-        
-        fbSurface = AllocateStreamingSurface(nativePixels, width, height, nativePitch);
-        if(fbSurface.Null()) {
-            std::cerr << "Can't allocate framebuffer" << std::endl;
-            SDL_UnlockTexture(fbTexture);
-            return fbSurface;
+    if(fbTexture == NULL) {
+        if(!AllocFrameTexture(fbWidth, fbHeight)) {
+            std::cerr << "Can't allocate frame texture"
+                      << std::endl;
+            return Surface();
         }
     }
     
+    if(fbSurface.Null()) {
+        int nativePitch;
+        void *nativePixels;
+        if(SDL_LockTexture(fbTexture, NULL, &nativePixels, &nativePitch)) {
+            std::cerr << "SDL_LockTexture failed: "
+                      << SDL_GetError()
+                      << std::endl;
+            return Surface();
+        }
+        
+        fbSurface = AllocFrameSurface(
+            nativePixels, fbWidth, fbHeight, nativePitch);
+        if(fbSurface.Null()) {
+            std::cerr << "Can't allocate framebuffer"
+                      << std::endl;
+            SDL_UnlockTexture(fbTexture);
+            return Surface();
+        }
+    }
+
     return fbSurface;
 }
 
-Surface Renderer::AllocateStreamingSurface(void *pixels, int width, int height, int pitch)
+void Renderer::EndFrame()
+{
+    if(!fbSurface.Null()) {
+        SDL_RenderClear(renderer);
+        
+        fbSurface.reset();
+        SDL_UnlockTexture(fbTexture);
+        if(SDL_RenderCopy(renderer, fbTexture, NULL, NULL)) {
+            std::cerr << "SDL_RenderCopy failed: "
+                      << SDL_GetError()
+                      << std::endl;
+        }
+        SDL_RenderPresent(renderer);
+    }
+}
+
+Surface Renderer::AllocFrameSurface(void *pixels, int width, int height, int pitch)
 {
     Uint32 rmask;
     Uint32 gmask;
@@ -83,37 +122,53 @@ Surface Renderer::AllocateStreamingSurface(void *pixels, int width, int height, 
     int bpp;
 
     if(!SDL_PixelFormatEnumToMasks(fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
-        std::cerr << "SDL_PixelFormatEnumToMasks failed: " << std::endl;
+        std::cerr << "SDL_PixelFormatEnumToMasks failed: "
+                  << SDL_GetError()
+                  << std::endl;
         return Surface();
     }
 
     Surface surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
     if(surface.Null()) {
-        std::cerr << "SDL_CreateRGBSurfaceFrom failed: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_CreateRGBSurfaceFrom failed: "
+                  << SDL_GetError()
+                  << std::endl;
+        return Surface();
     }
     
     return surface;
 }
 
-void Renderer::EndFrame()
+SDL_Rect Renderer::GetOutputSize() const
 {
-    if(!fbSurface.Null()) {
-        fbSurface.reset();
-        SDL_UnlockTexture(fbTexture);
+    int width;
+    int height;
+    if(SDL_GetRendererOutputSize(renderer, &width, &height)) {
+        std::cerr << "SDL_GetRendererOutputSize failed: "
+                  << SDL_GetError()
+                  << std::endl;
     }
-
-    SDL_RenderClear(renderer);
-    
-    if(SDL_RenderCopy(renderer, fbTexture, NULL, NULL)) {
-        std::cerr << "SDL_RenderCopy failed: " << SDL_GetError() << std::endl;
-    }
-
-    SDL_RenderPresent(renderer);
+    return MakeRect(width, height);
 }
 
-Surface Renderer::LoadImage(const std::string &filename)
+void Renderer::AdjustOutputSize(int width, int height)
 {
-    SDL_Log("LoadImage: %s", filename.c_str());
+    if(fbSurface.Null()) {
+        AllocFrameTexture(width, height);
+    } else {
+        SDL_Rect rect = SurfaceBounds(fbSurface);
+        if(rect.w != width || rect.h != height) {
+            EndFrame();
+            AllocFrameTexture(width, height);
+            fbSurface = BeginFrame();
+        }
+    }
+}
+
+Surface Renderer::LoadSurface(const std::string &filename)
+{
+    std::clog << "Load surface from: " << filename;
+    std::clog << std::endl;
     try {
         FileBuffer filebuff(filename.c_str(), "rb");
         scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
@@ -124,68 +179,98 @@ Surface Renderer::LoadImage(const std::string &filename)
         return tgx::LoadStandaloneImage(src.get());
         
     } catch(const std::exception &e) {
-        std::cerr << "Exception in LoadImage: " << std::endl;
-        std::cerr << '\t' << filename.c_str() << std::endl;
-        std::cerr << '\t' << e.what() << std::endl;
+        std::cerr << "Exception in LoadImage: " << std::endl
+                  << "\tFilename: " << filename.c_str() << std::endl
+                  << "\tWhat: " << e.what() << std::endl;
         return Surface();
+    }
+}
+
+Surface Renderer::QuerySurface(const std::string &filename)
+{
+    auto cached = m_imageCache.find(filename);
+    if(cached != m_imageCache.end()) {
+        return cached->second;
+    } else {
+        Surface loaded = LoadSurface(filename);
+        m_imageCache.insert(std::make_pair(filename, loaded));
+        return loaded;
     }
 }
 
 bool Renderer::LoadImageCollection(const std::string &filename)
 {
-    SDL_Log("LoadImageCollection: %s", filename.c_str());
+    std::clog << "Load image collection: "
+              << filename
+              << std::endl;
     try {
         FileBuffer filebuff(filename.c_str(), "rb");
         scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
-
         if(!src)
             throw std::runtime_error("file not readable");
-        
         gm1::Collection gm1(src.get());
-        Surface atlas = gm1::LoadAtlas(src.get(), gm1);
-
-        CacheEntry entry = { gm1, atlas };
-        m_cache.insert(std::make_pair(filename, entry));
-        
+        std::vector<Surface> atlas;
+        gm1::LoadEntries(src.get(), gm1, atlas);
+        CollectionData collection;
+        collection.header = gm1.header;
+        for(size_t n = 0; n < GM1_PALETTE_COUNT; ++n) {
+            SDL_Palette *palette =
+                gm1::CreateSDLPaletteFrom(gm1.palettes[n]);
+            collection.palettes.emplace_back(palette);
+        }
+        for(size_t n = 0; n < gm1.header.imageCount; ++n) {
+            gm1::ImageHeader header = gm1.headers[n];
+            Surface surface = atlas[n];
+            collection.entries.emplace_back(header, surface);
+        }
+        m_cache.insert(std::make_pair(filename, collection));
         return true;
         
     } catch(const std::exception &e) {
-        std::cerr << "Exception in LoadImageCollection: " << std::endl;
-        std::cerr << '\t' << filename << std::endl;
-        std::cerr << '\t' << e.what() << std::endl;
+        std::cerr << "Exception in LoadImageCollection: " << std::endl
+                  << "\tFilename: " << filename << std::endl
+                  << "\tWhat: " << e.what() << std::endl;
         return false;
     }
 }
 
+CollectionData Renderer::GetCollection(const std::string &filename) const
+{
+    auto searchResult = m_cache.find(filename);
+    if(searchResult == m_cache.end())
+        throw std::runtime_error("There are no such cache entry. Go out!");
+    return searchResult->second;
+}
+
 static void PrintDriverInfo(const SDL_RendererInfo &info)
 {           
-    std::clog << "\tname: ";
-    std::clog << info.name;
-    std::clog << std::endl;
+    std::clog << "\tname: "
+              << info.name
+              << std::endl;
             
-    std::clog << "\tnum_texture_formats: ";
-    std::clog << std::dec;
-    std::clog << info.num_texture_formats;
-    std::clog << std::endl;
+    std::clog << "\tnum_texture_formats: "
+              << std::dec
+              << info.num_texture_formats
+              << std::endl;
             
-    std::clog << "\tmax_texture_width: ";
-    std::clog << std::dec;
-    std::clog << info.max_texture_width;
-    std::clog << std::endl;
+    std::clog << "\tmax_texture_width: "
+              << std::dec
+              << info.max_texture_width
+              << std::endl;
             
-    std::clog << "\tmax_texture_height: ";
-    std::clog << std::dec;
-    std::clog << info.max_texture_height;
-    std::clog << std::endl;
+    std::clog << "\tmax_texture_height: "
+              << std::dec
+              << info.max_texture_height
+              << std::endl;
 
     std::clog << "\ttexture_formats: ";
     if(info.num_texture_formats == 0) {
         std::clog << "None";
     } else {
         for(size_t index = 0; index < info.num_texture_formats; ++index) {
-            std::clog << std::hex;
-            std::clog << info.texture_formats[index];
-            std::clog << " ";
+            std::clog << std::hex
+                      << info.texture_formats[index]
+                      << " ";
         }
     }
     std::clog << std::endl;

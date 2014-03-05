@@ -52,7 +52,20 @@ struct Header
     Uint32 u14;
 };
 
-typedef std::array<Uint16, GM1_PALETTE_COLORS> Palette;
+struct ImageHeader
+{
+    Uint16 width;
+    Uint16 height;
+    Uint16 posX;
+    Uint16 posY;
+    Uint8 group;
+    Uint8 groupSize;
+    Uint16 tileY;
+    Uint8 tileOrient;
+    Uint8 hOffset;
+    Uint8 boxWidth;
+    Uint8 flags;
+};
 
 enum class Encoding : Uint32 {
     TGX16,
@@ -69,6 +82,8 @@ enum class TileAlignment : Uint8 {
     None
 };
 
+typedef std::array<Uint16, GM1_PALETTE_COLORS> Palette;
+
 enum class PaletteSet : size_t {
     Unknown0,
     Blue,
@@ -80,21 +95,6 @@ enum class PaletteSet : size_t {
     Cyan,
     Green,
     Unknown1
-};
-
-struct ImageHeader
-{
-    Uint16 width;
-    Uint16 height;
-    Uint16 posX;
-    Uint16 posY;
-    Uint8 group;
-    Uint8 groupSize;
-    Uint16 tileY;
-    Uint8 tileOrient;
-    Uint8 hOffset;
-    Uint8 boxWidth;
-    Uint8 flags;
 };
 
 struct Collection
@@ -113,6 +113,8 @@ void VerbosePrintImageHeader(const ImageHeader &header);
 void VerbosePrintHeader(const Header &gm1);
 void VerbosePrintPalette(const Palette &palette);
 void VerbosePrintCollection(const Collection &collection);
+
+void LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas);
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
     throw(std::runtime_error);

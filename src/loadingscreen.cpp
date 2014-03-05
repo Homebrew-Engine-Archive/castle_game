@@ -14,27 +14,15 @@ static std::vector<std::string> SetPreloadsList(const std::string &listfile)
     return list;
 }
 
-void LoadingScreen::HandleEvents()
+int RunLoadingScreen(RootScreen &root, Renderer &renderer)
 {
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        switch(e.type) {
-        case SDL_QUIT:
-            m_quit = true;
-            break;
-        case SDL_KEYDOWN:
-            if(e.key.keysym.sym == SDLK_ESCAPE)
-                m_quit = true;
-            break;
-        default:
-            break;
-        }
-    }
+    LoadingScreen ls(root, renderer);
+    return ls.Exec();
 }
 
-LoadingScreen::LoadingScreen(Renderer &renderer)
+LoadingScreen::LoadingScreen(RootScreen &root, Renderer &renderer)
     : m_renderer(renderer)
-    , m_background(renderer.LoadImage("gfx/frontend_loading.tgx"))
+    , m_root(root)
     , m_quit(false)
     , m_files(SetPreloadsList("gm/preloads.txt"))
 {
@@ -42,24 +30,27 @@ LoadingScreen::LoadingScreen(Renderer &renderer)
 
 int LoadingScreen::Exec()
 {
-    size_t total = m_files.size();
-    size_t completed = 0;
-
-    Uint32 lastDrawn = 0;
     const Uint32 frameRate = 5;
-    const Uint32 frameDelay = 1000 / frameRate;
+    const Uint32 frameInterval = 1000 / frameRate;
+    Uint32 lastFrame = 0;
+    const Uint32 total = m_files.size();
+    Uint32 completed = 0;
     
-    for(const auto &filename : m_files) {
-        HandleEvents();
-        if(m_quit)
-            return -1;
-        const Uint32 currentTime = SDL_GetTicks();
-        if(lastDrawn + frameDelay < currentTime) {
-            lastDrawn = currentTime;
-            Draw(static_cast<double>(completed) / total);
+    for(const std::string &file : m_files) {
+        if(lastFrame + frameInterval < SDL_GetTicks()) {
+            lastFrame = SDL_GetTicks();
+            double done = static_cast<double>(completed) / total;
+            Draw(done);
         }
-        m_renderer.LoadImageCollection(filename);
-        ++completed;
+
+        SDL_Event event;
+        while(SDL_PollEvent(&event)) {
+            if(!m_root.HandleEvent(event))
+                return -1;
+        }
+
+        completed += 1;
+        m_renderer.LoadImageCollection(file);
     }
     
     return 0;
@@ -67,12 +58,14 @@ int LoadingScreen::Exec()
 
 void LoadingScreen::Draw(double done)
 {
+    Surface background = m_renderer.QuerySurface("gfx/frontend_loading.tgx");
     Surface frame = m_renderer.BeginFrame();
-
+    
     SDL_Rect frameRect = SurfaceBounds(frame);
-    SDL_Rect bgRect = SurfaceBounds(m_background);
+    SDL_Rect bgRect = SurfaceBounds(background);
+
     SDL_Rect bgAligned = AlignRect(bgRect, frameRect, 0, 0);
-    BlitSurface(m_background, NULL, frame, &bgAligned);
+    SDL_BlitSurface(background, NULL, frame, &bgAligned);
     
     SDL_Rect barOuter = MakeRect(300, 25);
     SDL_Rect barOuterAligned = AlignRect(barOuter, bgAligned, 0, 0.8f);
@@ -85,10 +78,4 @@ void LoadingScreen::Draw(double done)
     FillFrame(frame, &barInnerAligned, 0xff000000);
     
     m_renderer.EndFrame();
-}
-
-int RunLoadingScreen(Renderer &renderer)
-{
-   LoadingScreen ls(renderer);
-   return ls.Exec();
 }

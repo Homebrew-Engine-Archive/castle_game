@@ -19,18 +19,16 @@
 class LoadingScreen
 {
     Renderer &m_renderer;
-    Surface m_background;
+    RootScreen &m_root;
     bool m_quit;
     std::vector<std::string> m_files;
 
-    void Draw(double done);
-    void HandleEvents();
-    
 public:
-    LoadingScreen(Renderer &renderer);
+    LoadingScreen(RootScreen &root, Renderer &renderer);
     int Exec();
+    void Draw(double done);
 };
 
-int RunLoadingScreen(Renderer &renderer);
+int RunLoadingScreen(RootScreen &root, Renderer &renderer);
 
 #endif

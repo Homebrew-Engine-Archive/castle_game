@@ -1,6 +1,6 @@
-#include "SDLWindow.h"
+#include "window.h"
 
-SDLWindow::SDLWindow(const char * title, int width, int height)
+Window::Window(const char *title, int width, int height)
 {
     m_wnd = SDL_CreateWindow(
         title,
@@ -12,17 +12,12 @@ SDLWindow::SDLWindow(const char * title, int width, int height)
         throw std::runtime_error(SDL_GetError());
 }
 
-SDLWindow::~SDLWindow()
+Window::~Window()
 {
     SDL_DestroyWindow(m_wnd);
 }
 
-SDL_Window* SDLWindow::GetWindow()
-{
-    return m_wnd;
-}
-
-const SDL_Window* SDLWindow::GetWindow() const
+SDL_Window *Window::GetWindow()
 {
     return m_wnd;
 }

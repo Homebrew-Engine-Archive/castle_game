@@ -109,14 +109,72 @@ void Surface::reset()
     Assign(NULL);
 }
 
+SurfaceROI::~SurfaceROI()
+{
+    SDL_FreeSurface(m_referer);
+}
+
+SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
+    : m_referer(NULL)
+{
+    if(src.Null())
+        return;
+    
+    Uint32 x;
+    Uint32 y;
+    Uint32 width;
+    Uint32 height;
+
+    if(roi != NULL) {
+        x = roi->x;
+        y = roi->y;
+        width = roi->w;
+        height = roi->h;
+    } else {
+        x = 0;
+        y = 0;
+        width = src->w;
+        height = src->h;
+    }
+    
+    Uint32 depth = src->format->BitsPerPixel;
+    Uint32 rmask = src->format->Rmask;
+    Uint32 gmask = src->format->Gmask;
+    Uint32 bmask = src->format->Bmask;
+    Uint32 amask = src->format->Amask;
+    Uint32 bytesPerPixel = src->format->BytesPerPixel;
+    
+    Uint8 *pixels = (Uint8 *)src->pixels
+        + y * src->pitch
+        + x * bytesPerPixel;
+    
+    m_surface = SDL_CreateRGBSurfaceFrom(
+        pixels, width, height, depth, src->pitch,
+        rmask, gmask, bmask, amask);
+    
+    if(m_surface == NULL)
+        return;
+    
+    Uint32 colorkey;
+    if(SDL_GetColorKey(src, &colorkey) == 0) {
+        SDL_SetColorKey(m_surface, SDL_TRUE, colorkey);
+    }
+
+    m_referer = src;
+    AddRef(m_referer);
+}
+
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
 {
-    Uint32 width = (srcrect == NULL
-                ? src->w
-                : srcrect->w);
-    Uint32 height = (srcrect == NULL
-                     ? src->h
-                     : srcrect->h);
+    Uint32 width;
+    Uint32 height;
+    if(srcrect == NULL) {
+        width = src->w;
+        height = src->h;
+    } else {
+        width = srcrect->w;
+        height = srcrect->h;
+    }
     Uint32 depth = src->format->BitsPerPixel;
     Uint32 rmask = src->format->Rmask;
     Uint32 gmask = src->format->Gmask;
@@ -126,6 +184,8 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
     Surface dst = SDL_CreateRGBSurface(
         0, width, height, depth,
         rmask, gmask, bmask, amask);
+    if(dst.Null())
+        throw std::runtime_error(SDL_GetError());
     
     Uint32 key;
     bool enabled = 
@@ -158,6 +218,9 @@ Surface SubSurface(Surface &src, const SDL_Rect *rect)
     Surface dst = SDL_CreateRGBSurfaceFrom(
         pixels, width, height, depth, src->pitch,
         rmask, gmask, bmask, amask);
+    if(dst.Null()) {
+        throw std::runtime_error(SDL_GetError());
+    }
     
     Uint32 colorkey;
     if(0 == SDL_GetColorKey(src, &colorkey)) {
@@ -200,18 +263,25 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 
 SDL_Rect AlignRect(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {
-    int xcenter = dst.x + (dst.w / 2);
-    int ycenter = dst.y + (dst.h / 2);
+    // Unintuitive formulas is for the sake of precision
+    // int xcenter = dst.x + dst.w / 2;
+    // int ycenter = dst.y + dst.h / 2;
+    int xcenter = 2 * dst.x + dst.w;
+    int ycenter = 2 * dst.y + dst.h;
 
     int xspace = std::max(0, dst.w - src.w);
     int yspace = std::max(0, dst.h - src.h);
 
-    int xpos = x * xspace / 2;
-    int ypos = y * yspace / 2;
+    // int xpos = x * xspace / 2;
+    // int ypos = y * yspace / 2;
+    int xpos = x * xspace;
+    int ypos = y * yspace;
 
     SDL_Rect rect;
-    rect.x = xcenter + xpos - (src.w / 2);
-    rect.y = ycenter + ypos - (src.h / 2);
+    // rect.x = xcenter + xpos - src.w / 2;
+    // rect.y = ycenter + ypos - src.h / 2;
+    rect.x = (xcenter + xpos - src.w) / 2;
+    rect.y = (ycenter + ypos - src.h) / 2;
     rect.w = src.w;
     rect.h = src.h;
     return rect;
@@ -253,6 +323,12 @@ SDL_Rect MakeEmptyRect()
 {
     SDL_Rect r = {0, 0, 0, 0};
     return r;
+}
+
+bool IsInRect(const SDL_Rect &rect, int x, int y)
+{
+    return ((rect.x >= x) && (rect.w + rect.x < x))
+        && ((rect.y >= y) && (rect.h + rect.y < y));
 }
 
 bool HasPalette(Surface surface)

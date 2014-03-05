@@ -6,7 +6,7 @@
 
 #define UNUSED(name) (void)name;
 
-#define MAKE_COMPILER_HAPPY(name) (void)name;
+#define MAKE_COMPILER_HAPPY(name) UNUSED(name)
 
 #define DISALLOW_COPY(name) name(const name &) { }
 #define DISALLOW_ASSIGN(name) name &operator=(const name &) { }

@@ -14,9 +14,6 @@ const int GMASK_DEFAULT = 0;
 const int BMASK_DEFAULT = 0;
 const int AMASK_DEFAULT = 0;
 
-const int BLACK = 0;
-const int WHITE = 0xffff;
-
 class Surface;
 class SurfaceLocker
 {
@@ -47,12 +44,15 @@ struct FreeSurfaceDeleter
 
 class Surface
 {
+protected:
     SDL_Surface *m_surface;
+    SDL_Surface *m_referer;
+    
     void AddRef(SDL_Surface *s);
     virtual void Assign(SDL_Surface *);    
     
 public:
-    ~Surface();
+    virtual ~Surface();
     Surface();
     Surface(SDL_Surface *s);
     Surface(const Surface &that);    
@@ -63,7 +63,14 @@ public:
     virtual bool operator==(const Surface &that);
     virtual SDL_Surface *operator->() const;
     virtual void reset();
-    
+};
+
+class SurfaceROI : public Surface
+{
+    SDL_Surface *m_referer;
+public:
+    SurfaceROI(const Surface &src, const SDL_Rect *roi);
+    virtual ~SurfaceROI();
 };
 
 bool HasPalette(Surface surface);
@@ -91,6 +98,8 @@ SDL_Rect MakeRect(int w, int h);
 SDL_Rect MakeEmptyRect();
 
 SDL_Rect PadIn(const SDL_Rect &src, int pad);
+
+bool IsInRect(const SDL_Rect &rect, int x, int y);
 
 NAMESPACE_BEGIN(std)
 

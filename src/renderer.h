@@ -12,7 +12,7 @@
 #include "streamingtexture.h"
 #include "tgx.h"
 #include "gm1.h"
-#include "SDLWindow.h"
+#include "window.h"
 #include "surface.h"
 #include "rw.h"
 
@@ -25,38 +25,55 @@ struct DestroyRendererDeleter
     };
 };
 
+struct CollectionEntry
+{
+    gm1::ImageHeader header;
+    Surface surface;
+    CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf_)
+        : header(hdr_)
+        , surface(sf_)
+        {}
+};
+
+struct CollectionData
+{
+    gm1::Header header;
+    std::vector<CollectionEntry> entries;
+    std::vector<SDL_Palette *> palettes;
+};
+
 class Renderer
 {
     SDL_Renderer *renderer;
-
-    typedef struct {
-        gm1::Collection gm1;
-        Surface atlas;
-    } CacheEntry;
-
-    std::map<std::string, CacheEntry> m_cache;
-
-    void ReallocateStreamingTexture(int width, int height);
-    Surface AllocateStreamingSurface(void *pixels, int width, int height, int pitch);
-
-    Uint32 fbFormat;
     SDL_Texture *fbTexture;
-
-    // Null when texture is unlocked
     Surface fbSurface;
+    int fbWidth;
+    int fbHeight;
+    Uint32 fbFormat;
+    std::map<std::string, CollectionData> m_cache;
+    std::map<std::string, Surface> m_imageCache;
+
+    bool AllocFrameTexture(int width, int height);
+    Surface AllocFrameSurface(void *pixels, int width, int height, int pitch);
     
 public:
-    Renderer(SDLWindow &window);
+    Renderer(Window &window);
     ~Renderer();
 
     inline SDL_Renderer *GetRenderer() { return renderer; }
     
     Surface BeginFrame();
     void EndFrame();
+
+    SDL_Rect GetOutputSize() const;
+    void AdjustOutputSize(int width, int height);
     
-    Surface LoadImage(const std::string &filename);
+    Surface QuerySurface(const std::string &filename);
+    
+    Surface LoadSurface(const std::string &filename);
     bool LoadImageCollection(const std::string &filename);
-    
+
+    CollectionData GetCollection(const std::string &filename) const;
 };
 
 void EnumRenderDrivers();

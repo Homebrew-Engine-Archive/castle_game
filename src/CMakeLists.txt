@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(openhold)
 
 if (UNIX OR (WIN32 AND MINGW))
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=c++0x -W -Wall -Wextra -Wunreachable-code -g")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=c++0x -W -Wall -Wextra -Wunreachable-code")
   set (SDL_INCLUDE_DIR "/usr/include/SDL2")
   set (SDL_LIBRARY "/usr/libs/")
 endif ()
@@ -18,14 +18,17 @@ include_directories (
 set (SRCS
   gamemap.cpp	 
   gm1.cpp	    
+  button.cpp
   network.cpp   
-  SDLContext.cpp  
+  sdl_init.cpp  
   tgx.cpp
   gamereactor.cpp  
   loadingscreen.cpp  
   renderer.cpp  
-  SDLWindow.cpp
+  window.cpp
   gamescreen.cpp	 
+  rootscreen.cpp
+  main_menu_screen.cpp
   main.cpp	    
   rw.cpp	  
   surface.cpp

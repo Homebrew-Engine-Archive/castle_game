@@ -1,7 +1,9 @@
 #include "gamescreen.h"
 
-GameScreen::GameScreen()
-    : m_cursorX(0)
+GameScreen::GameScreen(RootScreen &root, Renderer &renderer)
+    : m_root(root)
+    , m_renderer(renderer)
+    , m_cursorX(0)
     , m_cursorY(0)
     , m_cursorInvalid(true)
     , m_viewportX(0)
@@ -20,8 +22,30 @@ GameScreen::~GameScreen()
 {
 }
 
-void GameScreen::Draw(Renderer &)
+void GameScreen::Draw()
 {
+    Surface frame = m_renderer.BeginFrame();
+    SDL_Rect frameRect = SurfaceBounds(frame);
+    SDL_FillRect(frame, &frameRect, 0xff000000);
+    
+    CollectionData gm1 = m_renderer.GetCollection("gm/body_pikeman.gm1");
+    
+    for(size_t n = 0; n < 1000; ++n) {
+        SDL_Palette *palette =
+            gm1.palettes[rand() % gm1.palettes.size()];
+        const CollectionEntry &entry =
+            gm1.entries[rand() % gm1.header.imageCount];
+        Surface surface = entry.surface;
+        SDL_SetSurfacePalette(surface, palette);
+        SDL_Rect whither = MakeRect(
+            rand() % (frameRect.w - surface->w),
+            rand() % (frameRect.h - surface->h),
+            surface->w,
+            surface->h);
+        BlitSurface(surface, NULL, frame, &whither);
+    }
+    
+    m_renderer.EndFrame();
 }
 
 bool GameScreen::HandleEvent(const SDL_Event &event)
@@ -49,12 +73,8 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
             }
         }
         break;
-    case SDL_QUIT:
-        {
-            return false;
-        }
     }
-    return true;
+    return false;
 }
 
 void GameScreen::AdjustViewport(const SDL_Rect &screen)

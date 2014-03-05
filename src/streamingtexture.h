@@ -6,6 +6,12 @@
 
 #include "surface.h"
 
+struct TextureLocker
+{
+    TextureLocker(SDL_Texture *texture, Surface &surface);
+    ~TextureLocker();
+};
+
 class StreamingTexture
 {
     int m_width;
@@ -23,10 +29,8 @@ public:
     explicit StreamingTexture(SDL_Renderer *renderer, int width, int height, Uint32 format);
     ~StreamingTexture();
 
-    virtual void Blit();
-
-    virtual Surface Lock();
-    virtual void Unlock();
+    Surface Lock();
+    void Unlock();
     
 };
 

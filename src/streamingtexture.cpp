@@ -1,5 +1,17 @@
 #include "streamingtexture.h"
 
+TextureLocker::TextureLocker(SDL_Texture *texture, Surface &surface)
+{
+    if(texture == NULL) {
+        std::cerr << "Passed NULL texture" << std::endl;
+        return;
+    }
+}
+
+TextureLocker::~TextureLocker()
+{
+}
+
 StreamingTexture::StreamingTexture(SDL_Renderer *renderer, int width, int height, Uint32 format)
     : m_width(width)
     , m_height(height)
@@ -53,18 +65,5 @@ void StreamingTexture::Unlock()
         m_locked = false;
     } else {
         std::cerr << "Trying unlock not locked texture" << std::endl;
-    }
-}
-
-void StreamingTexture::Blit()
-{
-    if(m_locked) {
-        Unlock();
-    }
-    if(SDL_RenderCopy(m_renderer, m_texture, NULL, NULL)) {
-        std::cerr << "SDL_RenderCopy failed: ";
-        std::cerr << SDL_GetError();
-        std::cerr << std::endl;
-        return;
     }
 }
