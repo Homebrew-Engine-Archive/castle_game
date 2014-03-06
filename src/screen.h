@@ -14,7 +14,7 @@ inline int PeekEvent(SDL_Event *e)
 class Screen
 {
 public:
-    virtual void Draw() = 0;
+    virtual void Draw(Surface frame) = 0;
     virtual bool HandleEvent(const SDL_Event &event) = 0;
 };
 

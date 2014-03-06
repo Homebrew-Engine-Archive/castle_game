@@ -1,6 +1,10 @@
 #ifndef GAMEMAP_H_
 #define GAMEMAP_H_
 
+#include <vector>
+#include "SDL.h"
+
+#include "geometry.h"
 #include "landscape.h"
 
 struct GameMapLocation

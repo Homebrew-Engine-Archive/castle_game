@@ -36,6 +36,7 @@ void Button::Draw(Surface surface)
     default:
         throw std::runtime_error("Another button state?");
     }
+
     BlitSurface(buttonSurface, NULL, surface, &m_boundRect);
 }
 
@@ -85,4 +86,9 @@ void Button::MouseReleased(int x, int y)
     } else {
         SetButtonState(ButtonState::Released);
     }
+}
+
+SDL_Rect Button::GetDrawingRect(int xoff, int yoff)
+{
+    return ShiftRect(m_boundRect, xoff, yoff);
 }

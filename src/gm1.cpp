@@ -533,17 +533,17 @@ void VerbosePrintImageHeader(const ImageHeader &header)
 {
     using namespace std;
     
-    clog << "Width: " << header.width << endl;
-    clog << "Height: " << header.height << endl;
-    clog << "PosX: " << header.posX << endl;
-    clog << "PosY: " << header.posY << endl;
-    clog << "Group: " << header.group << endl;
-    clog << "GroupSize: " << header.groupSize << endl;
-    clog << "TileY: " << header.tileY << endl;
-    clog << "TileOrient: " << header.tileOrient << endl;
-    clog << "Horizontal Offset: " << header.hOffset << endl;
-    clog << "Box Width: " << header.boxWidth << endl;
-    clog << "Flags: " << header.flags << endl;
+    clog << "Width: " << (int)header.width << endl;
+    clog << "Height: " << (int)header.height << endl;
+    clog << "PosX: " << (int)header.posX << endl;
+    clog << "PosY: " << (int)header.posY << endl;
+    clog << "Group: " << (int)header.group << endl;
+    clog << "GroupSize: " << (int)header.groupSize << endl;
+    clog << "TileY: " << (int)header.tileY << endl;
+    clog << "TileOrient: " << (int)header.tileOrient << endl;
+    clog << "Horizontal Offset: " << (int)header.hOffset << endl;
+    clog << "Box Width: " << (int)header.boxWidth << endl;
+    clog << "Flags: " << (int)header.flags << endl;
 }
 
 void VerbosePrintHeader(const Header &header)
@@ -599,7 +599,7 @@ void VerbosePrintCollection(const Collection &gm1)
         std::clog << "Size #" << i << ": " << gm1.sizes[i] << std::endl;
     }
     for(size_t i = 0; i < gm1.headers.size(); ++i) {
-        std::clog << "image header " <<  i << std::endl;
+        std::clog << "image header " << i << std::endl;
         VerbosePrintImageHeader(gm1.headers[i]);
     }
     Sint64 origin = GM1_HEADER_BYTES

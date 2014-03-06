@@ -1,8 +1,8 @@
 #include "gamescreen.h"
 
-GameScreen::GameScreen(RootScreen &root, Renderer &renderer)
+GameScreen::GameScreen(RootScreen *root)
     : m_root(root)
-    , m_renderer(renderer)
+    , m_renderer(root->GetRenderer())
     , m_cursorX(0)
     , m_cursorY(0)
     , m_cursorInvalid(true)
@@ -22,13 +22,12 @@ GameScreen::~GameScreen()
 {
 }
 
-void GameScreen::Draw()
+void GameScreen::Draw(Surface frame)
 {
-    Surface frame = m_renderer.BeginFrame();
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_FillRect(frame, &frameRect, 0xff000000);
     
-    CollectionData gm1 = m_renderer.GetCollection("gm/body_pikeman.gm1");
+    CollectionData gm1 = m_renderer->GetCollection("gm/body_pikeman.gm1");
     
     for(size_t n = 0; n < 1000; ++n) {
         SDL_Palette *palette =
@@ -44,8 +43,6 @@ void GameScreen::Draw()
             surface->h);
         BlitSurface(surface, NULL, frame, &whither);
     }
-    
-    m_renderer.EndFrame();
 }
 
 bool GameScreen::HandleEvent(const SDL_Event &event)

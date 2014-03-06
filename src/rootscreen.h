@@ -1,9 +1,13 @@
 #ifndef ROOTSCREEN_H_
 #define ROOTSCREEN_H_
 
+#include <iostream>
+#include <sstream>
 #include <fstream>
-#include <SDL2/SDL.h>
+#include "SDL.h"
+
 #include <boost/asio/io_service.hpp>
+#include <boost/noncopyable.hpp>
 
 class RootScreen;
 
@@ -12,25 +16,29 @@ class RootScreen;
 #include "screen.h"
 #include "gamescreen.h"
 #include "loadingscreen.h"
-#include "main_menu_screen.h"
+#include "menu_main.h"
 #include "macrosota.h"
 
-class RootScreen
+class RootScreen : public boost::noncopyable
 {
+private:
+    Renderer *m_renderer;
+    double m_fpsAverage;
     bool m_closed;
     int m_frameRate;
     bool m_frameLimit;
-    Renderer &m_renderer;
     std::unique_ptr<Screen> m_currentScreen;
-    
+
     bool HandleWindowEvent(const SDL_WindowEvent &window);
     bool HandleKeyboardEvent(const SDL_KeyboardEvent &keyboard);
     
 public:
-    RootScreen(Renderer &renderer);
+    RootScreen(Renderer *renderer);
 
     int Exec();
-    
+
+    void DrawFrame();
+
     bool HandleEvent(const SDL_Event &event);
 
     void SetCurrentScreen(std::unique_ptr<Screen> screen);
@@ -41,6 +49,8 @@ public:
     
     inline void SetMaximumFPS(int fps) { m_frameRate = fps; }
     inline void SetFrameLimit(bool limit) { m_frameLimit = limit; }
+
+    inline Renderer *GetRenderer() { return m_renderer; }
 };
 
 #endif

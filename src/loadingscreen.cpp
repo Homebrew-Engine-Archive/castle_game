@@ -14,14 +14,14 @@ static std::vector<std::string> SetPreloadsList(const std::string &listfile)
     return list;
 }
 
-int RunLoadingScreen(RootScreen &root, Renderer &renderer)
+int RunLoadingScreen(RootScreen *root)
 {
-    LoadingScreen ls(root, renderer);
+    LoadingScreen ls(root);
     return ls.Exec();
 }
 
-LoadingScreen::LoadingScreen(RootScreen &root, Renderer &renderer)
-    : m_renderer(renderer)
+LoadingScreen::LoadingScreen(RootScreen *root)
+    : m_renderer(root->GetRenderer())
     , m_root(root)
     , m_quit(false)
     , m_files(SetPreloadsList("gm/preloads.txt"))
@@ -45,12 +45,12 @@ int LoadingScreen::Exec()
 
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
-            if(!m_root.HandleEvent(event))
+            if(!m_root->HandleEvent(event))
                 return -1;
         }
 
         completed += 1;
-        m_renderer.LoadImageCollection(file);
+        m_renderer->LoadImageCollection(file);
     }
     
     return 0;
@@ -58,8 +58,8 @@ int LoadingScreen::Exec()
 
 void LoadingScreen::Draw(double done)
 {
-    Surface background = m_renderer.QuerySurface("gfx/frontend_loading.tgx");
-    Surface frame = m_renderer.BeginFrame();
+    Surface background = m_renderer->QuerySurface("gfx/frontend_loading.tgx");
+    Surface frame = m_renderer->BeginFrame();
     
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(background);
@@ -77,5 +77,5 @@ void LoadingScreen::Draw(double done)
     SDL_Rect barInnerAligned = AlignRect(barInner, barOuterPadded, -1.0f, 0);
     FillFrame(frame, &barInnerAligned, 0xff000000);
     
-    m_renderer.EndFrame();
+    m_renderer->EndFrame();
 }

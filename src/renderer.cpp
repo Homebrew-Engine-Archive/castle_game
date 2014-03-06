@@ -1,24 +1,17 @@
 #include "renderer.h"
 
 Renderer::Renderer(Window &window)
-    : fbTexture(NULL)
-    , fbWidth(0)
-    , fbHeight(0)
-    , fbFormat(0)
+    : m_textRenderer(this)
+    , m_fbWidth(0)
+    , m_fbHeight(0)
+    , m_fbFormat(0)
 {
     SDL_Window *sdl_wnd = window.GetWindow();
-    renderer = SDL_CreateRenderer(sdl_wnd, -1, 0);
-    if(renderer == NULL)
+    m_renderer.reset(SDL_CreateRenderer(sdl_wnd, -1, 0));
+    if(!m_renderer)
         throw std::runtime_error(SDL_GetError());
-    SDL_GetWindowSize(sdl_wnd, &fbWidth, &fbHeight);
-    AdjustOutputSize(fbWidth, fbHeight);
-}
-
-Renderer::~Renderer()
-{
-    fbSurface.reset();
-    SDL_DestroyTexture(fbTexture);
-    SDL_DestroyRenderer(renderer);
+    SDL_GetWindowSize(sdl_wnd, &m_fbWidth, &m_fbHeight);
+    AdjustOutputSize(m_fbWidth, m_fbHeight);
 }
 
 bool Renderer::AllocFrameTexture(int width, int height)
@@ -34,27 +27,25 @@ bool Renderer::AllocFrameTexture(int width, int height)
         return false;
     }
     
-    if((fbTexture != NULL) && (width == fbWidth) && (height == fbHeight)) {
+    if((m_fbTexture) && (width == m_fbWidth) && (height == m_fbHeight)) {
         std::cerr << "Size of texture matches. Skip allocation."
                   << std::endl;
         return true;
     }
     
-    if(fbTexture != NULL) {
-        SDL_DestroyTexture(fbTexture);
-    }
-    
-    fbWidth = width;
-    fbHeight = height;
-    fbFormat = SDL_PIXELFORMAT_ARGB8888;
-    fbTexture = SDL_CreateTexture(
-        renderer,
-        fbFormat,
-        SDL_TEXTUREACCESS_STREAMING,
-        fbWidth,
-        fbHeight);
-    
-    if(fbTexture == NULL) {
+    m_fbWidth = width;
+    m_fbHeight = height;
+    m_fbFormat = SDL_PIXELFORMAT_ARGB8888;
+    m_fbTexture =
+        TexturePtr(
+            SDL_CreateTexture(
+                m_renderer.get(),
+                m_fbFormat,
+                SDL_TEXTUREACCESS_STREAMING,
+                m_fbWidth,
+                m_fbHeight));
+
+    if(!m_fbTexture) {
         std::cerr << "SDL_CreateTexture failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -66,50 +57,64 @@ bool Renderer::AllocFrameTexture(int width, int height)
 
 Surface Renderer::BeginFrame()
 {
-    if(fbTexture == NULL) {
-        if(!AllocFrameTexture(fbWidth, fbHeight)) {
+    if(!m_textOverlay.empty()) {
+        std::clog << "Discard text overlay"
+                  << std::endl;
+        m_textOverlay.clear();
+    }
+    
+    if(!m_fbTexture) {
+        if(!AllocFrameTexture(m_fbWidth, m_fbHeight)) {
             std::cerr << "Can't allocate frame texture"
                       << std::endl;
             return Surface();
         }
     }
     
-    if(fbSurface.Null()) {
+    if(m_fbSurface.Null()) {
         int nativePitch;
         void *nativePixels;
-        if(SDL_LockTexture(fbTexture, NULL, &nativePixels, &nativePitch)) {
+        if(SDL_LockTexture(m_fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
             std::cerr << "SDL_LockTexture failed: "
                       << SDL_GetError()
                       << std::endl;
             return Surface();
         }
         
-        fbSurface = AllocFrameSurface(
-            nativePixels, fbWidth, fbHeight, nativePitch);
-        if(fbSurface.Null()) {
+        m_fbSurface = AllocFrameSurface(
+            nativePixels, m_fbWidth, m_fbHeight, nativePitch);
+        if(m_fbSurface.Null()) {
             std::cerr << "Can't allocate framebuffer"
                       << std::endl;
-            SDL_UnlockTexture(fbTexture);
+            SDL_UnlockTexture(m_fbTexture.get());
             return Surface();
         }
     }
 
-    return fbSurface;
+    return m_fbSurface;
 }
 
 void Renderer::EndFrame()
 {
-    if(!fbSurface.Null()) {
+    SDL_Renderer *renderer = GetRenderer();
+    if(!m_fbSurface.Null()) {
         SDL_RenderClear(renderer);
         
-        fbSurface.reset();
-        SDL_UnlockTexture(fbTexture);
-        if(SDL_RenderCopy(renderer, fbTexture, NULL, NULL)) {
+        m_fbSurface.reset();
+        SDL_UnlockTexture(m_fbTexture.get());
+        if(SDL_RenderCopy(renderer, m_fbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
                       << SDL_GetError()
                       << std::endl;
         }
         SDL_RenderPresent(renderer);
+    }
+
+    if(!m_textOverlay.empty()) {
+        for(const auto &text : m_textOverlay) {
+            RenderTextOverlay(text);
+        }
+        m_textOverlay.clear();
     }
 }
 
@@ -120,15 +125,15 @@ Surface Renderer::AllocFrameSurface(void *pixels, int width, int height, int pit
     Uint32 bmask;
     Uint32 amask;
     int bpp;
-
-    if(!SDL_PixelFormatEnumToMasks(fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
+    if(!SDL_PixelFormatEnumToMasks(m_fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
         std::cerr << "SDL_PixelFormatEnumToMasks failed: "
                   << SDL_GetError()
                   << std::endl;
         return Surface();
     }
 
-    Surface surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+    Surface surface = SDL_CreateRGBSurfaceFrom(
+        pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
     if(surface.Null()) {
         std::cerr << "SDL_CreateRGBSurfaceFrom failed: "
                   << SDL_GetError()
@@ -143,7 +148,7 @@ SDL_Rect Renderer::GetOutputSize() const
 {
     int width;
     int height;
-    if(SDL_GetRendererOutputSize(renderer, &width, &height)) {
+    if(SDL_GetRendererOutputSize(m_renderer.get(), &width, &height)) {
         std::cerr << "SDL_GetRendererOutputSize failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -151,17 +156,20 @@ SDL_Rect Renderer::GetOutputSize() const
     return MakeRect(width, height);
 }
 
+bool Renderer::ReallocationRequired(int width, int height)
+{
+    const int threshold = 100;
+    return ((width / threshold) != (m_fbWidth / threshold))
+        || ((height / threshold) != (m_fbHeight / threshold));
+}
+
 void Renderer::AdjustOutputSize(int width, int height)
 {
-    if(fbSurface.Null()) {
+    if(!m_fbSurface.Null()) {
+        throw std::runtime_error("AdjustOutputSize called with active frame.");
+    }
+    if(ReallocationRequired(width, height)) {
         AllocFrameTexture(width, height);
-    } else {
-        SDL_Rect rect = SurfaceBounds(fbSurface);
-        if(rect.w != width || rect.h != height) {
-            EndFrame();
-            AllocFrameTexture(width, height);
-            fbSurface = BeginFrame();
-        }
     }
 }
 
@@ -234,12 +242,31 @@ bool Renderer::LoadImageCollection(const std::string &filename)
     }
 }
 
-CollectionData Renderer::GetCollection(const std::string &filename) const
+const CollectionData &Renderer::GetCollection(const std::string &filename) const
 {
     auto searchResult = m_cache.find(filename);
     if(searchResult == m_cache.end())
         throw std::runtime_error("There are no such cache entry. Go out!");
     return searchResult->second;
+}
+
+void Renderer::RenderTextOverlay(const TextData &item)
+{
+    
+}
+
+void Renderer::RenderText(const std::string &text, const SDL_Rect *rect)
+{
+    TextData task;
+    task.text = text;
+
+    if(rect != NULL) {
+        task.rect = *rect;
+    } else {
+        task.rect = GetOutputSize();
+    }
+    task.color = SDL_Color {255, 255, 255, 255};
+    m_textOverlay.push_back(task);
 }
 
 static void PrintDriverInfo(const SDL_RendererInfo &info)
@@ -275,16 +302,16 @@ static void PrintDriverInfo(const SDL_RendererInfo &info)
     }
     std::clog << std::endl;
 
-#define PRINT_FLAG_IF_ANY(flags, flag)          \
-    if(flags & flag)                            \
-        std::clog << #flag << " | ";
-            
     std::clog << "\tflags: ";
     if(info.flags != 0) {
-        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_SOFTWARE);
-        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_ACCELERATED);
-        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_PRESENTVSYNC);
-        PRINT_FLAG_IF_ANY(info.flags, SDL_RENDERER_TARGETTEXTURE);
+        if(info.flags & SDL_RENDERER_SOFTWARE)
+            std::clog << "SDL_RENDERER_SOFTWARE" << " | ";
+        if(info.flags & SDL_RENDERER_ACCELERATED)
+            std::clog << "SDL_RENDERER_ACCELERATED" << " | ";
+        if(info.flags & SDL_RENDERER_PRESENTVSYNC)
+            std::clog << "SDL_RENDERER_PRESENTVSYNC" << " | ";
+        if(info.flags & SDL_RENDERER_TARGETTEXTURE)
+            std::clog << "SDL_RENDERER_TARGETTEXTURE" << " | ";
     } else {
         std::clog << "None";
     }

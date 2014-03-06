@@ -9,6 +9,12 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+#include <boost/noncopyable.hpp>
+
+class Renderer;
+
+#include "textrenderer.h"
+#include "font.h"
 #include "streamingtexture.h"
 #include "tgx.h"
 #include "gm1.h"
@@ -24,6 +30,19 @@ struct DestroyRendererDeleter
         }
     };
 };
+
+typedef std::unique_ptr<SDL_Renderer, DestroyRendererDeleter> RendererPtr;
+
+struct DestroyTextureDeleter
+{
+    void operator()(SDL_Texture *texture) const {
+        if(texture != NULL) {
+            SDL_DestroyTexture(texture);
+        }
+    };
+};
+
+typedef std::unique_ptr<SDL_Texture, DestroyTextureDeleter> TexturePtr;
 
 struct CollectionEntry
 {
@@ -42,38 +61,56 @@ struct CollectionData
     std::vector<SDL_Palette *> palettes;
 };
 
-class Renderer
+class Renderer : public boost::noncopyable
 {
-    SDL_Renderer *renderer;
-    SDL_Texture *fbTexture;
-    Surface fbSurface;
-    int fbWidth;
-    int fbHeight;
-    Uint32 fbFormat;
-    std::map<std::string, CollectionData> m_cache;
-    std::map<std::string, Surface> m_imageCache;
-
+private:
+    RendererPtr m_renderer;
+    TextRenderer m_textRenderer;
+    
+    struct TextData
+    {
+        std::string text;
+        std::string fontname;
+        SDL_Rect rect;
+        SDL_Color color;
+    };
+    std::vector<TextData> m_textOverlay;
+    void RenderTextOverlay(const TextData &text);
+    
+    int m_fbWidth;
+    int m_fbHeight;
+    Uint32 m_fbFormat;
+    TexturePtr m_fbTexture;    
+    bool ReallocationRequired(int width, int heigt);    
     bool AllocFrameTexture(int width, int height);
+
+    Surface m_fbSurface;
     Surface AllocFrameSurface(void *pixels, int width, int height, int pitch);
+
+    std::map<std::string, Surface> m_imageCache;
+    Surface LoadSurface(const std::string &filename);
+
+    std::map<std::string, CollectionData> m_cache;
     
 public:
     Renderer(Window &window);
-    ~Renderer();
 
-    inline SDL_Renderer *GetRenderer() { return renderer; }
+    inline SDL_Renderer *GetRenderer() { return m_renderer.get(); }
     
     Surface BeginFrame();
     void EndFrame();
 
     SDL_Rect GetOutputSize() const;
     void AdjustOutputSize(int width, int height);
+
+    void RenderText(const std::string &text, const SDL_Rect *rect);
     
     Surface QuerySurface(const std::string &filename);
-    
-    Surface LoadSurface(const std::string &filename);
-    bool LoadImageCollection(const std::string &filename);
 
-    CollectionData GetCollection(const std::string &filename) const;
+    bool LoadImageCollection(const std::string &filename);
+    const CollectionData &GetCollection(const std::string &filename) const;
+
+    void LoadFont(const std::string &name, const std::string &filename);
 };
 
 void EnumRenderDrivers();

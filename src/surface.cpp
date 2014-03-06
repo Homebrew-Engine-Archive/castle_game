@@ -261,45 +261,6 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
     SDL_DestroyRenderer(render);
 }
 
-SDL_Rect AlignRect(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
-{
-    // Unintuitive formulas is for the sake of precision
-    // int xcenter = dst.x + dst.w / 2;
-    // int ycenter = dst.y + dst.h / 2;
-    int xcenter = 2 * dst.x + dst.w;
-    int ycenter = 2 * dst.y + dst.h;
-
-    int xspace = std::max(0, dst.w - src.w);
-    int yspace = std::max(0, dst.h - src.h);
-
-    // int xpos = x * xspace / 2;
-    // int ypos = y * yspace / 2;
-    int xpos = x * xspace;
-    int ypos = y * yspace;
-
-    SDL_Rect rect;
-    // rect.x = xcenter + xpos - src.w / 2;
-    // rect.y = ycenter + ypos - src.h / 2;
-    rect.x = (xcenter + xpos - src.w) / 2;
-    rect.y = (ycenter + ypos - src.h) / 2;
-    rect.w = src.w;
-    rect.h = src.h;
-    return rect;
-}
-
-SDL_Rect PadIn(const SDL_Rect &src, int pad)
-{
-    if((src.w >= (2 * pad)) && (src.h >= (2 * pad))) {
-        return MakeRect(
-            src.x + pad,
-            src.y + pad,
-            src.w - 2 * pad,
-            src.h - 2 * pad);
-    }
-
-    return src;
-}
-
 SDL_Rect SurfaceBounds(const Surface &src)
 {
     return (src.Null()
@@ -307,49 +268,30 @@ SDL_Rect SurfaceBounds(const Surface &src)
             : MakeRect(src->w, src->h));
 }
 
-SDL_Rect MakeRect(int x, int y, int w, int h)
-{
-    SDL_Rect r = {x, y, w, h};
-    return r;
-}
-
-SDL_Rect MakeRect(int w, int h)
-{
-    SDL_Rect r = {0, 0, w, h};
-    return r;
-}
-
-SDL_Rect MakeEmptyRect()
-{
-    SDL_Rect r = {0, 0, 0, 0};
-    return r;
-}
-
-bool IsInRect(const SDL_Rect &rect, int x, int y)
-{
-    return ((rect.x >= x) && (rect.w + rect.x < x))
-        && ((rect.y >= y) && (rect.h + rect.y < y));
-}
-
-bool HasPalette(Surface surface)
+bool HasPalette(const Surface &surface)
 {
     return !surface.Null()
         && surface->format != NULL
         && surface->format->BitsPerPixel == 8;
 }
 
-NAMESPACE_BEGIN(std)
-
-std::ostream &operator<<(std::ostream &out, const SDL_Rect &R)
+void MapSurface(Surface &dst, std::function<SDL_Color(SDL_Color)> &mapping)
 {
-    out << R.w << 'x' << R.h;
-    if(R.x >= 0)
-        out << '+';
-    out << R.x;
-    if(R.y >= 0)
-        out << '+';
-    out << R.y;
-    return out;
-}
+    if(dst.Null())
+        return;
+    
+    SurfaceLocker lock(dst);
 
-NAMESPACE_END(std)
+    int width = dst->w;
+    int height = dst->h;
+    int pitch = dst->pitch;
+    int bytesPerPixel = dst->format->BytesPerPixel;
+    Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
+
+    for(int y = 0; y < height; ++y) {
+        for(int x = 0; x < width; ++x) {
+            
+        }
+        pixels += pitch;
+    }
+}

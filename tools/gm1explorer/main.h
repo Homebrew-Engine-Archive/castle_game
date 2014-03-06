@@ -12,6 +12,7 @@
 #include "surface.h"
 #include "tgx.h"
 #include "gm1.h"
+#include "rw.h"
 
 class TextureLocker
 {

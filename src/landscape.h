@@ -1,10 +1,6 @@
 #ifndef LANDSCAPE_H_
 #define LANDSCAPE_H_
 
-#include <SDL2/SDL.h>
-
-#include "renderer.h"
-
 const int CHEVRONS_HEIGHT_THRESHOLD = 20;
 
 enum class LandscapeClass : int {

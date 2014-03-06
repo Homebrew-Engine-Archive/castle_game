@@ -18,17 +18,17 @@
 
 class LoadingScreen
 {
-    Renderer &m_renderer;
-    RootScreen &m_root;
+    Renderer *m_renderer;
+    RootScreen *m_root;
     bool m_quit;
     std::vector<std::string> m_files;
 
 public:
-    LoadingScreen(RootScreen &root, Renderer &renderer);
+    LoadingScreen(RootScreen *root);
     int Exec();
     void Draw(double done);
 };
 
-int RunLoadingScreen(RootScreen &root, Renderer &renderer);
+int RunLoadingScreen(RootScreen *root);
 
 #endif

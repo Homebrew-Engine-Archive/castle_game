@@ -37,10 +37,10 @@ enum class CursorMode : int {
 Orient PrevRotation(Orient rot);
 Orient NextRotation(Orient rot);
 
-class GameScreen : public Screen
+class GameScreen
 {
-    RootScreen &m_root;
-    Renderer &m_renderer;
+    RootScreen *m_root;
+    Renderer *m_renderer;
     GameMap m_map;
     int m_cursorX;
     int m_cursorY;
@@ -57,10 +57,10 @@ class GameScreen : public Screen
     bool m_closed;
     
 public:
-    GameScreen(RootScreen &root, Renderer &renderer);
+    GameScreen(RootScreen *root);
     ~GameScreen();
     
-    void Draw();
+    void Draw(Surface frame);
     bool HandleEvent(const SDL_Event &event);
 
     void LogWindowEvent(const SDL_WindowEvent &event);

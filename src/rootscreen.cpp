@@ -1,13 +1,11 @@
 #include "rootscreen.h"
 
-RootScreen::RootScreen(Renderer &renderer)
-    : m_closed(false)
+RootScreen::RootScreen(Renderer *renderer)
+    : m_renderer(renderer)
+    , m_fpsAverage(0.0f)
+    , m_closed(false)
     , m_frameRate(16)
-    , m_frameLimit(true)      
-    , m_renderer(renderer)
-    , m_currentScreen(
-        std::move(
-            new MainMenuScreen(*this, renderer)))
+    , m_frameLimit(true)
 {
 }
 
@@ -36,7 +34,7 @@ bool RootScreen::HandleWindowEvent(const SDL_WindowEvent &window)
         {
             int width = window.data1;
             int height = window.data2;
-            m_renderer.AdjustOutputSize(width, height);
+            m_renderer->AdjustOutputSize(width, height);
         }
         return true;
 
@@ -62,13 +60,32 @@ void RootScreen::SetCurrentScreen(std::unique_ptr<Screen> screen)
     m_currentScreen = std::move(screen);
 }
 
+void RootScreen::DrawFrame()
+{
+    Surface frame = m_renderer->BeginFrame();
+    m_currentScreen->Draw(frame);
+
+    std::ostringstream oss;
+    oss << "FPS: " << m_fpsAverage;
+    
+    m_renderer->RenderText(oss.str(), NULL);
+        
+    m_renderer->EndFrame();    
+}
+
 int RootScreen::Exec()
 {
-    if(int code = RunLoadingScreen(*this, m_renderer)) {
+    if(int code = RunLoadingScreen(this)) {
         std::clog << "Loading has been interrupted."
                   << std::endl;
         return code;
     }
+
+    m_currentScreen.reset(new MenuMain(this));
+
+    const std::int64_t msPerSec = 1000;
+    const int pollRate = 66;
+    const int pollInterval = msPerSec / pollRate;
     
     std::int64_t lastFrame = 0;
     std::int64_t lastPoll = 0;
@@ -83,11 +100,8 @@ int RootScreen::Exec()
     server.StartAccept();
     
     while(!m_closed) {
-        const std::int64_t msPerSec = 1000;
         const std::int64_t frameInterval = msPerSec / m_frameRate;
-        const Uint32 pollRate = 66;
-        const Uint32 pollInterval = msPerSec / pollRate;
-        
+
         const std::int64_t pollStart = SDL_GetTicks();
         if(lastPoll + pollInterval < pollStart) {
             io.poll();
@@ -102,16 +116,14 @@ int RootScreen::Exec()
 
         const std::int64_t frameStart = SDL_GetTicks();
         if(lastSecond + msPerSec < frameStart) {
-            double elapsed = frameStart - lastSecond;
             double fps = fpsCounter - fpsCounterLastSecond;
-            std::cout << "FPS: "
-                      << fps * msPerSec / elapsed
-                      << std::endl;
+            double elapsed = frameStart - lastSecond;
+            m_fpsAverage = fps * (msPerSec / elapsed);
             lastSecond = frameStart;
             fpsCounterLastSecond = fpsCounter;
         }
-        
-        m_currentScreen->Draw();
+
+        DrawFrame();
         lastFrame = frameStart;
         ++fpsCounter;
 

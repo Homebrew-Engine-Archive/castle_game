@@ -89,22 +89,22 @@ constexpr int GetChannel(Uint16 color, int mask, int shift)
     return ((color & mask) >> shift) * 255 / ((0xffff & mask) >> shift);
 }
 
-constexpr int GetRed(Uint16 color)
+constexpr int GetRed(int color)
 {
     return GetChannel(color, TGX_RGB16_RMASK, TGX_RGB16_RSHIFT);
 }
 
-constexpr int GetGreen(Uint16 color)
+constexpr int GetGreen(int color)
 {
     return GetChannel(color, TGX_RGB16_GMASK, TGX_RGB16_GSHIFT);
 }
 
-constexpr int GetBlue(Uint16 color)
+constexpr int GetBlue(int color)
 {
     return GetChannel(color, TGX_RGB16_BMASK, TGX_RGB16_BSHIFT);
 }
 
-constexpr int GetAlpha(Uint16)
+constexpr int GetAlpha(int)
 {
     return 255;
 }

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <functional>
+#include "geometry.h"
 #include "surface.h"
 
 enum class ButtonState : int {
@@ -32,7 +33,7 @@ public:
            Surface pressed,
            std::function<void()> handler);
 
-    virtual ~Button();
+    virtual SDL_Rect GetDrawingRect(int xoff, int yoff);
     
     virtual void Draw(Surface surface);
     virtual void HandleEvent(const SDL_Event &event);

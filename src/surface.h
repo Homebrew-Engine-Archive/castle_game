@@ -1,12 +1,13 @@
 #ifndef SURFACE_H_
 #define SURFACE_H_
 
-#include <iostream>
+#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
+#include "geometry.h"
 #include "macrosota.h"
 
 const int RMASK_DEFAULT = 0;
@@ -15,6 +16,8 @@ const int BMASK_DEFAULT = 0;
 const int AMASK_DEFAULT = 0;
 
 class Surface;
+
+// RAII for SDL_LockSurface / SDL_UnlockSurface
 class SurfaceLocker
 {
     const Surface &object;
@@ -24,6 +27,7 @@ public:
     ~SurfaceLocker();
 };
 
+// RAII for SDL_SetColorKey
 class ColorKeyLocker
 {
     const Surface &object;
@@ -34,6 +38,7 @@ public:
     ~ColorKeyLocker();
 };
 
+// Deleter for std::unique_ptr
 struct FreeSurfaceDeleter
 {
     void operator()(SDL_Surface *surface) {
@@ -42,6 +47,7 @@ struct FreeSurfaceDeleter
     }
 };
 
+// Wrapper around SDL_Surface (with reference counting)
 class Surface
 {
 protected:
@@ -65,6 +71,12 @@ public:
     virtual void reset();
 };
 
+// Wrapper for Region-Of-Interest (exactly like OpenCV ROI on Mat class)
+// Acts like simple surface, but has very special destructor which
+// respect not only the roi-surface, but also referer surface.
+// 
+// It holds reference to original surface `src' until being out of scoped.
+// 
 class SurfaceROI : public Surface
 {
     SDL_Surface *m_referer;
@@ -73,7 +85,9 @@ public:
     virtual ~SurfaceROI();
 };
 
-bool HasPalette(Surface surface);
+void MapSurface(Surface &dst, std::function<SDL_Color(SDL_Color)>);
+
+bool HasPalette(const Surface &surface);
 
 Surface SubSurface(Surface &src, const SDL_Rect *rect);
 
@@ -86,25 +100,5 @@ void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
 SDL_Rect SurfaceBounds(const Surface &src);
-
-// Synopsis:
-// Put `src' in `dst' relatively offseted by x and y from top left corner
-SDL_Rect AlignRect(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);
-
-SDL_Rect MakeRect(int x, int y, int w, int h);
-
-SDL_Rect MakeRect(int w, int h);
-
-SDL_Rect MakeEmptyRect();
-
-SDL_Rect PadIn(const SDL_Rect &src, int pad);
-
-bool IsInRect(const SDL_Rect &rect, int x, int y);
-
-NAMESPACE_BEGIN(std)
-
-std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
-
-NAMESPACE_END(std)
 
 #endif
