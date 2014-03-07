@@ -1,13 +1,15 @@
 #include "renderer.h"
 
-Renderer::Renderer(Window &window)
+Renderer::Renderer(Window *window)
     : m_textRenderer(this)
     , m_fbWidth(0)
     , m_fbHeight(0)
     , m_fbFormat(0)
 {
-    SDL_Window *sdl_wnd = window.GetWindow();
-    m_renderer.reset(SDL_CreateRenderer(sdl_wnd, -1, 0));
+    SDL_Window *sdl_wnd = window->GetWindow();
+    m_renderer =
+        RendererPtr(
+            SDL_CreateRenderer(sdl_wnd, -1, 0));
     if(!m_renderer)
         throw std::runtime_error(SDL_GetError());
     SDL_GetWindowSize(sdl_wnd, &m_fbWidth, &m_fbHeight);
@@ -81,8 +83,7 @@ Surface Renderer::BeginFrame()
             return Surface();
         }
         
-        m_fbSurface = AllocFrameSurface(
-            nativePixels, m_fbWidth, m_fbHeight, nativePitch);
+        m_fbSurface = AllocFrameSurface(nativePixels, m_fbWidth, m_fbHeight, nativePitch);
         if(m_fbSurface.Null()) {
             std::cerr << "Can't allocate framebuffer"
                       << std::endl;
@@ -255,7 +256,12 @@ void Renderer::RenderTextOverlay(const TextData &item)
     
 }
 
-void Renderer::RenderText(const std::string &text, const SDL_Rect *rect)
+void Renderer::RenderTextLine(
+    const std::string &text,
+    const SDL_Rect *rect,
+    const std::string &fontname,
+    const SDL_Color &color,
+    font_size_t size)
 {
     TextData task;
     task.text = text;
@@ -267,6 +273,11 @@ void Renderer::RenderText(const std::string &text, const SDL_Rect *rect)
     }
     task.color = SDL_Color {255, 255, 255, 255};
     m_textOverlay.push_back(task);
+}
+
+void Renderer::LoadFont(const std::string &name, const std::string &filename)
+{
+    
 }
 
 static void PrintDriverInfo(const SDL_RendererInfo &info)
@@ -354,4 +365,9 @@ void PrintRendererInfo(SDL_Renderer *renderer)
     } else {
         PrintDriverInfo(info);
     }
+}
+
+SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+    return SDL_Color { r, g, b, a };
 }

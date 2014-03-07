@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include <boost/noncopyable.hpp>
 
@@ -93,7 +93,7 @@ private:
     std::map<std::string, CollectionData> m_cache;
     
 public:
-    Renderer(Window &window);
+    Renderer(Window *window);
 
     inline SDL_Renderer *GetRenderer() { return m_renderer.get(); }
     
@@ -103,7 +103,12 @@ public:
     SDL_Rect GetOutputSize() const;
     void AdjustOutputSize(int width, int height);
 
-    void RenderText(const std::string &text, const SDL_Rect *rect);
+    void RenderTextLine(
+        const std::string &text,
+        const SDL_Rect *rect,
+        const std::string &fontname,
+        const SDL_Color &color,
+        font_size_t size);
     
     Surface QuerySurface(const std::string &filename);
 
@@ -112,6 +117,23 @@ public:
 
     void LoadFont(const std::string &name, const std::string &filename);
 };
+
+inline static std::string FontStronghold()
+{
+    return "stronghold";
+}
+
+inline static std::string FontSlanted()
+{
+    return "slanted";
+}
+
+inline static std::string FontStrongholdAA()
+{
+    return "stronghold_aa";
+}
+
+SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 void EnumRenderDrivers();
 void PrintRendererInfo(SDL_Renderer *renderer);

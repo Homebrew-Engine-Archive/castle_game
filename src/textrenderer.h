@@ -1,4 +1,3 @@
-
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
@@ -21,6 +20,11 @@ class TextRenderer
 {
     Renderer *m_renderer;
 
+    const Font *m_font;
+    SDL_Point m_cursor;
+    SDL_Color m_color;
+    font_size_t m_fontSize;
+
     std::map<std::string, std::unique_ptr<Font>> m_fonts;
     
 public:
@@ -36,30 +40,31 @@ public:
     void RegisterFont(const std::string &name, std::unique_ptr<Font> font, ...);
 
     /**
-     * UnregisterFont not really used by the game, but present
-     * for genericity purposes.
+     * Use new font for next printing.
+     * @param fontname  Font name to use.
+     * @return          False if no such font and true otherwise.
+     * 
      */
-    void UnregisterFont(const std::string &name);
-    
-    void SetFont(const Font &font);
+    bool SetFont(const std::string &fontname);
 
     void SetSize(font_size_t size);
 
     void SetColor(const SDL_Color &color);
+
+    void SetCursor(const SDL_Point &cursor);
     
     int CalculateTextHeight(const std::string &str) const;
     
     int CalculateTextWidth(const std::string &str) const;
 
     /**
-     * Puts only single line of text. The rest of the string will be
-     * dropped.
-     * @param str       Intent to be a string.
-     * @param rect      Bounding rect of drawing area.
+     * Puts single character 
+     * @param character         Character which one need to put.
+     * @param rect              Bounding rect of drawing area.
      *
      */
      
-    void PutString(const std::string &str, const SDL_Rect &rect);
+    void PutChar(int character);
 };
 
 #include "renderer.h"

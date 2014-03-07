@@ -11,7 +11,7 @@ int main()
     const int screenwidth = 1024;
     const int screenheight = 768;
     Window window("openhold", screenwidth, screenheight);
-    Renderer renderer(window);
+    Renderer renderer(&window);
 
     PrintRendererInfo(renderer.GetRenderer());
     
