@@ -7,8 +7,11 @@
 #include <algorithm>
 #include "SDL.h"
 
+#include "sdl_utils.h"
 #include "geometry.h"
 #include "macrosota.h"
+
+const int NO_FLAGS = 0;
 
 const int RMASK_DEFAULT = 0;
 const int GMASK_DEFAULT = 0;
@@ -36,15 +39,6 @@ class ColorKeyLocker
 public:
     ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color);
     ~ColorKeyLocker();
-};
-
-// Deleter for std::unique_ptr
-struct FreeSurfaceDeleter
-{
-    void operator()(SDL_Surface *surface) {
-        if(surface != NULL)
-            SDL_FreeSurface(surface);
-    }
 };
 
 // Wrapper around SDL_Surface (with reference counting)
@@ -75,7 +69,7 @@ public:
 // Acts like simple surface, but has very special destructor which
 // respect not only the roi-surface, but also referer surface.
 // 
-// It holds reference to original surface `src' until being out of scoped.
+// It holds reference to original surface `src' until become out of scoped.
 // 
 class SurfaceROI : public Surface
 {
@@ -92,6 +86,10 @@ bool HasPalette(const Surface &surface);
 Surface SubSurface(Surface &src, const SDL_Rect *rect);
 
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect);
+
+Surface CopySurfaceFormat(const Surface &src, int width, int height);
+
+void CopySurfaceColorKey(const Surface &src, Surface &dst);
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 

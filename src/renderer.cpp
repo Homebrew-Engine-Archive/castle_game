@@ -1,7 +1,19 @@
 #include "renderer.h"
 
+CollectionAtlas::CollectionAtlas(SDL_RWops *src)
+    : gm1(src)
+    , map(gm1::LoadAtlas(src, gm1))
+{ }
+
+CollectionEntry::CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf_)
+    : header(hdr_)
+    , surface(sf_)
+{ }
+
 Renderer::Renderer(Window *window)
-    : m_textRenderer(this)
+    : m_textRenderer(
+        TextRendererPtr(
+            new TextRenderer(this)))
     , m_fbWidth(0)
     , m_fbHeight(0)
     , m_fbFormat(0)
@@ -73,23 +85,26 @@ Surface Renderer::BeginFrame()
         }
     }
     
-    if(m_fbSurface.Null()) {
-        int nativePitch;
-        void *nativePixels;
-        if(SDL_LockTexture(m_fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
-            std::cerr << "SDL_LockTexture failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return Surface();
-        }
+    if(!m_fbSurface.Null()) {
+        std::clog << "Nested BeginFrame" << std::endl;
+        return m_fbSurface;
+    }
+    
+    int nativePitch;
+    void *nativePixels;
+    if(SDL_LockTexture(m_fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
+        std::cerr << "SDL_LockTexture failed: "
+                  << SDL_GetError()
+                  << std::endl;
+        return Surface();
+    }
         
-        m_fbSurface = AllocFrameSurface(nativePixels, m_fbWidth, m_fbHeight, nativePitch);
-        if(m_fbSurface.Null()) {
-            std::cerr << "Can't allocate framebuffer"
-                      << std::endl;
-            SDL_UnlockTexture(m_fbTexture.get());
-            return Surface();
-        }
+    m_fbSurface = AllocFrameSurface(nativePixels, m_fbWidth, m_fbHeight, nativePitch);
+    if(m_fbSurface.Null()) {
+        std::cerr << "Can't allocate framebuffer"
+                  << std::endl;
+        SDL_UnlockTexture(m_fbTexture.get());
+        return Surface();
     }
 
     return m_fbSurface;
@@ -174,13 +189,13 @@ void Renderer::AdjustOutputSize(int width, int height)
     }
 }
 
-Surface Renderer::LoadSurface(const std::string &filename)
+Surface Renderer::LoadSurface(const std::string &filename) const
 {
     std::clog << "Load surface from: " << filename;
     std::clog << std::endl;
     try {
         FileBuffer filebuff(filename.c_str(), "rb");
-        scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
+        RWPtr src = std::move(RWFromFileBuffer(filebuff));
         
         if(!src)
             throw std::runtime_error("Can't alloc file buff");
@@ -207,53 +222,115 @@ Surface Renderer::QuerySurface(const std::string &filename)
     }
 }
 
-bool Renderer::LoadImageCollection(const std::string &filename)
+CollectionDataPtr Renderer::LoadCollection(const std::string &filename) const
 {
-    std::clog << "Load image collection: "
+    std::clog << "Load collection: "
               << filename
               << std::endl;
+    
     try {
-        FileBuffer filebuff(filename.c_str(), "rb");
-        scoped_rwops src = std::move(RWFromFileBuffer(filebuff));
+        FileBuffer filebuff(filename, "rb");
+        RWPtr src = std::move(RWFromFileBuffer(filebuff));
+        
         if(!src)
             throw std::runtime_error("file not readable");
+        
         gm1::Collection gm1(src.get());
+
+        CollectionDataPtr ptr(new CollectionData);
+        ptr->header = gm1.header;
+        
         std::vector<Surface> atlas;
         gm1::LoadEntries(src.get(), gm1, atlas);
-        CollectionData collection;
-        collection.header = gm1.header;
+        
         for(size_t n = 0; n < GM1_PALETTE_COUNT; ++n) {
-            SDL_Palette *palette =
-                gm1::CreateSDLPaletteFrom(gm1.palettes[n]);
-            collection.palettes.emplace_back(palette);
+            PalettePtr palette =
+                PalettePtr(
+                    gm1::CreateSDLPaletteFrom(gm1.palettes[n]));
+            ptr->palettes.push_back(std::move(palette));
         }
+        
         for(size_t n = 0; n < gm1.header.imageCount; ++n) {
             gm1::ImageHeader header = gm1.headers[n];
             Surface surface = atlas[n];
-            collection.entries.emplace_back(header, surface);
+            ptr->entries.emplace_back(header, surface);
         }
-        m_cache.insert(std::make_pair(filename, collection));
-        return true;
+
+        return ptr;
         
     } catch(const std::exception &e) {
         std::cerr << "Exception in LoadImageCollection: " << std::endl
                   << "\tFilename: " << filename << std::endl
                   << "\tWhat: " << e.what() << std::endl;
+        return CollectionDataPtr(nullptr);
+    }
+}
+
+CollectionAtlasPtr Renderer::LoadCollectionAtlas(const std::string &filename) const
+{
+    std::clog << "Load collection atlas: " << filename << std::endl;
+
+    try {
+        FileBuffer filebuff(filename, "rb");
+        RWPtr src = std::move(RWFromFileBuffer(filebuff));
+        if(!src)
+            throw std::runtime_error("file not readable");
+        
+        CollectionAtlasPtr ptr(
+            new CollectionAtlas(src.get()));
+
+        return ptr;
+        
+    } catch(const std::exception &e) {
+        std::cerr << "LoadCollectionAtlas failed: "
+                  << e.what()
+                  << std::endl;
+        return CollectionAtlasPtr(nullptr);
+    }
+}
+
+const CollectionData &Renderer::QueryCollection(const std::string &filename)
+{
+    auto searchResult = m_cache.find(filename);
+    if(searchResult != m_cache.end()) {
+        return *searchResult->second;
+    } else {
+        CollectionDataPtr ptr =
+            std::move(
+                LoadCollection(filename));
+
+        if(!ptr)
+            throw std::runtime_error("Unable to load collection");
+        
+        const CollectionData &data = *ptr;
+        m_cache.insert(
+            std::make_pair(filename, std::move(ptr)));
+
+        return data;
+    }
+}
+
+bool Renderer::CacheCollection(const std::string &filename)
+{
+    try {
+        QueryCollection(filename);
+        return true;
+    } catch(const std::exception &e) {
+        std::cerr << "Cache collection failed"
+                  << std::endl;
         return false;
     }
 }
 
-const CollectionData &Renderer::GetCollection(const std::string &filename) const
-{
-    auto searchResult = m_cache.find(filename);
-    if(searchResult == m_cache.end())
-        throw std::runtime_error("There are no such cache entry. Go out!");
-    return searchResult->second;
-}
-
 void Renderer::RenderTextOverlay(const TextData &item)
 {
+    m_textRenderer->SetFont(item.fontname, item.size);
+    m_textRenderer->SetColor(item.color);
+    m_textRenderer->SetCursor(TopLeft(item.rect));
     
+    for(char c : item.text) {
+        m_textRenderer->PutChar(c);
+    }
 }
 
 void Renderer::RenderTextLine(
@@ -265,19 +342,17 @@ void Renderer::RenderTextLine(
 {
     TextData task;
     task.text = text;
+    task.fontname = fontname;
+    task.color = color;
+    task.size = size;
 
     if(rect != NULL) {
         task.rect = *rect;
     } else {
         task.rect = GetOutputSize();
     }
-    task.color = SDL_Color {255, 255, 255, 255};
-    m_textOverlay.push_back(task);
-}
-
-void Renderer::LoadFont(const std::string &name, const std::string &filename)
-{
     
+    m_textOverlay.push_back(task);
 }
 
 static void PrintDriverInfo(const SDL_RendererInfo &info)

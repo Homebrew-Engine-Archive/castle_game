@@ -1,8 +1,8 @@
 #include "rw.h"
 
-scoped_rwops RWFromFileBuffer(const FileBuffer &buffer)
+RWPtr RWFromFileBuffer(const FileBuffer &buffer)
 {
-    scoped_rwops src(SDL_RWFromConstMem(buffer.Data(), buffer.Size()));
+    RWPtr src(SDL_RWFromConstMem(buffer.Data(), buffer.Size()));
     return std::move(src);
 }
 
@@ -38,7 +38,6 @@ void ReadInt16ArrayLE(SDL_RWops *src, Uint16 *buffer, size_t num)
 void ReadInt8ArrayLE(SDL_RWops *src, Uint8 *buffer, size_t num)
 {
     SDL_RWread(src, buffer, num, sizeof(Uint8));
-
 }
 
 FileBuffer::FileBuffer(const char *filename, const char *mode)
@@ -61,7 +60,7 @@ FileBuffer::FileBuffer(SDL_RWops *src)
 
 void FileBuffer::ReadFile(const char *filename, const char *mode)
 {
-    scoped_rwops src(SDL_RWFromFile(filename, mode));
+    RWPtr src(SDL_RWFromFile(filename, mode));
     ReadRW(src.get());
 }
 
@@ -69,6 +68,7 @@ void FileBuffer::ReadRW(SDL_RWops *src)
 {
     if(src == NULL)
         throw std::runtime_error("file not readable");
+    
     Sint64 bytes = ReadableBytes(src);
     buffer.resize(bytes);
     if(SDL_RWread(src, Data(), sizeof(Uint8), bytes) != bytes) {
@@ -89,8 +89,4 @@ Uint8 *FileBuffer::Data()
 Sint64 FileBuffer::Size() const
 {
     return buffer.size();
-}
-
-FileBuffer::~FileBuffer()
-{
 }

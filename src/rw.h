@@ -6,17 +6,9 @@
 #include <vector>
 #include <stdexcept>
 #include <memory>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
-struct RWCloseDeleter
-{
-    void operator()(SDL_RWops *src) const {
-        if(src != NULL)
-            SDL_RWclose(src);
-    }
-};
-
-typedef std::unique_ptr<SDL_RWops, RWCloseDeleter> scoped_rwops;
+#include "sdl_utils.h"
 
 class FileBuffer
 {
@@ -28,14 +20,13 @@ public:
     FileBuffer(const char *filename, const char *mode) throw (std::runtime_error);
     FileBuffer(const std::string &filename, const char *mode) throw (std::runtime_error);
     FileBuffer(SDL_RWops *src) throw (std::runtime_error);
-    ~FileBuffer();
 
     const Uint8 *Data() const;
     Uint8 *Data();
     Sint64 Size() const;
 };
 
-scoped_rwops RWFromFileBuffer(const FileBuffer &filebuffer);
+RWPtr RWFromFileBuffer(const FileBuffer &filebuffer);
 
 Sint64 ReadableBytes(SDL_RWops *src);
 

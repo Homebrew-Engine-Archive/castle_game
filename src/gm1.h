@@ -70,6 +70,7 @@ struct ImageHeader
 enum class Encoding : Uint32 {
     TGX16,
     TGX8,
+    Font,
     TileObject,
     Bitmap,
     Unknown
@@ -107,6 +108,7 @@ struct Collection
     std::vector<ImageHeader> headers;
 
     Encoding encoding() const;
+    size_t size() const;
 };
 
 void VerbosePrintImageHeader(const ImageHeader &header);
@@ -118,7 +120,7 @@ void LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> 
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
     throw(std::runtime_error);
-SDL_Palette *CreateSDLPaletteFrom(const Palette &palette);
+PalettePtr CreateSDLPaletteFrom(const Palette &palette);
 void PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
 
 NAMESPACE_END(gm1)

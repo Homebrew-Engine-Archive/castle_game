@@ -22,6 +22,4 @@ SDL_Point AlignPoint(const SDL_Rect &dst, double x, double y);
 SDL_Rect MakeRect(const SDL_Point &p1, const SDL_Point &p2);
 SDL_Rect MakeRect(const SDL_Point &p);
 
-std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
-
 #endif

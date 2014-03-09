@@ -68,11 +68,7 @@ void RootScreen::DrawFrame()
     std::ostringstream oss;
     oss << "FPS: " << m_fpsAverage;
     
-    m_renderer->RenderTextLine(
-        oss.str(), NULL,
-        FontStronghold(),
-        MakeColor(255, 0, 0, 1),
-        16);
+    m_renderer->RenderTextLine(oss.str(), NULL, std::string("stronghold"), MakeColor(255, 0, 0, 1), 16);
         
     m_renderer->EndFrame();    
 }

@@ -123,12 +123,12 @@ Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp)
         amask = TGX_RGB16_AMASK;
     }
     
-    Surface surface = SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
+    Surface surface = SDL_CreateRGBSurface(NO_FLAGS, width, height, bpp, rmask, gmask, bmask, amask);
 
     if(surface.Null()) {
-        std::cerr << "SDL_CreateRGBSurface failed: ";
-        std::cerr << SDL_GetError();
-        std::cerr << std::endl;
+        std::cerr << "SDL_CreateRGBSurface failed: "
+                  << SDL_GetError()
+                  << std::endl;
         return Surface();
     }
     
@@ -149,7 +149,7 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
     int bytesDst = bytesPitch * surface->h;
     Uint8 *dst = reinterpret_cast<Uint8*>(surface->pixels);
     Uint8 *dstBegin = dst;
-    Uint8 *dstEnd = dst + bytesDst;
+    Uint8 *dstEnd = dstBegin + bytesDst;
     Uint8 *dstNextLine = dst + bytesPitch;
     Sint64 npos = SDL_RWtell(src) + size;
     bool overrun = false;
@@ -159,19 +159,20 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
         Uint8 token = SDL_ReadU8(src);
         TokenType type = ExtractTokenType(token);
         size_t length = ExtractTokenLength(token);
-
+    
         switch(type) {
         case TokenType::LineFeed:
             {
                 if(length != 1) {
-                    std::cerr << "LineFeed token length should be 1" << std::endl;
+                    std::cerr << "LineFeed token length should be 1"
+                              << std::endl;
                     return -1;
                 }
                 if(dst > dstNextLine) {
-                    std::cerr << "dstNextLine ahead dst by ";
-                    std::cerr << std::dec;
-                    std::cerr << (dst - dstNextLine);
-                    std::cerr << std::endl;
+                    std::cerr << "dstNextLine ahead dst by "
+                              << std::dec
+                              << dst - dstNextLine
+                              << std::endl;
                 }
                 dst = dstNextLine;
                 dstNextLine += bytesPitch;
@@ -220,32 +221,32 @@ int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)
 
         default:
             {
-                std::cerr << "Undefined token: ";
-                std::cerr << std::hex << token;
-                std::cerr << std::endl;
+                std::cerr << "Undefined token: "
+                          << std::hex << token
+                          << std::endl;
                 return -1;
             }
             break;
         }
 
         if(overflow) {
-            std::cerr << "Overflow ";
-            std::cerr << std::dec;
-            std::cerr << "Token=" << GetTokenTypeName(type) << ',';
-            std::cerr << "Length=" << length << ',';
-            std::cerr << "Dst=" << dst - dstBegin << ',';
-            std::cerr << "Src=" << SDL_RWtell(src);
-            std::cerr << std::endl;
+            std::cerr << "Overflow "
+                      << std::dec
+                      << "Token=" << GetTokenTypeName(type) << ','
+                      << "Length=" << length << ','
+                      << "Dst=" << dst - dstBegin << ','
+                      << "Src=" << SDL_RWtell(src)
+                      << std::endl;
             return -1;
         }
         if(overrun) {
-            std::cerr << "Overrun ";
-            std::cerr << std::dec;
-            std::cerr << "Token=" << GetTokenTypeName(type) << ',';
-            std::cerr << "Length=" << length << ',';
-            std::cerr << "Dst=" << dst - dstBegin << ',';
-            std::cerr << "Src=" << SDL_RWtell(src);
-            std::cerr << std::endl;
+            std::cerr << "Overrun "
+                      << std::dec
+                      << "Token=" << GetTokenTypeName(type) << ','
+                      << "Length=" << length << ','
+                      << "Dst=" << dst - dstBegin << ','
+                      << "Src=" << SDL_RWtell(src)
+                      << std::endl;
             return -1;
         }
     }

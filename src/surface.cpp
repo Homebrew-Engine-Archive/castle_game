@@ -164,6 +164,14 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     AddRef(m_referer);
 }
 
+void CopySurfaceColorKey(const Surface &src, Surface &dst)
+{
+    Uint32 colorkey;
+    bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
+
+    SDL_SetColorKey(dst, enabled, colorkey);
+}
+
 Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
 {
     Uint32 width;
@@ -175,6 +183,23 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
         width = srcrect->w;
         height = srcrect->h;
     }
+
+    Surface dst = CopySurfaceFormat(src, width, height);
+
+    Uint32 key;
+    SDL_GetColorKey(src, &key);
+
+    ColorKeyLocker lock(src, SDL_FALSE, key);
+    BlitSurface(src, srcrect, dst, NULL);
+
+    return dst;
+}
+
+Surface CopySurfaceFormat(const Surface &src, int width, int height)
+{
+    if(src.Null())
+        return Surface();
+    
     Uint32 depth = src->format->BitsPerPixel;
     Uint32 rmask = src->format->Rmask;
     Uint32 gmask = src->format->Gmask;
@@ -182,28 +207,29 @@ Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
     Uint32 amask = src->format->Amask;
     
     Surface dst = SDL_CreateRGBSurface(
-        0, width, height, depth,
+        NO_FLAGS, width, height, depth,
         rmask, gmask, bmask, amask);
     if(dst.Null())
         throw std::runtime_error(SDL_GetError());
-    
-    Uint32 key;
-    bool enabled = 
-        (0 == SDL_GetColorKey(src, &key));
-    
-    ColorKeyLocker lock(src, SDL_FALSE, key);
-    BlitSurface(src, srcrect, dst, NULL);
-    SDL_SetColorKey(dst, enabled, key);
-    
+
+    CopySurfaceColorKey(src, dst);
+
     return dst;
 }
 
 Surface SubSurface(Surface &src, const SDL_Rect *rect)
 {
-    Uint32 x = (rect == NULL ? 0 : rect->x);
-    Uint32 y = (rect == NULL ? 0 : rect->y);
-    Uint32 width = (rect == NULL ? src->w : rect->w);
-    Uint32 height = (rect == NULL ? src->h : rect->h);
+    Uint32 x = 0;
+    Uint32 y = 0;
+    Uint32 width = src->w;
+    Uint32 height = src->h;
+    if(rect != NULL) {
+        x = rect->x;
+        y = rect->y;
+        width = rect->x;
+        height = rect->y;
+    }
+    
     Uint32 depth = src->format->BitsPerPixel;
     Uint32 rmask = src->format->Rmask;
     Uint32 gmask = src->format->Gmask;
@@ -275,23 +301,61 @@ bool HasPalette(const Surface &surface)
         && surface->format->BitsPerPixel == 8;
 }
 
-void MapSurface(Surface &dst, std::function<SDL_Color(SDL_Color)> &mapping)
+template<class Pixel>
+static void TransformLine(
+    void *pixels, size_t count, const SDL_PixelFormat *pf,
+    const std::function<SDL_Color(const SDL_Color &)> &fun)
+{
+    Pixel *first = reinterpret_cast<Pixel *>(pixels);
+    Pixel *last = first + count;
+    while(first != last) {
+        Uint8 r, g, b, a;
+        SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
+        SDL_Color color = fun(SDL_Color {r, g, b, a});
+        *first = SDL_MapRGBA(pf, color.r, color.g, color.b, color.a);
+        ++first;
+    }
+}
+
+template<class Pixel>
+static void TransformImpl(
+    Surface &dst, const std::function<SDL_Color(const SDL_Color &)> &fun)
+{
+    if(dst.Null())
+        return;
+
+    void *pixels = dst->pixels;
+    const SDL_PixelFormat *fmt = dst->format;
+    
+    for(int y = 0; y < dst->h; ++y) {
+        TransformLine<Pixel>(pixels, dst->w, fmt, fun);
+        pixels = (void *)((Uint8 *)pixels + dst->pitch);
+    }
+}
+
+void MapSurface(
+    Surface &dst, const std::function<SDL_Color(const SDL_Color &)> &fun)
 {
     if(dst.Null())
         return;
     
     SurfaceLocker lock(dst);
 
-    int width = dst->w;
-    int height = dst->h;
-    int pitch = dst->pitch;
-    int bytesPerPixel = dst->format->BytesPerPixel;
-    Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
-
-    for(int y = 0; y < height; ++y) {
-        for(int x = 0; x < width; ++x) {
-            
-        }
-        pixels += pitch;
+    switch(dst->format->BytesPerPixel) {
+    case 1:
+        TransformImpl<Uint8>(dst, fun);
+        break;
+    case 2:
+        TransformImpl<Uint16>(dst, fun);
+        break;
+    case 3:
+        // implement me
+        break;
+    case 4:
+        TransformImpl<Uint32>(dst, fun);
+        /* fallthrough */
+    default:
+        TransformImpl<Uint32>(dst, fun);
+        break;
     }
 }

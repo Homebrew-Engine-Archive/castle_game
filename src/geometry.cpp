@@ -114,19 +114,3 @@ SDL_Rect ShiftRect(const SDL_Rect &rect, int xshift, int yshift)
                     rect.w,
                     rect.h);
 }
-
-NAMESPACE_BEGIN(std)
-
-std::ostream &operator<<(std::ostream &out, const SDL_Rect &R)
-{
-    out << R.w << 'x' << R.h;
-    if(R.x >= 0)
-        out << '+';
-    out << R.x;
-    if(R.y >= 0)
-        out << '+';
-    out << R.y;
-    return out;
-}
-
-NAMESPACE_END(std)

@@ -2,6 +2,60 @@
 
 using namespace std;
 
+static void CheckSDLError(int code)
+{
+    if(code < 0)
+        throw std::runtime_error(SDL_GetError());
+}
+
+template<class T, class D>
+static void CheckSDLError(const std::unique_ptr<T, D> &ptr)
+{
+    if(!ptr)
+        throw std::runtime_error(SDL_GetError());
+}
+
+static void CheckSDLError(SDL_bool boolvalue)
+{
+    if(boolvalue == SDL_FALSE)
+        throw std::runtime_error(SDL_GetError());
+}
+
+int main(int argc, const char *argv[])
+{
+    SDL_Init(SDL_INIT_EVERYTHING);
+    if(argc > 1) {
+        std::string filename = argv[1];
+        return explorer_main(filename);
+    } else {
+        std::cout << "Usage: "
+                  << argv[0]
+                  << " <gm1file>"
+                  << std::endl;
+    }
+    SDL_Quit();
+    return 0;
+}
+
+int explorer_main(const std::string &filename)
+{
+    try {
+        // Only open for header 
+        RWPtr src(SDL_RWFromFile(filename.c_str(), "rb"));
+        CheckSDLError(src);
+        
+        gm1::Collection collection(src.get());
+        // Buffer all the rest
+        FileBuffer rest(src.get());
+        viewer_t viewer(collection, rest);
+        viewer.enter_event_loop();
+        return 0;
+        
+    } catch(const std::exception &e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+        return -1;
+    }
+}
 
 void print_pixel_format(const SDL_PixelFormat *pf)
 {
@@ -14,8 +68,8 @@ void print_pixel_format(const SDL_PixelFormat *pf)
     if(pf == NULL)
         throw std::runtime_error("passed NULL pixel format");
     
-    if(!SDL_PixelFormatEnumToMasks(pf->format, &bpp, &rmask, &gmask, &bmask, &amask))
-        throw std::runtime_error(SDL_GetError());
+    CheckSDLError(
+        SDL_PixelFormatEnumToMasks(pf->format, &bpp, &rmask, &gmask, &bmask, &amask));
 
     std::cout << std::hex
               << rmask << ' '
@@ -26,12 +80,11 @@ void print_pixel_format(const SDL_PixelFormat *pf)
               << bpp << std::endl;
 }
 
-
-Uint32 decode_glyph_pixel(const SDL_PixelFormat *format, Uint32 color)
+Uint32 swap_green_alpha(const SDL_PixelFormat *fmt, Uint32 color)
 {
     Uint8 r, g, b, a;
-    SDL_GetRGBA(color, format, &r, &g, &b, &a);
-    return SDL_MapRGBA(format, r, 255, b, g);
+    SDL_GetRGBA(color, fmt, &r, &g, &b, &a);
+    return SDL_MapRGBA(fmt, r, 255, b, g);
 }
 
 void decode_glyph(Surface &surface)
@@ -45,16 +98,22 @@ void decode_glyph(Surface &surface)
     int height = surface->h;
     int width = surface->w;
     SDL_PixelFormat *format = surface->format;
-    print_pixel_format(format);
 
     for(int i = 0; i < height; ++i) {
         Uint32 *row = (Uint32 *)(pixels + pitch * i);
         for(int j = 0; j < width; ++j) {
-            row[j] = decode_glyph_pixel(format, row[j]);
+            row[j] = swap_green_alpha(format, row[j]);
         }
     }
 }
 
+Surface DecodeFont(Surface surface)
+{
+    Surface tmp = SDL_ConvertSurfaceFormat(
+        surface, SDL_PIXELFORMAT_ARGB8888, 0);
+    decode_glyph(tmp);
+    return tmp;
+}
 
 viewer_t::viewer_t(const gm1::Collection &gm1, const FileBuffer &fb)
     : paletteIndex(0)
@@ -63,70 +122,217 @@ viewer_t::viewer_t(const gm1::Collection &gm1, const FileBuffer &fb)
     , collection(gm1)
     , quit(false)
     , frameLimit(true)
-    , frameRate(24)      
+    , frameRate(24)
     , screenWidth(1366)
     , screenHeight(768)
-{    
+    , showGreenRect(true)
+    , showRedRect(false)
+    , showAllRects(false)
+    , showSingleImage(false)
+{
+    RWPtr src(RWFromFileBuffer(fb));
+    CheckSDLError(src);
+    
+    // gm1::LoadEntries(src.get(), gm1, surfaces);
+    // if(gm1.encoding() == gm1::Encoding::Font) {
+    //     for(auto &surface : surfaces) {
+    //         surface = SDL_ConvertSurfaceFormat(
+    //             surface, SDL_PIXELFORMAT_ARGB8888, 0);
+    //         decode_glyph(surface);
+    //     }
+    // }
+    // atlas = MakeSurfaceAtlas(surfaces, partitions, 2000, 8192);
+    // if(atlas.Null())
+    //     throw std::runtime_error("Unable to build atlas");
+    // SDL_SetColorKey(atlas, SDL_TRUE, TGX_TRANSPARENT_RGB16);
+     
+    Surface tmp = gm1::LoadAtlas(src.get(), gm1);
+    if(gm1.encoding() == gm1::Encoding::Font) {
+        atlas = DecodeFont(tmp);
+    } else {
+        atlas = tmp;
+    }
+    
+    gm1::PartitionAtlas(gm1, partitions);
+    
+    std::clog << "Atlas width: "
+              << atlas->w
+              << ' '
+              << "Atlas height: "
+              << atlas->h
+              << ' '
+              << "Bytes: "
+              << atlas->w * atlas->h * 4
+              << std::endl;
+
     alloc_window();
     alloc_renderer();
-    alloc_texture();
+    alloc_texture(screenWidth, screenHeight);
     alloc_palettes();
     set_cursor(0, 0);
-    
     print_renderer_info();
-    
-    scoped_rwops src(RWFromFileBuffer(fb));
-    Surface tmp = gm1::LoadAtlas(src.get(), gm1);
-    atlas = SDL_ConvertSurfaceFormat(
-        tmp, SDL_PIXELFORMAT_ARGB8888, 0);
-    decode_glyph(atlas);
+    gm1::VerbosePrintHeader(gm1.header);
 }
-    
-viewer_t::~viewer_t()
+
+void viewer_t::draw()
 {
-    dealloc_texture();
-    dealloc_palettes();
-    dealloc_renderer();
-    dealloc_window();
+    update_texture(streamTexture.get());
+
+    CheckSDLError(
+        SDL_RenderCopy(renderer.get(), streamTexture.get(), NULL, NULL));
+            
+    SDL_RenderPresent(renderer.get());
+}
+
+void viewer_t::update_texture(SDL_Texture *texture)
+{
+    int nativePitch;
+    void *nativePixels;
+    Uint32 format;
+    TextureLocker lock(texture, NULL, &nativePixels, &nativePitch);
+
+    int width;
+    int height;
+    CheckSDLError(
+        SDL_QueryTexture(texture, &format, NULL, &width, &height));
+    
+    Uint32 rmask;
+    Uint32 gmask;
+    Uint32 bmask;
+    Uint32 amask;
+    int bpp;
+
+    CheckSDLError(
+        SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask));
+    
+    Surface dst = SDL_CreateRGBSurfaceFrom(
+        nativePixels, width, height, bpp, nativePitch,
+        rmask, gmask, bmask, amask);
+    if(dst.Null())
+        throw std::runtime_error(SDL_GetError());
+
+    SDL_FillRect(dst, NULL, 0xff1f1f1f);
+    
+    if(HasPalette(atlas)) {
+        CheckSDLError(
+            SDL_SetSurfacePalette(atlas, palettes.at(paletteIndex).get()));
+    }
+
+    update_surface(dst);
+
+}
+
+void viewer_t::update_surface(Surface dst)
+{
+    draw_entry(dst, 0, 0, collection, imageIndex);
+
+    RendererPtr sw =
+        RendererPtr(
+            SDL_CreateSoftwareRenderer(dst));
+
+    if(showAllRects) {
+        srand(0);
+        for(const auto &rect : partitions) {
+            SDL_SetRenderDrawColor(sw.get(), rand(), rand(), rand(), 255);
+            SDL_Rect shifted = ShiftRect(rect, -offsetx, -offsety);
+            SDL_RenderDrawRect(sw.get(), &shifted);
+        }
+    }
+
+    if(showRedRect) {
+        SDL_SetRenderDrawColor(sw.get(), 255, 0, 0, 255);
+
+        SDL_Rect shifted = ShiftRect(partitions.at(imageIndex), -offsetx, -offsety);
+        SDL_RenderDrawRect(sw.get(), &shifted);
+    }
+
+    if(showGreenRect) {
+        SDL_SetRenderDrawColor(sw.get(), 0, 255, 0, 255);
+        
+        SDL_Rect shifted = ShiftRect(selected, -offsetx, -offsety);
+        SDL_RenderDrawRect(sw.get(), &shifted);
+    }
+}
+
+void viewer_t::draw_entry(Surface dst, int x, int y, const gm1::Collection &gm1, size_t index)
+{
+    if(showSingleImage) {
+        SDL_Rect rect = ShiftRect(partitions.at(imageIndex), -offsetx, -offsety);
+        BlitSurface(atlas, &rect, dst, NULL);
+    } else {
+        SDL_Rect screen = ShiftRect(MakeRect(screenWidth, screenHeight), -offsetx, -offsety);
+        BlitSurface(atlas, &screen, dst, NULL);
+    }
+}
+
+void viewer_t::handle_key(SDL_Keycode code)
+{
+    const int speed = 15;
+    switch(code) {
+    case SDLK_RETURN:
+        std::cout << imageIndex << std::endl;
+        gm1::VerbosePrintImageHeader(collection.headers.at(imageIndex));
+        break;
+    case SDLK_ESCAPE:
+        quit = true;
+        break;
+    case SDLK_RIGHT:
+        set_cursor(1, 0);
+        offsetx += speed;
+        break;
+    case SDLK_LEFT:
+        set_cursor(-1, 0);
+        offsetx -= speed;
+        break;
+    case SDLK_UP:
+        set_cursor(0, 1);
+        offsety -= speed;
+        break;
+    case SDLK_DOWN:
+        set_cursor(0, -1);
+        offsety += speed;
+        break;
+    case SDLK_SPACE:
+        frameLimit = !frameLimit;
+        std::cout << "FrameLimit: " << frameLimit << std::endl;
+        break;
+    case SDLK_j:
+        frameRate += 1;
+        std::cout << "FrameRate: " << frameRate << std::endl;
+        break;
+    case SDLK_k:
+        frameRate -= 1;
+        std::cout << "FrameRate: " << frameRate << std::endl;
+        break;
+    }
 }
 
 void viewer_t::print_renderer_info()
 {
     SDL_RendererInfo info;
-    if(SDL_GetRendererInfo(renderer, &info))
-        throw std::runtime_error(SDL_GetError());
+    CheckSDLError(
+        SDL_GetRendererInfo(renderer.get(), &info));
 
-    SDL_Log("Renderer: %s", info.name);
+    std::cout << "Renderer: " << info.name << std::endl;
 }
 
 void viewer_t::alloc_window()
 {
-    window = SDL_CreateWindow("View", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              screenWidth,
-                              screenHeight,
-                              SDL_WINDOW_RESIZABLE);
-    if(window == NULL)
-        throw std::runtime_error(SDL_GetError());
+    window = WindowPtr(
+        SDL_CreateWindow("View", SDL_WINDOWPOS_UNDEFINED,
+                         SDL_WINDOWPOS_UNDEFINED,
+                         screenWidth,
+                         screenHeight,
+                         SDL_WINDOW_RESIZABLE));
+    CheckSDLError(window);
 }
 
 void viewer_t::alloc_renderer()
 {
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    if(renderer == NULL)
-        throw std::runtime_error(SDL_GetError());
-}
-
-void viewer_t::dealloc_window()
-{
-    if(window != NULL)
-        SDL_DestroyWindow(window);
-}
-
-void viewer_t::dealloc_renderer()
-{
-    if(renderer != NULL)
-        SDL_DestroyRenderer(renderer);
+    renderer =
+        RendererPtr(
+            SDL_CreateRenderer(window.get(), -1, 0));
+    CheckSDLError(renderer);
 }
 
 void viewer_t::alloc_palettes()
@@ -137,35 +343,16 @@ void viewer_t::alloc_palettes()
     }
 }
 
-void viewer_t::dealloc_palettes()
+void viewer_t::alloc_texture(int width, int height)
 {
-    for(SDL_Palette *palette : palettes) {
-        if(palette != NULL)
-            SDL_FreePalette(palette);
-    }
-}
-
-void viewer_t::alloc_texture()
-{
-    Uint32 format = SDL_MasksToPixelFormatEnum(
-        16, TGX_RGB16_RMASK,
-        TGX_RGB16_GMASK,
-        TGX_RGB16_BMASK,
-        TGX_RGB16_AMASK);
-    streamTexture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_ARGB8888,
-        SDL_TEXTUREACCESS_STREAMING,
-        screenWidth, screenHeight);
-    if(streamTexture == NULL)
-        throw std::runtime_error(SDL_GetError());
-}
-
-void viewer_t::dealloc_texture()
-{
-    if(streamTexture != NULL) {
-        SDL_DestroyTexture(streamTexture);
-    }
+    streamTexture =
+        TexturePtr(
+            SDL_CreateTexture(
+                renderer.get(),
+                SDL_PIXELFORMAT_ARGB8888,
+                SDL_TEXTUREACCESS_STREAMING,
+                width, height));
+    CheckSDLError(streamTexture);
 }
     
 void viewer_t::enter_event_loop()
@@ -177,8 +364,8 @@ void viewer_t::enter_event_loop()
         const int frameStart = SDL_GetTicks();
         if(secondEnd + 1000 < frameStart) {
             secondEnd = frameStart;
-            SDL_Log("FPS: %d", fps);
-            fps = 0;                
+            //std::cout << "FPS: " << fps << std::endl;
+            fps = 0;
         }
 
         SDL_Event e;
@@ -189,6 +376,9 @@ void viewer_t::enter_event_loop()
                 break;
             case SDL_KEYDOWN:
                 handle_key(e.key.keysym.sym);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                handle_mouse_down(e.button.x, e.button.y);
                 break;
             }
         }
@@ -206,7 +396,7 @@ void viewer_t::enter_event_loop()
 
 SDL_Palette *viewer_t::get_palette_by_index(size_t index)
 {
-    return palettes.at(index);
+    return palettes.at(index).get();
 }
     
 size_t viewer_t::cycle_ref(size_t index, size_t max, int d)
@@ -216,250 +406,16 @@ size_t viewer_t::cycle_ref(size_t index, size_t max, int d)
 
 void viewer_t::set_cursor(int ii, int pi)
 {
-    imageIndex = cycle_ref(imageIndex, collection.header.imageCount, ii);
+    imageIndex = cycle_ref(imageIndex, collection.size(), ii);
     paletteIndex = cycle_ref(paletteIndex, GM1_PALETTE_COUNT, pi);
 }
     
-void viewer_t::handle_key(SDL_Keycode code)
+void viewer_t::handle_mouse_down(int x, int y)
 {
-    switch(code) {
-    case SDLK_RETURN:
-        std::cout << imageIndex << std::endl;
-        gm1::VerbosePrintImageHeader(collection.headers.at(imageIndex));
-        break;
-    case SDLK_ESCAPE:
-        quit = true;
-        break;
-    case SDLK_RIGHT:
-        set_cursor(1, 0);
-        break;
-    case SDLK_LEFT:
-        set_cursor(-1, 0);
-        break;
-    case SDLK_UP:
-        set_cursor(0, 1);
-        break;
-    case SDLK_DOWN:
-        set_cursor(0, -1);
-        break;
-    case SDLK_SPACE:
-        frameLimit = !frameLimit;
-        SDL_Log("FrameLimit: %d", frameLimit);
-        break;
-    case SDLK_j:
-        frameRate += 1;
-        SDL_Log("FrameRate: %d", frameRate);
-        break;
-    case SDLK_k:
-        frameRate -= 1;
-        SDL_Log("FrameRate: %d", frameRate);
-        break;
-    }
-}
-
-void viewer_t::draw()
-{
-    update_texture(streamTexture);
-
-    if(SDL_RenderCopy(renderer, streamTexture, NULL, NULL) < 0)
-        throw std::runtime_error(SDL_GetError());
-        
-    SDL_RenderPresent(renderer);
-}
-
-void viewer_t::update_texture(SDL_Texture *texture)
-{
-    int nativePitch;
-    void *nativePixels;
-    Uint32 format;
-    TextureLocker lock(texture, NULL, &nativePixels, &nativePitch);
-
-    if(SDL_QueryTexture(texture, &format, NULL, NULL, NULL))
-        throw std::runtime_error(SDL_GetError());
-    
-    Uint32 rmask = 0;
-    Uint32 gmask = 0;
-    Uint32 bmask = 0;
-    Uint32 amask = 0;
-    int bpp = 32;
-
-    if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask))
-        throw std::runtime_error(SDL_GetError());
-    
-    Surface dst = SDL_CreateRGBSurfaceFrom(
-        nativePixels, screenWidth, screenHeight, bpp, nativePitch,
-        rmask, gmask, bmask, amask);
-    if(dst.Null())
-        throw std::runtime_error(SDL_GetError());
-
-    SDL_SetSurfaceBlendMode(atlas, SDL_BLENDMODE_BLEND);
-    
-    //print_pixel_format(dst->format);
-
-    SDL_SetSurfaceColorMod(atlas, 255, 1, 1);
-    SDL_FillRect(dst, NULL, 0x00000000);
-
-    if(HasPalette(atlas)) {
-        if(SDL_SetSurfacePalette(atlas, palettes.at(paletteIndex))) {
-            throw std::runtime_error(SDL_GetError());
+    for(const auto &rect : partitions) {
+        if(IsInRect(rect, x + offsetx, y + offsety)) {
+            selected = rect;
+            std::cout << selected << std::endl;
         }
     }
-
-    update_surface(dst);
-}
-
-void viewer_t::update_surface(Surface dst)
-{
-    draw_entry(dst, 0, 0, collection, imageIndex);
-    // gm1::ImageHeader header = collection.headers.at(imageIndex);
-    
-    // int anchorX = collection.header.anchorX;
-    // int anchorY = collection.header.anchorY;
-    // int width = header.width;
-    // int height = header.height;
-    
-    // int drawable = 0;
-    // int yoff = anchorY + header.tileY;
-
-    // srand(imageIndex);
-    
-    // for(int y = yoff; y < screenHeight - height; y += TILE_RHOMBUS_HEIGHT / 2) {
-    //     for(int x = anchorX; x < screenWidth - width; x += TILE_RHOMBUS_WIDTH) {
-    //         int xoff = 0;
-    //         if((y - yoff) % TILE_RHOMBUS_HEIGHT == 0)
-    //             xoff = TILE_RHOMBUS_WIDTH / 2;
-    //         draw_entry(dst, x + xoff, y, collection, rand() % collection.header.imageCount);
-    //         ++drawable;
-    //     }
-    // }
-    
-    // SDL_Log("Drawable: %d", drawable);
-}
-
-void viewer_t::draw_entry(Surface dst, int x, int y, const gm1::Collection &gm1, size_t index)
-{
-    gm1::ImageHeader header = collection.headers.at(index);
-    
-    SDL_Rect srcrect;
-    srcrect.x = header.posX;
-    srcrect.y = header.posY;
-    srcrect.w = header.width;
-    srcrect.h = header.height;
-    
-    SDL_Rect dstrect;
-    dstrect.x = x;
-    dstrect.y = y;
-    dstrect.w = header.width;
-    dstrect.h = header.height;
-
-    // SDL_SetSurfaceColorMod(atlas, 255, 0, 0);
-    
-    BlitSurface(atlas, &srcrect, dst, NULL);
-    
-    // gm1::ImageHeader header = gm1.headers.at(index);
-    // Uint32 size = gm1.sizes.at(index);
-    // Uint32 offset = gm1.offsets.at(index);
-
-    // scoped_rwops src(SDL_RWFromConstMem(data.to_uint8(), data.Size()));
-    // if(!src)
-    //     throw std::runtime_error("SDL_RWFromConstMem failed");
-    // if(offset != SDL_RWseek(src.get(), offset, RW_SEEK_SET))
-    //     throw std::runtime_error("unexpected offset");
-    
-    // switch(gm1.encoding()) {
-    // case gm1::Encoding::TGX16:
-    //     {
-    //         SDL_Rect dstrect;
-    //         dstrect.x = x - gm1.header.anchorX;
-    //         dstrect.y = y - gm1.header.anchorY;;
-    //         dstrect.w = header.width;
-    //         dstrect.h = header.height;
-
-    //         Surface ref = SubSurface(dst, &dstrect);
-    //         tgx::DecodeTGX(src.get(), size, ref);
-    //     }
-    //     break;
-        
-    // case gm1::Encoding::Bitmap:
-    //     {
-    //         SDL_Rect dstrect;
-    //         dstrect.x = x - gm1.header.anchorX;
-    //         dstrect.y = y - gm1.header.anchorY;
-    //         dstrect.w = header.width;
-    //         dstrect.h = header.height - 7;
-
-    //         Surface ref = SubSurface(dst, &dstrect);
-    //         tgx::DecodeUncompressed(src.get(), size, ref);
-    //     }
-    //     break;
-
-    // case gm1::Encoding::TileObject:
-    //     {
-    //         SDL_Rect tilerect;
-    //         tilerect.x = x - gm1.header.anchorX;
-    //         tilerect.y = y - gm1.header.anchorY;
-    //         tilerect.w = TILE_RHOMBUS_WIDTH;
-    //         tilerect.h = TILE_RHOMBUS_HEIGHT;
-
-    //         Surface tile = SubSurface(dst, &tilerect);
-    //         tgx::DecodeTile(src.get(), TILE_BYTES, tile);
-
-    //         SDL_Rect boxrect;
-    //         boxrect.x = x - gm1.header.anchorX + header.hOffset;
-    //         boxrect.y = y - gm1.header.anchorY - header.tileY;
-    //         boxrect.w = header.boxWidth;
-    //         boxrect.h = header.height + TILE_RHOMBUS_HEIGHT;
-
-    //         Surface box = SubSurface(dst, &boxrect);
-    //         tgx::DecodeTGX(src.get(), size - TILE_BYTES, box);
-    //     }
-    //     break;
-
-    // case gm1::Encoding::TGX8:
-    //     {
-    //         SDL_Rect dstrect;
-    //         dstrect.x = x - gm1.header.anchorX;
-    //         dstrect.y = y - gm1.header.anchorY;
-    //         dstrect.w = header.width;
-    //         dstrect.h = header.height;
-
-    //         Surface ref = SubSurface(dst, &dstrect);
-    //         tgx::DecodeTGXWithPalette(src.get(), size, ref, palettes.at(paletteIndex));
-    //     }
-    //     break;
-
-    // default:
-    //     throw std::runtime_error("Unknown encoding");
-    // }
-}
-
-int explorer_main(const std::string &filename)
-{
-    try {
-        scoped_rwops src(SDL_RWFromFile(filename.c_str(), "rb"));
-        
-        if(!src)
-            throw std::runtime_error(SDL_GetError());
-        
-        gm1::Collection collection(src.get());
-        FileBuffer rest(src.get());
-        viewer_t viewer(collection, rest);
-        viewer.enter_event_loop();
-        return 0;
-        
-    } catch(const std::exception &e) {
-        SDL_Log("Exception: %s", e.what());
-        return -1;
-    }
-}
-
-int main(int argc, const char *argv[])
-{
-    SDL_Init(SDL_INIT_EVERYTHING);
-    if(argc > 1) {
-        std::string filename = argv[1];
-        return explorer_main(filename);
-    }
-    SDL_Quit();
-    return 0;
 }

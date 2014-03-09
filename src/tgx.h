@@ -7,7 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include <cassert>
 
@@ -42,12 +42,14 @@ const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 // One bit to rule them all, one bit to find them
 // One bit to bring them all, and in the ARGB bind them
 // In the land of sprites where some shadows was
-const int TGX_RGB16_AMASK = 0;
-const int TGX_RGB16_RMASK = 0x7c00;                   // 0111110000000000
-const int TGX_RGB16_GMASK = 0x3e0;                    // 0000001111100000
+const Uint32 TGX_RGB16_AMASK = 0;
+const Uint32 TGX_RGB16_RMASK = 0x7c00;                   // 0111110000000000
+const Uint32 TGX_RGB16_GMASK = 0x3e0;                    // 0000001111100000
 //const int TGX_RGB16_RMASK = 0xf800;
 //const int TGX_RGB16_GMASK = 0x7e0;
-const int TGX_RGB16_BMASK = 0x1f;                     // 0000000000011111
+const Uint32 TGX_RGB16_BMASK = 0x1f;                     // 0000000000011111
+
+const Uint32 SDL_PIXELFORMAT_TGX = SDL_PIXELFORMAT_ARGB1555;
 
 const int TGX_RGB16_ASHIFT = 0;
 const int TGX_RGB16_RSHIFT = 11;

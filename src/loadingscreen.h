@@ -1,12 +1,12 @@
 #ifndef LOADINGSCREEN_H_
 #define LOADINGSCREEN_H_
 
+#include <functional>
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <set>
-
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "events.h"
 #include "gamescreen.h"
@@ -21,8 +21,11 @@ class LoadingScreen
     Renderer *m_renderer;
     RootScreen *m_root;
     bool m_quit;
-    std::vector<std::string> m_files;
+    std::vector<std::function<void()>> m_tasks;
 
+    void ScheduleCacheGM1(const std::string &filename);
+    void ScheduleCacheFont(const FontAtlasInfo &info);
+    
 public:
     LoadingScreen(RootScreen *root);
     int Exec();

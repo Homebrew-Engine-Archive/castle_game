@@ -22,6 +22,7 @@ include_directories (
   ${SDL2_INCLUDE_DIRS})
 
 set (SRCS
+  atlas.cpp
   gamemap.cpp	 
   geometry.cpp
   gm1.cpp	    

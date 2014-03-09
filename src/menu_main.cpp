@@ -3,8 +3,8 @@
 Button MenuMain::MakeCombatButton()
 {
     auto handler = std::bind(&MenuMain::GoCombat, this);
-    const CollectionData &icons = m_renderer->GetCollection("gm/icons_front_end.gm1");
-
+    const CollectionData &icons = m_renderer->QueryCollection("gm/icons_front_end.gm1");
+    
     Surface released = icons.entries.at(0).surface;
     Surface pressed = icons.entries.at(16).surface;
     Surface over = icons.entries.at(5).surface;

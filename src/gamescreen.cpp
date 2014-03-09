@@ -27,11 +27,11 @@ void GameScreen::Draw(Surface frame)
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_FillRect(frame, &frameRect, 0xff000000);
     
-    CollectionData gm1 = m_renderer->GetCollection("gm/body_pikeman.gm1");
+    const CollectionData &gm1 = m_renderer->QueryCollection("gm/body_pikeman.gm1");
     
     for(size_t n = 0; n < 1000; ++n) {
-        SDL_Palette *palette =
-            gm1.palettes[rand() % gm1.palettes.size()];
+        size_t paletteIndex = rand() % gm1.palettes.size();
+        SDL_Palette *palette = gm1.palettes.at(paletteIndex).get();
         const CollectionEntry &entry =
             gm1.entries[rand() % gm1.header.imageCount];
         Surface surface = entry.surface;

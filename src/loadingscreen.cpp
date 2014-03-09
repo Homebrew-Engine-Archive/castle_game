@@ -24,8 +24,35 @@ LoadingScreen::LoadingScreen(RootScreen *root)
     : m_renderer(root->GetRenderer())
     , m_root(root)
     , m_quit(false)
-    , m_files(SetPreloadsList("gm/preloads.txt"))
 {
+    auto filelist = SetPreloadsList("gm/preloads.txt");
+    for(const auto &filename : filelist) {
+        std::cout << filename << std::endl;
+        ScheduleCacheGM1(filename);
+    }
+
+    std::vector<FontAtlasInfo> fontInfo = {};
+
+    for(const auto &info : fontInfo) {
+        ScheduleCacheFont(info);
+    }
+}
+
+void LoadingScreen::ScheduleCacheGM1(const std::string &filename)
+{
+    auto task = [filename, this]() {
+        if(!m_renderer->CacheCollection(filename)) {
+            std::ostringstream oss;
+            oss << "Unable to load file: " << filename;
+            throw std::runtime_error(oss.str());
+        }
+    };
+    m_tasks.push_back(task);
+}
+
+void LoadingScreen::ScheduleCacheFont(const FontAtlasInfo &info)
+{
+    
 }
 
 int LoadingScreen::Exec()
@@ -33,10 +60,10 @@ int LoadingScreen::Exec()
     const Uint32 frameRate = 5;
     const Uint32 frameInterval = 1000 / frameRate;
     Uint32 lastFrame = 0;
-    const Uint32 total = m_files.size();
+    const Uint32 total = m_tasks.size();
     Uint32 completed = 0;
-    
-    for(const std::string &file : m_files) {
+        
+    for(const auto &task : m_tasks) {
         if(lastFrame + frameInterval < SDL_GetTicks()) {
             lastFrame = SDL_GetTicks();
             double done = static_cast<double>(completed) / total;
@@ -49,8 +76,9 @@ int LoadingScreen::Exec()
                 return -1;
         }
 
+        task();
         completed += 1;
-        m_renderer->LoadImageCollection(file);
+        
     }
     
     return 0;
@@ -60,7 +88,7 @@ void LoadingScreen::Draw(double done)
 {
     Surface background = m_renderer->QuerySurface("gfx/frontend_loading.tgx");
     Surface frame = m_renderer->BeginFrame();
-    
+
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(background);
 
