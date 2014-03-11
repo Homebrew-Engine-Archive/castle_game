@@ -4,7 +4,7 @@ using namespace std;
 
 int main()
 {
-    try {
+    // try {
         SDLInit(SDL_INIT_EVERYTHING);
 
         EnumRenderDrivers();
@@ -18,14 +18,14 @@ int main()
     
         RootScreen screen(&renderer);
         return screen.Exec();
-    } catch(const std::exception &e) {
-        std::cerr << "Exception in main(): "
-                  << e.what()
-                  << std::endl;
-    } catch(...) {
-        std::cerr << "Unhandled exception in main()"
-                  << std::endl;
-    }
+    // } catch(const std::exception &e) {
+    //     std::cerr << "Exception in main(): "
+    //               << e.what()
+    //               << std::endl;
+    // } catch(...) {
+    //     std::cerr << "Unhandled exception in main()"
+    //               << std::endl;
+    // }
 
     return -1;
 }

@@ -11,10 +11,7 @@ CollectionEntry::CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf
 { }
 
 Renderer::Renderer(Window *window)
-    : m_textRenderer(
-        TextRendererPtr(
-            new TextRenderer(this)))
-    , m_fbWidth(0)
+    : m_fbWidth(0)
     , m_fbHeight(0)
     , m_fbFormat(0)
 {
@@ -24,6 +21,9 @@ Renderer::Renderer(Window *window)
             SDL_CreateRenderer(sdl_wnd, -1, 0));
     if(!m_renderer)
         throw std::runtime_error(SDL_GetError());
+    m_textRenderer =
+        TextRendererPtr(
+            new TextRenderer(m_renderer.get()));
     SDL_GetWindowSize(sdl_wnd, &m_fbWidth, &m_fbHeight);
     AdjustOutputSize(m_fbWidth, m_fbHeight);
 }
@@ -123,7 +123,6 @@ void Renderer::EndFrame()
                       << SDL_GetError()
                       << std::endl;
         }
-        SDL_RenderPresent(renderer);
     }
 
     if(!m_textOverlay.empty()) {
@@ -132,6 +131,8 @@ void Renderer::EndFrame()
         }
         m_textOverlay.clear();
     }
+    
+    SDL_RenderPresent(renderer);
 }
 
 Surface Renderer::AllocFrameSurface(void *pixels, int width, int height, int pitch)
@@ -282,7 +283,7 @@ CollectionAtlasPtr Renderer::LoadCollectionAtlas(const std::string &filename) co
         return ptr;
         
     } catch(const std::exception &e) {
-        std::cerr << "LoadCollectionAtlas failed: "
+        std::cerr << "Exception in LoadCollectionAtlas: "
                   << e.what()
                   << std::endl;
         return CollectionAtlasPtr(nullptr);
@@ -322,11 +323,41 @@ bool Renderer::CacheCollection(const std::string &filename)
     }
 }
 
+bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
+{
+    try {
+        CollectionDataPtr data =
+            std::move(
+                LoadCollection(info.filename));
+        if(!data)
+            throw std::runtime_error("Unable load font collection");
+        
+        size_t skip = 0;
+        for(font_size_t size : info.sizes) {
+            Font font(*data, info.alphabet, skip);
+            m_textRenderer->RegisterFont(info.name, size, font);
+            skip += info.alphabet.size();
+        }
+        
+        return true;
+    } catch(const std::exception &e) {
+        std::cerr << "Exception in CacheFontCollection: "
+                  << e.what()
+                  << std::endl;
+        return false;
+    }
+}
+
 void Renderer::RenderTextOverlay(const TextData &item)
 {
     m_textRenderer->SetFont(item.fontname, item.size);
     m_textRenderer->SetColor(item.color);
-    m_textRenderer->SetCursor(TopLeft(item.rect));
+    
+    SDL_Rect textRect = m_textRenderer->CalculateTextRect(item.text);
+    SDL_Rect aligned = PutIn(textRect, item.rect, -1.0f, -1.0f);
+
+    m_textRenderer->SetCursor(
+        BottomLeft(aligned));
     
     for(char c : item.text) {
         m_textRenderer->PutChar(c);

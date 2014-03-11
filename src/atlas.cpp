@@ -18,7 +18,7 @@ struct compare_first
 
 typedef compare_first<Surface, size_t, SurfaceCompare> CompareHeight;
 
-Surface MakeSurfaceAtlas(const std::vector<Surface> &surfaces, std::vector<SDL_Rect> &partition, int maxWidth, int maxHeight)
+bool GetAtlasPartition(const std::vector<Surface> &surfaces, std::vector<SDL_Rect> &partition, int maxWidth, int maxHeight)
 {
     partition.resize(surfaces.size());
 
@@ -26,7 +26,9 @@ Surface MakeSurfaceAtlas(const std::vector<Surface> &surfaces, std::vector<SDL_R
     std::vector<std::pair<Surface, size_t>> indexed;
     
     for(size_t index = 0; index < surfaces.size(); ++index) {
-        indexed.emplace_back(surfaces.at(index), index);
+        Surface surface = surfaces.at(index);
+        if(!surface.Null())
+            indexed.emplace_back(surface, index);
     }
 
     // Descending by surface pixels count
@@ -36,25 +38,25 @@ Surface MakeSurfaceAtlas(const std::vector<Surface> &surfaces, std::vector<SDL_R
     int y = 0;
     int maxHeightLastRow = 0;
 
-    for(size_t i = 0; i < indexed.size(); ++i) {
-        Surface surface = indexed.at(i).first;
-        size_t origIndex = indexed.at(i).second;
+    for(const auto &ixed : indexed) {
+        Surface surface = ixed.first;
+        size_t origIndex = ixed.second;
 
         int w = surface->w;
         int h = surface->h;
 
         // new line
         if(x + w > maxWidth) {
+            if(y + maxHeightLastRow > maxHeight) {
+                std::cerr << "Maximal height reached" << std::endl;
+                return false;
+            }
             y += maxHeightLastRow;
             maxHeightLastRow = 0;
             x = 0;
         }
         
-        SDL_Rect rect;
-        rect.x = x;
-        rect.y = y;
-        rect.w = w;
-        rect.h = h;
+        SDL_Rect rect = MakeRect(x, y, w, h);
         x += w;
 
         maxHeightLastRow = std::max(maxHeightLastRow, h);
@@ -67,6 +69,12 @@ Surface MakeSurfaceAtlas(const std::vector<Surface> &surfaces, std::vector<SDL_R
         partition.at(origIndex) = rect;
     }
 
+    return true;
+}
+
+Surface MakeSurfaceAtlas(const std::vector<Surface> &surfaces, std::vector<SDL_Rect> &partition, int maxWidth, int maxHeight)
+{
+    GetAtlasPartition(surfaces, partition, maxWidth, maxHeight);
     return BuildAtlas(surfaces, partition);
 }
 
@@ -90,7 +98,8 @@ Surface BuildAtlas(const std::vector<Surface> &surfaces, const std::vector<SDL_R
 
     for(size_t i = 0; i < surfaces.size(); ++i) {
         SDL_Rect bounds = partition.at(i);
-        BlitSurface(surfaces.at(i), NULL, atlas, &bounds);
+        if(!surfaces.at(i).Null())
+            BlitSurface(surfaces.at(i), NULL, atlas, &bounds);
     }
     
     return atlas;

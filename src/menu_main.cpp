@@ -38,7 +38,7 @@ void MenuMain::Draw(Surface frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(m_background);
-    SDL_Rect bgAligned = AlignRect(bgRect, frameRect, 0, 0);
+    SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
     BlitSurface(m_background, NULL, frame, &bgAligned);
     for(Button &button : m_buttons) {

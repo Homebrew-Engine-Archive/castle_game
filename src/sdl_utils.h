@@ -1,9 +1,20 @@
 #ifndef SDL_UTILS_H_
 #define SDL_UTILS_H_
 
+#include <stdexcept>
 #include <memory>
 #include <iostream>
 #include "SDL.h"
+
+template<class T, class D>
+static void ThrowSDLError(const std::unique_ptr<T, D> &ptr)
+{
+    if(!ptr)
+        throw std::runtime_error(SDL_GetError());
+}
+
+void ThrowSDLError(const SDL_Surface *surface);
+void ThrowSDLError(int code);
 
 struct FreeSurfaceDeleter
 {
@@ -76,6 +87,12 @@ inline static std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect)
     if(rect.y >= 0)
         out << '+';
     out << rect.y;
+    return out;
+}
+
+inline static std::ostream &operator<<(std::ostream &out, const SDL_Point &pt)
+{
+    out << '(' << pt.x << ", " << pt.y << ')';
     return out;
 }
 

@@ -60,7 +60,7 @@ struct ImageHeader
     Uint16 posY;
     Uint8 group;
     Uint8 groupSize;
-    Uint16 tileY;
+    Sint16 tileY;
     Uint8 tileOrient;
     Uint8 hOffset;
     Uint8 boxWidth;

@@ -1,12 +1,12 @@
 #include "textrenderer.h"
 
-TextRenderer::TextRenderer(Renderer *renderer)
+TextRenderer::TextRenderer(SDL_Renderer *renderer)
     : m_renderer(renderer)
     , m_fontData(NULL)
     , m_cursor { 0, 0 }
     , m_startCursor(m_cursor)
     , m_color { 0, 0, 0, 0 }
-    , m_kerning(-2)
+    , m_kerning(2)
     , m_lineSpacing(2)
     , m_lineHeight(0)
 {
@@ -15,13 +15,20 @@ TextRenderer::TextRenderer(Renderer *renderer)
 void TextRenderer::PutChar(int character)
 {
     if(m_fontData != NULL) {
-        const Font *font = m_fontData->font.get();
-        font->PutGlyph(m_renderer, character, m_cursor, m_color);
+        SDL_Texture *texture = m_fontData->texture.get();
+        SDL_SetTextureColorMod(texture, m_color.r, m_color.g, m_color.b);
+        SDL_SetTextureAlphaMod(texture, m_color.a);
 
-        SDL_Rect glyphBounds = font->GetGlyphBounds(character);
-        m_cursor.x = glyphBounds.w + m_kerning;
-
-        m_lineHeight = std::max(m_lineHeight, glyphBounds.h);
+        size_t index = m_fontData->font.GetGlyphIndex(character);
+        int yoffset = m_fontData->font.GetGlyphYOffset(index);
+        
+        SDL_Rect srcRect = m_fontData->partition.at(index);
+        SDL_Rect dstRect = MakeRect(
+            m_cursor.x, m_cursor.y - yoffset,
+            srcRect.w, srcRect.h);
+        ThrowSDLError(
+            SDL_RenderCopy(m_renderer, texture, &srcRect, &dstRect));
+        m_cursor.x += dstRect.w + m_kerning;
     }
 }
 
@@ -31,19 +38,37 @@ void TextRenderer::PutNewline()
     m_cursor.y += m_lineHeight + m_lineSpacing;
 }
 
-int TextRenderer::CalculateTextWidth(const std::string &str) const
+SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
 {
-    return 0;
+    SDL_Rect bounds = MakeEmptyRect();
+    if(m_fontData != NULL) {
+        int x = m_cursor.x;
+        for(int character : str) {
+            size_t idx = m_fontData->font.GetGlyphIndex(character);
+            int yoffset = m_fontData->font.GetGlyphYOffset(idx);
+            SDL_Rect srcRect = m_fontData->partition.at(idx);
+
+            SDL_Rect dstRect = MakeRect(
+                x, m_cursor.y - yoffset,
+                srcRect.w, srcRect.h);
+            SDL_UnionRect(&dstRect, &bounds, &bounds);
+            x += dstRect.w + m_kerning;
+        }
+    }
+    return bounds;
 }
 
-int TextRenderer::CalculateTextHeight(const std::string &str) const
+void TextRenderer::RegisterFont(const std::string &name, font_size_t size, const Font &font)
 {
-    return 0;
-}
-
-void TextRenderer::RegisterFont(const std::string &name, font_size_t size, std::unique_ptr<Font> font)
-{
-    m_fonts.emplace_back(size, name, std::move(font));
+    FontData fontData;
+    fontData.fontname = name;
+    fontData.size = size;
+    fontData.font = font;
+    fontData.texture = std::move(
+        font.CreateFontAtlas(m_renderer, fontData.partition));
+    ThrowSDLError(fontData.texture);
+    
+    m_fonts.push_back(std::move(fontData));
 }
 
 void TextRenderer::SetCursor(const SDL_Point &cursor)
@@ -108,9 +133,3 @@ const FontData *TextRenderer::GetBestMatch(const std::string &fn, font_size_t si
         }
     }
 }
-
-FontData::FontData(font_size_t size_, const std::string &fn_, std::unique_ptr<Font> font_)
-    : size(size_)
-    , fontname(fn_)
-    , font(std::move(font_))
-{ }

@@ -1,6 +1,8 @@
 #ifndef ROOTSCREEN_H_
 #define ROOTSCREEN_H_
 
+class RootScreen;
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -8,8 +10,6 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/noncopyable.hpp>
-
-class RootScreen;
 
 #include "network.h"
 #include "persist_value.h"

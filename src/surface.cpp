@@ -303,38 +303,41 @@ bool HasPalette(const Surface &surface)
 
 template<class Pixel>
 static void TransformLine(
-    void *pixels, size_t count, const SDL_PixelFormat *pf,
-    const std::function<SDL_Color(const SDL_Color &)> &fun)
+    void *pixels,
+    size_t count,
+    const SDL_PixelFormat *pf,
+    const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
 {
     Pixel *first = reinterpret_cast<Pixel *>(pixels);
     Pixel *last = first + count;
     while(first != last) {
         Uint8 r, g, b, a;
         SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
-        SDL_Color color = fun(SDL_Color {r, g, b, a});
-        *first = SDL_MapRGBA(pf, color.r, color.g, color.b, color.a);
+        
+        SDL_Color result = fun(r, g, b, a);
+        *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
         ++first;
     }
 }
 
 template<class Pixel>
 static void TransformImpl(
-    Surface &dst, const std::function<SDL_Color(const SDL_Color &)> &fun)
+    Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
 {
     if(dst.Null())
         return;
 
-    void *pixels = dst->pixels;
+    Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
     const SDL_PixelFormat *fmt = dst->format;
     
     for(int y = 0; y < dst->h; ++y) {
         TransformLine<Pixel>(pixels, dst->w, fmt, fun);
-        pixels = (void *)((Uint8 *)pixels + dst->pitch);
+        pixels += dst->pitch;
     }
 }
 
 void MapSurface(
-    Surface &dst, const std::function<SDL_Color(const SDL_Color &)> &fun)
+    Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
 {
     if(dst.Null())
         return;
@@ -353,7 +356,7 @@ void MapSurface(
         break;
     case 4:
         TransformImpl<Uint32>(dst, fun);
-        /* fallthrough */
+        break;
     default:
         TransformImpl<Uint32>(dst, fun);
         break;

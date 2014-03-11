@@ -20,6 +20,21 @@ int RunLoadingScreen(RootScreen *root)
     return ls.Exec();
 }
 
+std::vector<int> range(int from, int count)
+{
+    std::vector<int> alphabet(count);
+    std::iota(alphabet.begin(), alphabet.end(), from);
+    return alphabet;
+}
+
+std::vector<int> alphabet(const std::string &set)
+{
+    std::vector<int> xs;
+    for(const auto &c : set)
+        xs.push_back((int)c);
+    return xs;
+}
+
 LoadingScreen::LoadingScreen(RootScreen *root)
     : m_renderer(root->GetRenderer())
     , m_root(root)
@@ -31,8 +46,25 @@ LoadingScreen::LoadingScreen(RootScreen *root)
         ScheduleCacheGM1(filename);
     }
 
-    std::vector<FontAtlasInfo> fontInfo = {};
-
+    typedef std::vector<font_size_t> sizes_t;
+    
+    const FontCollectionInfo fontInfo[] = {
+        {"gm/font_stronghold_aa.gm1",
+         "stronghold_aa",
+         sizes_t {48, 32, 24, 18, 14},
+         range('!', 177)},
+        
+        {"gm/font_stronghold.gm1",
+         "stronghold",
+         sizes_t {18, 12, 11},
+         range('!', 159)},
+        
+        {"gm/font_slanted.gm1",
+         "slanted",
+         sizes_t {20, 14, 18, 13},
+         alphabet("0123456789/")}
+    };
+    
     for(const auto &info : fontInfo) {
         ScheduleCacheFont(info);
     }
@@ -50,9 +82,16 @@ void LoadingScreen::ScheduleCacheGM1(const std::string &filename)
     m_tasks.push_back(task);
 }
 
-void LoadingScreen::ScheduleCacheFont(const FontAtlasInfo &info)
+void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
 {
-    
+    auto task = [info, this]() {
+        if(!m_renderer->CacheFontCollection(info)) {
+            std::ostringstream oss;
+            oss << "Unable to load file: " << info.filename;
+            throw std::runtime_error(oss.str());
+        }
+    };
+    m_tasks.push_back(task);
 }
 
 int LoadingScreen::Exec()
@@ -92,17 +131,17 @@ void LoadingScreen::Draw(double done)
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(background);
 
-    SDL_Rect bgAligned = AlignRect(bgRect, frameRect, 0, 0);
+    SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
     SDL_BlitSurface(background, NULL, frame, &bgAligned);
     
     SDL_Rect barOuter = MakeRect(300, 25);
-    SDL_Rect barOuterAligned = AlignRect(barOuter, bgAligned, 0, 0.8f);
+    SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
     FillFrame(frame, &barOuterAligned, 0x7f000000);
     DrawFrame(frame, &barOuterAligned, 0xff000000);
 
     SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
     SDL_Rect barInner = MakeRect(barOuterPadded.w * done, barOuterPadded.h);
-    SDL_Rect barInnerAligned = AlignRect(barInner, barOuterPadded, -1.0f, 0);
+    SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
     FillFrame(frame, &barInnerAligned, 0xff000000);
     
     m_renderer->EndFrame();

@@ -1,16 +1,13 @@
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
+class TextRenderer;
+
 #include <map>
 #include <cstdarg>
 #include <iostream>
 #include <string>
 #include "SDL.h"
-
-class Font;
-class GM1Font;
-class Renderer;
-class TextRenderer;
 
 #include "sdl_utils.h"
 #include "gm1.h"
@@ -19,15 +16,16 @@ class TextRenderer;
 
 struct FontData
 {
-    font_size_t size;
     std::string fontname;
-    std::unique_ptr<Font> font;
-    FontData(font_size_t size, const std::string &fn, std::unique_ptr<Font> font);
+    font_size_t size;
+    Font font;
+    TexturePtr texture;
+    std::vector<SDL_Rect> partition;
 };
 
 class TextRenderer
 {
-    Renderer *m_renderer;
+    SDL_Renderer *m_renderer;
     const FontData *m_fontData;
     SDL_Point m_cursor;
     SDL_Point m_startCursor;
@@ -35,13 +33,12 @@ class TextRenderer
     int m_kerning;
     int m_lineSpacing;
     int m_lineHeight;
-    
     std::vector<FontData> m_fonts;
-
+    
     const FontData *GetBestMatch(const std::string &fn, font_size_t size, const FontData *lhs, const FontData *rhs);
     
 public:
-    TextRenderer(Renderer *renderer);
+    TextRenderer(SDL_Renderer *renderer);
 
     /**
      * Make font available for drawing under given name.
@@ -50,7 +47,7 @@ public:
      * @param size      Size of font.
      *
      */
-    void RegisterFont(const std::string &name, font_size_t size, std::unique_ptr<Font> font);
+    void RegisterFont(const std::string &name, font_size_t size, const Font &font);
     
     /**
      * Use new font for next printing.
@@ -67,10 +64,8 @@ public:
     void SetColor(const SDL_Color &color);
 
     void SetCursor(const SDL_Point &cursor);
-    
-    int CalculateTextHeight(const std::string &str) const;
-    
-    int CalculateTextWidth(const std::string &str) const;
+
+    SDL_Rect CalculateTextRect(const std::string &str) const;
 
     /**
      * Puts single character 
@@ -84,6 +79,6 @@ public:
     void PutNewline();
 };
 
-#include "renderer.h"
+typedef std::unique_ptr<TextRenderer> TextRendererPtr;
 
 #endif

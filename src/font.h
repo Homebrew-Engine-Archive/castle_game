@@ -1,50 +1,47 @@
 #ifndef FONT_H_
 #define FONT_H_
 
+#include <cassert>
+#include <array>
+#include <map>
 #include <memory>
 #include <string>
 #include "SDL.h"
 
-class Font;
-struct FontAtlasInfo;
-typedef size_t font_size_t;
-
+#include "atlas.h"
 #include "sdl_utils.h"
-#include "renderer.h"
+#include "collection.h"
 #include "gm1.h"
 
 class Font
 {
+    struct GlyphData
+    {
+        Surface surface;
+        int width;
+        int height;
+        int character;
+        int yoffset;
+        int xoffset;
+    };
+    
+    std::vector<int> m_asciiList;
+    std::array<size_t, 256> m_asciiIndex;
+    std::vector<Surface> m_surfaces;
+    std::vector<int> m_yoffsets;
+    
 public:
-    virtual bool PutGlyph(Renderer *renderer, int character, const SDL_Point &point, const SDL_Color &color) const = 0;
+    Font();
+    Font(const CollectionData &data, const std::vector<int> &alphabet, int skip);
+    TexturePtr CreateFontAtlas(SDL_Renderer *renderer, std::vector<SDL_Rect> &partition) const;
+    int GetGlyphYOffset(size_t index) const;
+    Surface GetGlyphSurface(size_t index) const;
+    size_t GetGlyphIndex(int character) const;
 
-    virtual SDL_Rect GetGlyphBounds(int character) const = 0;
 };
 
-class GM1Font : public Font
-{
-protected:
-    TexturePtr m_atlas;
-    std::vector<SDL_Rect> m_glyphData;
+typedef std::unique_ptr<Font> FontPtr;
 
-public:
-    GM1Font(const CollectionAtlas &atlas, const std::vector<int> &alphabet, size_t skip, size_t count, int yoffset);
-
-    bool PutGlyph(Renderer *renderer, int character, const SDL_Point &point, const SDL_Color &color) const;
-
-    SDL_Rect GetGlyphBounds(int character) const;
-};
-
-struct FontAtlasInfo
-{
-    std::string filename;
-    std::string name;
-    font_size_t size;
-    std::vector<char> alphabet;
-    int skip;
-    int count;
-    int yoffset;
-    int xoffset;
-};
+Surface DecodeGM1Glyph(const Surface &src);
 
 #endif

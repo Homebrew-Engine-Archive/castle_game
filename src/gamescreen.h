@@ -37,7 +37,7 @@ enum class CursorMode : int {
 Orient PrevRotation(Orient rot);
 Orient NextRotation(Orient rot);
 
-class GameScreen
+class GameScreen : public Screen
 {
     RootScreen *m_root;
     Renderer *m_renderer;

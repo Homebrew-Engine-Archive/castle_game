@@ -1,6 +1,6 @@
 #include "geometry.h"
 
-SDL_Rect AlignRect(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
+SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {
     // Unintuitive formulas is for the sake of precision
     // int xcenter = dst.x + dst.w / 2;

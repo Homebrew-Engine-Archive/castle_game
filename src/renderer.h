@@ -1,58 +1,27 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include <memory>
-#include <iostream>
-#include <stdexcept>
-#include <set>
-#include <map>
-#include <vector>
-#include <string>
-#include "SDL.h"
-
-#include <boost/noncopyable.hpp>
-
-struct CollectionAtlas;
-struct CollectionData;
-struct CollectionEntry;
 class Renderer;
+
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include "SDL.h"
+#include <boost/noncopyable.hpp>
 
 #include "sdl_utils.h"
 #include "textrenderer.h"
 #include "font.h"
-#include "streamingtexture.h"
 #include "tgx.h"
 #include "gm1.h"
 #include "window.h"
 #include "surface.h"
 #include "rw.h"
-
-struct CollectionAtlas
-{
-    gm1::Collection gm1;
-    Surface map;
-    CollectionAtlas(SDL_RWops *src);
-};
-
-typedef std::unique_ptr<CollectionAtlas> CollectionAtlasPtr;
-
-struct CollectionEntry
-{
-    gm1::ImageHeader header;
-    Surface surface;
-    CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf_);
-};
-
-struct CollectionData
-{
-    gm1::Header header;
-    std::vector<CollectionEntry> entries;
-    std::vector<PalettePtr> palettes;
-};
-
-typedef std::unique_ptr<CollectionData> CollectionDataPtr;
-
-typedef std::unique_ptr<TextRenderer> TextRendererPtr;
+#include "collection.h"
 
 class Renderer : public boost::noncopyable
 {
@@ -94,7 +63,7 @@ public:
     inline SDL_Renderer *GetRenderer() { return m_renderer.get(); }
 
     /**
-     * Every frame should call this to initiate screen surface.
+     * Every frame should call this to create screen surface.
      */
     Surface BeginFrame();
     
@@ -150,10 +119,10 @@ public:
      */
     bool CacheCollection(const std::string &filename);
 
-    void LoadFontCollection(const std::string &filename, const std::vector<FontAtlasInfo> &descr);
+    bool CacheFontCollection(const FontCollectionInfo &info);
 };
 
-SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
 
 void EnumRenderDrivers();
 void PrintRendererInfo(SDL_Renderer *renderer);

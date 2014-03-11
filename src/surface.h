@@ -79,7 +79,7 @@ public:
     virtual ~SurfaceROI();
 };
 
-void MapSurface(Surface &dst, std::function<SDL_Color(SDL_Color)>);
+void MapSurface(Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &);
 
 bool HasPalette(const Surface &surface);
 

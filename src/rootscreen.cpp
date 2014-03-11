@@ -67,8 +67,8 @@ void RootScreen::DrawFrame()
 
     std::ostringstream oss;
     oss << "FPS: " << m_fpsAverage;
-    
-    m_renderer->RenderTextLine(oss.str(), NULL, std::string("stronghold"), MakeColor(255, 0, 0, 1), 16);
+
+    m_renderer->RenderTextLine(oss.str(), NULL, std::string("stronghold_aa"), MakeColor(255, 255, 255, 128), 16);
         
     m_renderer->EndFrame();    
 }
@@ -81,7 +81,8 @@ int RootScreen::Exec()
         return code;
     }
 
-    m_currentScreen.reset(new MenuMain(this));
+    //m_currentScreen.reset(new MenuMain(this));
+    m_currentScreen.reset(new GameScreen(this));
 
     const std::int64_t msPerSec = 1000;
     const int pollRate = 66;

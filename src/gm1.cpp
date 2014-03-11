@@ -18,7 +18,7 @@ template<class EntryClass>
 static SDL_Rect GetRectOnAtlas(const ImageHeader &header);
 
 template<class EntryClass>
-static Surface AllocateSurface(Uint32 width, Uint32 height);
+static Surface AllocateSurface(int width, int height);
 
 template<class EntryClass>
 static Surface LoadAtlasImpl(SDL_RWops *, const Collection &);
@@ -189,15 +189,15 @@ void LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> 
 
 struct TGX8
 {
-    static Uint32 Width(const ImageHeader &header) {
+    static int Width(const ImageHeader &header) {
         return header.width;
     }
     
-    static Uint32 Height(const ImageHeader &header) {
+    static int Height(const ImageHeader &header) {
         return header.height;
     }
     
-    static Uint32 Depth() {
+    static int Depth() {
         return 8;
     }
     
@@ -231,15 +231,15 @@ struct TGX8
 
 struct TGX16
 {
-    static Uint32 Width(const ImageHeader &header) {
+    static int Width(const ImageHeader &header) {
         return header.width;
     }
     
-    static Uint32 Height(const ImageHeader &header) {
+    static int Height(const ImageHeader &header) {
         return header.height;
     }
     
-    static Uint32 Depth() {
+    static int Depth() {
         return 16;
     }
     
@@ -272,15 +272,15 @@ struct TGX16
 
 struct TileObject
 {
-    static Uint32 Width(const ImageHeader &) {
+    static int Width(const ImageHeader &) {
         return TILE_RHOMBUS_WIDTH;
     }
     
-    static Uint32 Height(const ImageHeader &header) {
+    static int Height(const ImageHeader &header) {
         return TILE_RHOMBUS_HEIGHT + header.tileY;
     }
     
-    static Uint32 Depth() {
+    static int Depth() {
         return 16;
     }
     
@@ -329,16 +329,16 @@ struct TileObject
 
 struct Bitmap
 {
-    static Uint32 Width(const ImageHeader &header) {
+    static int Width(const ImageHeader &header) {
         return header.width;
     }
     
-    static Uint32 Height(const ImageHeader &header) {
+    static int Height(const ImageHeader &header) {
         // Nobody knows why
         return header.height - 7;
     }
     
-    static Uint32 Depth() {
+    static int Depth() {
         return 16;
     }
     
@@ -380,7 +380,7 @@ static SDL_Rect GetRectOnAtlas(const ImageHeader &header)
 }
 
 template<class EntryClass>
-static Surface AllocateSurface(Uint32 width, Uint32 height)
+static Surface AllocateSurface(int width, int height)
 {
     Surface sf = SDL_CreateRGBSurface(
         NO_FLAGS, width, height, EntryClass::Depth(),

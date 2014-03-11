@@ -3,8 +3,17 @@
 
 #include <algorithm>
 #include <vector>
-#include "surface.h"
 #include "SDL.h"
+
+#include "surface.h"
+
+/**
+ * Simple descending-size ordering of surfaces.
+ * @param surfaces      Surface list.
+ * @return              False when reach max size.
+ *
+ */
+bool GetAtlasPartition(const std::vector<Surface> &surfaces, std::vector<SDL_Rect> &partition, int maxWidth, int maxHeight);
 
 /**
  * This one eval layout of surfaces and call BuildAtlas.

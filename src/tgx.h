@@ -9,8 +9,6 @@
 #include <algorithm>
 #include "SDL.h"
 
-#include <cassert>
-
 #include "surface.h"
 #include "macrosota.h"
 #include "rw.h"
