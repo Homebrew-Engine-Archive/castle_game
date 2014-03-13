@@ -10,22 +10,18 @@ CollectionEntry::CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf
     , surface(sf_)
 { }
 
-Renderer::Renderer(Window *window)
-    : m_fbWidth(0)
+Renderer::Renderer(SDL_Renderer *renderer)
+    : m_renderer(renderer)
+    , m_textRenderer(m_renderer)
+    , m_fbWidth(0)
     , m_fbHeight(0)
     , m_fbFormat(0)
 {
-    SDL_Window *sdl_wnd = window->GetWindow();
-    m_renderer =
-        RendererPtr(
-            SDL_CreateRenderer(sdl_wnd, -1, 0));
-    if(!m_renderer)
-        throw std::runtime_error(SDL_GetError());
-    m_textRenderer =
-        TextRendererPtr(
-            new TextRenderer(m_renderer.get()));
-    SDL_GetWindowSize(sdl_wnd, &m_fbWidth, &m_fbHeight);
-    AdjustOutputSize(m_fbWidth, m_fbHeight);
+    SDL_Rect rect = GetOutputSize();
+    m_fbWidth = rect.w;
+    m_fbHeight = rect.h;
+    
+    AdjustBufferSize(m_fbWidth, m_fbHeight);
 }
 
 bool Renderer::AllocFrameTexture(int width, int height)
@@ -53,7 +49,7 @@ bool Renderer::AllocFrameTexture(int width, int height)
     m_fbTexture =
         TexturePtr(
             SDL_CreateTexture(
-                m_renderer.get(),
+                m_renderer,
                 m_fbFormat,
                 SDL_TEXTUREACCESS_STREAMING,
                 m_fbWidth,
@@ -65,7 +61,7 @@ bool Renderer::AllocFrameTexture(int width, int height)
                   << std::endl;
         return false;
     }
-
+    
     return true;
 }
 
@@ -112,13 +108,12 @@ Surface Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
-    SDL_Renderer *renderer = GetRenderer();
     if(!m_fbSurface.Null()) {
-        SDL_RenderClear(renderer);
+        SDL_RenderClear(m_renderer);
         
         m_fbSurface.reset();
         SDL_UnlockTexture(m_fbTexture.get());
-        if(SDL_RenderCopy(renderer, m_fbTexture.get(), NULL, NULL)) {
+        if(SDL_RenderCopy(m_renderer, m_fbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
                       << SDL_GetError()
                       << std::endl;
@@ -132,7 +127,7 @@ void Renderer::EndFrame()
         m_textOverlay.clear();
     }
     
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(m_renderer);
 }
 
 Surface Renderer::AllocFrameSurface(void *pixels, int width, int height, int pitch)
@@ -165,7 +160,7 @@ SDL_Rect Renderer::GetOutputSize() const
 {
     int width;
     int height;
-    if(SDL_GetRendererOutputSize(m_renderer.get(), &width, &height)) {
+    if(SDL_GetRendererOutputSize(m_renderer, &width, &height)) {
         std::cerr << "SDL_GetRendererOutputSize failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -180,10 +175,10 @@ bool Renderer::ReallocationRequired(int width, int height)
         || ((height / threshold) != (m_fbHeight / threshold));
 }
 
-void Renderer::AdjustOutputSize(int width, int height)
+void Renderer::AdjustBufferSize(int width, int height)
 {
     if(!m_fbSurface.Null()) {
-        throw std::runtime_error("AdjustOutputSize called with active frame.");
+        throw std::runtime_error("AdjustBufferSize called with active frame.");
     }
     if(ReallocationRequired(width, height)) {
         AllocFrameTexture(width, height);
@@ -335,7 +330,11 @@ bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
         size_t skip = 0;
         for(font_size_t size : info.sizes) {
             Font font(*data, info.alphabet, skip);
-            m_textRenderer->RegisterFont(info.name, size, font);
+            if(!m_textRenderer.CacheFont(info.name, size, font)) {
+                std::cerr << "Unable to cache font: "
+                          << info.name << ' '
+                          << size << std::endl;
+            }
             skip += info.alphabet.size();
         }
         
@@ -348,113 +347,61 @@ bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
     }
 }
 
+void Renderer::SetFont(const std::string &fontname, font_size_t size)
+{
+    auto changeFont = [fontname, size, this]() {
+        m_textRenderer.SetFont(fontname, size);
+    };
+    m_textOverlay.push_back(changeFont);
+}
+
+void Renderer::SetColor(const SDL_Color &color)
+{
+    auto changeColor = [color, this]() {
+        m_textRenderer.SetColor(color);
+    };
+    m_textOverlay.push_back(changeColor);
+}
+
 void Renderer::RenderTextOverlay(const TextData &item)
 {
-    m_textRenderer->SetFont(item.fontname, item.size);
-    m_textRenderer->SetColor(item.color);
-    
-    SDL_Rect textRect = m_textRenderer->CalculateTextRect(item.text);
-    SDL_Rect aligned = PutIn(textRect, item.rect, -1.0f, -1.0f);
-
-    m_textRenderer->SetCursor(
-        BottomLeft(aligned));
-    
-    for(char c : item.text) {
-        m_textRenderer->PutChar(c);
-    }
+    item();
 }
 
-void Renderer::RenderTextLine(
-    const std::string &text,
-    const SDL_Rect *rect,
-    const std::string &fontname,
-    const SDL_Color &color,
-    font_size_t size)
+void Renderer::RenderTextLine(const std::string &text, const SDL_Rect &textBox)
 {
-    TextData task;
-    task.text = text;
-    task.fontname = fontname;
-    task.color = color;
-    task.size = size;
-
-    if(rect != NULL) {
-        task.rect = *rect;
-    } else {
-        task.rect = GetOutputSize();
-    }
+    auto drawText = [text, textBox, this]() {
+        SDL_Rect textRect = m_textRenderer.CalculateTextRect(text);
+        SDL_Rect aligned = PutIn(textRect, textBox, -1.0f, -1.0f);
     
-    m_textOverlay.push_back(task);
-}
-
-static void PrintDriverInfo(const SDL_RendererInfo &info)
-{           
-    std::clog << "\tname: "
-              << info.name
-              << std::endl;
-            
-    std::clog << "\tnum_texture_formats: "
-              << std::dec
-              << info.num_texture_formats
-              << std::endl;
-            
-    std::clog << "\tmax_texture_width: "
-              << std::dec
-              << info.max_texture_width
-              << std::endl;
-            
-    std::clog << "\tmax_texture_height: "
-              << std::dec
-              << info.max_texture_height
-              << std::endl;
-
-    std::clog << "\ttexture_formats: ";
-    if(info.num_texture_formats == 0) {
-        std::clog << "None";
-    } else {
-        for(size_t index = 0; index < info.num_texture_formats; ++index) {
-            std::clog << std::hex
-                      << info.texture_formats[index]
-                      << " ";
-        }
-    }
-    std::clog << std::endl;
-
-    std::clog << "\tflags: ";
-    if(info.flags != 0) {
-        if(info.flags & SDL_RENDERER_SOFTWARE)
-            std::clog << "SDL_RENDERER_SOFTWARE" << " | ";
-        if(info.flags & SDL_RENDERER_ACCELERATED)
-            std::clog << "SDL_RENDERER_ACCELERATED" << " | ";
-        if(info.flags & SDL_RENDERER_PRESENTVSYNC)
-            std::clog << "SDL_RENDERER_PRESENTVSYNC" << " | ";
-        if(info.flags & SDL_RENDERER_TARGETTEXTURE)
-            std::clog << "SDL_RENDERER_TARGETTEXTURE" << " | ";
-    } else {
-        std::clog << "None";
-    }
-    std::clog << std::endl;
-#undef PRINT_FLAG_IF_ANY
+        m_textRenderer.SetCursor(
+            BottomLeft(aligned));
+    
+        m_textRenderer.PutLine(text);
+    };
+    
+    m_textOverlay.push_back(drawText);
 }
 
 void EnumRenderDrivers()
 {
     int num = SDL_GetNumRenderDrivers();
 
-    std::clog << "Drivers avialable: ";
-    std::clog << std::dec << num;
-    std::clog << std::endl;
+    std::clog << "Drivers avialable: "
+              << std::dec << num
+              << std::endl;
 
     for(int index = 0; index < num; ++index) {
         SDL_RendererInfo info;
-        std::clog << "Driver with index: ";
-        std::clog << std::dec;
-        std::clog << index;
-        std::clog << std::endl;
+        std::clog << "Driver with index: "
+                  << std::dec
+                  << index
+                  << std::endl;
         if(SDL_GetRenderDriverInfo(index, &info)) {
-            std::clog << "Can't query driver info";
-            std::clog << std::endl;
+            std::clog << "Can't query driver info"
+                      << std::endl;
         } else {
-            PrintDriverInfo(info);
+            std::clog << info;
         }
     }
 }
@@ -469,11 +416,6 @@ void PrintRendererInfo(SDL_Renderer *renderer)
     if(SDL_GetRendererInfo(renderer, &info)) {
         std::clog << "\tCan't query renderer info" << std::endl;
     } else {
-        PrintDriverInfo(info);
+        std::clog << info;
     }
-}
-
-SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-{
-    return SDL_Color { r, g, b, a };
 }

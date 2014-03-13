@@ -63,7 +63,7 @@ public:
     void Draw(Surface frame);
     bool HandleEvent(const SDL_Event &event);
 
-    void LogWindowEvent(const SDL_WindowEvent &event);
+    // void LogWindowEvent(const SDL_WindowEvent &event);
     void AdjustViewport(const SDL_Rect &screen);
     
 };

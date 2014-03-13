@@ -60,6 +60,9 @@ struct ImageHeader
     Uint16 posY;
     Uint8 group;
     Uint8 groupSize;
+    
+    // TileY for TileObject is offset from the top pixel of box to the bottom.
+    // TileY for Font is offset from top pixel to the origin line.
     Sint16 tileY;
     Uint8 tileOrient;
     Uint8 hOffset;

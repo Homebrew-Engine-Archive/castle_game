@@ -2,16 +2,8 @@
 #define WINDOW_H_
 
 #include <stdexcept>
-#include <SDL.h>
-
-struct DestoryWindowDeleter
-{
-    void operator()(SDL_Window *window) const {
-        if(window != NULL) {
-            SDL_DestroyWindow(window);
-        }
-    };
-};
+#include "SDL.h"
+#include "sdl_utils.h"
 
 class Window
 {

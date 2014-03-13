@@ -1,8 +1,9 @@
 #ifndef MENU_MAIN_H_
 #define MENU_MAIN_H_
 
+#include <vector>
 #include <functional>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "menu_combat.h"
 #include "widget.h"

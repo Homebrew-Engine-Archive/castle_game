@@ -27,10 +27,10 @@ void GameScreen::Draw(Surface frame)
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_FillRect(frame, &frameRect, 0xff000000);
     
-    const CollectionData &gm1 = m_renderer->QueryCollection("gm/body_pikeman.gm1");
+    const CollectionData &gm1 = m_renderer->QueryCollection("gm/body_woodcutter.gm1");
     
     for(size_t n = 0; n < 1000; ++n) {
-        size_t paletteIndex = rand() % gm1.palettes.size();
+        size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);
         SDL_Palette *palette = gm1.palettes.at(paletteIndex).get();
         const CollectionEntry &entry =
             gm1.entries[rand() % gm1.header.imageCount];
@@ -48,11 +48,6 @@ void GameScreen::Draw(Surface frame)
 bool GameScreen::HandleEvent(const SDL_Event &event)
 {
     switch(event.type) {
-    case SDL_WINDOWEVENT:
-        {
-            LogWindowEvent(event.window);
-        }
-        break;
     case SDL_MOUSEMOTION:
         {
             m_cursorInvalid = false;
@@ -87,61 +82,6 @@ void GameScreen::AdjustViewport(const SDL_Rect &screen)
         --m_viewportY;
 }
 
-void GameScreen::LogWindowEvent(const SDL_WindowEvent &window)
-{
-    switch (window.event) {
-    case SDL_WINDOWEVENT_SHOWN:
-        SDL_Log("Window %d shown", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_HIDDEN:
-        SDL_Log("Window %d hidden", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_EXPOSED:
-        SDL_Log("Window %d exposed", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_MOVED:
-        SDL_Log("Window %d moved to %d,%d",
-                window.windowID, window.data1,
-                window.data2);
-        break;
-    case SDL_WINDOWEVENT_RESIZED:
-        SDL_Log("Window %d resized to %dx%d",
-                window.windowID, window.data1,
-                window.data2);
-        break;
-    case SDL_WINDOWEVENT_MINIMIZED:
-        SDL_Log("Window %d minimized", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_MAXIMIZED:
-        SDL_Log("Window %d maximized", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_RESTORED:
-        SDL_Log("Window %d restored", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_ENTER:
-        SDL_Log("Mouse entered window %d",
-                window.windowID);
-        break;
-    case SDL_WINDOWEVENT_LEAVE:
-        SDL_Log("Mouse left window %d", window.windowID);
-        break;
-    case SDL_WINDOWEVENT_FOCUS_GAINED:
-        SDL_Log("Window %d gained keyboard focus",
-                window.windowID);
-        break;
-    case SDL_WINDOWEVENT_FOCUS_LOST:
-        SDL_Log("Window %d lost keyboard focus",
-                window.windowID);
-        break;
-    case SDL_WINDOWEVENT_CLOSE:
-        SDL_Log("Window %d closed", window.windowID);
-        break;
-    default:
-        SDL_Log("Window %d got unknown event %d",
-                window.windowID, window.event);
-        break;
-    }
-}
 
 Orient NextRotation(Orient rot)
 {

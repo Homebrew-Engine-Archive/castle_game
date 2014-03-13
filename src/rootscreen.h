@@ -24,6 +24,7 @@ class RootScreen : public boost::noncopyable
 private:
     Renderer *m_renderer;
     double m_fpsAverage;
+    std::uint64_t m_frameCounter;
     bool m_closed;
     int m_frameRate;
     bool m_frameLimit;
@@ -31,6 +32,8 @@ private:
 
     bool HandleWindowEvent(const SDL_WindowEvent &window);
     bool HandleKeyboardEvent(const SDL_KeyboardEvent &keyboard);
+
+    void LogWindowEvent(const SDL_WindowEvent &event);
     
 public:
     RootScreen(Renderer *renderer);

@@ -42,7 +42,6 @@ LoadingScreen::LoadingScreen(RootScreen *root)
 {
     auto filelist = SetPreloadsList("gm/preloads.txt");
     for(const auto &filename : filelist) {
-        std::cout << filename << std::endl;
         ScheduleCacheGM1(filename);
     }
 

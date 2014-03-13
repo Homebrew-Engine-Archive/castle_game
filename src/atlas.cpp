@@ -38,7 +38,7 @@ bool GetAtlasPartition(const std::vector<Surface> &surfaces, std::vector<SDL_Rec
     int y = 0;
     int maxHeightLastRow = 0;
 
-    for(const auto &ixed : indexed) {
+    for(const std::pair<Surface, size_t> &ixed : indexed) {
         Surface surface = ixed.first;
         size_t origIndex = ixed.second;
 
@@ -48,7 +48,6 @@ bool GetAtlasPartition(const std::vector<Surface> &surfaces, std::vector<SDL_Rec
         // new line
         if(x + w > maxWidth) {
             if(y + maxHeightLastRow > maxHeight) {
-                std::cerr << "Maximal height reached" << std::endl;
                 return false;
             }
             y += maxHeightLastRow;
@@ -62,8 +61,7 @@ bool GetAtlasPartition(const std::vector<Surface> &surfaces, std::vector<SDL_Rec
         maxHeightLastRow = std::max(maxHeightLastRow, h);
 
         if(y + maxHeightLastRow > maxHeight) {
-            std::clog << "Max height reached" << std::endl;
-            return Surface();
+            return false;
         }
         
         partition.at(origIndex) = rect;
@@ -85,21 +83,35 @@ Surface BuildAtlas(const std::vector<Surface> &surfaces, const std::vector<SDL_R
 
     int boundWidth = 0;
     int boundHeight = 0;
-    for(const auto &rect : partition) {
+    for(const SDL_Rect &rect : partition) {
         if(rect.x + rect.w > boundWidth)
             boundWidth = rect.x + rect.w;
         if(rect.y + rect.h > boundHeight)
             boundHeight = rect.y + rect.h;
     }
 
-    Surface atlas = CopySurfaceFormat(surfaces.front(), boundWidth, boundHeight);
-    if(atlas.Null())
+    Surface ref;
+    for(const Surface &surface : surfaces) {
+        if(!surface.Null())
+            ref = surface;
+    }
+
+    if(ref.Null())
         return Surface();
+
+    Surface atlas = CopySurfaceFormat(ref, boundWidth, boundHeight);
+    if(atlas.Null()) {
+        std::cerr << "BuildAtlas failed: "
+                  << SDL_GetError()
+                  << std::endl;
+        return Surface();
+    }
 
     for(size_t i = 0; i < surfaces.size(); ++i) {
         SDL_Rect bounds = partition.at(i);
-        if(!surfaces.at(i).Null())
-            BlitSurface(surfaces.at(i), NULL, atlas, &bounds);
+        Surface surface = surfaces.at(i);
+        if(!surface.Null())
+            BlitSurface(surface, NULL, atlas, &bounds);
     }
     
     return atlas;

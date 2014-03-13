@@ -96,4 +96,8 @@ inline static std::ostream &operator<<(std::ostream &out, const SDL_Point &pt)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info);
+
+SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
+
 #endif

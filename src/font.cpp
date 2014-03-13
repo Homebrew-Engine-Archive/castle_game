@@ -1,6 +1,6 @@
 #include "font.h"
 
-Surface DecodeGM1Glyph(const Surface &src)
+static Surface DecodeGM1Glyph(const Surface &src)
 {
     Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NO_FLAGS);
     ThrowSDLError(rgb32);
@@ -9,8 +9,8 @@ Surface DecodeGM1Glyph(const Surface &src)
     // fully white pixels remain unchanged, but
     // magenta-colored pixels become alpha-blended
 
-    // That how we reach font-aliasing
-    auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+    // This way we are also reaching font-aliasing
+    auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8) {
         return SDL_Color { r, 255, b, g };
     };
     
@@ -24,60 +24,96 @@ Font::Font()
 }
 
 Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int skip)
-    : m_asciiList(alphabet)
-    , m_asciiIndex {{0}}
+    : m_ascii(256)
+    , m_fontWidth(0)
+    , m_fontHeight(0)
 {
-    for(size_t index = 0; index < m_asciiList.size(); ++index) {
-        m_asciiIndex[m_asciiList[index]] = index;
-    }
+    InitNonPrintableAscii(Surface(), data.header.anchorX, 0);
     
-    for(int character : m_asciiList) {
-        const CollectionEntry &entry = data.entries.at(skip);
+    auto entry = data.entries.begin();
+    std::advance(entry, skip);
+    for(int character : alphabet) {
+        if(entry >= data.entries.end()) {
+            break;
+        }
+        
+        GlyphData glyph;
+        
+        // Copy original surface and convert to argb32
+        if(entry->surface.Null()) {
+            glyph.face = Surface();
+            glyph.hbox = 0;
+            glyph.vbox = 0;
+        } else {
+            glyph.face = DecodeGM1Glyph(entry->surface);
+            glyph.hbox = glyph.face->w;
+            glyph.vbox = glyph.face->h;
+        }
+        
+        glyph.xadvance = glyph.hbox;
+        glyph.xbearing = 0;
+        glyph.yadvance = 0;
+        glyph.ybearing = entry->header.tileY;
 
-        m_yoffsets.push_back(entry.header.tileY);
+        AddGlyph(character, glyph);
+        
+        m_fontWidth = std::max(m_fontWidth, glyph.hbox);
+        m_fontHeight = std::max(m_fontHeight, glyph.vbox);
 
-        // Copy original surface with format conversion to rgb32
-        Surface glyphFace = DecodeGM1Glyph(entry.surface);
-        ThrowSDLError(glyphFace);
-        m_surfaces.push_back(glyphFace);
+        ++entry;
+    }
+}
 
-        ++skip;
+bool Font::AddGlyph(int character, const GlyphData &glyph)
+{
+    if(character < (int)m_ascii.size()) {
+        m_ascii[character] = m_glyphs.size();
+        m_glyphs.push_back(glyph);
+        return true;
     }
 
-    m_asciiList.push_back(' ');
-    m_asciiIndex[' '] = alphabet.size();
-    m_surfaces.push_back(Surface());
-    m_yoffsets.push_back(0);
+    return false;
+}
+
+const GlyphData *Font::FindGlyph(int character) const
+{
+    size_t idx = GetGlyphIndex(character);
+    return GetGlyph(idx);
+}
+
+const GlyphData *Font::GetGlyph(size_t idx) const
+{
+    if(idx < m_glyphs.size()) {
+        return &m_glyphs[idx];
+    }
+
+    return NULL;
+}
+
+std::vector<GlyphData> Font::GetGlyphList() const
+{
+    return m_glyphs;
 }
 
 size_t Font::GetGlyphIndex(int character) const
 {
-    return m_asciiIndex.at(character);
+    if(character < (int)m_ascii.size())
+        return m_ascii[character];
+    
+    return m_glyphs.size();
 }
 
-int Font::GetGlyphYOffset(size_t index) const
+void Font::InitNonPrintableAscii(Surface face, int xadvance, int ybearing)
 {
-    return m_yoffsets.at(index);
-}
-
-Surface Font::GetGlyphSurface(size_t index) const
-{
-    return m_surfaces.at(index);
-}
-
-TexturePtr Font::CreateFontAtlas(SDL_Renderer *renderer, std::vector<SDL_Rect> &partition) const
-{
-    SDL_RendererInfo info;
-    ThrowSDLError(
-        SDL_GetRendererInfo(renderer, &info));
-    
-    Surface atlas = MakeSurfaceAtlas(
-        m_surfaces, partition, info.max_texture_width, info.max_texture_height);
-    ThrowSDLError(atlas);
-    
-    TexturePtr ptr = TexturePtr(
-        SDL_CreateTextureFromSurface(renderer, atlas));
-    ThrowSDLError(ptr);
-    
-    return ptr;
+    for(int character = 0; character < 32; ++character) {
+        GlyphData glyph;
+        glyph.face = face;
+        glyph.hbox = 0;
+        glyph.vbox = 0;
+        glyph.xadvance = xadvance;
+        glyph.xbearing = 0;
+        glyph.yadvance = 0;
+        glyph.ybearing = ybearing;
+        AddGlyph(character, glyph);
+    }
 }

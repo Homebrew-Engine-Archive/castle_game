@@ -5,9 +5,9 @@
 #include <string>
 #include "SDL.h"
 
+#include "sdl_utils.h"
 #include "rootscreen.h"
 #include "sdl_init.h"
-#include "window.h"
 #include "renderer.h"
 
 #endif

@@ -80,31 +80,12 @@ void print_pixel_format(const SDL_PixelFormat *pf)
               << bpp << std::endl;
 }
 
-Uint32 swap_green_alpha(const SDL_PixelFormat *fmt, Uint32 color)
-{
-    Uint8 r, g, b, a;
-    SDL_GetRGBA(color, fmt, &r, &g, &b, &a);
-    return SDL_MapRGBA(fmt, r, 255, b, g);
-}
-
 void decode_glyph(Surface &surface)
 {
-    if(surface.Null())
-        throw std::invalid_argument("passed surface is NULL");
-    SurfaceLocker lock(surface);
-    
-    Uint8 *pixels = (Uint8 *)surface->pixels;
-    int pitch = surface->pitch;
-    int height = surface->h;
-    int width = surface->w;
-    SDL_PixelFormat *format = surface->format;
-
-    for(int i = 0; i < height; ++i) {
-        Uint32 *row = (Uint32 *)(pixels + pitch * i);
-        for(int j = 0; j < width; ++j) {
-            row[j] = swap_green_alpha(format, row[j]);
-        }
-    }
+    auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+        return SDL_Color {r, 255, b, g};
+    };
+    MapSurface(surface, swap_green_alpha);
 }
 
 Surface DecodeFont(Surface surface)
@@ -125,33 +106,37 @@ viewer_t::viewer_t(const gm1::Collection &gm1, const FileBuffer &fb)
     , frameRate(24)
     , screenWidth(1366)
     , screenHeight(768)
-    , showGreenRect(true)
+    , showGreenRect(false)
     , showRedRect(false)
     , showAllRects(false)
     , showSingleImage(false)
+    , selected { 0, 0, 0, 0 }
 {
+    alloc_window();
+    alloc_renderer();
+    print_renderer_info();
+
+    gm1::VerbosePrintHeader(gm1.header);
     RWPtr src(RWFromFileBuffer(fb));
     CheckSDLError(src);
-    
-    // gm1::LoadEntries(src.get(), gm1, surfaces);
-    // if(gm1.encoding() == gm1::Encoding::Font) {
-    //     for(auto &surface : surfaces) {
-    //         surface = SDL_ConvertSurfaceFormat(
-    //             surface, SDL_PIXELFORMAT_ARGB8888, 0);
-    //         decode_glyph(surface);
-    //     }
-    // }
-    // atlas = MakeSurfaceAtlas(surfaces, partitions, 2000, 8192);
-    // if(atlas.Null())
-    //     throw std::runtime_error("Unable to build atlas");
-    // SDL_SetColorKey(atlas, SDL_TRUE, TGX_TRANSPARENT_RGB16);
-     
-    Surface tmp = gm1::LoadAtlas(src.get(), gm1);
+
+    gm1::LoadEntries(src.get(), gm1, surfaces);
     if(gm1.encoding() == gm1::Encoding::Font) {
-        atlas = DecodeFont(tmp);
-    } else {
-        atlas = tmp;
+        for(auto &surface : surfaces) {
+            surface = DecodeFont(surface);
+        }
     }
+    atlas = MakeSurfaceAtlas(surfaces, partitions, 2000, 8192);
+    if(atlas.Null())
+        throw std::runtime_error("Unable to build atlas");
+    SDL_SetColorKey(atlas, SDL_TRUE, TGX_TRANSPARENT_RGB16);
+     
+    // Surface tmp = gm1::LoadAtlas(src.get(), gm1);
+    // if(gm1.encoding() == gm1::Encoding::Font) {
+    //     atlas = DecodeFont(tmp);
+    // } else {
+    //     atlas = tmp;
+    // }
     
     gm1::PartitionAtlas(gm1, partitions);
     
@@ -165,13 +150,10 @@ viewer_t::viewer_t(const gm1::Collection &gm1, const FileBuffer &fb)
               << atlas->w * atlas->h * 4
               << std::endl;
 
-    alloc_window();
-    alloc_renderer();
     alloc_texture(screenWidth, screenHeight);
     alloc_palettes();
     set_cursor(0, 0);
-    print_renderer_info();
-    gm1::VerbosePrintHeader(gm1.header);
+
 }
 
 void viewer_t::draw()
@@ -224,7 +206,7 @@ void viewer_t::update_texture(SDL_Texture *texture)
 
 void viewer_t::update_surface(Surface dst)
 {
-    draw_entry(dst, 0, 0, collection, imageIndex);
+    draw_entry(dst, 100, 100, collection, imageIndex);
 
     RendererPtr sw =
         RendererPtr(
@@ -256,13 +238,14 @@ void viewer_t::update_surface(Surface dst)
 
 void viewer_t::draw_entry(Surface dst, int x, int y, const gm1::Collection &gm1, size_t index)
 {
-    if(showSingleImage) {
-        SDL_Rect rect = ShiftRect(partitions.at(imageIndex), -offsetx, -offsety);
-        BlitSurface(atlas, &rect, dst, NULL);
-    } else {
-        SDL_Rect screen = ShiftRect(MakeRect(screenWidth, screenHeight), -offsetx, -offsety);
-        BlitSurface(atlas, &screen, dst, NULL);
-    }
+    SDL_Rect screen = ShiftRect(MakeRect(screenWidth, screenHeight), -offsetx, -offsety);
+    SDL_Rect srcrect = partitions.at(index);
+
+    int tileY = collection.headers.at(index).tileY;
+
+    SDL_Rect dstrect = MakeRect(x, y - tileY, srcrect.w, srcrect.h);
+    
+    BlitSurface(surfaces.at(index), NULL, dst, &dstrect);
 }
 
 void viewer_t::handle_key(SDL_Keycode code)

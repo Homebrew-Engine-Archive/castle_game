@@ -1,7 +1,6 @@
 #ifndef FONT_H_
 #define FONT_H_
 
-#include <cassert>
 #include <array>
 #include <map>
 #include <memory>
@@ -13,35 +12,43 @@
 #include "collection.h"
 #include "gm1.h"
 
+struct GlyphData
+{
+    Surface face;
+    int xadvance;
+    int xbearing;
+    int yadvance;
+    int ybearing;
+    int hbox;
+    int vbox;
+};
+
 class Font
 {
-    struct GlyphData
-    {
-        Surface surface;
-        int width;
-        int height;
-        int character;
-        int yoffset;
-        int xoffset;
-    };
+    std::vector<GlyphData> m_glyphs;
+    std::vector<size_t> m_ascii;
     
-    std::vector<int> m_asciiList;
-    std::array<size_t, 256> m_asciiIndex;
-    std::vector<Surface> m_surfaces;
-    std::vector<int> m_yoffsets;
-    
+    int m_fontWidth;
+    int m_fontHeight;
+
+    void InitNonPrintableAscii(Surface, int, int);
+
 public:
     Font();
     Font(const CollectionData &data, const std::vector<int> &alphabet, int skip);
-    TexturePtr CreateFontAtlas(SDL_Renderer *renderer, std::vector<SDL_Rect> &partition) const;
-    int GetGlyphYOffset(size_t index) const;
-    Surface GetGlyphSurface(size_t index) const;
+    const GlyphData *FindGlyph(int character) const;
+    const GlyphData *GetGlyph(size_t index) const;
     size_t GetGlyphIndex(int character) const;
+    std::vector<GlyphData> GetGlyphList() const;
+    inline int GetHeight() const { return m_fontHeight; }
+    inline int GetWidth() const { return m_fontWidth; }
+    inline int GetLineSpacing() const { return 0; };
+    inline int GetKerning() const { return 0; };
+
+    bool AddGlyph(int character, const GlyphData &glyph);
 
 };
 
 typedef std::unique_ptr<Font> FontPtr;
-
-Surface DecodeGM1Glyph(const Surface &src);
 
 #endif

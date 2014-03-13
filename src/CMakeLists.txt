@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(openhold)
+project(stockade)
 
 if (UNIX OR (WIN32 AND MINGW))
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunreachable-code")

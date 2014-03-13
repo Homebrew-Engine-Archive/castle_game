@@ -5,6 +5,7 @@
 
 #include "rootscreen.h"
 #include "screen.h"
+#include "surface.h"
 
 class MenuCombat : public Screen
 {

@@ -26,17 +26,20 @@ class Renderer;
 class Renderer : public boost::noncopyable
 {
 private:
-    RendererPtr m_renderer;
-    TextRendererPtr m_textRenderer;
+    SDL_Renderer *m_renderer;
+    TextRenderer m_textRenderer;
     
-    struct TextData
-    {
-        std::string text;
-        std::string fontname;
-        SDL_Rect rect;
-        SDL_Color color;
-        font_size_t size;
-    };
+    // struct TextData
+    // {
+    //     std::string text;
+    //     std::string fontname;
+    //     SDL_Rect rect;
+    //     SDL_Color color;
+    //     font_size_t size;
+    // };
+
+    typedef std::function<void()> TextData;
+    
     std::vector<TextData> m_textOverlay;
     void RenderTextOverlay(const TextData &text);
     
@@ -58,9 +61,7 @@ private:
     CollectionAtlasPtr LoadCollectionAtlas(const std::string &filename) const;
     
 public:
-    Renderer(Window *window);
-
-    inline SDL_Renderer *GetRenderer() { return m_renderer.get(); }
+    Renderer(SDL_Renderer *renderer);
 
     /**
      * Every frame should call this to create screen surface.
@@ -85,15 +86,13 @@ public:
      * @param width     Desired width.
      * @param height    Desired height.
      */
-    void AdjustOutputSize(int width, int height);
+    void AdjustBufferSize(int width, int height);
+    
+    void RenderTextLine(const std::string &text, const SDL_Rect &rect);
 
-    void RenderTextLine(
-        const std::string &text,
-        const SDL_Rect *rect,
-        const std::string &fontname,
-        const SDL_Color &color,
-        font_size_t size);
-
+    void SetFont(const std::string &fontname, font_size_t size);
+    void SetColor(const SDL_Color &color);
+    
     /**
      * This method queries surface from the cache and forward it
      * or try to load from filesystem.
@@ -121,8 +120,6 @@ public:
 
     bool CacheFontCollection(const FontCollectionInfo &info);
 };
-
-SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
 
 void EnumRenderDrivers();
 void PrintRendererInfo(SDL_Renderer *renderer);
