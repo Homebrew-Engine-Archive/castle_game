@@ -1,182 +1,46 @@
 #include "textrenderer.h"
 
-TextRenderer::TextRenderer(SDL_Renderer *renderer)
-    : m_renderer(renderer)
-    , m_fontData(NULL)
-    , m_color { 0, 0, 0, 0 }
-    , m_cursorX(0)
-    , m_cursorY(0)
+/**
+ * This structure represent font in context of a renderer, so
+ * it can't be copied to another renderer.
+ * 
+ */
+struct FontData
 {
-}
+    std::string fontname;
+    font_size_t size;
+    Font font;
+    TexturePtr texture;
+    std::vector<SDL_Rect> partition;
+    FontData() = default;
+    FontData(const FontData &) = delete;
+    FontData(FontData &&) = default;
+    FontData &operator=(const FontData &) = delete;
+    FontData &operator=(FontData &&) = default;
+};
 
-static SDL_Rect GetGlyphFaceBox(const GlyphData &glyph, int x, int y)
+struct TextRendererPimpl
 {
-    return MakeRect(
-        x + glyph.xbearing,
-        y - glyph.ybearing,
-        glyph.hbox,
-        glyph.vbox);
-}
+    SDL_Renderer *renderer;
+    const FontData *fontData;
+    SDL_Color color;
+    int cursorX;
+    int cursorY;
+    std::vector<FontData> fonts;
 
-static SDL_Rect GetGlyphAdvanceBox(const GlyphData &glyph, int x, int y)
-{
-    return MakeRect(
-        x + glyph.xbearing,
-        y - glyph.ybearing,
-        glyph.xadvance,
-        glyph.vbox);
-}
-
-void TextRenderer::PutLine(const std::string &str)
-{
-    for(int character : str) {
-        PutChar(character);
-    }
-}
-
-void TextRenderer::PutChar(int character)
-{
-    if(m_fontData != NULL) {
-        SDL_Texture *texture = m_fontData->texture.get();
-        SDL_SetTextureColorMod(texture, m_color.r, m_color.g, m_color.b);
-        SDL_SetTextureAlphaMod(texture, m_color.a);
-        
-        const GlyphData *glyphData = FindGlyphData(character);
-        if(glyphData != NULL) {
-            SDL_Rect srcRect = FindTextureSubrect(character);
-            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, m_cursorX, m_cursorY);
-            ThrowSDLError(
-                SDL_RenderCopy(m_renderer, texture, &srcRect, &dstRect));
-            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, m_cursorX, m_cursorY);
-            m_cursorX += advanceBox.w;
-        }
-    }
-}
-
-SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
-{
-    SDL_Rect bounds = MakeEmptyRect();
-    if(m_fontData != NULL) {
-        int x = m_cursorX;
-        for(int character : str) {
-            const GlyphData *glyphData = FindGlyphData(character);
-            if(glyphData != NULL) {
-                SDL_Rect glyphRect = GetGlyphAdvanceBox(*glyphData, x, m_cursorY);
-                SDL_UnionRect(&glyphRect, &bounds, &bounds);
-                x += glyphRect.w;
-            }
-        }
-    }
-    return bounds;
-}
-
-const GlyphData *TextRenderer::FindGlyphData(int character) const
-{
-    if(m_fontData != NULL) {
-        return m_fontData->font.FindGlyph(character);
-    }
-    return NULL;
-}
-
-SDL_Rect TextRenderer::FindTextureSubrect(int character) const
-{
-    if(m_fontData != NULL) {
-        size_t idx = m_fontData->font.GetGlyphIndex(character);
-        if(idx < m_fontData->partition.size())
-            return m_fontData->partition[idx];
-    }
-    return MakeEmptyRect();
-}
-
-bool TextRenderer::CacheFont(const std::string &name, font_size_t size, const Font &font)
-{
-    FontData fontData;
-    fontData.fontname = name;
-    fontData.size = size;
-    fontData.font = font;
+    TextRendererPimpl(SDL_Renderer *renderer_);
     
-    fontData.texture =
-        std::move(
-            CreateFontAtlas(font, fontData.partition));
-    if(!fontData.texture) {
-        std::cerr << "Failed to create font atlas" << std::endl;
-        return false;
-    }
+    TexturePtr CreateFontAtlas(const Font &font, std::vector<SDL_Rect> &partition) const;
+    SDL_Rect FindTextureSubrect(int character) const;    
+    const GlyphData *FindGlyphData(int character) const;
 
-    m_fonts.push_back(std::move(fontData));
-    return true;
-}
+    void PutChar(int character);
+};
 
-TexturePtr TextRenderer::CreateFontAtlas(const Font &font, std::vector<SDL_Rect> &partition) const
-{
-    std::vector<Surface> surfaces;
-    for(const GlyphData &glyph : font.GetGlyphList()) {
-        surfaces.push_back(glyph.face);
-    }
-
-    SDL_RendererInfo info;
-    ThrowSDLError(
-        SDL_GetRendererInfo(m_renderer, &info));
-    int maxWidth = info.max_texture_width;
-    int maxHeight = info.max_texture_height;
-    
-    Surface atlas = MakeSurfaceAtlas(
-        surfaces, partition, maxWidth, maxHeight);
-    ThrowSDLError(atlas);
-    
-    TexturePtr ptr = TexturePtr(
-        SDL_CreateTextureFromSurface(m_renderer, atlas));
-    ThrowSDLError(ptr);
-    
-    return ptr;
-}
-
-void TextRenderer::SetCursor(const SDL_Point &cursor)
-{
-    m_cursorX = cursor.x;
-    m_cursorY = cursor.y;
-}
-
-void TextRenderer::SetColor(const SDL_Color &color)
-{
-    m_color = color;
-}
-
-bool TextRenderer::SetFont(const std::string &fontname, font_size_t size)
-{
-    if(m_fontData != NULL) {
-        if((m_fontData->fontname == fontname) && (m_fontData->size == size))
-            return true;
-    }    
-    m_fontData = NULL;
-    for(const auto &font : m_fonts) {
-        m_fontData = GetBestMatch(fontname, size, m_fontData, &font);
-    }
-    if(m_fontData == NULL) {
-        return false;
-    }
-    return true;
-}
-
-bool TextRenderer::SetFontSize(font_size_t size)
-{
-    std::string fontName;
-    if(m_fontData != NULL) {
-        fontName = m_fontData->fontname;
-    }
-    return SetFont(fontName, size);
-}
-
-bool TextRenderer::SetFontName(const std::string &name)
-{
-    font_size_t size = 0;    
-    if(m_fontData != NULL) {
-        size = m_fontData->size;
-    }    
-    return SetFont(name, size);
-}
-
-const FontData *TextRenderer::GetBestMatch(const std::string &fn, font_size_t size, const FontData *lhs, const FontData *rhs)
+/**
+ * Matches two fonts select the best one for given fontname and size.
+ */
+const FontData *GetBestMatch(const std::string &fn, font_size_t size, const FontData *lhs, const FontData *rhs)
 {
     if(lhs == NULL)
         return rhs;
@@ -201,4 +65,198 @@ const FontData *TextRenderer::GetBestMatch(const std::string &fn, font_size_t si
             return lhs;
         }
     }
+}
+
+SDL_Rect GetGlyphFaceBox(const GlyphData &glyph, int x, int y)
+{
+    return MakeRect(
+        x + glyph.xbearing,
+        y - glyph.ybearing,
+        glyph.hbox,
+        glyph.vbox);
+}
+
+SDL_Rect GetGlyphAdvanceBox(const GlyphData &glyph, int x, int y)
+{
+    return MakeRect(
+        x + glyph.xbearing,
+        y - glyph.ybearing,
+        glyph.xadvance,
+        glyph.vbox);
+}
+
+TextRendererPimpl::TextRendererPimpl(SDL_Renderer *renderer_)
+    : renderer {renderer_}
+    , color {0, 0, 0, 0}
+    , cursorX {0}
+    , cursorY {0}
+{ }
+
+void TextRendererPimpl::PutChar(int character)
+{
+    if(fontData != NULL) {
+        SDL_Texture *texture = fontData->texture.get();
+        SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
+        SDL_SetTextureAlphaMod(texture, color.a);
+        
+        const GlyphData *glyphData = FindGlyphData(character);
+        if(glyphData != NULL) {
+            SDL_Rect srcRect = FindTextureSubrect(character);
+            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, cursorX, cursorY);
+            ThrowSDLError(
+                SDL_RenderCopy(renderer, texture, &srcRect, &dstRect));
+            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, cursorX, cursorY);
+            cursorX += advanceBox.w;
+        }
+    }
+}
+    
+
+const GlyphData *TextRendererPimpl::FindGlyphData(int character) const
+{
+    if(fontData != NULL) {
+        return fontData->font.FindGlyph(character);
+    }
+    return NULL;
+}
+
+SDL_Rect TextRendererPimpl::FindTextureSubrect(int character) const
+{
+    if(fontData != NULL) {
+        size_t idx = fontData->font.GetGlyphIndex(character);
+        if(idx < fontData->partition.size())
+            return fontData->partition[idx];
+    }
+    return MakeEmptyRect();
+}
+
+TexturePtr TextRendererPimpl::CreateFontAtlas(const Font &font, std::vector<SDL_Rect> &partition) const
+{
+    std::vector<Surface> surfaces;
+    for(const GlyphData &glyph : font.GetGlyphList()) {
+        surfaces.push_back(glyph.face);
+    }
+
+    SDL_RendererInfo info;
+    if(SDL_GetRendererInfo(renderer, &info) < 0) {
+        std::cerr << "Failed to get driver info" << std::endl;
+        return TexturePtr(nullptr);
+    }
+    int maxWidth = info.max_texture_width;
+    int maxHeight = info.max_texture_height;
+    
+    Surface atlas = MakeSurfaceAtlas(
+        surfaces, partition, maxWidth, maxHeight);
+    if(atlas.Null()) {
+        std::cerr << "Failed to make atlas of surfaces" << std::endl;
+        return TexturePtr(nullptr);
+    }
+    
+    TexturePtr ptr = TexturePtr(
+        SDL_CreateTextureFromSurface(renderer, atlas));
+    if(!ptr) {
+        std::cerr << "SDL_CreateTextureFromSurface failed: "
+                  << SDL_GetError()
+                  << std::endl;
+        return TexturePtr(nullptr);
+    }
+    
+    return ptr;
+}
+
+TextRenderer::TextRenderer(SDL_Renderer *renderer)
+    : m {new TextRendererPimpl(renderer)}
+{ }
+
+TextRenderer::~TextRenderer()
+{
+    delete m;
+}
+
+void TextRenderer::PutString(const std::string &str)
+{
+    for(int character : str) {
+        m->PutChar(character);
+    }
+}
+
+SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
+{
+    SDL_Rect bounds = MakeEmptyRect();
+    if(m->fontData != NULL) {
+        int x = m->cursorX;
+        for(int character : str) {
+            const GlyphData *glyphData = m->FindGlyphData(character);
+            if(glyphData != NULL) {
+                SDL_Rect glyphRect = GetGlyphAdvanceBox(*glyphData, x, m->cursorY);
+                SDL_UnionRect(&glyphRect, &bounds, &bounds);
+                x += glyphRect.w;
+            }
+        }
+    }
+    return bounds;
+}
+
+bool TextRenderer::CacheFont(const std::string &name, font_size_t size, const Font &font)
+{
+    FontData fontData;
+    fontData.fontname = name;
+    fontData.size = size;
+    fontData.font = font;
+
+    fontData.texture =
+        std::move(
+            m->CreateFontAtlas(font, fontData.partition));
+    if(!fontData.texture) {
+        std::cerr << "Failed to create font atlas" << std::endl;
+        return false;
+    }
+
+    m->fonts.push_back(std::move(fontData));
+    return true;
+}
+
+void TextRenderer::SetCursor(const SDL_Point &cursor)
+{
+    m->cursorX = cursor.x;
+    m->cursorY = cursor.y;
+}
+
+void TextRenderer::SetColor(const SDL_Color &color)
+{
+    m->color = color;
+}
+
+bool TextRenderer::SetFont(const std::string &fontname, font_size_t size)
+{
+    if(m->fontData != NULL) {
+        if((m->fontData->fontname == fontname) && (m->fontData->size == size))
+            return true;
+    }
+    m->fontData = NULL;
+    for(const auto &font : m->fonts) {
+        m->fontData = GetBestMatch(fontname, size, m->fontData, &font);
+    }
+    if(m->fontData == NULL) {
+        return false;
+    }
+    return true;
+}
+
+bool TextRenderer::SetFontSize(font_size_t size)
+{
+    std::string fontName;
+    if(m->fontData != NULL) {
+        fontName = m->fontData->fontname;
+    }
+    return SetFont(fontName, size);
+}
+
+bool TextRenderer::SetFontName(const std::string &name)
+{
+    font_size_t size = 0;    
+    if(m->fontData != NULL) {
+        size = m->fontData->size;
+    }
+    return SetFont(name, size);
 }

@@ -2,15 +2,9 @@
 #define STREAMING_TEXTURE_H_
 
 #include <iostream>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "surface.h"
-
-struct TextureLocker
-{
-    TextureLocker(SDL_Texture *texture, Surface &surface);
-    ~TextureLocker();
-};
 
 class StreamingTexture
 {

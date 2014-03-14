@@ -48,9 +48,8 @@ FileBuffer::FileBuffer(const char *filename, const char *mode)
 
 FileBuffer::FileBuffer(const std::string &filename, const char *mode)
     throw (std::runtime_error)
-{
-    ReadFile(filename.c_str(), mode);
-}
+    : FileBuffer {filename.c_str(), mode}
+{ }
 
 FileBuffer::FileBuffer(SDL_RWops *src)
     throw (std::runtime_error)

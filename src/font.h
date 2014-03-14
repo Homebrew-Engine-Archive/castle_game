@@ -23,6 +23,9 @@ struct GlyphData
     int vbox;
 };
 
+int GlyphWidth(const GlyphData &glyph);
+int GlyphHeight(const GlyphData &glyph);
+
 class Font
 {
     std::vector<GlyphData> m_glyphs;
@@ -34,16 +37,17 @@ class Font
     void InitNonPrintableAscii(Surface, int, int);
 
 public:
-    Font();
+    Font() = default;
     Font(const CollectionData &data, const std::vector<int> &alphabet, int skip);
     const GlyphData *FindGlyph(int character) const;
     const GlyphData *GetGlyph(size_t index) const;
     size_t GetGlyphIndex(int character) const;
     std::vector<GlyphData> GetGlyphList() const;
-    inline int GetHeight() const { return m_fontHeight; }
-    inline int GetWidth() const { return m_fontWidth; }
-    inline int GetLineSpacing() const { return 0; };
-    inline int GetKerning() const { return 0; };
+    
+    inline int FontHeight() const { return m_fontHeight; }
+    inline int FontWidth() const { return m_fontWidth; }
+    inline int LineSpacing() const { return 0; };
+    inline int Kerning() const { return 0; };
 
     bool AddGlyph(int character, const GlyphData &glyph);
 

@@ -117,16 +117,18 @@ void RootScreen::DrawFrame()
 {
     Surface frame = m_renderer->BeginFrame();
     m_currentScreen->Draw(frame);
-    
-    SDL_Color color = MakeColor(255, 255, 255, 255);
-    m_renderer->SetColor(color);
+
     font_size_t size = 24;
     std::string fontname = "stronghold_aa";
+    SDL_Color color = MakeColor(255, 255, 255, 255);
+    m_renderer->SetColor(color);
     m_renderer->SetFont(fontname, size);
 
+    SDL_Point pos = ShiftPoint(TopLeft(m_renderer->GetOutputSize()), 5, 5);
+    
     std::ostringstream oss;
     oss << "FPS: " << m_fpsAverage;
-    m_renderer->RenderTextLine(oss.str(), PadIn(m_renderer->GetOutputSize(), 5));
+    m_renderer->RenderTextLine(oss.str(), pos);
     
     m_renderer->EndFrame();
 }

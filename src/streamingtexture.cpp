@@ -1,17 +1,5 @@
 #include "streamingtexture.h"
 
-TextureLocker::TextureLocker(SDL_Texture *texture, Surface &surface)
-{
-    if(texture == NULL) {
-        std::cerr << "Passed NULL texture" << std::endl;
-        return;
-    }
-}
-
-TextureLocker::~TextureLocker()
-{
-}
-
 StreamingTexture::StreamingTexture(SDL_Renderer *renderer, int width, int height, Uint32 format)
     : m_width(width)
     , m_height(height)

@@ -70,7 +70,7 @@ struct ImageHeader
     Uint8 flags;
 };
 
-enum class Encoding : Uint32 {
+enum class Encoding {
     TGX16,
     TGX8,
     Font,

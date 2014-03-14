@@ -11,8 +11,8 @@ class Renderer;
 #include <string>
 #include <vector>
 #include "SDL.h"
-#include <boost/noncopyable.hpp>
 
+#include "text.h"
 #include "sdl_utils.h"
 #include "textrenderer.h"
 #include "font.h"
@@ -23,45 +23,15 @@ class Renderer;
 #include "rw.h"
 #include "collection.h"
 
-class Renderer : public boost::noncopyable
+class Renderer
 {
 private:
-    SDL_Renderer *m_renderer;
-    TextRenderer m_textRenderer;
-    
-    // struct TextData
-    // {
-    //     std::string text;
-    //     std::string fontname;
-    //     SDL_Rect rect;
-    //     SDL_Color color;
-    //     font_size_t size;
-    // };
-
-    typedef std::function<void()> TextData;
-    
-    std::vector<TextData> m_textOverlay;
-    void RenderTextOverlay(const TextData &text);
-    
-    int m_fbWidth;
-    int m_fbHeight;
-    Uint32 m_fbFormat;
-    TexturePtr m_fbTexture;    
-    bool ReallocationRequired(int width, int heigt);    
-    bool AllocFrameTexture(int width, int height);
-
-    Surface m_fbSurface;
-    Surface AllocFrameSurface(void *pixels, int width, int height, int pitch);
-
-    std::map<std::string, Surface> m_imageCache;
-    Surface LoadSurface(const std::string &filename) const;
-
-    std::map<std::string, CollectionDataPtr> m_cache;
-    CollectionDataPtr LoadCollection(const std::string &filename) const;
-    CollectionAtlasPtr LoadCollectionAtlas(const std::string &filename) const;
+    struct RendererPimpl *m;
     
 public:
     Renderer(SDL_Renderer *renderer);
+    Renderer(const Renderer &that) = delete;
+    Renderer &operator=(const Renderer &that) = delete;
 
     /**
      * Every frame should call this to create screen surface.
@@ -88,7 +58,10 @@ public:
      */
     void AdjustBufferSize(int width, int height);
     
-    void RenderTextLine(const std::string &text, const SDL_Rect &rect);
+    void RenderTextLine(const std::string &text, const SDL_Point &rect);
+
+    void RenderTextBox(const std::string &text, const SDL_Rect &rect,
+                       AlignH alignh, AlignV alignv);
 
     void SetFont(const std::string &fontname, font_size_t size);
     void SetColor(const SDL_Color &color);

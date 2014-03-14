@@ -3,8 +3,6 @@
 
 class TextRenderer;
 
-#include <map>
-#include <cstdarg>
 #include <iostream>
 #include <string>
 #include "SDL.h"
@@ -14,46 +12,16 @@ class TextRenderer;
 #include "tgx.h"
 #include "font.h"
 
-struct FontData
-{
-    std::string fontname;
-    font_size_t size;
-    Font font;
-    TexturePtr texture;
-    std::vector<SDL_Rect> partition;
-};
-
 class TextRenderer
 {
-    SDL_Renderer *m_renderer;
-    const FontData *m_fontData;
-    SDL_Color m_color;
-    int m_cursorX;
-    int m_cursorY;
-    std::vector<FontData> m_fonts;
-
-    TexturePtr CreateFontAtlas(const Font &font, std::vector<SDL_Rect> &partition) const;
-    
-    /**
-     * Searches for appreciate rectangle in m_fontData->partition
-     *
-     * @param   character       Character code to search for.
-     * @return                  Rectangle in font's texture.
-     */
-    SDL_Rect FindTextureSubrect(int character) const;
-
-    /**
-     * Searches for appreciate font data in m_fontData->glyphs
-     *
-     * @param   character       Character code to search for.
-     * @return                  Glyphs data pointer or NULL.
-     */
-    const GlyphData *FindGlyphData(int character) const;
-    
-    const FontData *GetBestMatch(const std::string &fn, font_size_t size, const FontData *lhs, const FontData *rhs);
+private:
+    struct TextRendererPimpl *m;
     
 public:
     TextRenderer(SDL_Renderer *renderer);
+    TextRenderer(const TextRenderer &that) = delete;
+    TextRenderer &operator=(const TextRenderer &that) = delete;
+    virtual ~TextRenderer();
 
     /**
      * Make font available for drawing under given name.
@@ -89,14 +57,12 @@ public:
     SDL_Rect CalculateTextRect(const std::string &str) const;
     
     /**
-     * Puts single character 
-     * @param character         Character which one need to put.
-     * @param rect              Bounding rect of drawing area.
+     * Consequently puts each character in the string.
+     *
+     * @param str       String which we shall put.
      *
      */
-    void PutChar(int character);
-
-    void PutLine(const std::string &str);
+    void PutString(const std::string &str);
 
 };
 

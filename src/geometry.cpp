@@ -114,3 +114,8 @@ SDL_Rect ShiftRect(const SDL_Rect &rect, int xshift, int yshift)
                     rect.w,
                     rect.h);
 }
+
+SDL_Point ShiftPoint(const SDL_Point &point, int x, int y)
+{
+    return MakePoint(point.x + x, point.y + y);
+}

@@ -19,7 +19,8 @@ find_package (Boost REQUIRED COMPONENTS date_time system)
 
 include_directories (
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${SDL2_INCLUDE_DIRS})
+  ${SDL2_INCLUDE_DIRS}
+)
 
 set (SRCS
   sdl_utils.cpp
@@ -44,7 +45,9 @@ set (SRCS
   main.cpp	    
   rw.cpp	  
   surface.cpp
-  streamingtexture.cpp)
+  collection.cpp
+  filesystem.cpp
+)
 
 set (BOOST_LIBS boost_system)
 
@@ -52,4 +55,5 @@ add_executable (a.out ${SRCS})
 
 target_link_libraries (a.out 
   ${BOOST_LIBS}
-  ${SDL2_LIBRARIES})
+  ${SDL2_LIBRARIES}
+)

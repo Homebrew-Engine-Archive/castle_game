@@ -19,10 +19,6 @@ static Surface DecodeGM1Glyph(const Surface &src)
     return rgb32;
 }
 
-Font::Font()
-{
-}
-
 Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int skip)
     : m_ascii(256)
     , m_fontWidth(0)
@@ -105,7 +101,8 @@ size_t Font::GetGlyphIndex(int character) const
 
 void Font::InitNonPrintableAscii(Surface face, int xadvance, int ybearing)
 {
-    for(int character = 0; character < 32; ++character) {
+    const int NonPrintableLast = '!';
+    for(int character = 0; character < NonPrintableLast; ++character) {
         GlyphData glyph;
         glyph.face = face;
         glyph.hbox = 0;
@@ -116,4 +113,14 @@ void Font::InitNonPrintableAscii(Surface face, int xadvance, int ybearing)
         glyph.ybearing = ybearing;
         AddGlyph(character, glyph);
     }
+}
+
+int GlyphWidth(const GlyphData &glyph)
+{
+    return glyph.xadvance;
+}
+
+int GlyphHeight(const GlyphData &glyph)
+{
+    return glyph.vbox;
 }
