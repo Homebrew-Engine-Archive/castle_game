@@ -2,14 +2,8 @@
 #define SURFACE_H_
 
 #include <functional>
-#include <memory>
-#include <stdexcept>
-#include <algorithm>
 #include "SDL.h"
-
 #include "sdl_utils.h"
-#include "geometry.h"
-#include "macrosota.h"
 
 const int NO_FLAGS = 0;
 

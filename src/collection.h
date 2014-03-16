@@ -5,11 +5,8 @@
 #include <string>
 #include <vector>
 #include <memory>
-
-#include "rw.h"
 #include "surface.h"
 #include "gm1.h"
-#include "tgx.h"
 
 typedef int font_size_t;
 
@@ -42,7 +39,7 @@ typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
 struct FontCollectionInfo
 {
-    std::string filename;
+    FilePath filename;
     std::string name;
     std::vector<font_size_t> sizes;
     std::vector<int> alphabet;
@@ -50,8 +47,8 @@ struct FontCollectionInfo
 
 typedef std::unique_ptr<FontCollectionInfo> FontCollectionInfoPtr;
 
-Surface LoadSurface(const std::string &filename);
-CollectionDataPtr LoadCollectionData(const std::string &filename);
-CollectionAtlasPtr LoadCollectionAtlas(const std::string &filename);
+Surface LoadSurface(const FilePath &filename);
+CollectionDataPtr LoadCollectionData(const FilePath &filename);
+CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename);
 
 #endif

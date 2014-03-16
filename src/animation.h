@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "gm1.h"
 #include "surface.h"

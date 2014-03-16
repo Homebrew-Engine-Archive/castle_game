@@ -1,4 +1,9 @@
 #include "surface.h"
+#include "geometry.h"
+#include "macrosota.h"
+#include <memory>
+#include <algorithm>
+#include <stdexcept>
 
 SurfaceLocker::SurfaceLocker(const Surface &surface)
     : object(surface)

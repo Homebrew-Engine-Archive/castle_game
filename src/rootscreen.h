@@ -3,40 +3,23 @@
 
 class RootScreen;
 
-#include <iostream>
-#include <sstream>
-#include <fstream>
+#include <memory>
 #include "SDL.h"
-
-#include <boost/asio/io_service.hpp>
-#include <boost/noncopyable.hpp>
-
-#include "network.h"
-#include "persist_value.h"
+#include "renderer.h"
 #include "screen.h"
-#include "gamescreen.h"
-#include "loadingscreen.h"
-#include "menu_main.h"
-#include "macrosota.h"
 
-class RootScreen : public boost::noncopyable
+class RootScreen
 {
 private:
-    Renderer *m_renderer;
-    double m_fpsAverage;
-    std::uint64_t m_frameCounter;
-    bool m_closed;
-    int m_frameRate;
-    bool m_frameLimit;
-    std::unique_ptr<Screen> m_currentScreen;
-
-    bool HandleWindowEvent(const SDL_WindowEvent &window);
-    bool HandleKeyboardEvent(const SDL_KeyboardEvent &keyboard);
-
-    void LogWindowEvent(const SDL_WindowEvent &event);
+    struct RootScreenPimpl *m;
     
 public:
     RootScreen(Renderer *renderer);
+    RootScreen(RootScreen &&that) = default;
+    RootScreen(const RootScreen &that) = delete;
+    RootScreen &operator=(const RootScreen &that) = delete;
+    RootScreen &operator=(RootScreen &&that) = default;
+    ~RootScreen();
 
     int Exec();
 
@@ -44,16 +27,10 @@ public:
 
     bool HandleEvent(const SDL_Event &event);
 
-    void SetCurrentScreen(std::unique_ptr<Screen> screen);
-    void PushScreen(std::unique_ptr<Screen> screen);
+    void SetCurrentScreen(std::unique_ptr<Screen> &&screen);
+    void PushScreen(std::unique_ptr<Screen> &&screen);
 
-    inline int GetMaximumFPS() const { return m_frameRate; }
-    inline bool HasFrameLimit() const { return m_frameLimit; }
-    
-    inline void SetMaximumFPS(int fps) { m_frameRate = fps; }
-    inline void SetFrameLimit(bool limit) { m_frameLimit = limit; }
-
-    inline Renderer *GetRenderer() { return m_renderer; }
+    Renderer *GetRenderer();
 };
 
 #endif

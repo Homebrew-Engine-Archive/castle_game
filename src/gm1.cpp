@@ -1,4 +1,5 @@
 #include "gm1.h"
+#include "geometry.h"
 
 NAMESPACE_BEGIN(gm1)
 

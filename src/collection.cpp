@@ -1,4 +1,8 @@
 #include "collection.h"
+#include <stdexcept>
+#include "rw.h"
+#include "tgx.h"
+#include "filesystem.h"
 
 CollectionAtlas::CollectionAtlas(SDL_RWops *src)
     : gm1(src)
@@ -10,7 +14,7 @@ CollectionEntry::CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf
     , surface(sf_)
 { }
 
-CollectionDataPtr LoadCollectionData(const std::string &filename)
+CollectionDataPtr LoadCollectionData(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");
@@ -50,7 +54,7 @@ CollectionDataPtr LoadCollectionData(const std::string &filename)
     }
 }
 
-CollectionAtlasPtr LoadCollectionAtlas(const std::string &filename)
+CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");
@@ -71,7 +75,7 @@ CollectionAtlasPtr LoadCollectionAtlas(const std::string &filename)
     }
 }
 
-Surface LoadSurface(const std::string &filename)
+Surface LoadSurface(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");

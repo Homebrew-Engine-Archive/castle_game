@@ -2,7 +2,6 @@
 #define SDL_INIT_H_
 
 #include <stdexcept>
-#include <SDL2/SDL.h>
 
 class SDLInit
 {

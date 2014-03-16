@@ -30,7 +30,7 @@ Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int ski
     std::advance(entry, skip);
     for(int character : alphabet) {
         if(entry >= data.entries.end()) {
-            break;
+            throw std::runtime_error("Entry index out of bounds");
         }
         
         GlyphData glyph;
@@ -51,10 +51,9 @@ Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int ski
         glyph.yadvance = 0;
         glyph.ybearing = entry->header.tileY;
 
-        AddGlyph(character, glyph);
-        
-        m_fontWidth = std::max(m_fontWidth, glyph.hbox);
-        m_fontHeight = std::max(m_fontHeight, glyph.vbox);
+        if(!AddGlyph(character, glyph)) {
+            throw std::runtime_error("Unable to add glyph into font");
+        }
 
         ++entry;
     }
@@ -64,6 +63,8 @@ bool Font::AddGlyph(int character, const GlyphData &glyph)
 {
     if(character < (int)m_ascii.size()) {
         m_ascii[character] = m_glyphs.size();
+        m_fontWidth = std::max(m_fontWidth, glyph.hbox);
+        m_fontHeight = std::max(m_fontHeight, glyph.vbox);
         m_glyphs.push_back(glyph);
         return true;
     }
@@ -111,7 +112,9 @@ void Font::InitNonPrintableAscii(Surface face, int xadvance, int ybearing)
         glyph.xbearing = 0;
         glyph.yadvance = 0;
         glyph.ybearing = ybearing;
-        AddGlyph(character, glyph);
+        if(!AddGlyph(character, glyph)) {
+            throw std::runtime_error("Unable to add non-printable glyph");
+        }
     }
 }
 

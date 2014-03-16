@@ -1,18 +1,12 @@
 #include "loadingscreen.h"
-
-static std::vector<std::string> SetPreloadsList(const std::string &listfile)
-{
-    std::vector<std::string> list;
-    
-    std::ifstream fin(listfile);
-    std::string buffer;
-    while(std::getline(fin, buffer)) {
-        if(!buffer.empty())
-            list.push_back(buffer);
-    }
-
-    return list;
-}
+#include "geometry.h"
+#include "gm1.h"
+#include "filesystem.h"
+#include "SDL.h"
+#include <boost/filesystem/fstream.hpp>
+#include <memory>
+#include <sstream>
+#include <iostream>
 
 int RunLoadingScreen(RootScreen *root)
 {
@@ -20,19 +14,67 @@ int RunLoadingScreen(RootScreen *root)
     return ls.Exec();
 }
 
-std::vector<int> range(int from, int count)
+static std::vector<std::string> GetStringList(const FilePath &path)
 {
-    std::vector<int> alphabet(count);
-    std::iota(alphabet.begin(), alphabet.end(), from);
-    return alphabet;
+    std::vector<std::string> list;
+    
+    boost::filesystem::ifstream fin(path);
+    std::string buffer;
+    while(!fin.eof()) {
+        std::getline(fin, buffer);
+        if(!buffer.empty()) {
+            list.push_back(buffer);
+        }
+    }
+
+    return list;
 }
 
-std::vector<int> alphabet(const std::string &set)
+template<class T>
+static bool ReadVector(boost::filesystem::ifstream &in, std::vector<T> &xs)
 {
-    std::vector<int> xs;
-    for(const auto &c : set)
-        xs.push_back((int)c);
-    return xs;
+    if(in.eof())
+        return false;
+
+    int n;
+    in >> n;
+    xs.resize(n);
+    for(T &x : xs) {
+        if(in.eof())
+            return false;
+        else
+            in >> x;
+    }
+
+    return true;
+}
+
+static bool ParseFontCollectionInfo(boost::filesystem::ifstream &in, FontCollectionInfo &info)
+{
+    in >> info.name;
+    info.filename = GetGM1FilePath(info.name);
+
+    if(!ReadVector(in, info.alphabet))
+        return false;
+    if(!ReadVector(in, info.sizes))
+        return false;
+
+    return true;
+}
+
+static std::vector<FontCollectionInfo> GetFontCollectionInfoList(const FilePath &path)
+{
+    boost::filesystem::ifstream fin(path);
+    std::vector<FontCollectionInfo> fontsInfo;
+
+    while(!fin.eof()) {
+        FontCollectionInfo info;
+        if(ParseFontCollectionInfo(fin, info)) {
+            fontsInfo.push_back(info);
+        }
+    }
+    
+    return fontsInfo;
 }
 
 LoadingScreen::LoadingScreen(RootScreen *root)
@@ -40,41 +82,27 @@ LoadingScreen::LoadingScreen(RootScreen *root)
     , m_root(root)
     , m_quit(false)
 {
-    auto filelist = SetPreloadsList("gm/preloads.txt");
-    for(const auto &filename : filelist) {
-        ScheduleCacheGM1(filename);
+    FilePath preloadsPath = GetGMPath("preloads.txt");
+    for(const std::string &str : GetStringList(preloadsPath)) {
+        ScheduleCacheGM1(str);
     }
 
-    typedef std::vector<font_size_t> sizes_t;
-    
-    const FontCollectionInfo fontInfo[] = {
-        {"gm/font_stronghold_aa.gm1",
-         "stronghold_aa",
-         sizes_t {48, 32, 24, 18, 14},
-         range('!', 177)},
-        
-        {"gm/font_stronghold.gm1",
-         "stronghold",
-         sizes_t {18, 12, 11},
-         range('!', 159)},
-        
-        {"gm/font_slanted.gm1",
-         "slanted",
-         sizes_t {20, 14, 18, 13},
-         alphabet("0123456789/")}
-    };
-    
-    for(const auto &info : fontInfo) {
+    FilePath fontsPath = GetGMPath("fonts.txt");
+    for(const FontCollectionInfo &info : GetFontCollectionInfoList(fontsPath)) {
         ScheduleCacheFont(info);
     }
+
+    FilePath filepath = GetTGXFilePath("frontend_loading");
+    m_background = m_renderer->QuerySurface(filepath);
 }
 
-void LoadingScreen::ScheduleCacheGM1(const std::string &filename)
+void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
 {
     auto task = [filename, this]() {
-        if(!m_renderer->CacheCollection(filename)) {
+        FilePath path = GetGM1FilePath(filename);
+        if(!m_renderer->CacheCollection(path)) {
             std::ostringstream oss;
-            oss << "Unable to load file: " << filename;
+            oss << "Unable to load file: " << path;
             throw std::runtime_error(oss.str());
         }
     };
@@ -124,14 +152,13 @@ int LoadingScreen::Exec()
 
 void LoadingScreen::Draw(double done)
 {
-    Surface background = m_renderer->QuerySurface("gfx/frontend_loading.tgx");
     Surface frame = m_renderer->BeginFrame();
 
     SDL_Rect frameRect = SurfaceBounds(frame);
-    SDL_Rect bgRect = SurfaceBounds(background);
+    SDL_Rect bgRect = SurfaceBounds(m_background);
 
     SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-    SDL_BlitSurface(background, NULL, frame, &bgAligned);
+    SDL_BlitSurface(m_background, NULL, frame, &bgAligned);
     
     SDL_Rect barOuter = MakeRect(300, 25);
     SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);

@@ -1,7 +1,6 @@
 #ifndef ATLAS_H_
 #define ATLAS_H_
 
-#include <algorithm>
 #include <vector>
 #include "SDL.h"
 

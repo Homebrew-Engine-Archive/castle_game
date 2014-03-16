@@ -1,25 +1,21 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
+#include <memory>
 #include <string>
-#include <iostream>
 #include <boost/filesystem.hpp>
 #include "SDL.h"
-#include "rw.h"
 
-typedef boost::filesystem::path FilePath;
+using FilePath = boost::filesystem::path;
 
-class FileSystem
-{
-public:
-    FileSystem(const std::string &root, const std::string &pref);
+FilePath GetFXPath(const FilePath &path = FilePath());
+FilePath GetGFXPath(const FilePath &path = FilePath());
+FilePath GetGMPath(const FilePath &path = FilePath());
 
-    FilePath FXPath(const std::string &filename = std::string()) const;
-    FilePath GFXPath(const std::string &filename = std::string()) const;
-    FilePath GM1Path(const std::string &filename = std::string()) const;
-    FilePath RootPath() const;
-    FilePath PrefPath() const;
-    
-};
+FilePath GetGM1FilePath(const FilePath &path, const FilePath &ext = ".gm1");
+FilePath GetTGXFilePath(const FilePath &path, const FilePath &ext = ".tgx");
+
+FilePath GetRootPath();
+FilePath GetPrefPath();
 
 #endif

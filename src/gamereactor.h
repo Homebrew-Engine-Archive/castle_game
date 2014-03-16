@@ -1,7 +1,7 @@
 #ifndef GAMEREACTOR_H_
 #define GAMEREACTOR_H_
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include "rw.h"
 
 enum class ResourceCategory : Uint8 {

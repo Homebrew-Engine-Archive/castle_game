@@ -1,10 +1,13 @@
 #include "menu_combat.h"
+#include "filesystem.h"
+#include "geometry.h"
 
 MenuCombat::MenuCombat(RootScreen *root)
     : m_root(root)
     , m_renderer(root->GetRenderer())
-    , m_background(m_renderer->QuerySurface("gfx/frontend_combat.tgx"))
 {
+    FilePath filepath = GetTGXFilePath("frontend_combat");
+    m_background = m_renderer->QuerySurface(filepath);
 }
 
 void MenuCombat::Draw(Surface frame)

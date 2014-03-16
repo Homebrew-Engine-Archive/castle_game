@@ -1,18 +1,12 @@
 #ifndef NETWORK_H_
 #define NETWORK_H_
 
-#include <string>
-#include <stdexcept>
 #include <array>
 #include <vector>
-#include <iostream>
-
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/bind.hpp>
 
 class Connection
 {

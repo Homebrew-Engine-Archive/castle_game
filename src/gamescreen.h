@@ -5,7 +5,7 @@ class GameScreen;
 
 #include <memory>
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include "rootscreen.h"
 #include "gamemap.h"

@@ -2,11 +2,7 @@
 #define MENU_MAIN_H_
 
 #include <vector>
-#include <functional>
 #include "SDL.h"
-
-#include "menu_combat.h"
-#include "widget.h"
 #include "renderer.h"
 #include "rootscreen.h"
 #include "screen.h"

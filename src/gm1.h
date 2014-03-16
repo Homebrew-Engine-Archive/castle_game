@@ -1,16 +1,11 @@
 #ifndef GM1_H_
 #define GM1_H_
 
-#include <iostream>
 #include <array>
 #include <vector>
 #include <algorithm>
-#include <memory>
-#include <unordered_map>
 #include <stdexcept>
-
-#include <SDL2/SDL.h>
-
+#include "SDL.h"
 #include "macrosota.h"
 #include "tgx.h"
 #include "surface.h"

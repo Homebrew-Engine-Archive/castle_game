@@ -1,26 +1,13 @@
-#ifndef RENDERER_H_
-#define RENDERER_H_
+#ifndef INCLUDE_RENDERER_H_
+#define INCLUDE_RENDERER_H_
 
 class Renderer;
 
-#include <iostream>
-#include <map>
-#include <memory>
-#include <set>
-#include <stdexcept>
 #include <string>
-#include <vector>
 #include "SDL.h"
-
 #include "text.h"
 #include "sdl_utils.h"
-#include "textrenderer.h"
-#include "font.h"
-#include "tgx.h"
-#include "gm1.h"
-#include "window.h"
 #include "surface.h"
-#include "rw.h"
 #include "collection.h"
 
 class Renderer
@@ -73,7 +60,7 @@ public:
      * @param filename  Relative path from executable to *.TGX file
      * @return          Surface as it being stored in cache.
      */
-    Surface QuerySurface(const std::string &filename);
+    Surface QuerySurface(const FilePath &filename);
 
     /**
      * Queries collection from cache or force loads collection
@@ -82,19 +69,16 @@ public:
      * @return          Immutable reference to collection, owned by renderer.
      *
      */
-    const CollectionData &QueryCollection(const std::string &filename);
+    const CollectionData &QueryCollection(const FilePath &filename);
     
     /**
      * Force reloads collection.
      * @param filename  Relative path to file.
      * @return          True on success.
      */
-    bool CacheCollection(const std::string &filename);
+    bool CacheCollection(const FilePath &filepath);
 
     bool CacheFontCollection(const FontCollectionInfo &info);
 };
-
-void EnumRenderDrivers();
-void PrintRendererInfo(SDL_Renderer *renderer);
 
 #endif

@@ -1,4 +1,6 @@
 #include "textrenderer.h"
+#include <iostream>
+#include "geometry.h"
 
 /**
  * This structure represent font in context of a renderer, so

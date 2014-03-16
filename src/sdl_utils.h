@@ -1,7 +1,6 @@
 #ifndef SDL_UTILS_H_
 #define SDL_UTILS_H_
 
-#include <initializer_list>
 #include <stdexcept>
 #include <memory>
 #include <iostream>
@@ -79,26 +78,10 @@ struct DestroyWindowDeleter
 
 typedef std::unique_ptr<SDL_Window, DestroyWindowDeleter> WindowPtr;
 
-inline static std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect)
-{
-    out << rect.w << 'x' << rect.h;
-    if(rect.x >= 0)
-        out << '+';
-    out << rect.x;
-    if(rect.y >= 0)
-        out << '+';
-    out << rect.y;
-    return out;
-}
-
-inline static std::ostream &operator<<(std::ostream &out, const SDL_Point &pt)
-{
-    out << '(' << pt.x << ", " << pt.y << ')';
-    return out;
-}
-
-std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info);
-
 SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
+
+std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
+std::ostream &operator<<(std::ostream &out, const SDL_Point &pt);
+std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info);
 
 #endif

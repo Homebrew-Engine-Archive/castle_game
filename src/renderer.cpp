@@ -1,6 +1,19 @@
+#include <map>
+#include <vector>
+#include <functional>
 #include "renderer.h"
+#include "textrenderer.h"
+#include "geometry.h"
+#include <boost/algorithm/clamp.hpp>
 
 typedef std::function<void()> TextBatch;
+
+const static int MIN_OUTPUT_WIDTH = 320;
+const static int MIN_OUTPUT_HEIGHT = 240;
+
+// TODO sync with driver's texture max width and height
+const static int MAX_OUTPUT_WIDTH = 4096;
+const static int MAX_OUTPUT_HEIGHT = 4096;
 
 struct RendererPimpl
 {   
@@ -12,11 +25,14 @@ struct RendererPimpl
     TexturePtr fbTexture;
     Surface fbSurface;
     std::vector<TextBatch> textOverlay;
-    std::map<std::string, Surface> tgxCache;
-    std::map<std::string, CollectionDataPtr> gm1Cache;
+    std::map<FilePath, Surface> tgxCache;
+    std::map<FilePath, CollectionDataPtr> gm1Cache;
 
     RendererPimpl(SDL_Renderer *renderer);
-    
+
+    int AdjustWidth(int width) const;
+    int AdjustHeight(int height) const;
+
     bool ReallocationRequired(int width, int heigth);
     bool CreateFrameTexture(int width, int height);
     bool CreateFrameSurface(void *pixels, int width, int height, int pitch);
@@ -30,13 +46,21 @@ RendererPimpl::RendererPimpl(SDL_Renderer *renderer_)
     , fbFormat {0}
 { }
 
+int RendererPimpl::AdjustWidth(int width) const
+{
+    return boost::algorithm::clamp(width, MIN_OUTPUT_WIDTH, MAX_OUTPUT_WIDTH);
+}
+
+int RendererPimpl::AdjustHeight(int height) const
+{
+    return boost::algorithm::clamp(height, MIN_OUTPUT_HEIGHT, MAX_OUTPUT_HEIGHT);
+}
+
 bool RendererPimpl::CreateFrameTexture(int width, int height)
 {
-    std::clog << "Allocating frame texture: " << std::endl
-              << std::dec
-              << "\tWidth = " << width << std::endl
-              << "\tHeight = " << height << std::endl;
-    
+    // NOTE
+    // Width and height wan't be checked for min and max constraints.
+    // It's assumed that they already being checked.
     if((width == 0) || (height == 0)) {
         std::cerr << "Size is zero. Abort allocation."
                   << std::endl;
@@ -48,7 +72,7 @@ bool RendererPimpl::CreateFrameTexture(int width, int height)
                   << std::endl;
         return true;
     }
-    
+
     fbWidth = width;
     fbHeight = height;
     fbFormat = SDL_PIXELFORMAT_ARGB8888;
@@ -101,9 +125,7 @@ bool RendererPimpl::CreateFrameSurface(void *pixels, int width, int height, int 
 
 bool RendererPimpl::ReallocationRequired(int width, int height)
 {
-    const int threshold = 1;
-    return ((width / threshold) != (fbWidth / threshold))
-        || ((height / threshold) != (fbHeight / threshold));
+    return (width != fbWidth) || (height != fbHeight);
 }
 
 Renderer::Renderer(SDL_Renderer *renderer)
@@ -195,12 +217,19 @@ void Renderer::AdjustBufferSize(int width, int height)
     if(!m->fbSurface.Null()) {
         throw std::runtime_error("AdjustBufferSize called with active frame.");
     }
-    if(m->ReallocationRequired(width, height)) {
-        m->CreateFrameTexture(width, height);
+
+    // Cutting up and down texture height and width
+    int adjustedWidth = m->AdjustWidth(width);
+    int adjustedHeight = m->AdjustHeight(height);
+
+    // NOTE
+    // This is the only place we limit width and height
+    if(m->ReallocationRequired(adjustedWidth, adjustedHeight)) {
+        m->CreateFrameTexture(adjustedWidth, adjustedHeight);
     }
 }
 
-Surface Renderer::QuerySurface(const std::string &filename)
+Surface Renderer::QuerySurface(const FilePath &filename)
 {
     auto cached = m->tgxCache.find(filename);
     if(cached != m->tgxCache.end()) {
@@ -212,7 +241,7 @@ Surface Renderer::QuerySurface(const std::string &filename)
     }
 }
 
-const CollectionData &Renderer::QueryCollection(const std::string &filename)
+const CollectionData &Renderer::QueryCollection(const FilePath &filename)
 {
     auto searchResult = m->gm1Cache.find(filename);
     if(searchResult != m->gm1Cache.end()) {
@@ -233,7 +262,7 @@ const CollectionData &Renderer::QueryCollection(const std::string &filename)
     }
 }
 
-bool Renderer::CacheCollection(const std::string &filename)
+bool Renderer::CacheCollection(const FilePath &filename)
 {
     try {
         QueryCollection(filename);
@@ -310,40 +339,4 @@ void Renderer::RenderTextBox(const std::string &text, const SDL_Rect &rect,
     UNUSED(alignh);
     UNUSED(alignv);
     RenderTextLine(text, TopLeft(rect));
-}
-
-void EnumRenderDrivers()
-{
-    int num = SDL_GetNumRenderDrivers();
-
-    std::clog << "Drivers avialable: "
-              << std::dec << num
-              << std::endl;
-
-    for(int index = 0; index < num; ++index) {
-        SDL_RendererInfo info;
-        std::clog << "Driver with index: "
-                  << std::dec
-                  << index
-                  << std::endl;
-        if(SDL_GetRenderDriverInfo(index, &info)) {
-            std::clog << "Can't query driver info"
-                      << std::endl;
-        } else {
-            std::clog << info;
-        }
-    }
-}
-
-void PrintRendererInfo(SDL_Renderer *renderer)
-{
-    if(renderer != NULL) {
-        std::clog << "Renderer info: " << std::endl;
-        SDL_RendererInfo info;
-        if(SDL_GetRendererInfo(renderer, &info)) {
-            std::clog << "\tCan't query renderer info" << std::endl;
-        } else {
-            std::clog << info;
-        }
-    }
 }

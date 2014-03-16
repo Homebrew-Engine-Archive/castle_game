@@ -1,9 +1,6 @@
 #ifndef GEOMETRY_H_
 #define GEOMETRY_H_
 
-#include <iostream>
-
-#include "macrosota.h"
 #include "SDL.h"
 
 /**

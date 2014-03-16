@@ -1,16 +1,19 @@
 #include "sdl_utils.h"
+#include <initializer_list>
+
+using namespace std;
 
 void ThrowSDLError(const SDL_Surface *surface)
 {
     if(surface == NULL) {
-        throw std::runtime_error(SDL_GetError());
+        throw runtime_error(SDL_GetError());
     }
 }
 
 void ThrowSDLError(int code)
 {
     if(code < 0) {
-        throw std::runtime_error(SDL_GetError());
+        throw runtime_error(SDL_GetError());
     }
 }
 
@@ -19,38 +22,40 @@ SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     return SDL_Color { r, g, b, a };
 }
 
-std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info)
+#define PRINT_FLAG(flags, flag)
+
+ostream &operator<<(ostream &out, const SDL_RendererInfo &info)
 {           
     out << "\tname: "
-              << info.name
-              << std::endl;
+        << info.name
+        << endl;
             
     out << "\tnum_texture_formats: "
-              << std::dec
-              << info.num_texture_formats
-              << std::endl;
+        << dec
+        << info.num_texture_formats
+        << endl;
             
     out << "\tmax_texture_width: "
-              << std::dec
-              << info.max_texture_width
-              << std::endl;
+        << dec
+        << info.max_texture_width
+        << endl;
             
     out << "\tmax_texture_height: "
-              << std::dec
-              << info.max_texture_height
-              << std::endl;
+        << dec
+        << info.max_texture_height
+        << endl;
 
     out << "\ttexture_formats: ";
     if(info.num_texture_formats == 0) {
         out << "None";
     } else {
         for(size_t index = 0; index < info.num_texture_formats; ++index) {
-            out << std::hex
-                      << info.texture_formats[index]
-                      << " ";
+            out << hex
+                << info.texture_formats[index]
+                << " ";
         }
     }
-    out << std::endl;
+    out << endl;
 
     out << "\tflags: ";
     if(info.flags != 0) {
@@ -65,7 +70,25 @@ std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info)
     } else {
         out << "None";
     }
-    out << std::endl;
+    out << endl;
 
+    return out;
+}
+
+ostream &operator<<(ostream &out, const SDL_Rect &rect)
+{
+    out << rect.w << 'x' << rect.h;
+    if(rect.x >= 0)
+        out << '+';
+    out << rect.x;
+    if(rect.y >= 0)
+        out << '+';
+    out << rect.y;
+    return out;
+}
+
+ostream &operator<<(ostream &out, const SDL_Point &pt)
+{
+    out << '(' << pt.x << ", " << pt.y << ')';
     return out;
 }

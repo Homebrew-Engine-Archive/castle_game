@@ -1,4 +1,7 @@
 #include "rw.h"
+#include <memory>
+#include <iostream>
+
 
 RWPtr RWFromFileBuffer(const FileBuffer &buffer)
 {
@@ -49,6 +52,11 @@ FileBuffer::FileBuffer(const char *filename, const char *mode)
 FileBuffer::FileBuffer(const std::string &filename, const char *mode)
     throw (std::runtime_error)
     : FileBuffer {filename.c_str(), mode}
+{ }
+
+FileBuffer::FileBuffer(const FilePath &path, const char *mode)
+    throw (std::runtime_error)
+    : FileBuffer {path.string(), mode}
 { }
 
 FileBuffer::FileBuffer(SDL_RWops *src)

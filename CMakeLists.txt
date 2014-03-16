@@ -12,14 +12,11 @@ macro (cxx_set_flag flag result)
   endif ()
 endmacro (cxx_set_flag)
 
-
 cxx_set_flag ("-O0" CXX_OPTIMIZATION_WARN)
 cxx_set_flag ("-pedantic" CXX_PEDANTIC_WARN)
 cxx_set_flag ("-Wall" CXX_WALL_WARN)
 cxx_set_flag ("-Wextra" CXX_EXTRA_WARN)
 cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_WARN)
-
-find_package (Boost REQUIRED COMPONENTS date_time system filesystem)
 
 include (FindPkgConfig)
 pkg_search_module (SDL2 REQUIRED sdl2)

@@ -2,11 +2,47 @@
 
 using namespace std;
 
+void EnumRenderDrivers(ostream &out)
+{
+    int num = SDL_GetNumRenderDrivers();
+    out << "Drivers avialable: "
+        << dec << num
+        << endl;
+
+    for(int index = 0; index < num; ++index) {        
+        out << "Driver with index: "
+            << dec << index
+            << endl;
+        
+        SDL_RendererInfo info;
+        if(SDL_GetRenderDriverInfo(index, &info)) {
+            out << "Can't query driver info"
+                << endl;
+        } else {
+            out << info;
+        }        
+    }
+}
+
+void PrintRendererInfo(ostream &out, SDL_Renderer *renderer)
+{
+    if(renderer != NULL) {
+        out << "Renderer info: " << endl;
+        
+        SDL_RendererInfo info;
+        if(SDL_GetRendererInfo(renderer, &info)) {
+            out << "\tCan't query renderer info" << endl;
+        } else {
+            out << info;
+        }
+    }
+}
+
 int main()
 {
     SDLInit(SDL_INIT_EVERYTHING);
 
-    EnumRenderDrivers();
+    EnumRenderDrivers(clog);
 
     const int screenwidth = 1024;
     const int screenheight = 768;
@@ -25,7 +61,7 @@ int main()
     ThrowSDLError(sdl_renderer);
         
     Renderer renderer(sdl_renderer.get());
-    PrintRendererInfo(sdl_renderer.get());
+    PrintRendererInfo(clog, sdl_renderer.get());
     
     RootScreen screen(&renderer);
     return screen.Exec();

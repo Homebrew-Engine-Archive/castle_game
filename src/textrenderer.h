@@ -3,13 +3,9 @@
 
 class TextRenderer;
 
-#include <iostream>
 #include <string>
 #include "SDL.h"
-
 #include "sdl_utils.h"
-#include "gm1.h"
-#include "tgx.h"
 #include "font.h"
 
 class TextRenderer

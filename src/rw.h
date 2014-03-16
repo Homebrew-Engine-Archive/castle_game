@@ -1,13 +1,11 @@
 #ifndef RW_H_
 #define RW_H_
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <memory>
 #include "SDL.h"
-
+#include "filesystem.h"
 #include "sdl_utils.h"
 
 class FileBuffer
@@ -19,6 +17,7 @@ class FileBuffer
 public:
     FileBuffer(const char *filename, const char *mode) throw (std::runtime_error);
     FileBuffer(const std::string &filename, const char *mode) throw (std::runtime_error);
+    FileBuffer(const FilePath &path, const char *mode) throw (std::runtime_error);
     FileBuffer(SDL_RWops *src) throw (std::runtime_error);
 
     const Uint8 *Data() const;
