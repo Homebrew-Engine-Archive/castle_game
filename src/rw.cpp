@@ -2,6 +2,18 @@
 #include <memory>
 #include <iostream>
 
+TempSeek::TempSeek(SDL_RWops *src, Sint64 whither, int seek)
+    : m_src(src)
+    , m_origin(SDL_RWtell(src))
+{
+    SDL_RWseek(m_src, whither, seek);
+}
+
+TempSeek::~TempSeek()
+{
+    SDL_RWseek(m_src, m_origin, RW_SEEK_SET);
+}
+
 RWPtr RWFromFileBuffer(const FileBuffer &buffer)
 {
     RWPtr src(SDL_RWFromConstMem(buffer.Data(), buffer.Size()));

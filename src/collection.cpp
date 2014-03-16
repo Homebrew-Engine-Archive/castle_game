@@ -49,7 +49,7 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
         std::cerr << "Exception in LoadImageCollection: " << std::endl
                   << "\tFilename: " << filename << std::endl
                   << "\tWhat: " << e.what() << std::endl;
-        return CollectionDataPtr(nullptr);
+        throw;
     }
 }
 
@@ -70,7 +70,7 @@ CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename)
         std::cerr << "Exception in LoadCollectionAtlas: " << std::endl
                   << "\tFilename: " << filename << std::endl
                   << "\tWhat: " << e.what() << std::endl;
-        return CollectionAtlasPtr(nullptr);
+        throw;
     }
 }
 
@@ -89,6 +89,6 @@ Surface LoadSurface(const FilePath &filename)
         std::cerr << "Exception in LoadImage: " << std::endl
                   << "\tFilename: " << filename << std::endl
                   << "\tWhat: " << e.what() << std::endl;
-        return Surface();
+        throw;
     }
 }

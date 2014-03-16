@@ -25,6 +25,15 @@ public:
     Sint64 Size() const;
 };
 
+class TempSeek
+{
+    SDL_RWops *m_src;
+    Sint64 m_origin;
+public:
+    TempSeek(SDL_RWops *src, Sint64 offset, int mode);
+    ~TempSeek();
+};
+
 RWPtr RWFromFileBuffer(const FileBuffer &filebuffer);
 
 Sint64 ReadableBytes(SDL_RWops *src);

@@ -148,17 +148,38 @@ namespace
                 atlas.push_back(surface);
                 ++successfullLoads;
             } else {
-                throw std::runtime_error("Surface is null");
+                throw std::runtime_error("Unable to allocate surface");
             }
         }
 
         return successfullLoads;
     }
 
+    template<class EntryClass>
+    Surface LoadEntryImpl(SDL_RWops *src, const Collection &gm1, size_t index)
+    {
+        Sint64 origin = SDL_RWtell(src);
+        Uint32 size = gm1.sizes.at(index);
+        Uint32 offset = gm1.offsets.at(index);
+        const ImageHeader &header = gm1.headers.at(index);
+
+        Surface surface = AllocateSurface<EntryClass>(
+            EntryClass::Width(header),
+            EntryClass::Height(header));
+        if(!surface.Null()) {
+            TempSeek seekLock(src, origin + offset, RW_SEEK_SET);
+            EntryClass::Load(src, size, header, surface);
+        } else {
+            throw std::runtime_error("Unable to allocate surface");
+        }
+
+        return surface;
+    }
+    
     void ReadHeader(SDL_RWops *src, Header *hdr)
     {
         if(ReadableBytes(src) < GM1_HEADER_BYTES)
-            throw std::runtime_error("EOF while ReadHeader");    
+            throw std::runtime_error("EOF while ReadHeader");
         hdr->u1             = SDL_ReadLE32(src);
         hdr->u2             = SDL_ReadLE32(src);
         hdr->u3             = SDL_ReadLE32(src);
@@ -355,7 +376,7 @@ namespace
             }
         }
     };
-       
+
 }
 
 NAMESPACE_BEGIN(gm1)
@@ -431,6 +452,25 @@ PalettePtr CreateSDLPaletteFrom(const Palette &gm1pal)
     }
     
     return ptr;
+}
+
+Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index)
+    throw(std::runtime_error)
+{
+    switch(gm1.encoding()) {
+    case Encoding::Font:
+        /* fallthrough */
+    case Encoding::TGX16:
+        return LoadEntryImpl<TGX16>(src, gm1, index);
+    case Encoding::TGX8:
+        return LoadEntryImpl<TGX16>(src, gm1, index);
+    case Encoding::TileObject:
+        return LoadEntryImpl<TGX16>(src, gm1, index);
+    case Encoding::Bitmap:
+        return LoadEntryImpl<TGX16>(src, gm1, index);
+    default:
+        throw std::runtime_error("Unknown encoding");
+    }
 }
 
 Surface LoadAtlas(SDL_RWops *src, const Collection &gm1)

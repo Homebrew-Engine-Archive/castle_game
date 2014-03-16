@@ -113,9 +113,11 @@ void VerbosePrintHeader(const Header &gm1);
 void VerbosePrintPalette(const Palette &palette);
 void VerbosePrintCollection(const Collection &collection);
 
-int LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas) throw (std::runtime_error);
-Surface LoadAtlas(SDL_RWops *src, const Collection &scheme) throw(std::runtime_error);
+int LoadEntries(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas) throw (std::runtime_error);
+Surface LoadAtlas(SDL_RWops *src, const Collection &gm1) throw(std::runtime_error);
 SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &) throw (std::runtime_error);
+
+Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index) throw (std::runtime_error);
 
 NAMESPACE_END(gm1)
 
