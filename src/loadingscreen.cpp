@@ -8,73 +8,78 @@
 #include <sstream>
 #include <iostream>
 
+namespace
+{
+
+    std::vector<std::string> GetStringList(const FilePath &path)
+    {
+        std::vector<std::string> list;
+    
+        boost::filesystem::ifstream fin(path);
+        std::string buffer;
+        while(!fin.eof()) {
+            std::getline(fin, buffer);
+            if(!buffer.empty()) {
+                list.push_back(buffer);
+            }
+        }
+
+        return list;
+    }
+
+    template<class T>
+    bool ReadVector(boost::filesystem::ifstream &in, std::vector<T> &xs)
+    {
+        if(in.eof())
+            return false;
+
+        int n;
+        in >> n;
+        xs.resize(n);
+        for(T &x : xs) {
+            if(in.eof())
+                return false;
+            else
+                in >> x;
+        }
+
+        return true;
+    }
+
+    bool ParseFontCollectionInfo(boost::filesystem::ifstream &in, FontCollectionInfo &info)
+    {
+        in >> info.name;
+        info.filename = GetGM1FilePath(info.name);
+
+        if(!ReadVector(in, info.alphabet))
+            return false;
+        if(!ReadVector(in, info.sizes))
+            return false;
+
+        return true;
+    }
+
+    std::vector<FontCollectionInfo> GetFontCollectionInfoList(const FilePath &path)
+    {
+        boost::filesystem::ifstream fin(path);
+        std::vector<FontCollectionInfo> fontsInfo;
+
+        while(!fin.eof()) {
+            FontCollectionInfo info;
+            if(ParseFontCollectionInfo(fin, info)) {
+                fontsInfo.push_back(info);
+            }
+        }
+    
+        return fontsInfo;
+    }
+
+}
+
 int RunLoadingScreen(RootScreen *root)
 {
     LoadingScreen ls(root);
     return ls.Exec();
-}
-
-static std::vector<std::string> GetStringList(const FilePath &path)
-{
-    std::vector<std::string> list;
-    
-    boost::filesystem::ifstream fin(path);
-    std::string buffer;
-    while(!fin.eof()) {
-        std::getline(fin, buffer);
-        if(!buffer.empty()) {
-            list.push_back(buffer);
-        }
-    }
-
-    return list;
-}
-
-template<class T>
-static bool ReadVector(boost::filesystem::ifstream &in, std::vector<T> &xs)
-{
-    if(in.eof())
-        return false;
-
-    int n;
-    in >> n;
-    xs.resize(n);
-    for(T &x : xs) {
-        if(in.eof())
-            return false;
-        else
-            in >> x;
-    }
-
-    return true;
-}
-
-static bool ParseFontCollectionInfo(boost::filesystem::ifstream &in, FontCollectionInfo &info)
-{
-    in >> info.name;
-    info.filename = GetGM1FilePath(info.name);
-
-    if(!ReadVector(in, info.alphabet))
-        return false;
-    if(!ReadVector(in, info.sizes))
-        return false;
-
-    return true;
-}
-
-static std::vector<FontCollectionInfo> GetFontCollectionInfoList(const FilePath &path)
-{
-    boost::filesystem::ifstream fin(path);
-    std::vector<FontCollectionInfo> fontsInfo;
-
-    while(!fin.eof()) {
-        FontCollectionInfo info;
-        if(ParseFontCollectionInfo(fin, info)) {
-            fontsInfo.push_back(info);
-        }
-    }
-    
-    return fontsInfo;
 }
 
 LoadingScreen::LoadingScreen(RootScreen *root)

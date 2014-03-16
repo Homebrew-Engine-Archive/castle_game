@@ -1,11 +1,119 @@
 #include "tgx.h"
+#include "rw.h"
+#include <algorithm>
+
+using namespace tgx;
+
+namespace
+{
+    
+    struct Header
+    {
+        Uint32 width;
+        Uint32 height;
+    };
+    
+    enum class TokenType : int {
+        Stream = 0,
+        Transparent = 1,
+        Repeat = 2,
+        LineFeed = 4
+    };
+
+    // Width of rhombus rows in pixels.
+    inline int GetTilePixelsPerRow(int row)
+    {
+        static int PerRow[] = {
+            2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2
+        };
+        return PerRow[row];
+    }
+
+    int ReadHeader(SDL_RWops *src, Header *hdr)
+    {
+        if(ReadableBytes(src) < 2 * sizeof(Uint32)) {
+            std::cerr << "Buffer overrun" << std::endl;
+            return -1;
+        }
+    
+        hdr->width = SDL_ReadLE32(src);
+        hdr->height = SDL_ReadLE32(src);
+        return 0;
+    }
+    
+    size_t ExtractTokenLength(const Uint8 &token)
+    {
+        // Lower 5 bits represent length in range [1..32]
+        return (token & 0x1f) + 1;
+    }
+
+    TokenType ExtractTokenType(const Uint8 &token)
+    {
+        // Higher 3 bits
+        return TokenType(token >> 5);
+    }
+
+    const char * GetTokenTypeName(TokenType type)
+    {
+        switch(type) {
+        case TokenType::Transparent: return "Transparent";
+        case TokenType::Stream: return "Stream";
+        case TokenType::LineFeed: return "LineFeed";
+        case TokenType::Repeat: return "Repeat";
+        default:
+            return "Unknown";
+        }
+    }
+
+    void RepeatPixel(const Uint8 *pixel, Uint8 *buff, size_t size, size_t num)
+    {
+        for(size_t i = 0; i < num; ++i)
+            std::copy(pixel, pixel + size, buff + i * size);
+    }
+
+    Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp)
+    {
+        Uint32 rmask = RMASK_DEFAULT;
+        Uint32 gmask = GMASK_DEFAULT;
+        Uint32 bmask = BMASK_DEFAULT;
+        Uint32 amask = AMASK_DEFAULT;
+        
+        if(bpp == 16) {
+            rmask = TGX_RGB16_RMASK;
+            gmask = TGX_RGB16_GMASK;
+            bmask = TGX_RGB16_BMASK;
+            amask = TGX_RGB16_AMASK;
+        }
+    
+        Surface surface =
+            SDL_CreateRGBSurface(
+                NO_FLAGS,
+                width,
+                height,
+                bpp,
+                rmask,
+                gmask,
+                bmask,
+                amask);
+
+        if(surface.Null()) {
+            std::cerr << "SDL_CreateRGBSurface failed: "
+                      << SDL_GetError()
+                      << std::endl;
+            return Surface();
+        }
+    
+        if(DecodeTGX(src, size, surface) < 0) {
+            std::cerr << "DecodeTGX failed" << std::endl;
+            return Surface();
+        }
+    
+        return surface;
+    }
+
+}
 
 NAMESPACE_BEGIN(tgx)
-
-static const char *GetTokenTypeName(TokenType);
-static TokenType ExtractTokenType(const Uint8 &token);
-static size_t ExtractTokenLength(const Uint8 &token);
-static int ReadHeader(SDL_RWops *src, Header *header);
 
 Surface LoadStandaloneImage(SDL_RWops *src)
 {
@@ -16,18 +124,6 @@ Surface LoadStandaloneImage(SDL_RWops *src)
     }
 
     return LoadTGX(src, ReadableBytes(src), header.width, header.height, 16);
-}
-
-static int ReadHeader(SDL_RWops *src, Header *hdr)
-{
-    if(ReadableBytes(src) < 2 * sizeof(Uint32)) {
-        std::cerr << "Buffer overrun" << std::endl;
-        return -1;
-    }
-    
-    hdr->width = SDL_ReadLE32(src);
-    hdr->height = SDL_ReadLE32(src);
-    return 0;
 }
 
 int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface)
@@ -68,7 +164,7 @@ int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
     int bytesPerPixel = sizeof(Uint16);
     
     for(size_t y = 0; y < height; ++y) {
-        size_t length = TILE_PIXELS_PER_ROW[y];
+        size_t length = GetTilePixelsPerRow(y);
         size_t offset = (width - length) / 2;
 
         SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
@@ -77,67 +173,6 @@ int DecodeTile(SDL_RWops *src, Sint64 size, Surface &surface)
     }
     
     return 0;
-}
-
-static size_t ExtractTokenLength(const Uint8 &token)
-{
-    // Lower 5 bits represent range between [1..32]
-    return (token & 0x1f) + 1;
-}
-
-static TokenType ExtractTokenType(const Uint8 &token)
-{
-    // Higher 3 bits
-    return TokenType(token >> 5);
-}
-
-static const char * GetTokenTypeName(TokenType type)
-{
-    UNUSED(GetTokenTypeName);
-    switch(type) {
-    case TokenType::Transparent: return "Transparent";
-    case TokenType::Stream: return "Stream";
-    case TokenType::LineFeed: return "LineFeed";
-    case TokenType::Repeat: return "Repeat";
-    default:
-        return "Unknown";
-    }
-}
-
-static void RepeatPixel(const Uint8 *pixel, Uint8 *buff, size_t size, size_t num)
-{
-    for(size_t i = 0; i < num; ++i)
-        std::copy(pixel, pixel + size, buff + i * size);
-}
-
-Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp)
-{
-    Uint32 rmask = RMASK_DEFAULT;
-    Uint32 gmask = GMASK_DEFAULT;
-    Uint32 bmask = BMASK_DEFAULT;
-    Uint32 amask = AMASK_DEFAULT;
-    if(bpp == 16) {
-        rmask = TGX_RGB16_RMASK;
-        gmask = TGX_RGB16_GMASK;
-        bmask = TGX_RGB16_BMASK;
-        amask = TGX_RGB16_AMASK;
-    }
-    
-    Surface surface = SDL_CreateRGBSurface(NO_FLAGS, width, height, bpp, rmask, gmask, bmask, amask);
-
-    if(surface.Null()) {
-        std::cerr << "SDL_CreateRGBSurface failed: "
-                  << SDL_GetError()
-                  << std::endl;
-        return Surface();
-    }
-    
-    if(DecodeTGX(src, size, surface) < 0) {
-        std::cerr << "DecodeTGX failed" << std::endl;
-        return Surface();
-    }
-    
-    return surface;
 }
 
 int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface)

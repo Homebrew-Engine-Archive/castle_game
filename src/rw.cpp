@@ -2,7 +2,6 @@
 #include <memory>
 #include <iostream>
 
-
 RWPtr RWFromFileBuffer(const FileBuffer &buffer)
 {
     RWPtr src(SDL_RWFromConstMem(buffer.Data(), buffer.Size()));

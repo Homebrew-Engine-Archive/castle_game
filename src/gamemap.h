@@ -3,8 +3,6 @@
 
 #include <vector>
 #include "SDL.h"
-
-#include "geometry.h"
 #include "landscape.h"
 
 struct GameMapLocation

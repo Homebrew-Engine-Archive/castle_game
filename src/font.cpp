@@ -1,30 +1,53 @@
 #include "font.h"
 
-static Surface DecodeGM1Glyph(const Surface &src)
+namespace
 {
-    Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NO_FLAGS);
-    ThrowSDLError(rgb32);
 
-    // Swap green channel with alpha channel, so
-    // fully white pixels remain unchanged, but
-    // magenta-colored pixels become alpha-blended
+    Surface DecodeGM1Glyph(const Surface &src)
+    {
+        Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NO_FLAGS);
+        ThrowSDLError(rgb32);
 
-    // This way we are also reaching font-aliasing
-    auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8) {
-        return SDL_Color { r, 255, b, g };
-    };
+        // Swap green channel with alpha channel, so
+        // fully white pixels remain unchanged, but
+        // magenta-colored pixels become alpha-blended
+
+        // This way we are also reaching font-aliasing
+        auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8) {
+            return SDL_Color { r, 255, b, g };
+        };
     
-    MapSurface(rgb32, swap_green_alpha);
+        MapSurface(rgb32, swap_green_alpha);
 
-    return rgb32;
+        return rgb32;
+    }
+    
+    void AddNonPrintableGlyphs(Surface face, int xadvance, int ybearing, Font &font)
+    {
+        const int NonPrintableLast = '!';
+        for(int character = 0; character < NonPrintableLast; ++character) {
+            GlyphData glyph;
+            glyph.face = face;
+            glyph.hbox = 0;
+            glyph.vbox = 0;
+            glyph.xadvance = xadvance;
+            glyph.xbearing = 0;
+            glyph.yadvance = 0;
+            glyph.ybearing = ybearing;
+            if(!font.AddGlyph(character, glyph)) {
+                throw std::runtime_error("Unable to add non-printable glyph");
+            }
+        }
+    }
+
 }
-
+    
 Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int skip)
     : m_ascii(256)
     , m_fontWidth(0)
     , m_fontHeight(0)
 {
-    InitNonPrintableAscii(Surface(), data.header.anchorX, 0);
+    AddNonPrintableGlyphs(Surface(), data.header.anchorX, 0, *this);
     
     auto entry = data.entries.begin();
     std::advance(entry, skip);
@@ -98,24 +121,6 @@ size_t Font::GetGlyphIndex(int character) const
         return m_ascii[character];
     
     return m_glyphs.size();
-}
-
-void Font::InitNonPrintableAscii(Surface face, int xadvance, int ybearing)
-{
-    const int NonPrintableLast = '!';
-    for(int character = 0; character < NonPrintableLast; ++character) {
-        GlyphData glyph;
-        glyph.face = face;
-        glyph.hbox = 0;
-        glyph.vbox = 0;
-        glyph.xadvance = xadvance;
-        glyph.xbearing = 0;
-        glyph.yadvance = 0;
-        glyph.ybearing = ybearing;
-        if(!AddGlyph(character, glyph)) {
-            throw std::runtime_error("Unable to add non-printable glyph");
-        }
-    }
 }
 
 int GlyphWidth(const GlyphData &glyph)

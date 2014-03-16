@@ -8,12 +8,17 @@
 
 typedef std::function<void()> TextBatch;
 
-const static int MIN_OUTPUT_WIDTH = 320;
-const static int MIN_OUTPUT_HEIGHT = 240;
+namespace
+{
 
-// TODO sync with driver's texture max width and height
-const static int MAX_OUTPUT_WIDTH = 4096;
-const static int MAX_OUTPUT_HEIGHT = 4096;
+    const int MIN_OUTPUT_WIDTH = 320;
+    const int MIN_OUTPUT_HEIGHT = 240;
+    
+    // TODO sync with driver's texture max width and height
+    const int MAX_OUTPUT_WIDTH = 4096;
+    const int MAX_OUTPUT_HEIGHT = 4096;
+    
+}
 
 struct RendererPimpl
 {   

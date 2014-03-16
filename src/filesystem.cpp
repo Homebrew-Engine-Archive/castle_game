@@ -1,11 +1,16 @@
 #include "filesystem.h"
 
-static FilePath SubPath(const FilePath &root, const FilePath &sub, const FilePath &filename)
+namespace
 {
-    FilePath path = root;
-    path /= sub;
-    path += filename;
-    return path;
+    
+    FilePath SubPath(const FilePath &root, const FilePath &sub, const FilePath &filename)
+    {
+        FilePath path = root;
+        path /= sub;
+        path += filename;
+        return path;
+    }
+    
 }
 
 FilePath GetFXPath(const FilePath &filename)

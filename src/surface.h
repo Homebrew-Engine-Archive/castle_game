@@ -12,30 +12,10 @@ const int GMASK_DEFAULT = 0;
 const int BMASK_DEFAULT = 0;
 const int AMASK_DEFAULT = 0;
 
-class Surface;
-
-// RAII for SDL_LockSurface / SDL_UnlockSurface
-class SurfaceLocker
-{
-    const Surface &object;
-    bool locked;
-public:
-    SurfaceLocker(const Surface &surface);
-    ~SurfaceLocker();
-};
-
-// RAII for SDL_SetColorKey
-class ColorKeyLocker
-{
-    const Surface &object;
-    bool oldEnabled;
-    Uint32 oldColor;
-public:
-    ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color);
-    ~ColorKeyLocker();
-};
-
-// Wrapper around SDL_Surface (with reference counting)
+/**
+ * Wrapper for SDL_Surface's pointer designed with intention
+ * to count references into SDL_Surface::refcount.
+ */
 class Surface
 {
 protected:
@@ -59,6 +39,27 @@ public:
     virtual void reset();
 };
 
+// RAII for SDL_LockSurface / SDL_UnlockSurface
+class SurfaceLocker
+{
+    const Surface &object;
+    bool locked;
+public:
+    SurfaceLocker(const Surface &surface);
+    ~SurfaceLocker();
+};
+
+// RAII for SDL_SetColorKey
+class ColorKeyLocker
+{
+    const Surface &object;
+    bool oldEnabled;
+    Uint32 oldColor;
+public:
+    ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color);
+    ~ColorKeyLocker();
+};
+
 // Wrapper for Region-Of-Interest (exactly like OpenCV ROI on Mat class)
 // Acts like simple surface, but has very special destructor which
 // respect not only the roi-surface, but also referer surface.
@@ -73,17 +74,12 @@ public:
     virtual ~SurfaceROI();
 };
 
-void MapSurface(Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &);
+typedef std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> PixelMapper;
+void MapSurface(Surface &dst, PixelMapper);
 
 bool HasPalette(const Surface &surface);
 
-Surface SubSurface(Surface &src, const SDL_Rect *rect);
-
-Surface CopySurface(const Surface &src, const SDL_Rect *srcrect);
-
 Surface CopySurfaceFormat(const Surface &src, int width, int height);
-
-void CopySurfaceColorKey(const Surface &src, Surface &dst);
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 

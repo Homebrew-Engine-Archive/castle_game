@@ -9,7 +9,6 @@ class GameScreen;
 
 #include "rootscreen.h"
 #include "gamemap.h"
-#include "landscape.h"
 #include "screen.h"
 #include "renderer.h"
 

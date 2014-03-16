@@ -23,9 +23,6 @@ struct GlyphData
     int vbox;
 };
 
-int GlyphWidth(const GlyphData &glyph);
-int GlyphHeight(const GlyphData &glyph);
-
 class Font
 {
     std::vector<GlyphData> m_glyphs;
@@ -33,8 +30,6 @@ class Font
     
     int m_fontWidth;
     int m_fontHeight;
-
-    void InitNonPrintableAscii(Surface, int, int);
 
 public:
     Font() = default;
@@ -53,6 +48,7 @@ public:
 
 };
 
-typedef std::unique_ptr<Font> FontPtr;
+int GlyphWidth(const GlyphData &glyph);
+int GlyphHeight(const GlyphData &glyph);
 
 #endif

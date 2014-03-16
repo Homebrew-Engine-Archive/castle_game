@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include "rw.h"
 #include "tgx.h"
-#include "filesystem.h"
 
 CollectionAtlas::CollectionAtlas(SDL_RWops *src)
     : gm1(src)

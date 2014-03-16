@@ -1,4 +1,7 @@
 #include "gamescreen.h"
+#include "landscape.h"
+#include "geometry.h"
+#include "filesystem.h"
 
 GameScreen::GameScreen(RootScreen *root)
     : m_root(root)
@@ -26,8 +29,9 @@ void GameScreen::Draw(Surface frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_FillRect(frame, &frameRect, 0xff000000);
-    
-    const CollectionData &gm1 = m_renderer->QueryCollection("gm/body_woodcutter.gm1");
+
+    FilePath filepath = GetGM1FilePath("body_woodcutter");
+    const CollectionData &gm1 = m_renderer->QueryCollection(filepath);
     
     for(size_t n = 0; n < 1000; ++n) {
         size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);

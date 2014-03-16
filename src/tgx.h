@@ -1,28 +1,13 @@
 #ifndef TGX_H_
 #define TGX_H_
 
-#include <array>
-#include <vector>
-#include <memory>
-#include <iostream>
-#include <stdexcept>
-#include <algorithm>
 #include "SDL.h"
-
 #include "surface.h"
 #include "macrosota.h"
-#include "rw.h"
 
 const size_t TILE_BYTES = 512;
-
-// Width of rhombus rows in pixels.
-const size_t TILE_PIXELS_PER_ROW[] = {
-    2, 6, 10, 14, 18, 22, 26, 30,
-    30, 26, 22, 18, 14, 10, 6, 2};
-
 const size_t TILE_RHOMBUS_WIDTH = 30;
 const size_t TILE_RHOMBUS_HEIGHT = 16;
-
 const size_t TILE_RHOMBUS_PIXELS = TILE_RHOMBUS_WIDTH * TILE_RHOMBUS_HEIGHT;
 
 // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
@@ -56,32 +41,7 @@ const int TGX_RGB16_BSHIFT = 0;
 
 const int TGX_MAX_BPP = 16;
 
-// union TGXToken
-// {
-//     Uint8 type;
-//     struct
-//     {
-//         Uint8 length : 5;
-//         Uint8 newlineFlag : 1;
-//         Uint8 repeatFlag : 1;
-//         Uint8 transparentFlag : 1;
-//     } data;
-// };
-
-enum class TokenType : int {
-    Stream = 0,
-    Transparent = 1,
-    Repeat = 2,
-    LineFeed = 4
-};
-
 NAMESPACE_BEGIN(tgx)
-
-struct Header
-{
-    Uint32 width;
-    Uint32 height;
-};
 
 // Returns color component in range of [0..256)
 constexpr int GetChannel(Uint16 color, int mask, int shift)
@@ -108,8 +68,6 @@ constexpr int GetAlpha(int)
 {
     return 255;
 }
-
-Surface LoadTGX(SDL_RWops *src, Sint64 size, int width, int height, int bpp);
 
 int DecodeTGX(SDL_RWops *src, Sint64 size, Surface &surface);
 int DecodeUncompressed(SDL_RWops *src, Sint64 size, Surface &surface);

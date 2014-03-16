@@ -5,6 +5,52 @@
 #include <algorithm>
 #include <stdexcept>
 
+namespace
+{
+    
+    template<class Pixel>
+    void TransformBuffer(void *pixels, size_t count, const SDL_PixelFormat *pf, PixelMapper f)
+    {
+        Pixel *first = reinterpret_cast<Pixel *>(pixels);
+        Pixel *last = first + count;
+        
+        while(first != last) {
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
+        
+            SDL_Color result = f(r, g, b, a);
+            *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
+            std::next(first);
+        }
+    }
+
+    template<class Pixel>
+    void TransformImpl(Surface &dst, PixelMapper f)
+    {
+        if(dst.Null())
+            return;
+    
+        SurfaceLocker lock(dst);
+
+        Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
+        const SDL_PixelFormat *fmt = dst->format;
+
+        for(int y = 0; y < dst->h; ++y) {
+            TransformBuffer<Pixel>(pixels, dst->w, fmt, f);
+            std::advance(pixels, dst->pitch);
+        }
+    }
+    
+    void CopySurfaceColorKey(SDL_Surface *src, SDL_Surface *dst)
+    {
+        Uint32 colorkey;
+        bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
+
+        SDL_SetColorKey(dst, enabled, colorkey);
+    }
+    
+}
+
 SurfaceLocker::SurfaceLocker(const Surface &surface)
     : object(surface)
     , locked(false)
@@ -149,7 +195,7 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     Uint32 amask = src->format->Amask;
     Uint32 bytesPerPixel = src->format->BytesPerPixel;
     
-    Uint8 *pixels = (Uint8 *)src->pixels
+    Uint8 *pixels = reinterpret_cast<Uint8*>(src->pixels)
         + y * src->pitch
         + x * bytesPerPixel;
     
@@ -157,47 +203,12 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         pixels, width, height, depth, src->pitch,
         rmask, gmask, bmask, amask);
     
-    if(m_surface == NULL)
-        return;
+    ThrowSDLError(m_surface);
     
-    Uint32 colorkey;
-    if(SDL_GetColorKey(src, &colorkey) == 0) {
-        SDL_SetColorKey(m_surface, SDL_TRUE, colorkey);
-    }
-
+    CopySurfaceColorKey(src, m_surface);
+    
     m_referer = src;
     AddRef(m_referer);
-}
-
-void CopySurfaceColorKey(const Surface &src, Surface &dst)
-{
-    Uint32 colorkey;
-    bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
-
-    SDL_SetColorKey(dst, enabled, colorkey);
-}
-
-Surface CopySurface(const Surface &src, const SDL_Rect *srcrect)
-{
-    Uint32 width;
-    Uint32 height;
-    if(srcrect == NULL) {
-        width = src->w;
-        height = src->h;
-    } else {
-        width = srcrect->w;
-        height = srcrect->h;
-    }
-
-    Surface dst = CopySurfaceFormat(src, width, height);
-
-    Uint32 key;
-    SDL_GetColorKey(src, &key);
-
-    ColorKeyLocker lock(src, SDL_FALSE, key);
-    BlitSurface(src, srcrect, dst, NULL);
-
-    return dst;
 }
 
 Surface CopySurfaceFormat(const Surface &src, int width, int height)
@@ -214,6 +225,7 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     Surface dst = SDL_CreateRGBSurface(
         NO_FLAGS, width, height, depth,
         rmask, gmask, bmask, amask);
+    
     if(dst.Null())
         throw std::runtime_error(SDL_GetError());
 
@@ -222,74 +234,32 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     return dst;
 }
 
-Surface SubSurface(Surface &src, const SDL_Rect *rect)
-{
-    Uint32 x = 0;
-    Uint32 y = 0;
-    Uint32 width = src->w;
-    Uint32 height = src->h;
-    if(rect != NULL) {
-        x = rect->x;
-        y = rect->y;
-        width = rect->x;
-        height = rect->y;
-    }
-    
-    Uint32 depth = src->format->BitsPerPixel;
-    Uint32 rmask = src->format->Rmask;
-    Uint32 gmask = src->format->Gmask;
-    Uint32 bmask = src->format->Bmask;
-    Uint32 amask = src->format->Amask;
-    Uint32 bytesPerPixel = src->format->BytesPerPixel;
-    
-    Uint8 *pixels = (Uint8 *)src->pixels
-        + y * src->pitch
-        + x * bytesPerPixel;
-    
-    Surface dst = SDL_CreateRGBSurfaceFrom(
-        pixels, width, height, depth, src->pitch,
-        rmask, gmask, bmask, amask);
-    if(dst.Null()) {
-        throw std::runtime_error(SDL_GetError());
-    }
-    
-    Uint32 colorkey;
-    if(0 == SDL_GetColorKey(src, &colorkey)) {
-        SDL_SetColorKey(dst, SDL_TRUE, colorkey);
-    }
-    
-    return dst;
-}
-
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
 {
-    if(SDL_BlitSurface(src, srcrect, dst, dstrect)) {
-        throw std::runtime_error(SDL_GetError());
-    }
+    ThrowSDLError(
+        SDL_BlitSurface(src, srcrect, dst, dstrect));
 }
 
 void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 {
-    SDL_Renderer *render = SDL_CreateSoftwareRenderer(dst);
-    SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
     Uint8 r, g, b, a;
     SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
-    SDL_SetRenderDrawColor(render, r, g, b, a);
-    SDL_RenderDrawRect(render, dstrect);
-    SDL_DestroyRenderer(render);
+    SDL_SetRenderDrawColor(render.get(), r, g, b, a);
+    SDL_RenderDrawRect(render.get(), dstrect);
 }
 
 void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
 {
-    SDL_Renderer *render = SDL_CreateSoftwareRenderer(dst);
-    SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
     Uint8 r, g, b, a;
     SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
-    SDL_SetRenderDrawColor(render, r, g, b, a);
-    SDL_RenderFillRect(render, dstrect);
-    SDL_DestroyRenderer(render);
+    SDL_SetRenderDrawColor(render.get(), r, g, b, a);
+    SDL_RenderFillRect(render.get(), dstrect);
 }
 
 SDL_Rect SurfaceBounds(const Surface &src)
@@ -306,64 +276,23 @@ bool HasPalette(const Surface &surface)
         && surface->format->BitsPerPixel == 8;
 }
 
-template<class Pixel>
-static void TransformLine(
-    void *pixels,
-    size_t count,
-    const SDL_PixelFormat *pf,
-    const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
+void MapSurface(Surface &dst, PixelMapper f)
 {
-    Pixel *first = reinterpret_cast<Pixel *>(pixels);
-    Pixel *last = first + count;
-    while(first != last) {
-        Uint8 r, g, b, a;
-        SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
-        
-        SDL_Color result = fun(r, g, b, a);
-        *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
-        ++first;
-    }
-}
-
-template<class Pixel>
-static void TransformImpl(
-    Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
-{
-    if(dst.Null())
-        return;
-
-    Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
-    const SDL_PixelFormat *fmt = dst->format;
-    
-    for(int y = 0; y < dst->h; ++y) {
-        TransformLine<Pixel>(pixels, dst->w, fmt, fun);
-        pixels += dst->pitch;
-    }
-}
-
-void MapSurface(
-    Surface &dst, const std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> &fun)
-{
-    if(dst.Null())
-        return;
-    
-    SurfaceLocker lock(dst);
-
     switch(dst->format->BytesPerPixel) {
     case 1:
-        TransformImpl<Uint8>(dst, fun);
+        TransformImpl<Uint8>(dst, f);
         break;
     case 2:
-        TransformImpl<Uint16>(dst, fun);
+        TransformImpl<Uint16>(dst, f);
         break;
     case 3:
-        // implement me
+        // TODO implement me
         break;
     case 4:
-        TransformImpl<Uint32>(dst, fun);
+        TransformImpl<Uint32>(dst, f);
         break;
     default:
-        TransformImpl<Uint32>(dst, fun);
-        break;
+        throw std::runtime_error("Unsupported BPP");
     }
 }
+    

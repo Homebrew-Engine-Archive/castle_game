@@ -7,6 +7,7 @@
 #include <memory>
 #include "surface.h"
 #include "gm1.h"
+#include "filesystem.h"
 
 typedef int font_size_t;
 

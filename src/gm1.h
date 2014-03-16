@@ -3,13 +3,10 @@
 
 #include <array>
 #include <vector>
-#include <algorithm>
 #include <stdexcept>
 #include "SDL.h"
 #include "macrosota.h"
-#include "tgx.h"
 #include "surface.h"
-#include "rw.h"
 
 const size_t GM1_PALETTE_COUNT = 10;
 const size_t GM1_PALETTE_COLORS = 256;
@@ -109,17 +106,16 @@ struct Collection
     size_t size() const;
 };
 
+PalettePtr CreateSDLPaletteFrom(const Palette &palette);
+
 void VerbosePrintImageHeader(const ImageHeader &header);
 void VerbosePrintHeader(const Header &gm1);
 void VerbosePrintPalette(const Palette &palette);
 void VerbosePrintCollection(const Collection &collection);
 
-void LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas);
-
-Surface LoadAtlas(SDL_RWops *src, const Collection &scheme)
-    throw(std::runtime_error);
-PalettePtr CreateSDLPaletteFrom(const Palette &palette);
-void PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
+int LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas) throw (std::runtime_error);
+Surface LoadAtlas(SDL_RWops *src, const Collection &scheme) throw(std::runtime_error);
+SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &) throw (std::runtime_error);
 
 NAMESPACE_END(gm1)
 

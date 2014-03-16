@@ -1,14 +1,8 @@
 #ifndef ANIMATION_H_
 #define ANIMATION_H_
 
-#include <map>
-#include <string>
 #include <vector>
-
 #include "SDL.h"
-
-#include "gm1.h"
-#include "surface.h"
 
 enum class AnimationClass : Uint32 {
     Walk,
