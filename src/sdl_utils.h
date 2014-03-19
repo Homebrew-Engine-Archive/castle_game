@@ -4,8 +4,7 @@
 #include "SDL.h"
 #include <stdexcept>
 #include <memory>
-//#include <iosfwd>
-#include <iostream>
+#include <iosfwd>
 
 namespace
 {
@@ -90,6 +89,7 @@ SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
 
 std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
 std::ostream &operator<<(std::ostream &out, const SDL_Point &pt);
-std::ostream &operator<<(std::ostream &out, const SDL_RendererInfo &info);
+
+void PrintRendererInfo(std::ostream &out, const SDL_RendererInfo &info);
 
 #endif

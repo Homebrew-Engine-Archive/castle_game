@@ -27,7 +27,7 @@ public:
      *
      * @return          True if no error occurred.
      */
-    bool CacheFont(const std::string &name, font_size_t size, const Font &font);
+    bool CacheFont(const std::string &name, int size, const Font &font);
     
     /**
      * Use new font for next printing.
@@ -39,11 +39,11 @@ public:
      * @return          False if is no font available at all and true otherwise.
      * 
      */
-    bool SetFont(const std::string &fontname, font_size_t size);
+    bool SetFont(const std::string &fontname, int size);
 
     bool SetFontName(const std::string &fontname);
 
-    bool SetFontSize(font_size_t size);
+    bool SetFontSize(int size);
 
     void SetColor(const SDL_Color &color);
 

@@ -61,7 +61,7 @@ public:
 // Acts like simple surface, but has very special destructor which
 // respect not only the roi-surface, but also referer surface.
 // 
-// It holds reference to original surface `src' until become out of scoped.
+// It holds reference to original surface `src' until becomes out-of-scope.
 // 
 class SurfaceROI : public Surface
 {

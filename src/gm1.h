@@ -1,12 +1,15 @@
 #ifndef GM1_H_
 #define GM1_H_
 
+#include <iosfwd>
 #include <array>
 #include <vector>
 #include <stdexcept>
 #include "SDL.h"
 #include "macrosota.h"
-#include "surface.h"
+#include "sdl_utils.h"
+
+class Surface;
 
 const size_t GM1_PALETTE_COUNT = 10;
 const size_t GM1_PALETTE_COLORS = 256;
@@ -18,6 +21,11 @@ const size_t GM1_HEADER_BYTES = 88;
 
 NAMESPACE_BEGIN(gm1)
 
+/** @brief Is included in every collection only once.
+ *
+ * NOTE
+ * Every field that matches "u\\d+" is unknown purpose field.
+ */
 struct Header
 {
     Uint32 u1;
@@ -44,6 +52,20 @@ struct Header
     Uint32 u14;
 };
 
+/** @brief Every image in the collection describes by this.
+ *
+ * This header should be read from the source file before
+ * read original image.
+ *
+ * NOTE:
+ * If collection is TileObject encoded, then `tileY' represents
+ * an offset from the top pixel of box to the bottom.
+ * 
+ * If collection is Font encoded, then `tileY' represents
+ * a y-bearing font metric.
+ * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
+ *
+ */
 struct ImageHeader
 {
     Uint16 width;
@@ -52,9 +74,6 @@ struct ImageHeader
     Uint16 posY;
     Uint8 group;
     Uint8 groupSize;
-    
-    // TileY for TileObject is offset from the top pixel of box to the bottom.
-    // TileY for Font is offset from top pixel to the origin line.
     Sint16 tileY;
     Uint8 tileOrient;
     Uint8 hOffset;
@@ -71,12 +90,13 @@ enum class Encoding {
     Unknown
 };
 
-enum class TileAlignment : Uint8 {
-    Left,
-    Right,
-    Center,
-    None
-};
+// TODO Look how this thing really works if it does.
+// enum class TileAlignment : Uint8 {
+//     Left,
+//     Right,
+//     Center,
+//     None
+// };
 
 typedef std::array<Uint16, GM1_PALETTE_COLORS> Palette;
 
@@ -108,10 +128,10 @@ struct Collection
 
 PalettePtr CreateSDLPaletteFrom(const Palette &palette);
 
-void VerbosePrintImageHeader(const ImageHeader &header);
-void VerbosePrintHeader(const Header &gm1);
-void VerbosePrintPalette(const Palette &palette);
-void VerbosePrintCollection(const Collection &collection);
+void PrintImageHeader(std::ostream &out, const ImageHeader &header);
+void PrintHeader(std::ostream &out, const Header &gm1);
+void PrintPalette(std::ostream &out, const Palette &palette);
+void PrintCollection(std::ostream &out, const Collection &collection);
 
 int LoadEntries(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas) throw (std::runtime_error);
 Surface LoadAtlas(SDL_RWops *src, const Collection &gm1) throw(std::runtime_error);

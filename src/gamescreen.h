@@ -4,37 +4,19 @@
 class GameScreen;
 
 #include <memory>
-
 #include "SDL.h"
-
 #include "rootscreen.h"
-#include "gamemap.h"
 #include "screen.h"
 #include "renderer.h"
+#include "gamemap.h"
 
-enum class Orient : int {
-    Front,
-    Left,
-    Right,
-    Back
-};
-
-enum class BuildingCategory : int {
-    Castle,
-    Industry,
-    Farming,
-    Weaponary,
-    Civil,
-    Production
-};
+enum class Direction;
+class Surface;
 
 enum class CursorMode : int {
     Normal,
     Delete
 };
-
-Orient PrevRotation(Orient rot);
-Orient NextRotation(Orient rot);
 
 class GameScreen : public Screen
 {
@@ -47,7 +29,7 @@ class GameScreen : public Screen
     int m_viewportX;
     int m_viewportY;
     int m_viewportRadius;
-    Orient m_viewportOrient;
+    Direction m_viewportOrient;
     bool m_flatView;
     bool m_lowView;
     bool m_zoomedOut;

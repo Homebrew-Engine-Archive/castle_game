@@ -2,8 +2,9 @@
 #define TGX_H_
 
 #include "SDL.h"
-#include "surface.h"
 #include "macrosota.h"
+
+class Surface;
 
 const size_t TILE_BYTES = 512;
 const size_t TILE_RHOMBUS_WIDTH = 30;
@@ -28,8 +29,6 @@ const Uint8 TGX_TRANSPARENT_RGB8 = 0;
 const Uint32 TGX_RGB16_AMASK = 0;
 const Uint32 TGX_RGB16_RMASK = 0x7c00;                   // 0111110000000000
 const Uint32 TGX_RGB16_GMASK = 0x3e0;                    // 0000001111100000
-//const int TGX_RGB16_RMASK = 0xf800;
-//const int TGX_RGB16_GMASK = 0x7e0;
 const Uint32 TGX_RGB16_BMASK = 0x1f;                     // 0000000000011111
 
 const Uint32 SDL_PIXELFORMAT_TGX = SDL_PIXELFORMAT_ARGB1555;

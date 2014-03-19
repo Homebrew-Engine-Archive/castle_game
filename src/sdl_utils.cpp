@@ -25,7 +25,7 @@ SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 
 #define PRINT_FLAG(flags, flag)
 
-ostream &operator<<(ostream &out, const SDL_RendererInfo &info)
+void PrintRendererInfo(ostream &out, const SDL_RendererInfo &info)
 {           
     out << "\tname: "
         << info.name
@@ -72,8 +72,6 @@ ostream &operator<<(ostream &out, const SDL_RendererInfo &info)
         out << "None";
     }
     out << endl;
-
-    return out;
 }
 
 ostream &operator<<(ostream &out, const SDL_Rect &rect)

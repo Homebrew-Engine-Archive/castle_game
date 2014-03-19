@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <exception>
 #include "SDL.h"
+#include <iostream>
 
 namespace
 {

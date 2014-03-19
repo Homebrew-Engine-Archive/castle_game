@@ -1,82 +1,35 @@
-#ifndef INCLUDE_RENDERER_H_
-#define INCLUDE_RENDERER_H_
+#ifndef RENDERER_H_
+#define RENDERER_H_
 
 #include <string>
 #include "SDL.h"
-#include "text.h"
-#include "sdl_utils.h"
-#include "surface.h"
-#include "collection.h"
+#include "filesystem.h"
 
-class Renderer
+enum class AlignH;
+enum class AlignV;
+class Text;
+
+class CollectionData;
+class FontCollectionInfo;
+class Surface;
+
+struct Renderer
 {
-private:
-    struct RendererPimpl *m;
-    
-public:
-    Renderer(SDL_Renderer *renderer);
-    Renderer(const Renderer &that) = delete;
-    Renderer &operator=(const Renderer &that) = delete;
-
-    /**
-     * Every frame should call this to create screen surface.
-     */
-    Surface BeginFrame();
-    
-    /**
-     * Screen surface will be actually commited this.
-     */
-    void EndFrame();
-
-    /**
-     * Wrapper around SDL_GetRenderOutputSize.
-     *
-     * @return Rectangle of type (0, 0, w, h).
-     */
-    SDL_Rect GetOutputSize() const;
-
-    /**
-     * Check size of screen texture and reallocates it if necessary.
-     *
-     * @param width     Desired width.
-     * @param height    Desired height.
-     */
-    void AdjustBufferSize(int width, int height);
-    
-    void RenderTextLine(const std::string &text, const SDL_Point &rect);
-
-    void RenderTextBox(const std::string &text, const SDL_Rect &rect,
-                       AlignH alignh, AlignV alignv);
-
-    void SetFont(const std::string &fontname, font_size_t size);
-    void SetColor(const SDL_Color &color);
-    
-    /**
-     * This method queries surface from the cache and forward it
-     * or try to load from filesystem.
-     *
-     * @param filename  Relative path from executable to *.TGX file
-     * @return          Surface as it being stored in cache.
-     */
-    Surface QuerySurface(const FilePath &filename);
-
-    /**
-     * Queries collection from cache or force loads collection
-     * from filesystem.
-     * @param filename  Relative path from executable to *.GM1 file.
-     * @return          Immutable reference to collection, owned by renderer.
-     *
-     */
-    const CollectionData &QueryCollection(const FilePath &filename);
-    
-    /**
-     * Force reloads collection.
-     * @param filename  Relative path to file.
-     * @return          True on success.
-     */
-    bool CacheCollection(const FilePath &filepath);
-
-    bool CacheFontCollection(const FontCollectionInfo &info);
+    virtual ~Renderer() {}
+    virtual Surface BeginFrame() = 0;
+    virtual void EndFrame() = 0;
+    virtual SDL_Rect GetOutputSize() const = 0;
+    virtual void AdjustBufferSize(int width, int height) = 0;
+    virtual void RenderTextLine(const std::string &text, const SDL_Point &rect) = 0;
+    virtual void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv) = 0;
+    virtual void SetFont(const std::string &fontname, int size) = 0;
+    virtual void SetColor(const SDL_Color &color) = 0;
+    virtual Surface QuerySurface(const FilePath &filename) = 0;
+    virtual const CollectionData &QueryCollection(const FilePath &filename) = 0;
+    virtual bool CacheCollection(const FilePath &filepath) = 0;
+    virtual bool CacheFontCollection(const FontCollectionInfo &info) = 0;
 };
+
+Renderer *CreateRenderer(SDL_Renderer *renderer);
 
 #endif

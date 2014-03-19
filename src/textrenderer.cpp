@@ -11,7 +11,7 @@
 struct FontData
 {
     std::string fontname;
-    font_size_t size;
+    int size;
     Font font;
     TexturePtr texture;
     std::vector<SDL_Rect> partition;
@@ -43,7 +43,7 @@ struct TextRendererPimpl
 /**
  * Matches two fonts select the best one for given fontname and size.
  */
-const FontData *GetBestMatch(const std::string &fn, font_size_t size, const FontData *lhs, const FontData *rhs)
+const FontData *GetBestMatch(const std::string &fn, int size, const FontData *lhs, const FontData *rhs)
 {
     if(lhs == NULL)
         return rhs;
@@ -200,7 +200,7 @@ SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
     return bounds;
 }
 
-bool TextRenderer::CacheFont(const std::string &name, font_size_t size, const Font &font)
+bool TextRenderer::CacheFont(const std::string &name, int size, const Font &font)
 {
     FontData fontData;
     fontData.fontname = name;
@@ -230,7 +230,7 @@ void TextRenderer::SetColor(const SDL_Color &color)
     m->color = color;
 }
 
-bool TextRenderer::SetFont(const std::string &fontname, font_size_t size)
+bool TextRenderer::SetFont(const std::string &fontname, int size)
 {
     if(m->fontData != NULL) {
         if((m->fontData->fontname == fontname) && (m->fontData->size == size))
@@ -246,7 +246,7 @@ bool TextRenderer::SetFont(const std::string &fontname, font_size_t size)
     return true;
 }
 
-bool TextRenderer::SetFontSize(font_size_t size)
+bool TextRenderer::SetFontSize(int size)
 {
     std::string fontName;
     if(m->fontData != NULL) {
@@ -257,7 +257,7 @@ bool TextRenderer::SetFontSize(font_size_t size)
 
 bool TextRenderer::SetFontName(const std::string &name)
 {
-    font_size_t size = 0;    
+    int size = 0;    
     if(m->fontData != NULL) {
         size = m->fontData->size;
     }

@@ -1,16 +1,17 @@
+#include "renderer.h"
+#include "text.h"
+#include "textrenderer.h"
+#include "geometry.h"
 #include <map>
 #include <vector>
 #include <functional>
-#include "renderer.h"
-#include "textrenderer.h"
-#include "geometry.h"
 #include <boost/algorithm/clamp.hpp>
-
-typedef std::function<void()> TextBatch;
 
 namespace
 {
-
+    
+    typedef std::function<void()> TextBatch;
+    
     const int MIN_OUTPUT_WIDTH = 320;
     const int MIN_OUTPUT_HEIGHT = 240;
     
@@ -20,48 +21,72 @@ namespace
     
 }
 
-struct RendererPimpl
+class RendererImpl final : public Renderer
 {   
-    SDL_Renderer *renderer;
-    TextRenderer textRenderer;
-    int fbWidth;
-    int fbHeight;
-    Uint32 fbFormat;
-    TexturePtr fbTexture;
-    Surface fbSurface;
-    std::vector<TextBatch> textOverlay;
-    std::map<FilePath, Surface> tgxCache;
-    std::map<FilePath, CollectionDataPtr> gm1Cache;
-
-    RendererPimpl(SDL_Renderer *renderer);
-
+    SDL_Renderer *m_renderer;
+    TextRenderer m_textRenderer;
+    int m_fbWidth;
+    int m_fbHeight;
+    Uint32 m_fbFormat;
+    TexturePtr m_fbTexture;
+    Surface m_fbSurface;
+    std::vector<TextBatch> m_textOverlay;
+    std::map<FilePath, Surface> m_tgxCache;
+    std::map<FilePath, CollectionDataPtr> m_gm1Cache;
+        
     int AdjustWidth(int width) const;
     int AdjustHeight(int height) const;
-
     bool ReallocationRequired(int width, int heigth);
     bool CreateFrameTexture(int width, int height);
     bool CreateFrameSurface(void *pixels, int width, int height, int pitch);
+
+public:
+    RendererImpl(SDL_Renderer *renderer);
+    RendererImpl(const RendererImpl &) = delete;
+    RendererImpl(RendererImpl &&) = default;
+    RendererImpl &operator=(const RendererImpl &) = delete;
+    RendererImpl &operator=(RendererImpl &&) = default;
+
+    Surface BeginFrame();
+    void EndFrame();
+    SDL_Rect GetOutputSize() const;
+    void AdjustBufferSize(int width, int height);
+    void RenderTextLine(const std::string &text, const SDL_Point &rect);
+    void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv);
+    void SetFont(const std::string &fontname, int size);
+    void SetColor(const SDL_Color &color);
+    Surface QuerySurface(const FilePath &filename);
+    const CollectionData &QueryCollection(const FilePath &filename);
+    bool CacheCollection(const FilePath &filepath);
+    bool CacheFontCollection(const FontCollectionInfo &info);
 };
 
-RendererPimpl::RendererPimpl(SDL_Renderer *renderer_)
-    : renderer(renderer_)
-    , textRenderer(renderer_)
-    , fbWidth(0)
-    , fbHeight(0)
-    , fbFormat(0)
-{ }
+RendererImpl::RendererImpl(SDL_Renderer *renderer_)
+    : m_renderer(renderer_)
+    , m_textRenderer(renderer_)
+    , m_fbWidth(0)
+    , m_fbHeight(0)
+    , m_fbFormat(0)
+    , m_fbSurface(NULL)
+{
+    SDL_Rect rect = GetOutputSize();
+    m_fbWidth = rect.w;
+    m_fbHeight = rect.h;
 
-int RendererPimpl::AdjustWidth(int width) const
+    std::clog << "GetOutputSize(): " << rect << std::endl;
+}
+
+int RendererImpl::AdjustWidth(int width) const
 {
     return boost::algorithm::clamp(width, MIN_OUTPUT_WIDTH, MAX_OUTPUT_WIDTH);
 }
 
-int RendererPimpl::AdjustHeight(int height) const
+int RendererImpl::AdjustHeight(int height) const
 {
     return boost::algorithm::clamp(height, MIN_OUTPUT_HEIGHT, MAX_OUTPUT_HEIGHT);
 }
 
-bool RendererPimpl::CreateFrameTexture(int width, int height)
+bool RendererImpl::CreateFrameTexture(int width, int height)
 {
     // NOTE
     // Width and height wan't be checked for min and max constraints.
@@ -72,25 +97,25 @@ bool RendererPimpl::CreateFrameTexture(int width, int height)
         return false;
     }
     
-    if((fbTexture) && (width == fbWidth) && (height == fbHeight)) {
+    if((m_fbTexture) && (width == m_fbWidth) && (height == m_fbHeight)) {
         std::cerr << "Size of texture matches. Skip allocation."
                   << std::endl;
         return true;
     }
     
-    fbWidth = width;
-    fbHeight = height;
-    fbFormat = SDL_PIXELFORMAT_ARGB8888;
-    fbTexture =
+    m_fbWidth = width;
+    m_fbHeight = height;
+    m_fbFormat = SDL_PIXELFORMAT_ARGB8888;
+    m_fbTexture =
         TexturePtr(
             SDL_CreateTexture(
-                renderer,
-                fbFormat,
+                m_renderer,
+                m_fbFormat,
                 SDL_TEXTUREACCESS_STREAMING,
-                fbWidth,
-                fbHeight));
+                m_fbWidth,
+                m_fbHeight));
 
-    if(!fbTexture) {
+    if(!m_fbTexture) {
         std::cerr << "SDL_CreateTexture failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -100,14 +125,14 @@ bool RendererPimpl::CreateFrameTexture(int width, int height)
     return true;
 }
 
-bool RendererPimpl::CreateFrameSurface(void *pixels, int width, int height, int pitch)
+bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int pitch)
 {
     Uint32 rmask;
     Uint32 gmask;
     Uint32 bmask;
     Uint32 amask;
     int bpp;
-    if(!SDL_PixelFormatEnumToMasks(fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
+    if(!SDL_PixelFormatEnumToMasks(m_fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
         std::cerr << "SDL_PixelFormatEnumToMasks failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -123,41 +148,33 @@ bool RendererPimpl::CreateFrameSurface(void *pixels, int width, int height, int 
         return false;
     }
 
-    fbSurface = surface;
+    m_fbSurface = surface;
     
     return true;
 }
 
-bool RendererPimpl::ReallocationRequired(int width, int height)
+bool RendererImpl::ReallocationRequired(int width, int height)
 {
-    return (width != fbWidth) || (height != fbHeight);
+    return (width != m_fbWidth) || (height != m_fbHeight);
 }
-
-Renderer::Renderer(SDL_Renderer *renderer)
-    : m {new RendererPimpl(renderer)}
+    
+Surface RendererImpl::BeginFrame()
 {
-    SDL_Rect rect = GetOutputSize();
-    m->fbWidth = rect.w;
-    m->fbHeight = rect.h;
-}
-
-Surface Renderer::BeginFrame()
-{
-    if(!m->textOverlay.empty()) {
+    if(!m_textOverlay.empty()) {
         std::clog << "Discard text overlay which has "
-                  << std::dec << m->textOverlay.size()
+                  << std::dec << m_textOverlay.size()
                   << std::endl;
-        m->textOverlay.clear();
+        m_textOverlay.clear();
     }
 
-    if(!m->fbSurface.Null()) {
+    if(!m_fbSurface.Null()) {
         std::cerr << "Previously allocated surface is not null"
                   << std::endl;
-        m->fbSurface.reset();
+        m_fbSurface.reset();
     }
     
-    if(!m->fbTexture) {
-        if(!m->CreateFrameTexture(m->fbWidth, m->fbHeight)) {
+    if(!m_fbTexture) {
+        if(!CreateFrameTexture(m_fbWidth, m_fbHeight)) {
             std::cerr << "Can't allocate frame texture"
                       << std::endl;
             return Surface();
@@ -166,55 +183,55 @@ Surface Renderer::BeginFrame()
     
     int nativePitch;
     void *nativePixels;
-    if(SDL_LockTexture(m->fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
+    if(SDL_LockTexture(m_fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
         std::cerr << "SDL_LockTexture failed: "
                   << SDL_GetError()
                   << std::endl;
         return Surface();
     }
         
-    if(!m->CreateFrameSurface(nativePixels, m->fbWidth, m->fbHeight, nativePitch)) {
+    if(!CreateFrameSurface(nativePixels, m_fbWidth, m_fbHeight, nativePitch)) {
         std::cerr << "Can't allocate framebuffer"
                   << std::endl;
-        SDL_UnlockTexture(m->fbTexture.get());
+        SDL_UnlockTexture(m_fbTexture.get());
         return Surface();
     }
 
-    return m->fbSurface;
+    return m_fbSurface;
 }
 
-void Renderer::EndFrame()
+void RendererImpl::EndFrame()
 {
-    if(!m->fbSurface.Null()) {
-        SDL_RenderClear(m->renderer);
+    if(!m_fbSurface.Null()) {
+        SDL_RenderClear(m_renderer);
 
         // NOTE
         // It wan't deallocate pixels, only surface object
-        m->fbSurface.reset();
+        m_fbSurface.reset();
         
-        SDL_UnlockTexture(m->fbTexture.get());
-        if(SDL_RenderCopy(m->renderer, m->fbTexture.get(), NULL, NULL)) {
+        SDL_UnlockTexture(m_fbTexture.get());
+        if(SDL_RenderCopy(m_renderer, m_fbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
                       << SDL_GetError()
                       << std::endl;
         }
     }
 
-    if(!m->textOverlay.empty()) {
-        for(TextBatch batch : m->textOverlay) {
+    if(!m_textOverlay.empty()) {
+        for(TextBatch batch : m_textOverlay) {
             batch();
         }
-        m->textOverlay.clear();
+        m_textOverlay.clear();
     }
     
-    SDL_RenderPresent(m->renderer);
+    SDL_RenderPresent(m_renderer);
 }
 
-SDL_Rect Renderer::GetOutputSize() const
+SDL_Rect RendererImpl::GetOutputSize() const
 {
     int width;
     int height;
-    if(SDL_GetRendererOutputSize(m->renderer, &width, &height)) {
+    if(SDL_GetRendererOutputSize(m_renderer, &width, &height)) {
         std::cerr << "SDL_GetRendererOutputSize failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -222,39 +239,42 @@ SDL_Rect Renderer::GetOutputSize() const
     return MakeRect(width, height);
 }
 
-void Renderer::AdjustBufferSize(int width, int height)
+void RendererImpl::AdjustBufferSize(int width, int height)
 {
-    if(!m->fbSurface.Null()) {
+    if(!m_fbSurface.Null()) {
         throw std::runtime_error("AdjustBufferSize called with active frame.");
     }
 
     // Cutting up and down texture height and width
-    int adjustedWidth = m->AdjustWidth(width);
-    int adjustedHeight = m->AdjustHeight(height);
+    int adjustedWidth = AdjustWidth(width);
+    int adjustedHeight = AdjustHeight(height);
 
     // NOTE
     // This is the only place we limit width and height
-    if(m->ReallocationRequired(adjustedWidth, adjustedHeight)) {
-        m->CreateFrameTexture(adjustedWidth, adjustedHeight);
+    if(ReallocationRequired(adjustedWidth, adjustedHeight)) {
+        std::clog << "AdjustBufferSize(): " << std::dec
+                  << MakeRect(adjustedWidth, adjustedHeight)
+                  << std::endl;
+        CreateFrameTexture(adjustedWidth, adjustedHeight);
     }
 }
 
-Surface Renderer::QuerySurface(const FilePath &filename)
+Surface RendererImpl::QuerySurface(const FilePath &filename)
 {
-    auto cached = m->tgxCache.find(filename);
-    if(cached != m->tgxCache.end()) {
+    auto cached = m_tgxCache.find(filename);
+    if(cached != m_tgxCache.end()) {
         return cached->second;
     } else {
         Surface loaded = LoadSurface(filename);
-        m->tgxCache.insert({filename, loaded});
+        m_tgxCache.insert({filename, loaded});
         return loaded;
     }
 }
 
-const CollectionData &Renderer::QueryCollection(const FilePath &filename)
+const CollectionData &RendererImpl::QueryCollection(const FilePath &filename)
 {
-    auto searchResult = m->gm1Cache.find(filename);
-    if(searchResult != m->gm1Cache.end()) {
+    auto searchResult = m_gm1Cache.find(filename);
+    if(searchResult != m_gm1Cache.end()) {
         return *searchResult->second;
     } else {
         CollectionDataPtr ptr =
@@ -265,14 +285,14 @@ const CollectionData &Renderer::QueryCollection(const FilePath &filename)
             throw std::runtime_error("Unable to load collection");
         
         const CollectionData &data = *ptr;
-        m->gm1Cache.insert(
+        m_gm1Cache.insert(
             std::make_pair(filename, std::move(ptr)));
 
         return data;
     }
 }
 
-bool Renderer::CacheCollection(const FilePath &filename)
+bool RendererImpl::CacheCollection(const FilePath &filename)
 {
     try {
         QueryCollection(filename);
@@ -284,7 +304,7 @@ bool Renderer::CacheCollection(const FilePath &filename)
     }
 }
 
-bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
+bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
 {
     try {
         CollectionDataPtr data =
@@ -294,12 +314,12 @@ bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
             throw std::runtime_error("Unable load font collection");
         
         size_t skip = 0;
-        for(font_size_t size : info.sizes) {
+        for(int fontSize : info.sizes) {
             Font font(*data, info.alphabet, skip);
-            if(!m->textRenderer.CacheFont(info.name, size, font)) {
+            if(!m_textRenderer.CacheFont(info.name, fontSize, font)) {
                 std::cerr << "Unable to cache font: "
                           << info.name << ' '
-                          << size << std::endl;
+                          << fontSize << std::endl;
             }
             skip += info.alphabet.size();
         }
@@ -313,40 +333,45 @@ bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
     }
 }
 
-void Renderer::SetFont(const std::string &fontname, font_size_t size)
+void RendererImpl::SetFont(const std::string &fontname, int size)
 {
     auto changeFont = [fontname, size, this]() {
-        m->textRenderer.SetFont(fontname, size);
+        m_textRenderer.SetFont(fontname, size);
     };
-    m->textOverlay.push_back(changeFont);
+    m_textOverlay.push_back(changeFont);
 }
 
-void Renderer::SetColor(const SDL_Color &color)
+void RendererImpl::SetColor(const SDL_Color &color)
 {
     auto changeColor = [color, this]() {
-        m->textRenderer.SetColor(color);
+        m_textRenderer.SetColor(color);
     };
-    m->textOverlay.push_back(changeColor);
+    m_textOverlay.push_back(changeColor);
 }
 
-void Renderer::RenderTextLine(const std::string &text, const SDL_Point &point)
+void RendererImpl::RenderTextLine(const std::string &text, const SDL_Point &point)
 {
     auto drawText = [text, point, this]() {
-        SDL_Rect textRect = m->textRenderer.CalculateTextRect(text);
+        SDL_Rect textRect = m_textRenderer.CalculateTextRect(text);
     
-        m->textRenderer.SetCursor(
+        m_textRenderer.SetCursor(
             ShiftPoint(point, 0, textRect.h));
     
-        m->textRenderer.PutString(text);
+        m_textRenderer.PutString(text);
     };
     
-    m->textOverlay.push_back(drawText);
+    m_textOverlay.push_back(drawText);
 }
 
-void Renderer::RenderTextBox(const std::string &text, const SDL_Rect &rect,
+void RendererImpl::RenderTextBox(const std::string &text, const SDL_Rect &rect,
                              AlignH alignh, AlignV alignv)
 {
     UNUSED(alignh);
     UNUSED(alignv);
     RenderTextLine(text, TopLeft(rect));
+}
+    
+Renderer *CreateRenderer(SDL_Renderer *renderer)
+{
+    return new RendererImpl(renderer);
 }

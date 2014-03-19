@@ -1,6 +1,7 @@
 #ifndef LOADINGSCREEN_H_
 #define LOADINGSCREEN_H_
 
+#include <iostream>
 #include <functional>
 #include "rootscreen.h"
 #include "renderer.h"

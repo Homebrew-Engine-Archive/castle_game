@@ -3,6 +3,8 @@
 #include "gm1.h"
 #include "filesystem.h"
 #include "SDL.h"
+#include "collection.h"
+#include "surface.h"
 #include <boost/filesystem/fstream.hpp>
 #include <memory>
 #include <sstream>

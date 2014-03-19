@@ -9,8 +9,6 @@
 #include "gm1.h"
 #include "filesystem.h"
 
-typedef int font_size_t;
-
 struct CollectionAtlas
 {
     gm1::Collection gm1;
@@ -42,7 +40,7 @@ struct FontCollectionInfo
 {
     FilePath filename;
     std::string name;
-    std::vector<font_size_t> sizes;
+    std::vector<int> sizes;
     std::vector<int> alphabet;
 };
 

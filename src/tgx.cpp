@@ -1,6 +1,8 @@
 #include "tgx.h"
 #include "rw.h"
+#include "surface.h"
 #include <algorithm>
+#include <iostream>
 
 using namespace tgx;
 
@@ -23,7 +25,7 @@ namespace
     // Width of rhombus rows in pixels.
     inline int GetTilePixelsPerRow(int row)
     {
-        static int PerRow[] = {
+        static const int PerRow[] = {
             2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2
         };
         return PerRow[row];

@@ -2,6 +2,18 @@
 #include "landscape.h"
 #include "geometry.h"
 #include "filesystem.h"
+#include "surface.h"
+#include "collection.h"
+#include "direction.h"
+
+enum class BuildingCategory : int {
+    Castle,
+    Industry,
+    Farming,
+    Weaponary,
+    Civil,
+    Production
+};
 
 GameScreen::GameScreen(RootScreen *root)
     : m_root(root)
@@ -12,7 +24,7 @@ GameScreen::GameScreen(RootScreen *root)
     , m_viewportX(0)
     , m_viewportY(0)
     , m_viewportRadius(1)
-    , m_viewportOrient(Orient::Front)
+    , m_viewportOrient(Direction::North)
     , m_flatView(false)
     , m_lowView(false)
     , m_zoomedOut(false)
@@ -84,27 +96,4 @@ void GameScreen::AdjustViewport(const SDL_Rect &screen)
         ++m_viewportY;
     else if(0 == m_cursorY)
         --m_viewportY;
-}
-
-
-Orient NextRotation(Orient rot)
-{
-    switch(rot) {
-    case Orient::Front: return Orient::Left;
-    case Orient::Left: return Orient::Back;
-    case Orient::Back: return Orient::Right;
-    case Orient::Right: return Orient::Front;
-    default: return Orient::Front;
-    }
-}
-
-Orient PrevRotation(Orient rot)
-{
-    switch(rot) {
-    case Orient::Left: return Orient::Front;
-    case Orient::Front: return Orient::Right;
-    case Orient::Right: return Orient::Back;
-    case Orient::Back: return Orient::Left;
-    default: return Orient::Front;
-    }
 }

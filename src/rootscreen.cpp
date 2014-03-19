@@ -11,8 +11,8 @@
 #include "debugconsole.h"
 
 using namespace std;
-
-class Implementation : public RootScreen
+    
+class RootScreenImpl final : public RootScreen
 {
     Renderer *m_renderer;
     double m_fpsAverage;
@@ -30,7 +30,11 @@ class Implementation : public RootScreen
     void ToggleConsole();
     
 public:
-    Implementation(Renderer *m_renderer);
+    RootScreenImpl(Renderer *m_renderer);
+    RootScreenImpl(const RootScreenImpl &) = delete;
+    RootScreenImpl(RootScreenImpl &&) = default;
+    RootScreenImpl &operator=(const RootScreenImpl &) = delete;
+    RootScreenImpl &operator=(RootScreenImpl &&) = default;
     
     int Exec();
     void DrawFrame();    
@@ -42,7 +46,7 @@ public:
 
 };
 
-Implementation::Implementation(Renderer *renderer)
+RootScreenImpl::RootScreenImpl(Renderer *renderer)
     : m_renderer(renderer)
     , m_fpsAverage(0.0f)
     , m_frameCounter(0.0f)
@@ -51,10 +55,9 @@ Implementation::Implementation(Renderer *renderer)
     , m_fpsLimited(true)
     , m_showConsole(false)
     , m_debugConsole(new DebugConsole(this))
-{
-}
+{ }
 
-bool Implementation::HandleWindowEvent(const SDL_WindowEvent &window)
+bool RootScreenImpl::HandleWindowEvent(const SDL_WindowEvent &window)
 {
     switch(window.event) {
     case SDL_WINDOWEVENT_RESIZED:
@@ -69,7 +72,7 @@ bool Implementation::HandleWindowEvent(const SDL_WindowEvent &window)
     }
 }
 
-bool Implementation::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
+bool RootScreenImpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
 {
     switch(key.keysym.sym) {
     case SDLK_ESCAPE:
@@ -83,7 +86,7 @@ bool Implementation::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
     }
 }
 
-void Implementation::ToggleConsole()
+void RootScreenImpl::ToggleConsole()
 {
     m_showConsole = !m_showConsole;
 
@@ -94,7 +97,7 @@ void Implementation::ToggleConsole()
     }
 }
 
-Screen *Implementation::GetCurrentScreen() const
+Screen *RootScreenImpl::GetCurrentScreen() const
 {
     if(m_screenStack.empty())
         return NULL;
@@ -102,18 +105,18 @@ Screen *Implementation::GetCurrentScreen() const
         return m_screenStack.back().get();
 }
 
-void Implementation::SetCurrentScreen(ScreenPtr &&screen)
+void RootScreenImpl::SetCurrentScreen(ScreenPtr &&screen)
 {
     m_screenStack.clear();
     PushScreen(move(screen));
 }
 
-void Implementation::PushScreen(ScreenPtr &&screen)
+void RootScreenImpl::PushScreen(ScreenPtr &&screen)
 {
     m_screenStack.push_back(move(screen));
 }
 
-ScreenPtr Implementation::PopScreen()
+ScreenPtr RootScreenImpl::PopScreen()
 {
     if(!m_screenStack.empty()) {
         ScreenPtr ptr = std::move(m_screenStack.back());
@@ -124,7 +127,7 @@ ScreenPtr Implementation::PopScreen()
     return ScreenPtr(nullptr);
 }
 
-int Implementation::Exec()
+int RootScreenImpl::Exec()
 {
     if(int code = RunLoadingScreen(this)) {
         clog << "Loading has been interrupted."
@@ -135,8 +138,8 @@ int Implementation::Exec()
     PushScreen(make_unique<MenuMain>(this));
 
     const int64_t msPerSec = 1000;
-    const int pollRate = 66;
-    const int pollInterval = msPerSec / pollRate;
+    const int64_t pollRate = 66;
+    const int64_t pollInterval = msPerSec / pollRate;
     
     int64_t lastFrame = 0;
     int64_t lastPoll = 0;
@@ -196,7 +199,7 @@ int Implementation::Exec()
     return 0;
 }
 
-void Implementation::DrawFrame()
+void RootScreenImpl::DrawFrame()
 {
     Surface frame = m_renderer->BeginFrame();
 
@@ -210,7 +213,7 @@ void Implementation::DrawFrame()
         }
     }
     
-    font_size_t size = 24;
+    int size = 24;
     string fontname = "font_stronghold_aa";
     SDL_Color color = MakeColor(255, 255, 255, 255);
     m_renderer->SetColor(color);
@@ -225,7 +228,7 @@ void Implementation::DrawFrame()
     m_renderer->EndFrame();
 }
 
-bool Implementation::HandleEvent(const SDL_Event &event)
+bool RootScreenImpl::HandleEvent(const SDL_Event &event)
 {
     switch(event.type) {
     case SDL_WINDOWEVENT:
@@ -240,12 +243,13 @@ bool Implementation::HandleEvent(const SDL_Event &event)
     }
 }
 
-Renderer *Implementation::GetRenderer()
+Renderer *RootScreenImpl::GetRenderer()
 {
     return m_renderer;
 }
 
 RootScreen *CreateRootScreen(Renderer *renderer)
 {
-    return new Implementation(renderer);
+    return new RootScreenImpl(renderer);
 }
+

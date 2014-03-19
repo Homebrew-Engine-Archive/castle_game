@@ -116,7 +116,7 @@ viewer_t::viewer_t(const gm1::Collection &gm1, const FileBuffer &fb)
     alloc_renderer();
     print_renderer_info();
 
-    gm1::VerbosePrintHeader(gm1.header);
+    gm1::PrintHeader(std::clog, gm1.header);
     RWPtr src(RWFromFileBuffer(fb));
     CheckSDLError(src);
 
@@ -254,7 +254,7 @@ void viewer_t::handle_key(SDL_Keycode code)
     switch(code) {
     case SDLK_RETURN:
         std::cout << imageIndex << std::endl;
-        gm1::VerbosePrintImageHeader(collection.headers.at(imageIndex));
+        gm1::PrintImageHeader(std::clog, collection.headers.at(imageIndex));
         break;
     case SDLK_ESCAPE:
         quit = true;

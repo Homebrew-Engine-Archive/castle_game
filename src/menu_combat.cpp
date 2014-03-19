@@ -1,4 +1,5 @@
 #include "menu_combat.h"
+#include "macrosota.h"
 #include "filesystem.h"
 #include "geometry.h"
 
