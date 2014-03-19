@@ -1,37 +1,22 @@
 #ifndef ROOTSCREEN_H_
 #define ROOTSCREEN_H_
 
-class RootScreen;
-
 #include <memory>
 #include "SDL.h"
 #include "renderer.h"
 #include "screen.h"
 
-class RootScreen
+struct RootScreen
 {
-private:
-    struct RootScreenPimpl *m;
-   
-public:
-    RootScreen(Renderer *renderer);
-    RootScreen(RootScreen &&that) = default;
-    RootScreen(const RootScreen &that) = delete;
-    RootScreen &operator=(const RootScreen &that) = delete;
-    RootScreen &operator=(RootScreen &&that) = default;
-    ~RootScreen();
-
-    int Exec();
-
-    void DrawFrame();
-
-    bool HandleEvent(const SDL_Event &event);
-
-    void SetCurrentScreen(ScreenPtr &&screen);
-    void PushScreen(ScreenPtr &&screen);
-    ScreenPtr PopScreen();
-
-    Renderer *GetRenderer();
+    virtual int Exec() = 0;
+    virtual void DrawFrame() = 0;
+    virtual bool HandleEvent(const SDL_Event &event) = 0;
+    virtual void SetCurrentScreen(ScreenPtr &&screen) = 0;
+    virtual void PushScreen(ScreenPtr &&screen) = 0;
+    virtual ScreenPtr PopScreen() = 0;
+    virtual Renderer *GetRenderer() = 0;
 };
+
+RootScreen *CreateRootScreen(Renderer *renderer);
 
 #endif

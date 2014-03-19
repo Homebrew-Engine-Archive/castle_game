@@ -12,39 +12,56 @@
 
 using namespace std;
 
-struct RootScreenPimpl
+class Implementation : public RootScreen
 {
-    RootScreen *root;
-    Renderer *renderer;
-    double fpsAverage;
-    uint64_t frameCounter;
-    bool closed;
-    int frameRate;
-    bool fpsLimited;
-    bool showConsole;
-    ScreenPtr debugConsole;
-    vector<ScreenPtr> screenStack;
-
-    bool HandleEvent(const SDL_Event &event);
+    Renderer *m_renderer;
+    double m_fpsAverage;
+    uint64_t m_frameCounter;
+    bool m_closed;
+    int m_frameRate;
+    bool m_fpsLimited;
+    bool m_showConsole;
+    ScreenPtr m_debugConsole;
+    vector<ScreenPtr> m_screenStack;
+        
     bool HandleWindowEvent(const SDL_WindowEvent &event);
     bool HandleKeyboardEvent(const SDL_KeyboardEvent &event);
+    Screen *GetCurrentScreen() const;
+    void ToggleConsole();
+    
+public:
+    Implementation(Renderer *m_renderer);
+    
+    int Exec();
+    void DrawFrame();    
+    bool HandleEvent(const SDL_Event &event);
     void SetCurrentScreen(ScreenPtr &&screen);
     void PushScreen(ScreenPtr &&screen);
     ScreenPtr PopScreen();
-    Screen *GetCurrentScreen() const;
-    void ToggleConsole();
-    void DrawFrame();
-    int Exec();
+    Renderer *GetRenderer();
+
 };
 
-bool RootScreenPimpl::HandleWindowEvent(const SDL_WindowEvent &window)
+Implementation::Implementation(Renderer *renderer)
+    : m_renderer(renderer)
+    , m_fpsAverage(0.0f)
+    , m_frameCounter(0.0f)
+    , m_closed(false)
+    , m_frameRate(16)
+    , m_fpsLimited(true)
+    , m_showConsole(false)
+    , m_debugConsole(new DebugConsole(this))
+{
+}
+
+bool Implementation::HandleWindowEvent(const SDL_WindowEvent &window)
 {
     switch(window.event) {
     case SDL_WINDOWEVENT_RESIZED:
         {
             int width = window.data1;
             int height = window.data2;
-            renderer->AdjustBufferSize(width, height);
+            m_renderer->AdjustBufferSize(width, height);
         }
         return true;
     default:
@@ -52,11 +69,11 @@ bool RootScreenPimpl::HandleWindowEvent(const SDL_WindowEvent &window)
     }
 }
 
-bool RootScreenPimpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
+bool Implementation::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
 {
     switch(key.keysym.sym) {
     case SDLK_ESCAPE:
-        closed = true;
+        m_closed = true;
         return false;
     case SDLK_BACKSLASH:
         ToggleConsole();
@@ -66,56 +83,56 @@ bool RootScreenPimpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
     }
 }
 
-void RootScreenPimpl::ToggleConsole()
+void Implementation::ToggleConsole()
 {
-    showConsole = !showConsole;
+    m_showConsole = !m_showConsole;
 
-    if(showConsole) {
-        PushScreen(move(debugConsole));
+    if(m_showConsole) {
+        PushScreen(move(m_debugConsole));
     } else {
-        debugConsole = move(PopScreen());
+        m_debugConsole = move(PopScreen());
     }
 }
 
-Screen *RootScreenPimpl::GetCurrentScreen() const
+Screen *Implementation::GetCurrentScreen() const
 {
-    if(screenStack.empty())
+    if(m_screenStack.empty())
         return NULL;
     else
-        return screenStack.back().get();
+        return m_screenStack.back().get();
 }
 
-void RootScreenPimpl::SetCurrentScreen(ScreenPtr &&screen)
+void Implementation::SetCurrentScreen(ScreenPtr &&screen)
 {
-    screenStack.clear();
+    m_screenStack.clear();
     PushScreen(move(screen));
 }
 
-void RootScreenPimpl::PushScreen(ScreenPtr &&screen)
+void Implementation::PushScreen(ScreenPtr &&screen)
 {
-    screenStack.push_back(move(screen));
+    m_screenStack.push_back(move(screen));
 }
 
-ScreenPtr RootScreenPimpl::PopScreen()
+ScreenPtr Implementation::PopScreen()
 {
-    if(!screenStack.empty()) {
-        ScreenPtr ptr = std::move(screenStack.back());
-        screenStack.pop_back();
+    if(!m_screenStack.empty()) {
+        ScreenPtr ptr = std::move(m_screenStack.back());
+        m_screenStack.pop_back();
         return ptr;
     }
 
     return ScreenPtr(nullptr);
 }
 
-int RootScreenPimpl::Exec()
+int Implementation::Exec()
 {
-    if(int code = RunLoadingScreen(root)) {
+    if(int code = RunLoadingScreen(this)) {
         clog << "Loading has been interrupted."
                   << endl;
         return code;
     }
 
-    PushScreen(make_unique<MenuMain>(root));
+    PushScreen(make_unique<MenuMain>(this));
 
     const int64_t msPerSec = 1000;
     const int pollRate = 66;
@@ -132,8 +149,8 @@ int RootScreenPimpl::Exec()
     Server server(io, port);
     server.StartAccept();
     
-    while(!closed) {
-        const int64_t frameInterval = msPerSec / frameRate;
+    while(!m_closed) {
+        const int64_t frameInterval = msPerSec / m_frameRate;
         const int64_t pollStart = SDL_GetTicks();
         if(lastPoll + pollInterval < pollStart) {
             io.poll();
@@ -152,21 +169,21 @@ int RootScreenPimpl::Exec()
 
         const int64_t frameStart = SDL_GetTicks();
         if(lastSecond + msPerSec < frameStart) {
-            double fps = frameCounter - fpsCounterLastSecond;
+            double fps = m_frameCounter - fpsCounterLastSecond;
             double elapsed = frameStart - lastSecond;
-            fpsAverage = fps * (msPerSec / elapsed);
+            m_fpsAverage = fps * (msPerSec / elapsed);
             lastSecond = frameStart;
-            fpsCounterLastSecond = frameCounter;
+            fpsCounterLastSecond = m_frameCounter;
         }
 
         if(lastFrame + frameInterval < frameStart) {
             DrawFrame();
             lastFrame = frameStart;
-            ++frameCounter;
+            ++m_frameCounter;
         }
 
         const int64_t delayStart = SDL_GetTicks();
-        if(fpsLimited) {
+        if(m_fpsLimited) {
             const int64_t nextTick =
                 min(lastPoll + pollInterval,
                          lastFrame + frameInterval);
@@ -179,11 +196,11 @@ int RootScreenPimpl::Exec()
     return 0;
 }
 
-void RootScreenPimpl::DrawFrame()
+void Implementation::DrawFrame()
 {
-    Surface frame = renderer->BeginFrame();
+    Surface frame = m_renderer->BeginFrame();
 
-    for(ScreenPtr &ptr : screenStack) {
+    for(ScreenPtr &ptr : m_screenStack) {
         if(ptr) {
             ptr->Draw(frame);
         } else {
@@ -196,25 +213,25 @@ void RootScreenPimpl::DrawFrame()
     font_size_t size = 24;
     string fontname = "font_stronghold_aa";
     SDL_Color color = MakeColor(255, 255, 255, 255);
-    renderer->SetColor(color);
-    renderer->SetFont(fontname, size);
+    m_renderer->SetColor(color);
+    m_renderer->SetFont(fontname, size);
 
-    SDL_Point pos = ShiftPoint(TopLeft(renderer->GetOutputSize()), 5, 5);
+    SDL_Point pos = ShiftPoint(TopLeft(m_renderer->GetOutputSize()), 5, 5);
     
     ostringstream oss;
-    oss << "FPS: " << fpsAverage;
-    renderer->RenderTextLine(oss.str(), pos);
+    oss << "FPS: " << m_fpsAverage;
+    m_renderer->RenderTextLine(oss.str(), pos);
 
-    renderer->EndFrame();
+    m_renderer->EndFrame();
 }
 
-bool RootScreenPimpl::HandleEvent(const SDL_Event &event)
+bool Implementation::HandleEvent(const SDL_Event &event)
 {
     switch(event.type) {
     case SDL_WINDOWEVENT:
         return HandleWindowEvent(event.window);
     case SDL_QUIT:
-        closed = true;
+        m_closed = true;
         return false;
     case SDL_KEYDOWN:
         return HandleKeyboardEvent(event.key);
@@ -223,59 +240,12 @@ bool RootScreenPimpl::HandleEvent(const SDL_Event &event)
     }
 }
 
-/**
- * Root screen wrapper functions
- */
-RootScreen::RootScreen(Renderer *renderer)
-    : m(new RootScreenPimpl)
+Renderer *Implementation::GetRenderer()
 {
-    m->debugConsole = make_unique<DebugConsole>(this);
-    m->root = this;
-    m->renderer = renderer;
-    m->fpsAverage = 0.0f;
-    m->frameCounter = 0.0f;
-    m->closed = false;
-    m->frameRate = 16;
-    m->fpsLimited = true;
-    m->showConsole = false;
+    return m_renderer;
 }
 
-RootScreen::~RootScreen()
+RootScreen *CreateRootScreen(Renderer *renderer)
 {
-    delete m;
-}
-
-Renderer *RootScreen::GetRenderer()
-{
-    return m->renderer;
-}
-
-bool RootScreen::HandleEvent(const SDL_Event &event)
-{
-    return m->HandleEvent(event);
-}
-
-void RootScreen::SetCurrentScreen(ScreenPtr &&screen)
-{
-    m->SetCurrentScreen(move(screen));
-}
-
-void RootScreen::PushScreen(ScreenPtr &&screen)
-{
-    m->PushScreen(move(screen));
-}
-
-ScreenPtr RootScreen::PopScreen()
-{
-    return move(m->PopScreen());
-}
-
-void RootScreen::DrawFrame()
-{
-    m->DrawFrame();
-}
-
-int RootScreen::Exec()
-{
-    return m->Exec();
+    return new Implementation(renderer);
 }

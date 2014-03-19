@@ -1,8 +1,6 @@
 #ifndef INCLUDE_RENDERER_H_
 #define INCLUDE_RENDERER_H_
 
-class Renderer;
-
 #include <string>
 #include "SDL.h"
 #include "text.h"

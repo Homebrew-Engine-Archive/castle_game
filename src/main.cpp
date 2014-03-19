@@ -69,6 +69,6 @@ int main()
     Renderer renderer(sdl_renderer.get());
     PrintRendererInfo(clog, sdl_renderer.get());
     
-    RootScreen screen(&renderer);
-    return screen.Exec();
+    std::unique_ptr<RootScreen> root(CreateRootScreen(&renderer));
+    return root->Exec();
 }

@@ -1,8 +1,6 @@
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
-class TextRenderer;
-
 #include "text.h"
 #include <string>
 #include "SDL.h"
