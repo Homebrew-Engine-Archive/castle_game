@@ -1,16 +1,22 @@
 #ifndef SDL_UTILS_H_
 #define SDL_UTILS_H_
 
+#include "SDL.h"
 #include <stdexcept>
 #include <memory>
+//#include <iosfwd>
 #include <iostream>
-#include "SDL.h"
 
-template<class T, class D>
-static void ThrowSDLError(const std::unique_ptr<T, D> &ptr)
+namespace
 {
-    if(!ptr)
-        throw std::runtime_error(SDL_GetError());
+    
+    template<class T, class D>
+    void ThrowSDLError(const std::unique_ptr<T, D> &ptr)
+    {
+        if(!ptr)
+            throw std::runtime_error(SDL_GetError());
+    }
+
 }
 
 void ThrowSDLError(const SDL_Surface *surface);
@@ -19,8 +25,9 @@ void ThrowSDLError(int code);
 struct FreeSurfaceDeleter
 {
     void operator()(SDL_Surface *surface) {
-        if(surface != NULL)
+        if(surface != NULL) {
             SDL_FreeSurface(surface);
+        }
     }
 };
 
@@ -34,6 +41,7 @@ struct DestroyRendererDeleter
         }
     }
 };
+
 
 typedef std::unique_ptr<SDL_Renderer, DestroyRendererDeleter> RendererPtr;
 

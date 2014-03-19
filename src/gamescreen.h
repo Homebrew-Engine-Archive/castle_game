@@ -57,9 +57,11 @@ class GameScreen : public Screen
     
 public:
     GameScreen(RootScreen *root);
+    GameScreen(const GameScreen &that) = delete;
+    GameScreen &operator=(const GameScreen &that) = delete;
     ~GameScreen();
     
-    void Draw(Surface frame);
+    void Draw(Surface &frame);
     bool HandleEvent(const SDL_Event &event);
 
     // void LogWindowEvent(const SDL_WindowEvent &event);

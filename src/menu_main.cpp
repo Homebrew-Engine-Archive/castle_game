@@ -38,7 +38,7 @@ bool MenuMain::HandleEvent(const SDL_Event &event)
     return false;
 }
 
-void MenuMain::Draw(Surface frame)
+void MenuMain::Draw(Surface &frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(m_background);

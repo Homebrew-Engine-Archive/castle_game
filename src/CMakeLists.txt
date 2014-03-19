@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
+include (FindPkgConfig)
+pkg_search_module (SDL2 REQUIRED sdl2)
 
 include_directories (
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -31,6 +33,9 @@ set (SRCS
   surface.cpp
   collection.cpp
   filesystem.cpp
+  point.cpp
+  direction.cpp
+  debugconsole.cpp
 )
 
 find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)

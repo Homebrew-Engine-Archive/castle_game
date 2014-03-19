@@ -1,4 +1,10 @@
 #include "main.h"
+#include <iostream>
+#include "SDL.h"
+#include "sdl_utils.h"
+#include "rootscreen.h"
+#include "sdl_init.h"
+#include "renderer.h"
 
 using namespace std;
 

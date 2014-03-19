@@ -25,7 +25,7 @@ GameScreen::~GameScreen()
 {
 }
 
-void GameScreen::Draw(Surface frame)
+void GameScreen::Draw(Surface &frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_FillRect(frame, &frameRect, 0xff000000);

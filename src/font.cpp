@@ -1,4 +1,7 @@
 #include "font.h"
+#include "surface.h"
+#include "gm1.h"
+#include <stdexcept>
 
 namespace
 {

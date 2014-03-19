@@ -10,7 +10,7 @@ MenuCombat::MenuCombat(RootScreen *root)
     m_background = m_renderer->QuerySurface(filepath);
 }
 
-void MenuCombat::Draw(Surface frame)
+void MenuCombat::Draw(Surface &frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
     SDL_Rect bgRect = SurfaceBounds(m_background);

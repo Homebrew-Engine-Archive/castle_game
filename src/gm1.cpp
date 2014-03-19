@@ -22,7 +22,7 @@ namespace
         }
     }
 
-    const char * GetImageClassName(Uint32 dataClass)
+    std::string GetImageClassName(Uint32 dataClass)
     {
         switch(dataClass) {
         case 1: return "Compressed 16 bit image";

@@ -1,5 +1,5 @@
-#ifndef A_VERY_VERY_UNUSUAL_PREFIX_FOR_MY_INCLUDE_GUARD_TEXT_H_
-#define A_VERY_VERY_UNUSUAL_PREFIX_FOR_MY_INCLUDE_GUARD_TEXT_H_
+#ifndef TEXT_H_
+#define TEXT_H_
 
 enum class AlignH {
     Left,
@@ -13,6 +13,12 @@ enum class AlignV {
     Bottom,
     Center,
     Justify
+};
+
+class Text
+{
+public:
+    Text();
 };
 
 #endif

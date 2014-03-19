@@ -19,7 +19,6 @@ class MenuMain : public Screen
     
 public:
     MenuMain(RootScreen *root);
-    ~MenuMain();
     
     void GoCombat();
     void GoEconomics();
@@ -27,7 +26,7 @@ public:
     void GoLoadGame();
     void GoExit();
     
-    void Draw(Surface frame);
+    void Draw(Surface &frame);
     bool HandleEvent(const SDL_Event &event);
 };
 

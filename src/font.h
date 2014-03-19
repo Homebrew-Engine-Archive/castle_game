@@ -1,16 +1,10 @@
 #ifndef FONT_H_
 #define FONT_H_
 
-#include <array>
-#include <map>
-#include <memory>
-#include <string>
-#include "SDL.h"
-
-#include "atlas.h"
+#include <vector>
 #include "sdl_utils.h"
 #include "collection.h"
-#include "gm1.h"
+#include "surface.h"
 
 struct GlyphData
 {

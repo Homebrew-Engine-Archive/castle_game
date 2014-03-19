@@ -20,23 +20,20 @@ class Surface
 {
 protected:
     SDL_Surface *m_surface;
-    SDL_Surface *m_referer;
-    
-    void AddRef(SDL_Surface *s);
-    virtual void Assign(SDL_Surface *);    
+    void Assign(SDL_Surface *);
     
 public:
-    virtual ~Surface();
     Surface();
     Surface(SDL_Surface *s);
-    Surface(const Surface &that);    
-    virtual bool Null() const;
-    virtual operator SDL_Surface *() const;
-    virtual Surface &operator=(SDL_Surface *s);
-    virtual Surface &operator=(const Surface &that);
-    virtual bool operator==(const Surface &that);
-    virtual SDL_Surface *operator->() const;
-    virtual void reset();
+    Surface(const Surface &that);
+    virtual ~Surface();
+    bool Null() const;
+    operator SDL_Surface *() const;
+    Surface &operator=(SDL_Surface *s);
+    Surface &operator=(const Surface &that);
+    bool operator==(const Surface &that);
+    SDL_Surface *operator->() const;
+    void reset();
 };
 
 // RAII for SDL_LockSurface / SDL_UnlockSurface
@@ -75,6 +72,7 @@ public:
 };
 
 typedef std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> PixelMapper;
+
 void MapSurface(Surface &dst, PixelMapper);
 
 bool HasPalette(const Surface &surface);

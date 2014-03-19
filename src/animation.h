@@ -2,7 +2,7 @@
 #define ANIMATION_H_
 
 #include <vector>
-#include "SDL.h"
+#include "direction.h"
 
 enum class AnimationClass : Uint32 {
     Walk,
@@ -19,17 +19,6 @@ enum class AnimationClass : Uint32 {
     Fall,
     AttackMelee,
     Victory                                              // swordman, mace
-};
-
-enum class Direction : int {
-    NorthEast,
-    East,
-    SouthEast,
-    South,
-    SouthWest,
-    West,
-    NorthWest,
-    North
 };
 
 // Most of unit animations

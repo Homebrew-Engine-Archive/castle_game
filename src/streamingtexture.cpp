@@ -1,4 +1,5 @@
 #include "streamingtexture.h"
+#include <iostream>
 
 StreamingTexture::StreamingTexture(SDL_Renderer *renderer, int width, int height, Uint32 format)
     : m_width(width)

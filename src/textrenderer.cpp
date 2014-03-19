@@ -1,6 +1,7 @@
 #include "textrenderer.h"
 #include <iostream>
 #include "geometry.h"
+#include "atlas.h"
 
 /**
  * This structure represent font in context of a renderer, so

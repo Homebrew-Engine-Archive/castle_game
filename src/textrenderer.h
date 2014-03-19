@@ -3,6 +3,7 @@
 
 class TextRenderer;
 
+#include "text.h"
 #include <string>
 #include "SDL.h"
 #include "sdl_utils.h"
@@ -61,6 +62,8 @@ public:
     void PutString(const std::string &str);
 
 };
+
+void PutText(const TextRenderer &renderer, const Text &text, const SDL_Rect &box);
 
 typedef std::unique_ptr<TextRenderer> TextRendererPtr;
 

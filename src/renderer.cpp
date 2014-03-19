@@ -44,11 +44,11 @@ struct RendererPimpl
 };
 
 RendererPimpl::RendererPimpl(SDL_Renderer *renderer_)
-    : renderer {renderer_}
-    , textRenderer {renderer_}
-    , fbWidth {0}
-    , fbHeight {0}
-    , fbFormat {0}
+    : renderer(renderer_)
+    , textRenderer(renderer_)
+    , fbWidth(0)
+    , fbHeight(0)
+    , fbFormat(0)
 { }
 
 int RendererPimpl::AdjustWidth(int width) const
@@ -77,7 +77,7 @@ bool RendererPimpl::CreateFrameTexture(int width, int height)
                   << std::endl;
         return true;
     }
-
+    
     fbWidth = width;
     fbHeight = height;
     fbFormat = SDL_PIXELFORMAT_ARGB8888;
@@ -144,9 +144,16 @@ Renderer::Renderer(SDL_Renderer *renderer)
 Surface Renderer::BeginFrame()
 {
     if(!m->textOverlay.empty()) {
-        std::clog << "Discard text overlay"
+        std::clog << "Discard text overlay which has "
+                  << std::dec << m->textOverlay.size()
                   << std::endl;
         m->textOverlay.clear();
+    }
+
+    if(!m->fbSurface.Null()) {
+        std::cerr << "Previously allocated surface is not null"
+                  << std::endl;
+        m->fbSurface.reset();
     }
     
     if(!m->fbTexture) {
@@ -155,11 +162,6 @@ Surface Renderer::BeginFrame()
                       << std::endl;
             return Surface();
         }
-    }
-    
-    if(!m->fbSurface.Null()) {
-        std::clog << "Nested BeginFrame" << std::endl;
-        return m->fbSurface;
     }
     
     int nativePitch;
@@ -185,8 +187,11 @@ void Renderer::EndFrame()
 {
     if(!m->fbSurface.Null()) {
         SDL_RenderClear(m->renderer);
-        
+
+        // NOTE
+        // It wan't deallocate pixels, only surface object
         m->fbSurface.reset();
+        
         SDL_UnlockTexture(m->fbTexture.get());
         if(SDL_RenderCopy(m->renderer, m->fbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
@@ -196,7 +201,7 @@ void Renderer::EndFrame()
     }
 
     if(!m->textOverlay.empty()) {
-        for(const auto &batch : m->textOverlay) {
+        for(TextBatch batch : m->textOverlay) {
             batch();
         }
         m->textOverlay.clear();

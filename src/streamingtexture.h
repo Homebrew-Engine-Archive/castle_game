@@ -1,9 +1,7 @@
 #ifndef STREAMING_TEXTURE_H_
 #define STREAMING_TEXTURE_H_
 
-#include <iostream>
 #include "SDL.h"
-
 #include "surface.h"
 
 class StreamingTexture

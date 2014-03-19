@@ -1,6 +1,7 @@
 #include "atlas.h"
 #include "geometry.h"
 #include <algorithm>
+#include <iostream>
 
 struct SurfaceCompare
 {

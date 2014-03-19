@@ -12,7 +12,7 @@ class RootScreen
 {
 private:
     struct RootScreenPimpl *m;
-    
+   
 public:
     RootScreen(Renderer *renderer);
     RootScreen(RootScreen &&that) = default;
@@ -27,8 +27,9 @@ public:
 
     bool HandleEvent(const SDL_Event &event);
 
-    void SetCurrentScreen(std::unique_ptr<Screen> &&screen);
-    void PushScreen(std::unique_ptr<Screen> &&screen);
+    void SetCurrentScreen(ScreenPtr &&screen);
+    void PushScreen(ScreenPtr &&screen);
+    ScreenPtr PopScreen();
 
     Renderer *GetRenderer();
 };

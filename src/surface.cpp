@@ -4,6 +4,8 @@
 #include <memory>
 #include <algorithm>
 #include <stdexcept>
+#include <exception>
+#include "SDL.h"
 
 namespace
 {
@@ -20,7 +22,7 @@ namespace
         
             SDL_Color result = f(r, g, b, a);
             *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
-            std::next(first);
+            first = std::next(first);
         }
     }
 
@@ -47,6 +49,47 @@ namespace
         bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
 
         SDL_SetColorKey(dst, enabled, colorkey);
+    }
+
+    void AddSurfaceRef(SDL_Surface *surface)
+    {
+        if(surface != NULL) {
+            ++surface->refcount;
+        }
+    }
+
+    SDL_Surface *CreateSurfaceFrom(void *pixels, int width, int height, int pitch,
+                                   const SDL_PixelFormat *format)
+    {
+        if(pixels == NULL) {
+            throw std::invalid_argument("CreateSurfaceFrom: passed NULL pixels");
+        }
+        if(format == NULL) {
+            throw std::invalid_argument("CreateSurfaceFrom: passed NULL format");
+        }
+        
+        Uint32 rmask = format->Rmask;
+        Uint32 gmask = format->Gmask;
+        Uint32 bmask = format->Bmask;
+        Uint32 amask = format->Amask;
+        int bpp = format->BitsPerPixel;
+
+        return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+    }
+
+    SDL_Surface *CreateSurface(int width, int height, const SDL_PixelFormat *format)
+    {
+        if(format == NULL) {
+            throw std::invalid_argument("CreateSurface: passed NULL format");
+        }
+
+        Uint32 rmask = format->Rmask;
+        Uint32 gmask = format->Gmask;
+        Uint32 bmask = format->Bmask;
+        Uint32 amask = format->Amask;
+        int bpp = format->BitsPerPixel;
+
+        return SDL_CreateRGBSurface(NO_FLAGS, width, height, bpp, rmask, gmask, bmask, amask);
     }
     
 }
@@ -105,7 +148,7 @@ Surface::Surface(SDL_Surface *s)
 Surface::Surface(const Surface &that)
     : m_surface(that.m_surface)
 {
-    AddRef(m_surface);
+    AddSurfaceRef(m_surface);
 }
 
 Surface &Surface::operator=(SDL_Surface *s)
@@ -116,7 +159,7 @@ Surface &Surface::operator=(SDL_Surface *s)
 
 Surface &Surface::operator=(const Surface &that)
 {
-    AddRef(that.m_surface);
+    AddSurfaceRef(that.m_surface);
     Assign(that.m_surface);
     return *this;
 }
@@ -130,14 +173,13 @@ void Surface::Assign(SDL_Surface *s)
 {
     // SDL_FreeSurface manages refcount by itself
     // Suddenly.
+    if(m_surface != NULL) {
+        if(m_surface->refcount == 1) {
+            std::clog << "Remove this shitty surface: " << std::hex << m_surface << std::endl;
+        }
+    }
     SDL_FreeSurface(m_surface);
     m_surface = s;
-}
-
-void Surface::AddRef(SDL_Surface *surf)
-{
-    if(surf != NULL)
-        ++surf->refcount;
 }
 
 bool Surface::Null() const
@@ -158,11 +200,6 @@ Surface::operator SDL_Surface *() const
 void Surface::reset()
 {
     Assign(NULL);
-}
-
-SurfaceROI::~SurfaceROI()
-{
-    SDL_FreeSurface(m_referer);
 }
 
 SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
@@ -188,27 +225,25 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         height = src->h;
     }
     
-    Uint32 depth = src->format->BitsPerPixel;
-    Uint32 rmask = src->format->Rmask;
-    Uint32 gmask = src->format->Gmask;
-    Uint32 bmask = src->format->Bmask;
-    Uint32 amask = src->format->Amask;
+
     Uint32 bytesPerPixel = src->format->BytesPerPixel;
     
     Uint8 *pixels = reinterpret_cast<Uint8*>(src->pixels)
         + y * src->pitch
         + x * bytesPerPixel;
     
-    m_surface = SDL_CreateRGBSurfaceFrom(
-        pixels, width, height, depth, src->pitch,
-        rmask, gmask, bmask, amask);
-    
+    m_surface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);    
     ThrowSDLError(m_surface);
     
     CopySurfaceColorKey(src, m_surface);
     
     m_referer = src;
-    AddRef(m_referer);
+    AddSurfaceRef(m_referer);
+}
+
+SurfaceROI::~SurfaceROI()
+{
+    SDL_FreeSurface(m_referer);
 }
 
 Surface CopySurfaceFormat(const Surface &src, int width, int height)
@@ -216,18 +251,10 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     if(src.Null())
         return Surface();
     
-    Uint32 depth = src->format->BitsPerPixel;
-    Uint32 rmask = src->format->Rmask;
-    Uint32 gmask = src->format->Gmask;
-    Uint32 bmask = src->format->Bmask;
-    Uint32 amask = src->format->Amask;
-    
-    Surface dst = SDL_CreateRGBSurface(
-        NO_FLAGS, width, height, depth,
-        rmask, gmask, bmask, amask);
-    
-    if(dst.Null())
+    Surface dst = CreateSurface(width, height, src->format);
+    if(dst.Null()) {
         throw std::runtime_error(SDL_GetError());
+    }
 
     CopySurfaceColorKey(src, dst);
 

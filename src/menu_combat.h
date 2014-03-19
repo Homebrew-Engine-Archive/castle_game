@@ -15,7 +15,7 @@ class MenuCombat : public Screen
     
 public:
     MenuCombat(RootScreen *root);
-    void Draw(Surface frame);
+    void Draw(Surface &frame);
     bool HandleEvent(const SDL_Event &event);
 };
 
