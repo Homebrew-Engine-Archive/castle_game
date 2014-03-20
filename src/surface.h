@@ -85,6 +85,8 @@ void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
 void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
 
+void BlurSurface(Surface &dst, int radius);
+
 SDL_Rect SurfaceBounds(const Surface &src);
 
 #endif

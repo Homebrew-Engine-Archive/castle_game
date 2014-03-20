@@ -64,9 +64,13 @@ int main()
 
     RendererPtr sdl_renderer = RendererPtr(
         SDL_CreateRenderer(sdl_window.get(), -1, 0));
-    GetAndPrintRendererInfo(clog, sdl_renderer.get());
     ThrowSDLError(sdl_renderer);
-    unique_ptr<Renderer> renderer(CreateRenderer(sdl_renderer.get()));
-    unique_ptr<RootScreen> root(CreateRootScreen(renderer.get()));
+
+    GetAndPrintRendererInfo(clog, sdl_renderer.get());
+    
+    unique_ptr<Renderer> &&renderer = CreateRenderer(sdl_renderer.get());
+    
+    unique_ptr<RootScreen> &&root = CreateRootScreen(renderer.get());
+
     return root->Exec();
 }

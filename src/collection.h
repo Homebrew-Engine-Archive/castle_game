@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include <string>
+#include <iosfwd>
 #include <vector>
 #include <memory>
 #include "surface.h"
@@ -45,6 +46,8 @@ struct FontCollectionInfo
 };
 
 typedef std::unique_ptr<FontCollectionInfo> FontCollectionInfoPtr;
+
+std::ostream &operator<<(std::ostream &out, const FontCollectionInfo &info);
 
 Surface LoadSurface(const FilePath &filename);
 CollectionDataPtr LoadCollectionData(const FilePath &filename);

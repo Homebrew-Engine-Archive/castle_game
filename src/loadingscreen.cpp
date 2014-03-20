@@ -4,11 +4,10 @@
 #include "filesystem.h"
 #include "SDL.h"
 #include "collection.h"
-#include "surface.h"
-#include <boost/filesystem/fstream.hpp>
 #include <memory>
 #include <sstream>
 #include <iostream>
+#include <boost/filesystem/fstream.hpp>
 
 using namespace std;
 
@@ -71,7 +70,7 @@ namespace
         while(!fin.eof()) {
             FontCollectionInfo info;
             if(ParseFontCollectionInfo(fin, info)) {
-                fontsInfo.push_back(info);
+                fontsInfo.push_back(std::move(info));
             }
         }
     
@@ -132,11 +131,11 @@ void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
 
 int LoadingScreen::Exec()
 {
-    const Uint32 frameRate = 5;
-    const Uint32 frameInterval = 1000 / frameRate;
-    Uint32 lastFrame = 0;
-    const Uint32 total = m_tasks.size();
-    Uint32 completed = 0;
+    const uint32_t frameRate = 5;
+    const uint32_t frameInterval = 1000 / frameRate;
+    uint32_t lastFrame = 0;
+    const uint32_t total = m_tasks.size();
+    uint32_t completed = 0;
         
     for(const auto &task : m_tasks) {
         if(lastFrame + frameInterval < SDL_GetTicks()) {

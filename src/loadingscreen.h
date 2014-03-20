@@ -1,11 +1,15 @@
 #ifndef LOADINGSCREEN_H_
 #define LOADINGSCREEN_H_
 
+#include <vector>
 #include <iostream>
 #include <functional>
 #include "rootscreen.h"
 #include "renderer.h"
+#include "filesystem.h"
 #include "surface.h"
+
+class FontCollectionInfo;
 
 class LoadingScreen
 {

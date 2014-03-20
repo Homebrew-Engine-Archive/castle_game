@@ -20,7 +20,7 @@ struct Renderer
     virtual void EndFrame() = 0;
     virtual SDL_Rect GetOutputSize() const = 0;
     virtual void AdjustBufferSize(int width, int height) = 0;
-    virtual void RenderTextLine(const std::string &text, const SDL_Point &rect) = 0;
+    virtual void RenderTextLine(const std::string &text, const SDL_Point &point) = 0;
     virtual void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv) = 0;
     virtual void SetFont(const std::string &fontname, int size) = 0;
     virtual void SetColor(const SDL_Color &color) = 0;
@@ -30,6 +30,6 @@ struct Renderer
     virtual bool CacheFontCollection(const FontCollectionInfo &info) = 0;
 };
 
-Renderer *CreateRenderer(SDL_Renderer *renderer);
+std::unique_ptr<Renderer> CreateRenderer(SDL_Renderer *renderer);
 
 #endif

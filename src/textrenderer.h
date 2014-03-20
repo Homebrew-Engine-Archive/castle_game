@@ -1,68 +1,28 @@
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
-#include "text.h"
+#include <memory>
 #include <string>
 #include "SDL.h"
 #include "sdl_utils.h"
-#include "font.h"
 
-class TextRenderer
+class Text;
+class Font;
+
+struct TextRenderer
 {
-private:
-    struct TextRendererPimpl *m;
-    
-public:
-    TextRenderer(SDL_Renderer *renderer);
-    TextRenderer(const TextRenderer &that) = delete;
-    TextRenderer &operator=(const TextRenderer &that) = delete;
-    virtual ~TextRenderer();
-
-    /**
-     * Make font available for drawing under given name.
-     *
-     * @param name      Future name.
-     * @param font      Pointer to font object.
-     * @param size      Size of font.
-     *
-     * @return          True if no error occurred.
-     */
-    bool CacheFont(const std::string &name, int size, const Font &font);
-    
-    /**
-     * Use new font for next printing.
-     * If there is no font with same name, took font with the same name but smaller size.
-     * If there is no font with same name and smaller size, took font with larger size.
-     * If there is no font with this name, took any other font with the same size.
-     * @param fontname  Font name to use.
-     * @param size      Font size.
-     * @return          False if is no font available at all and true otherwise.
-     * 
-     */
-    bool SetFont(const std::string &fontname, int size);
-
-    bool SetFontName(const std::string &fontname);
-
-    bool SetFontSize(int size);
-
-    void SetColor(const SDL_Color &color);
-
-    void SetCursor(const SDL_Point &cursor);
-
-    SDL_Rect CalculateTextRect(const std::string &str) const;
-    
-    /**
-     * Consequently puts each character in the string.
-     *
-     * @param str       String which we shall put.
-     *
-     */
-    void PutString(const std::string &str);
-
+    virtual bool CacheFont(const std::string &name, int size, const Font &font) = 0;
+    virtual bool SetFont(const std::string &fontname, int size) = 0;
+    virtual bool SetFontName(const std::string &fontname) = 0;
+    virtual bool SetFontSize(int size) = 0;
+    virtual void SetColor(const SDL_Color &color) = 0;
+    virtual void SetCursor(const SDL_Point &cursor) = 0;
+    virtual SDL_Rect CalculateTextRect(const std::string &str) const = 0;
+    virtual void PutString(const std::string &str) = 0;
 };
 
-void PutText(const TextRenderer &renderer, const Text &text, const SDL_Rect &box);
+std::unique_ptr<TextRenderer> CreateTextRenderer(SDL_Renderer *renderer);
 
-typedef std::unique_ptr<TextRenderer> TextRendererPtr;
+void PutText(const TextRenderer &renderer, const Text &text, const SDL_Rect &box);
 
 #endif

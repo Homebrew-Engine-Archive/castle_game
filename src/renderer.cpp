@@ -1,7 +1,9 @@
 #include "renderer.h"
 #include "text.h"
 #include "textrenderer.h"
+#include "font.h"
 #include "geometry.h"
+#include "collection.h"
 #include <map>
 #include <vector>
 #include <functional>
@@ -24,7 +26,7 @@ namespace
 class RendererImpl final : public Renderer
 {   
     SDL_Renderer *m_renderer;
-    TextRenderer m_textRenderer;
+    std::unique_ptr<TextRenderer> m_textRenderer;
     int m_fbWidth;
     int m_fbHeight;
     Uint32 m_fbFormat;
@@ -61,9 +63,9 @@ public:
     bool CacheFontCollection(const FontCollectionInfo &info);
 };
 
-RendererImpl::RendererImpl(SDL_Renderer *renderer_)
-    : m_renderer(renderer_)
-    , m_textRenderer(renderer_)
+RendererImpl::RendererImpl(SDL_Renderer *renderer)
+    : m_renderer(renderer)
+    , m_textRenderer(std::move(CreateTextRenderer(renderer)))
     , m_fbWidth(0)
     , m_fbHeight(0)
     , m_fbFormat(0)
@@ -315,8 +317,8 @@ bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
         
         size_t skip = 0;
         for(int fontSize : info.sizes) {
-            Font font(*data, info.alphabet, skip);
-            if(!m_textRenderer.CacheFont(info.name, fontSize, font)) {
+            Font font = MakeFont(*data, info.alphabet, skip);
+            if(!m_textRenderer->CacheFont(info.name, fontSize, font)) {
                 std::cerr << "Unable to cache font: "
                           << info.name << ' '
                           << fontSize << std::endl;
@@ -336,7 +338,7 @@ bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
 void RendererImpl::SetFont(const std::string &fontname, int size)
 {
     auto changeFont = [fontname, size, this]() {
-        m_textRenderer.SetFont(fontname, size);
+        m_textRenderer->SetFont(fontname, size);
     };
     m_textOverlay.push_back(changeFont);
 }
@@ -344,7 +346,7 @@ void RendererImpl::SetFont(const std::string &fontname, int size)
 void RendererImpl::SetColor(const SDL_Color &color)
 {
     auto changeColor = [color, this]() {
-        m_textRenderer.SetColor(color);
+        m_textRenderer->SetColor(color);
     };
     m_textOverlay.push_back(changeColor);
 }
@@ -352,12 +354,12 @@ void RendererImpl::SetColor(const SDL_Color &color)
 void RendererImpl::RenderTextLine(const std::string &text, const SDL_Point &point)
 {
     auto drawText = [text, point, this]() {
-        SDL_Rect textRect = m_textRenderer.CalculateTextRect(text);
+        SDL_Rect textRect = m_textRenderer->CalculateTextRect(text);
     
-        m_textRenderer.SetCursor(
+        m_textRenderer->SetCursor(
             ShiftPoint(point, 0, textRect.h));
     
-        m_textRenderer.PutString(text);
+        m_textRenderer->PutString(text);
     };
     
     m_textOverlay.push_back(drawText);
@@ -371,7 +373,7 @@ void RendererImpl::RenderTextBox(const std::string &text, const SDL_Rect &rect,
     RenderTextLine(text, TopLeft(rect));
 }
     
-Renderer *CreateRenderer(SDL_Renderer *renderer)
+std::unique_ptr<Renderer> CreateRenderer(SDL_Renderer *renderer)
 {
-    return new RendererImpl(renderer);
+    return make_unique<RendererImpl>(renderer);
 }

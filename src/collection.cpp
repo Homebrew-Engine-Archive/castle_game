@@ -92,3 +92,31 @@ Surface LoadSurface(const FilePath &filename)
         throw;
     }
 }
+
+namespace
+{
+
+    template<class T>
+    std::ostream &operator<<(std::ostream &out, const std::vector<T> &xs)
+    {
+        out << '[';
+        for(const T &x : xs) {
+            out << ' ' << x;
+        }
+        out << ']';
+        return out;
+    }
+    
+}
+
+std::ostream &operator<<(std::ostream &out, const FontCollectionInfo &info)
+{
+    out << '['
+        << info.filename << "; "
+        << info.name << "; "
+        << info.sizes << "; "
+        << info.alphabet;
+    
+    out << ']';
+    return out;
+}

@@ -1,12 +1,16 @@
 #include "surface.h"
 #include "geometry.h"
 #include "macrosota.h"
+#include "SDL.h"
 #include <memory>
 #include <algorithm>
 #include <stdexcept>
 #include <exception>
-#include "SDL.h"
 #include <iostream>
+#include <queue>
+#include <cstdint>
+
+using namespace std;
 
 namespace
 {
@@ -28,7 +32,7 @@ namespace
     }
 
     template<class Pixel>
-    void TransformImpl(Surface &dst, PixelMapper f)
+    void MapSurfaceImpl(Surface &dst, PixelMapper f)
     {
         if(dst.Null())
             return;
@@ -63,10 +67,10 @@ namespace
                                    const SDL_PixelFormat *format)
     {
         if(pixels == NULL) {
-            throw std::invalid_argument("CreateSurfaceFrom: passed NULL pixels");
+            throw invalid_argument("CreateSurfaceFrom: passed NULL pixels");
         }
         if(format == NULL) {
-            throw std::invalid_argument("CreateSurfaceFrom: passed NULL format");
+            throw invalid_argument("CreateSurfaceFrom: passed NULL format");
         }
         
         Uint32 rmask = format->Rmask;
@@ -81,7 +85,7 @@ namespace
     SDL_Surface *CreateSurface(int width, int height, const SDL_PixelFormat *format)
     {
         if(format == NULL) {
-            throw std::invalid_argument("CreateSurface: passed NULL format");
+            throw invalid_argument("CreateSurface: passed NULL format");
         }
 
         Uint32 rmask = format->Rmask;
@@ -91,6 +95,18 @@ namespace
         int bpp = format->BitsPerPixel;
 
         return SDL_CreateRGBSurface(NO_FLAGS, width, height, bpp, rmask, gmask, bmask, amask);
+    }
+
+    template<class Pixel>
+    void BlurSurfaceImpl(Surface &dst, int radius)
+    {
+        SurfaceLocker lock(dst);
+        if(dst.Null())
+            return;
+
+        deque<uint8_t> redSum(radius, 0);
+        deque<uint8_t> greenSum(radius, 0);
+        deque<uint8_t> blueSum(radius, 0);
     }
     
 }
@@ -176,7 +192,7 @@ void Surface::Assign(SDL_Surface *s)
     // Suddenly.
     if(m_surface != NULL) {
         if(m_surface->refcount == 1) {
-            std::clog << "Remove this shitty surface: " << std::hex << m_surface << std::endl;
+            clog << "Remove this shitty surface: " << hex << m_surface << endl;
         }
     }
     SDL_FreeSurface(m_surface);
@@ -254,7 +270,7 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     
     Surface dst = CreateSurface(width, height, src->format);
     if(dst.Null()) {
-        throw std::runtime_error(SDL_GetError());
+        throw runtime_error(SDL_GetError());
     }
 
     CopySurfaceColorKey(src, dst);
@@ -308,19 +324,38 @@ void MapSurface(Surface &dst, PixelMapper f)
 {
     switch(dst->format->BytesPerPixel) {
     case 1:
-        TransformImpl<Uint8>(dst, f);
+        MapSurfaceImpl<Uint8>(dst, f);
         break;
     case 2:
-        TransformImpl<Uint16>(dst, f);
+        MapSurfaceImpl<Uint16>(dst, f);
         break;
     case 3:
         // TODO implement me
         break;
     case 4:
-        TransformImpl<Uint32>(dst, f);
+        MapSurfaceImpl<Uint32>(dst, f);
         break;
     default:
-        throw std::runtime_error("Unsupported BPP");
+        throw runtime_error("Unsupported BPP");
     }
 }
-    
+
+void BlurSurface(Surface &dst, int radius)
+{
+    switch(dst->format->BytesPerPixel) {
+    case 1:
+        BlurSurfaceImpl<Uint8>(dst, radius);
+        break;
+    case 2:
+        BlurSurfaceImpl<Uint16>(dst, radius);
+        break;
+    case 3:
+        // TODO implement me
+        break;
+    case 4:
+        BlurSurfaceImpl<Uint32>(dst, radius);
+        break;
+    default:
+        throw runtime_error("Unsupported BPP");
+    }
+}

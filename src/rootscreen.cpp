@@ -54,7 +54,7 @@ RootScreenImpl::RootScreenImpl(Renderer *renderer)
     , m_frameRate(16)
     , m_fpsLimited(true)
     , m_showConsole(false)
-    , m_debugConsole(new DebugConsole(this))
+    , m_debugConsole(std::move(CreateDebugConsole(this)))
 { }
 
 bool RootScreenImpl::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -131,7 +131,7 @@ int RootScreenImpl::Exec()
 {
     if(int code = RunLoadingScreen(this)) {
         clog << "Loading has been interrupted."
-                  << endl;
+             << endl;
         return code;
     }
 
@@ -195,6 +195,8 @@ int RootScreenImpl::Exec()
             }
         }
     }
+
+    clog << "Gracefully shutdown" << endl;
     
     return 0;
 }
@@ -248,8 +250,8 @@ Renderer *RootScreenImpl::GetRenderer()
     return m_renderer;
 }
 
-RootScreen *CreateRootScreen(Renderer *renderer)
+std::unique_ptr<RootScreen> CreateRootScreen(Renderer *renderer)
 {
-    return new RootScreenImpl(renderer);
+    return make_unique<RootScreenImpl>(renderer);
 }
 

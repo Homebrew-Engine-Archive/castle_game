@@ -1,6 +1,7 @@
 #include "font.h"
 #include "surface.h"
 #include "gm1.h"
+#include "collection.h"
 #include <stdexcept>
 
 namespace
@@ -42,15 +43,29 @@ namespace
             }
         }
     }
+    
+    int GlyphWidth(const GlyphData &glyph)
+    {
+        return glyph.xadvance;
+    }
+
+    int GlyphHeight(const GlyphData &glyph)
+    {
+        return glyph.vbox;
+    }
 
 }
-    
-Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int skip)
+
+Font::Font()
     : m_ascii(256)
     , m_fontWidth(0)
     , m_fontHeight(0)
+{ }
+
+Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int skip)
 {
-    AddNonPrintableGlyphs(Surface(), data.header.anchorX, 0, *this);
+    Font font;
+    AddNonPrintableGlyphs(Surface(), data.header.anchorX, 0, font);
     
     auto entry = data.entries.begin();
     std::advance(entry, skip);
@@ -77,12 +92,14 @@ Font::Font(const CollectionData &data, const std::vector<int> &alphabet, int ski
         glyph.yadvance = 0;
         glyph.ybearing = entry->header.tileY;
 
-        if(!AddGlyph(character, glyph)) {
+        if(!font.AddGlyph(character, glyph)) {
             throw std::runtime_error("Unable to add glyph into font");
         }
 
         ++entry;
     }
+
+    return font;
 }
 
 bool Font::AddGlyph(int character, const GlyphData &glyph)
@@ -124,14 +141,4 @@ size_t Font::GetGlyphIndex(int character) const
         return m_ascii[character];
     
     return m_glyphs.size();
-}
-
-int GlyphWidth(const GlyphData &glyph)
-{
-    return glyph.xadvance;
-}
-
-int GlyphHeight(const GlyphData &glyph)
-{
-    return glyph.vbox;
 }

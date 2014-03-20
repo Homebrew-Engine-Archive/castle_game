@@ -3,8 +3,9 @@
 
 #include <vector>
 #include "sdl_utils.h"
-#include "collection.h"
 #include "surface.h"
+
+class CollectionData;
 
 struct GlyphData
 {
@@ -26,8 +27,7 @@ class Font
     int m_fontHeight;
 
 public:
-    Font() = default;
-    Font(const CollectionData &data, const std::vector<int> &alphabet, int skip);
+    Font();
     const GlyphData *FindGlyph(int character) const;
     const GlyphData *GetGlyph(size_t index) const;
     size_t GetGlyphIndex(int character) const;
@@ -44,5 +44,7 @@ public:
 
 int GlyphWidth(const GlyphData &glyph);
 int GlyphHeight(const GlyphData &glyph);
+
+Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int skip);
 
 #endif

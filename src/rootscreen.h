@@ -17,6 +17,6 @@ struct RootScreen
     virtual Renderer *GetRenderer() = 0;
 };
 
-RootScreen *CreateRootScreen(Renderer *renderer);
+std::unique_ptr<RootScreen> CreateRootScreen(Renderer *renderer);
 
 #endif
