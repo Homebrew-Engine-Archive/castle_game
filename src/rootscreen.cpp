@@ -9,20 +9,18 @@
 #include <boost/asio/io_service.hpp>
 #include <vector>
 #include "debugconsole.h"
-
-using namespace std;
     
 class RootScreenImpl final : public RootScreen
 {
     Renderer *mRenderer;
     double mFpsAverage;
-    uint64_t mFrameCounter;
+    std::uint64_t mFrameCounter;
     bool mClosed;
     int mFrameRate;
     bool mFpsLimited;
     bool mShowConsole;
     ScreenPtr mDebugConsole;
-    vector<ScreenPtr> mScreenStack;
+    std::vector<ScreenPtr> mScreenStack;
         
     bool HandleWindowEvent(const SDL_WindowEvent &event);
     bool HandleKeyboardEvent(const SDL_KeyboardEvent &event);
@@ -88,7 +86,7 @@ bool RootScreenImpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
 
 void RootScreenImpl::ToggleConsole()
 {
-    mShowConsole = !m_showConsole;
+    mShowConsole = !mShowConsole;
 
     if(mShowConsole) {
         PushScreen(move(mDebugConsole));
@@ -130,8 +128,8 @@ ScreenPtr RootScreenImpl::PopScreen()
 int RootScreenImpl::Exec()
 {
     if(int code = RunLoadingScreen(this)) {
-        clog << "Loading has been interrupted."
-             << endl;
+        std::clog << "Loading has been interrupted."
+                  << std::endl;
         return code;
     }
 
@@ -161,7 +159,7 @@ int RootScreenImpl::Exec()
         }
 
         if(GetCurrentScreen() == NULL) {
-            throw runtime_error("No current screen");
+            throw std::runtime_error("No current screen");
         }
         
         SDL_Event event;
@@ -188,7 +186,7 @@ int RootScreenImpl::Exec()
         const int64_t delayStart = SDL_GetTicks();
         if(mFpsLimited) {
             const int64_t nextTick =
-                min(lastPoll + pollInterval,
+                std::min(lastPoll + pollInterval,
                          lastFrame + frameInterval);
             if(delayStart < nextTick) {
                 SDL_Delay(nextTick - delayStart);
@@ -196,7 +194,7 @@ int RootScreenImpl::Exec()
         }
     }
 
-    clog << "Gracefully shutdown" << endl;
+    std::clog << "Gracefully shutdown" << std::endl;
     
     return 0;
 }
@@ -211,19 +209,19 @@ void RootScreenImpl::DrawFrame()
         } else {
             // NOTE
             // It's assumed to be impossible
-            throw runtime_error("empty screen in screen stack");
+            throw std::runtime_error("empty screen in screen stack");
         }
     }
     
-    int size = 24;
-    string fontname = "font_stronghold_aa";
     SDL_Color color = MakeColor(255, 255, 255, 255);
     mRenderer->SetColor(color);
-    mRenderer->SetFont(fontname, size);
+    mRenderer->SetFont(
+        "font_stronghold_aa",
+        24);
 
     SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);
     
-    ostringstream oss;
+    std::ostringstream oss;
     oss << "FPS: " << mFpsAverage;
     mRenderer->RenderTextLine(oss.str(), pos);
 

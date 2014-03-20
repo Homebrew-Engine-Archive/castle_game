@@ -10,8 +10,6 @@
 #include <queue>
 #include <cstdint>
 
-using namespace std;
-
 namespace
 {
     
@@ -67,10 +65,10 @@ namespace
                                    const SDL_PixelFormat *format)
     {
         if(pixels == NULL) {
-            throw invalid_argument("CreateSurfaceFrom: passed NULL pixels");
+            throw std::invalid_argument("CreateSurfaceFrom: passed NULL pixels");
         }
         if(format == NULL) {
-            throw invalid_argument("CreateSurfaceFrom: passed NULL format");
+            throw std::invalid_argument("CreateSurfaceFrom: passed NULL format");
         }
         
         Uint32 rmask = format->Rmask;
@@ -85,7 +83,7 @@ namespace
     SDL_Surface *CreateSurface(int width, int height, const SDL_PixelFormat *format)
     {
         if(format == NULL) {
-            throw invalid_argument("CreateSurface: passed NULL format");
+            throw std::invalid_argument("CreateSurface: passed NULL format");
         }
 
         Uint32 rmask = format->Rmask;
@@ -104,9 +102,11 @@ namespace
         if(dst.Null())
             return;
 
-        deque<uint8_t> redSum(radius, 0);
-        deque<uint8_t> greenSum(radius, 0);
-        deque<uint8_t> blueSum(radius, 0);
+        std::deque<uint8_t> redSum(radius, 0);
+        std::deque<uint8_t> greenSum(radius, 0);
+        std::deque<uint8_t> blueSum(radius, 0);
+
+        
     }
     
 }
@@ -163,7 +163,7 @@ Surface::Surface(SDL_Surface *s)
 }
 
 Surface::Surface(const Surface &that)
-    : mSurface(that.m_surface)
+    : mSurface(that.mSurface)
 {
     AddSurfaceRef(mSurface);
 }
@@ -183,7 +183,7 @@ Surface &Surface::operator=(const Surface &that)
 
 bool Surface::operator==(const Surface &that)
 {
-    return that.mSurface == m_surface;
+    return that.mSurface == mSurface;
 }
 
 void Surface::Assign(SDL_Surface *s)
@@ -192,7 +192,9 @@ void Surface::Assign(SDL_Surface *s)
     // Suddenly.
     if(mSurface != NULL) {
         if(mSurface->refcount == 1) {
-            clog << "Remove this shitty surface: " << hex << mSurface << endl;
+            std::clog << "Remove this shitty surface: "
+                      << std::hex << mSurface
+                      << std::endl;
         }
     }
     SDL_FreeSurface(mSurface);
@@ -270,7 +272,7 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     
     Surface dst = CreateSurface(width, height, src->format);
     if(dst.Null()) {
-        throw runtime_error(SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
     }
 
     CopySurfaceColorKey(src, dst);
@@ -336,7 +338,7 @@ void MapSurface(Surface &dst, PixelMapper f)
         MapSurfaceImpl<Uint32>(dst, f);
         break;
     default:
-        throw runtime_error("Unsupported BPP");
+        throw std::runtime_error("Unsupported BPP");
     }
 }
 
@@ -356,6 +358,6 @@ void BlurSurface(Surface &dst, int radius)
         BlurSurfaceImpl<Uint32>(dst, radius);
         break;
     default:
-        throw runtime_error("Unsupported BPP");
+        throw std::runtime_error("Unsupported BPP");
     }
 }

@@ -46,7 +46,7 @@ void DebugConsole::Draw(Surface &frame)
     SDL_Rect textBox = PutIn(MakeRect(tophalf.w, mFontSize), tophalf, 0.0f, 1.0f);
     Renderer *renderer = mRoot->GetRenderer();
     renderer->SetFont(mFontName, mFontSize);
-    renderer->RenderTextLine(mText, TopLeft(textBox));
+    renderer->RenderTextLine(mText, BottomLeft(textBox));
 }
 
 bool DebugConsole::HandleEvent(const SDL_Event &event)
@@ -59,7 +59,7 @@ bool DebugConsole::HandleEvent(const SDL_Event &event)
     case SDL_TEXTINPUT:
         return HandleTextInput(event.text);
     default:
-        return true;
+        return false;
     }
 }
 
@@ -74,7 +74,7 @@ bool DebugConsole::HandleKey(const SDL_KeyboardEvent &event)
             mText.erase(mText.size() - 1);
         return true;
     default:
-        return true;
+        return false;
     }
 }
 

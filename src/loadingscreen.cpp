@@ -9,17 +9,15 @@
 #include <iostream>
 #include <boost/filesystem/fstream.hpp>
 
-using namespace std;
-
 namespace
 {
 
-    vector<string> GetStringList(const FilePath &path)
+    std::vector<std::string> GetStringList(const FilePath &path)
     {
-        vector<string> list;
+        std::vector<std::string> list;
     
         boost::filesystem::ifstream fin(path);
-        string buffer;
+        std::string buffer;
         while(!fin.eof()) {
             getline(fin, buffer);
             if(!buffer.empty()) {
@@ -31,7 +29,7 @@ namespace
     }
 
     template<class T>
-    bool ReadVector(boost::filesystem::ifstream &in, vector<T> &xs)
+    bool ReadVector(boost::filesystem::ifstream &in, std::vector<T> &xs)
     {
         if(in.eof())
             return false;
@@ -62,10 +60,10 @@ namespace
         return true;
     }
 
-    vector<FontCollectionInfo> GetFontCollectionInfoList(const FilePath &path)
+    std::vector<FontCollectionInfo> GetFontCollectionInfoList(const FilePath &path)
     {
         boost::filesystem::ifstream fin(path);
-        vector<FontCollectionInfo> fontsInfo;
+        std::vector<FontCollectionInfo> fontsInfo;
 
         while(!fin.eof()) {
             FontCollectionInfo info;
@@ -91,7 +89,7 @@ LoadingScreen::LoadingScreen(RootScreen *root)
     , mQuit(false)
 {
     FilePath preloadsPath = GetGMPath("preloads.txt");
-    for(const string &str : GetStringList(preloadsPath)) {
+    for(const std::string &str : GetStringList(preloadsPath)) {
         ScheduleCacheGM1(str);
     }
 
@@ -101,7 +99,7 @@ LoadingScreen::LoadingScreen(RootScreen *root)
     }
 
     FilePath filepath = GetTGXFilePath("frontend_loading");
-    mBackground = m_renderer->QuerySurface(filepath);
+    mBackground = mRenderer->QuerySurface(filepath);
 }
 
 void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
@@ -109,9 +107,9 @@ void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
     FilePath path = GetGM1FilePath(filename);
     auto task = [path, this]() {
         if(!mRenderer->CacheCollection(path)) {
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "Unable to load file: " << path;
-            throw runtime_error(oss.str());
+            throw std::runtime_error(oss.str());
         }
     };
     mTasks.push_back(task);
@@ -121,9 +119,9 @@ void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
 {
     auto task = [info, this]() {
         if(!mRenderer->CacheFontCollection(info)) {
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "Unable to load file: " << info.filename;
-            throw runtime_error(oss.str());
+            throw std::runtime_error(oss.str());
         }
     };
     mTasks.push_back(task);

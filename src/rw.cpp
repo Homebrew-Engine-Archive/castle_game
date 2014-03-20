@@ -11,7 +11,7 @@ TempSeek::TempSeek(SDL_RWops *src, Sint64 whither, int seek)
 
 TempSeek::~TempSeek()
 {
-    SDL_RWseek(mSrc, m_origin, RW_SEEK_SET);
+    SDL_RWseek(mSrc, mOrigin, RW_SEEK_SET);
 }
 
 RWPtr RWFromFileBuffer(const FileBuffer &buffer)

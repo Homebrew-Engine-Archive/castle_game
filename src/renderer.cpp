@@ -99,7 +99,7 @@ bool RendererImpl::CreateFrameTexture(int width, int height)
         return false;
     }
     
-    if((mFbTexture) && (width == m_fbWidth) && (height == m_fbHeight)) {
+    if((mFbTexture) && (width == mFbWidth) && (height == mFbHeight)) {
         std::cerr << "Size of texture matches. Skip allocation."
                   << std::endl;
         return true;
@@ -157,7 +157,7 @@ bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int p
 
 bool RendererImpl::ReallocationRequired(int width, int height)
 {
-    return (width != mFbWidth) || (height != m_fbHeight);
+    return (width != mFbWidth) || (height != mFbHeight);
 }
     
 Surface RendererImpl::BeginFrame()
@@ -176,7 +176,7 @@ Surface RendererImpl::BeginFrame()
     }
     
     if(!mFbTexture) {
-        if(!CreateFrameTexture(mFbWidth, m_fbHeight)) {
+        if(!CreateFrameTexture(mFbWidth, mFbHeight)) {
             std::cerr << "Can't allocate frame texture"
                       << std::endl;
             return Surface();
@@ -192,7 +192,7 @@ Surface RendererImpl::BeginFrame()
         return Surface();
     }
         
-    if(!CreateFrameSurface(nativePixels, mFbWidth, m_fbHeight, nativePitch)) {
+    if(!CreateFrameSurface(nativePixels, mFbWidth, mFbHeight, nativePitch)) {
         std::cerr << "Can't allocate framebuffer"
                   << std::endl;
         SDL_UnlockTexture(mFbTexture.get());
@@ -212,7 +212,7 @@ void RendererImpl::EndFrame()
         mFbSurface.reset();
         
         SDL_UnlockTexture(mFbTexture.get());
-        if(SDL_RenderCopy(mRenderer, m_fbTexture.get(), NULL, NULL)) {
+        if(SDL_RenderCopy(mRenderer, mFbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
                       << SDL_GetError()
                       << std::endl;

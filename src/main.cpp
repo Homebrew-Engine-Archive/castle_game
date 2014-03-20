@@ -6,38 +6,36 @@
 #include "sdl_init.h"
 #include "renderer.h"
 
-using namespace std;
-
-void EnumRenderDrivers(ostream &out)
+void EnumRenderDrivers(std::ostream &out)
 {
     int num = SDL_GetNumRenderDrivers();
     out << "Drivers avialable: "
-        << dec << num
-        << endl;
+        << std::dec << num
+        << std::endl;
 
     for(int index = 0; index < num; ++index) {        
         out << "Driver with index: "
-            << dec << index
-            << endl;
+            << std::dec << index
+            << std::endl;
         
         SDL_RendererInfo info;
         if(SDL_GetRenderDriverInfo(index, &info)) {
             out << "Can't query driver info"
-                << endl;
+                << std::endl;
         } else {
             PrintRendererInfo(out, info);
         }        
     }
 }
 
-void GetAndPrintRendererInfo(ostream &out, SDL_Renderer *renderer)
+void GetAndPrintRendererInfo(std::ostream &out, SDL_Renderer *renderer)
 {
     if(renderer != NULL) {
-        out << "Renderer info: " << endl;
+        out << "Renderer info: " << std::endl;
         
         SDL_RendererInfo info;
         if(SDL_GetRendererInfo(renderer, &info)) {
-            out << "\tCan't query renderer info" << endl;
+            out << "\tCan't query renderer info" << std::endl;
         } else {
             PrintRendererInfo(out, info);
         }
@@ -48,29 +46,29 @@ int main()
 {
     SDLInit(SDL_INIT_EVERYTHING);
 
-    EnumRenderDrivers(clog);
+    EnumRenderDrivers(std::clog);
 
     const int screenwidth = 1024;
     const int screenheight = 768;
         
-    WindowPtr sdl_window = WindowPtr(
+    WindowPtr sdlWindow = WindowPtr(
         SDL_CreateWindow(
             "Stockade",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
             screenwidth, screenheight,
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
-    ThrowSDLError(sdl_window);
+    ThrowSDLError(sdlWindow);
 
-    RendererPtr sdl_renderer = RendererPtr(
-        SDL_CreateRenderer(sdl_window.get(), -1, 0));
-    ThrowSDLError(sdl_renderer);
+    RendererPtr sdlRenderer = RendererPtr(
+        SDL_CreateRenderer(sdlWindow.get(), -1, 0));
+    ThrowSDLError(sdlRenderer);
 
-    GetAndPrintRendererInfo(clog, sdl_renderer.get());
+    GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
     
-    unique_ptr<Renderer> &&renderer = CreateRenderer(sdl_renderer.get());
+    std::unique_ptr<Renderer> &&renderer = CreateRenderer(sdlRenderer.get());
     
-    unique_ptr<RootScreen> &&root = CreateRootScreen(renderer.get());
+    std::unique_ptr<RootScreen> &&root = CreateRootScreen(renderer.get());
 
     return root->Exec();
 }

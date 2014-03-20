@@ -105,9 +105,9 @@ Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int 
 bool Font::AddGlyph(int character, const GlyphData &glyph)
 {
     if(character < (int)mAscii.size()) {
-        mAscii[character] = m_glyphs.size();
-        mFontWidth = std::max(m_fontWidth, glyph.hbox);
-        mFontHeight = std::max(m_fontHeight, glyph.vbox);
+        mAscii[character] = mGlyphs.size();
+        mFontWidth = std::max(mFontWidth, glyph.hbox);
+        mFontHeight = std::max(mFontHeight, glyph.vbox);
         mGlyphs.push_back(glyph);
         return true;
     }

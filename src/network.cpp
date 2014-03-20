@@ -6,11 +6,11 @@
 #include <iostream>
 
 Server::Server(boost::asio::io_service &io, short port)
-    : mIo(io)
+    : mIO(io)
     , mPort(port)
-    , mAddr(boost::asio::ip::tcp::v4(), m_port)
-    , mAccept(m_io, m_addr)
-    , mSock(m_io)
+    , mAddr(boost::asio::ip::tcp::v4(), port)
+    , mAccept(mIO, mAddr)
+    , mSock(mIO)
 {
 }
 

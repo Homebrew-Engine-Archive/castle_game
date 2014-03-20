@@ -8,7 +8,7 @@ MenuCombat::MenuCombat(RootScreen *root)
     , mRenderer(root->GetRenderer())
 {
     FilePath filepath = GetTGXFilePath("frontend_combat");
-    mBackground = m_renderer->QuerySurface(filepath);
+    mBackground = mRenderer->QuerySurface(filepath);
 }
 
 void MenuCombat::Draw(Surface &frame)

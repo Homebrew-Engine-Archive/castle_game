@@ -27,7 +27,7 @@ MenuMain::MenuMain(RootScreen *root)
     , mRenderer(root->GetRenderer())
 {
     FilePath filepath = GetTGXFilePath("frontend_main");
-    mBackground = m_renderer->QuerySurface(filepath);
+    mBackground = mRenderer->QuerySurface(filepath);
     mButtons.push_back(MakeCombatButton());
 }
 

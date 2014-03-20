@@ -111,8 +111,8 @@ public:
     void PutString(const std::string &str);
 };
 
-TextRendererImpl::TextRendererImpl(SDL_Renderer *mRenderer)
-    : mRenderer(m_renderer)
+TextRendererImpl::TextRendererImpl(SDL_Renderer *renderer)
+    : mRenderer(renderer)
     , mColor {0, 0, 0, 0}
     , mCursorX(0)
     , mCursorY(0)
@@ -123,16 +123,16 @@ void TextRendererImpl::PutChar(int character)
 {
     if(mFontData != NULL) {
         SDL_Texture *texture = mFontData->texture.get();
-        SDL_SetTextureColorMod(texture, mColor.r, m_color.g, m_color.b);
+        SDL_SetTextureColorMod(texture, mColor.r, mColor.g, mColor.b);
         SDL_SetTextureAlphaMod(texture, mColor.a);
         
         const GlyphData *glyphData = FindGlyphData(character);
         if(glyphData != NULL) {
             SDL_Rect srcRect = FindTextureSubrect(character);
-            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, mCursorX, m_cursorY);
+            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, mCursorX, mCursorY);
             ThrowSDLError(
                 SDL_RenderCopy(mRenderer, texture, &srcRect, &dstRect));
-            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, mCursorX, m_cursorY);
+            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, mCursorX, mCursorY);
             mCursorX += advanceBox.w;
         }
     }
@@ -249,11 +249,11 @@ void TextRendererImpl::SetColor(const SDL_Color &color)
 bool TextRendererImpl::SetFont(const std::string &fontname, int size)
 {
     if(mFontData != NULL) {
-        if((mFontData->fontname == fontname) && (m_fontData->size == size))
+        if((mFontData->fontname == fontname) && (mFontData->size == size))
             return true;
     }
     for(const FontData &font : mFonts) {
-        mFontData = GetBestMatch(fontname, size, m_fontData, &font);
+        mFontData = GetBestMatch(fontname, size, mFontData, &font);
     }
     if(mFontData == NULL) {
         return false;

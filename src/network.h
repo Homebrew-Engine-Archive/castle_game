@@ -22,7 +22,7 @@ public:
 class Server
 {
     std::vector<Connection> connections;
-    boost::asio::io_service &mIo;
+    boost::asio::io_service &mIO;
     short mPort;
     boost::asio::ip::tcp::endpoint mAddr;
     boost::asio::ip::tcp::acceptor mAccept;

@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace tgx;
-
 namespace
 {
+
+    using namespace tgx;
     
     struct Header
     {
