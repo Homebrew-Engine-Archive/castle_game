@@ -4,11 +4,11 @@
 #include "SDL.h"
 #include "rw.h"
 
-enum class ResourceCategory : Uint8 {
+enum class ResourceCategory : uint8_t {
     Food, Material, Weapon, Stock, Other
 };
 
-enum class Resource : Uint8 {
+enum class Resource : uint8_t {
     Bread, Apple, Cheese, Meat,
     Wood, Stone, Iron, Oil,
     Bow, Spear, Mace, LeatherArmor, Crossbow, Sword, MetalArmor,
@@ -16,11 +16,11 @@ enum class Resource : Uint8 {
     Horse, Gold
 };
 
-enum class ActionClass : Uint8 {
+enum class ActionClass : uint8_t {
     
 };
 
-enum class ActionResult : Uint8 {
+enum class ActionResult : uint8_t {
     NotEnoughGold,
     NotEnoughWood,
     NotEnoughStone,
@@ -32,7 +32,7 @@ class Action
 {
 public:
     Action();
-    Action(SDL_RWops *src, Sint64 numBytes);
+    Action(SDL_RWops *src, int64_t numBytes);
 
     bool Null() const;
 };

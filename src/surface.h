@@ -5,12 +5,11 @@
 #include "SDL.h"
 #include "sdl_utils.h"
 
-const int NO_FLAGS = 0;
-
-const int RMASK_DEFAULT = 0;
-const int GMASK_DEFAULT = 0;
-const int BMASK_DEFAULT = 0;
-const int AMASK_DEFAULT = 0;
+const int NoFlags = 0;
+const int DefaultRedMask = 0;
+const int DefaultGreenMask = 0;
+const int DefaultBlueMask = 0;
+const int DefaultAlphaMask = 0;
 
 /**
  * Wrapper for SDL_Surface's pointer designed with intention
@@ -51,9 +50,9 @@ class ColorKeyLocker
 {
     const Surface &object;
     bool oldEnabled;
-    Uint32 oldColor;
+    uint32_t oldColor;
 public:
-    ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color);
+    ColorKeyLocker(const Surface &surface, bool enabled, uint32_t color);
     ~ColorKeyLocker();
 };
 
@@ -71,7 +70,7 @@ public:
     virtual ~SurfaceROI();
 };
 
-typedef std::function<SDL_Color(Uint8, Uint8, Uint8, Uint8)> PixelMapper;
+typedef std::function<SDL_Color(uint8_t, uint8_t, uint8_t, uint8_t)> PixelMapper;
 
 void MapSurface(Surface &dst, PixelMapper);
 
@@ -81,9 +80,9 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height);
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 
-void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
+void DrawFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 
-void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color);
+void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 
 void BlurSurface(Surface &dst, int radius);
 

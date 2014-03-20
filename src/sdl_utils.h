@@ -8,7 +8,7 @@
 
 namespace
 {
-    
+
     template<class T, class D>
     void ThrowSDLError(const std::unique_ptr<T, D> &ptr)
     {
@@ -16,10 +16,21 @@ namespace
             throw std::runtime_error(SDL_GetError());
     }
 
-}
+    void ThrowSDLError(const SDL_Surface *surface)
+    {
+        if(surface == NULL) {
+            throw std::runtime_error(SDL_GetError());
+        }
+    }
 
-void ThrowSDLError(const SDL_Surface *surface);
-void ThrowSDLError(int code);
+    void ThrowSDLError(int code)
+    {
+        if(code < 0) {
+            throw std::runtime_error(SDL_GetError());
+        }
+    }
+
+}
 
 struct FreeSurfaceDeleter
 {
@@ -85,7 +96,7 @@ struct DestroyWindowDeleter
 
 typedef std::unique_ptr<SDL_Window, DestroyWindowDeleter> WindowPtr;
 
-SDL_Color MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
+SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 
 std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
 std::ostream &operator<<(std::ostream &out, const SDL_Point &pt);

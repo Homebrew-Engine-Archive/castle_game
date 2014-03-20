@@ -4,11 +4,11 @@
 #include <vector>
 #include <iostream>
 #include <functional>
-#include "rootscreen.h"
-#include "renderer.h"
 #include "filesystem.h"
 #include "surface.h"
 
+class Renderer;
+class RootScreen;
 class FontCollectionInfo;
 
 class LoadingScreen

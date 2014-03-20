@@ -10,7 +10,7 @@ namespace
 
     using namespace gm1;
     
-    Encoding GetEncoding(Uint32 dataClass)
+    Encoding GetEncoding(uint32_t dataClass)
     {
         switch(dataClass) {
         case 1: return Encoding::TGX16;
@@ -24,7 +24,7 @@ namespace
         }
     }
 
-    std::string GetImageClassName(Uint32 dataClass)
+    std::string GetImageClassName(uint32_t dataClass)
     {
         switch(dataClass) {
         case 1: return "Compressed 16 bit image";
@@ -52,7 +52,7 @@ namespace
     Surface AllocateSurface(int width, int height)
     {
         Surface sf = SDL_CreateRGBSurface(
-            NO_FLAGS, width, height, EntryClass::Depth(),
+            NoFlags, width, height, EntryClass::Depth(),
             EntryClass::RedMask(),
             EntryClass::GreenMask(),
             EntryClass::BlueMask(),
@@ -92,7 +92,7 @@ namespace
             return Surface();
     
         // Approximate collection size
-        Uint32 lastByte = 0;
+        uint32_t lastByte = 0;
         for(size_t i = 0; i < gm1.size(); ++i) {
             lastByte = std::max(lastByte, gm1.offsets[i] + gm1.sizes[i]);
         }
@@ -104,7 +104,7 @@ namespace
             return Surface();
         }
 
-        Sint64 origin = SDL_RWtell(src);
+        int64_t origin = SDL_RWtell(src);
         if(origin < 0) {
             std::cerr << "SDL_RWtell failed: "
                       << SDL_GetError()
@@ -137,7 +137,7 @@ namespace
     {
         atlas.reserve(gm1.size());
         int successfullLoads = 0;
-        Sint64 origin = SDL_RWtell(src);
+        int64_t origin = SDL_RWtell(src);
         
         for(size_t i = 0; i < gm1.size(); ++i) {
             const ImageHeader &header = gm1.headers.at(i);    
@@ -160,9 +160,9 @@ namespace
     template<class EntryClass>
     Surface LoadEntryImpl(SDL_RWops *src, const Collection &gm1, size_t index)
     {
-        Sint64 origin = SDL_RWtell(src);
-        Uint32 size = gm1.sizes.at(index);
-        Uint32 offset = gm1.offsets.at(index);
+        int64_t origin = SDL_RWtell(src);
+        uint32_t size = gm1.sizes.at(index);
+        uint32_t offset = gm1.offsets.at(index);
         const ImageHeader &header = gm1.headers.at(index);
 
         Surface surface = AllocateSurface<EntryClass>(
@@ -180,7 +180,7 @@ namespace
     
     void ReadHeader(SDL_RWops *src, Header *hdr)
     {
-        if(ReadableBytes(src) < GM1_HEADER_BYTES)
+        if(ReadableBytes(src) < CollectionHeaderBytes)
             throw std::runtime_error("EOF while ReadHeader");
         hdr->u1             = SDL_ReadLE32(src);
         hdr->u2             = SDL_ReadLE32(src);
@@ -210,12 +210,12 @@ namespace
     {
         if(ReadableBytes(src) < sizeof(Palette))
             throw std::runtime_error("EOF while ReadPalette");    
-        ReadInt16ArrayLE(src, &(*palette)[0], GM1_PALETTE_COLORS);
+        ReadInt16ArrayLE(src, &(*palette)[0], CollectionPaletteColors);
     }
 
     void ReadImageHeader(SDL_RWops *src, ImageHeader *hdr)
     {
-        if(ReadableBytes(src) < GM1_IMAGE_HEADER_BYTES)
+        if(ReadableBytes(src) < CollectionEntryHeaderBytes)
             throw std::runtime_error("EOF while ReadImageHeader");        
         hdr->width      = SDL_ReadLE16(src);
         hdr->height     = SDL_ReadLE16(src);
@@ -241,22 +241,22 @@ namespace
         static int Depth() {
             return 8;
         }
-        static Uint32 RedMask() {
-            return RMASK_DEFAULT;
+        static uint32_t RedMask() {
+            return DefaultRedMask;
         }
-        static Uint32 GreenMask() {
-            return GMASK_DEFAULT;
+        static uint32_t GreenMask() {
+            return DefaultGreenMask;
         }
-        static Uint32 BlueMask() {
-            return BMASK_DEFAULT;
+        static uint32_t BlueMask() {
+            return DefaultBlueMask;
         }
-        static Uint32 AlphaMask() {
-            return AMASK_DEFAULT;
+        static uint32_t AlphaMask() {
+            return DefaultAlphaMask;
         }
-        static Uint32 ColorKey() {
+        static uint32_t ColorKey() {
             return TGX_TRANSPARENT_RGB8;
         }
-        static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(tgx::DecodeTGX(src, size, surface)) {
                 std::cerr << "TGX8::Load failed" << std::endl;
             }
@@ -274,22 +274,22 @@ namespace
         static int Depth() {
             return 16;
         }    
-        static Uint32 RedMask() {
+        static uint32_t RedMask() {
             return TGX_RGB16_RMASK;
         }    
-        static Uint32 GreenMask() {
+        static uint32_t GreenMask() {
             return TGX_RGB16_GMASK;
         }    
-        static Uint32 BlueMask() {
+        static uint32_t BlueMask() {
             return TGX_RGB16_BMASK;
         }    
-        static Uint32 AlphaMask() {
+        static uint32_t AlphaMask() {
             return TGX_RGB16_AMASK;
         }    
-        static Uint32 ColorKey() {
+        static uint32_t ColorKey() {
             return TGX_TRANSPARENT_RGB16;
         }    
-        static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(tgx::DecodeTGX(src, size, surface)) {
                 std::cerr << "TGX16::Load failed" << std::endl;
             }
@@ -307,22 +307,22 @@ namespace
         static int Depth() {
             return 16;
         }    
-        static Uint32 RedMask() {
+        static uint32_t RedMask() {
             return TGX_RGB16_RMASK;
         }    
-        static Uint32 GreenMask() {
+        static uint32_t GreenMask() {
             return TGX_RGB16_GMASK;
         }    
-        static Uint32 BlueMask() {
+        static uint32_t BlueMask() {
             return TGX_RGB16_BMASK;
         }    
-        static Uint32 AlphaMask() {
+        static uint32_t AlphaMask() {
             return TGX_RGB16_AMASK;
         }    
-        static Uint32 ColorKey() {
+        static uint32_t ColorKey() {
             return TGX_TRANSPARENT_RGB16;
         }
-        static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &header, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &header, Surface &surface) {
             SDL_Rect tilerect = MakeRect(
                 0,
                 header.tileY,
@@ -357,22 +357,22 @@ namespace
         static int Depth() {
             return 16;
         }    
-        static Uint32 RedMask() {
+        static uint32_t RedMask() {
             return TGX_RGB16_RMASK;
         }    
-        static Uint32 GreenMask() {
+        static uint32_t GreenMask() {
             return TGX_RGB16_GMASK;
         }    
-        static Uint32 BlueMask() {
+        static uint32_t BlueMask() {
             return TGX_RGB16_BMASK;
         }    
-        static Uint32 AlphaMask() {
+        static uint32_t AlphaMask() {
             return TGX_RGB16_AMASK;
         }    
-        static Uint32 ColorKey() {
+        static uint32_t ColorKey() {
             return TGX_TRANSPARENT_RGB16;
         }    
-        static void Load(SDL_RWops *src, Sint64 size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(tgx::DecodeUncompressed(src, size, surface)) {
                 std::cerr << "Bitmap::Load failed" << std::endl;
             }
@@ -381,244 +381,246 @@ namespace
 
 }
 
-NAMESPACE_BEGIN(gm1)
-
-Collection::Collection(SDL_RWops *src)
-    throw(std::runtime_error)
+namespace gm1
 {
-    if(src == NULL)
-        throw std::runtime_error("passed NULL file");
+
+    Collection::Collection(SDL_RWops *src)
+    {
+        if(src == NULL)
+            throw std::runtime_error("passed NULL file");
     
-    ReadHeader(src, &header);
-    if(ReadableBytes(src) < header.dataSize)
-        throw std::runtime_error("failed comparision against header.dataSize");
-    Uint32 count = header.imageCount;
+        ReadHeader(src, &header);
+        if(ReadableBytes(src) < header.dataSize)
+            throw std::runtime_error("failed comparision against header.dataSize");
+        uint32_t count = header.imageCount;
 
-    palettes.resize(GM1_PALETTE_COUNT);
-    for(Palette &palette : palettes)
-        ReadPalette(src, &palette);
+        palettes.resize(CollectionPaletteCount);
+        for(Palette &palette : palettes)
+            ReadPalette(src, &palette);
 
-    if(ReadableBytes(src) < sizeof(Uint32) * count)
-        throw std::runtime_error("EOF while reading offsets");
-    offsets.resize(count);
-    ReadInt32ArrayLE(src, offsets.data(), offsets.size());
+        if(ReadableBytes(src) < sizeof(uint32_t) * count)
+            throw std::runtime_error("EOF while reading offsets");
+        offsets.resize(count);
+        ReadInt32ArrayLE(src, offsets.data(), offsets.size());
 
-    if(ReadableBytes(src) < sizeof(Uint32) * count)
-        throw std::runtime_error("EOF while reading sizes");
-    sizes.resize(count);
-    ReadInt32ArrayLE(src, sizes.data(), sizes.size());
+        if(ReadableBytes(src) < sizeof(uint32_t) * count)
+            throw std::runtime_error("EOF while reading sizes");
+        sizes.resize(count);
+        ReadInt32ArrayLE(src, sizes.data(), sizes.size());
 
-    headers.resize(count);
-    for(ImageHeader &hdr : headers)
-        ReadImageHeader(src, &hdr);
-}
-
-Encoding Collection::encoding() const
-{
-    return GetEncoding(header.dataClass);
-}
-
-size_t Collection::size() const
-{
-    return header.imageCount;
-}
-
-PalettePtr CreateSDLPaletteFrom(const Palette &gm1pal)
-{
-    PalettePtr ptr =
-        PalettePtr(
-            SDL_AllocPalette(GM1_PALETTE_COLORS));
-    if(!ptr) {
-        std::cerr << "SDL_AllocPalette failed: "
-                  << SDL_GetError()
-                  << std::endl;
-        return PalettePtr(nullptr);
+        headers.resize(count);
+        for(ImageHeader &hdr : headers)
+            ReadImageHeader(src, &hdr);
     }
 
-    std::vector<SDL_Color> colors;
-    colors.reserve(GM1_PALETTE_COLORS);
-    for(Uint16 color: gm1pal) {
-        SDL_Color c;
-        c.r = tgx::GetRed(color);
-        c.g = tgx::GetGreen(color);
-        c.b = tgx::GetBlue(color);
-        c.a = tgx::GetAlpha(color);
-        colors.push_back(c);
+    Encoding Collection::encoding() const
+    {
+        return GetEncoding(header.dataClass);
     }
-    
-    if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, GM1_PALETTE_COLORS) < 0) {
-        std::cerr << "SDL_SetPaletteColors failed: "
-                  << SDL_GetError()
-                  << std::endl;
-        return PalettePtr(nullptr);
+
+    size_t Collection::size() const
+    {
+        return header.imageCount;
     }
-    
-    return ptr;
-}
 
-Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index)
-    throw(std::runtime_error)
-{
-    switch(gm1.encoding()) {
-    case Encoding::Font:
-        /* fallthrough */
-    case Encoding::TGX16:
-        return LoadEntryImpl<TGX16>(src, gm1, index);
-    case Encoding::TGX8:
-        return LoadEntryImpl<TGX16>(src, gm1, index);
-    case Encoding::TileObject:
-        return LoadEntryImpl<TGX16>(src, gm1, index);
-    case Encoding::Bitmap:
-        return LoadEntryImpl<TGX16>(src, gm1, index);
-    default:
-        throw std::runtime_error("Unknown encoding");
-    }
-}
-
-Surface LoadAtlas(SDL_RWops *src, const Collection &gm1)
-    throw(std::runtime_error)
-{
-    switch(gm1.encoding()) {
-    case Encoding::Font:
-        /* fallthrough */
-    case Encoding::TGX16:
-        return LoadAtlasImpl<TGX16>(src, gm1);
-    case Encoding::TGX8:
-        return LoadAtlasImpl<TGX8>(src, gm1);
-    case Encoding::Bitmap:
-        return LoadAtlasImpl<Bitmap>(src, gm1);
-    case Encoding::TileObject:
-        return LoadAtlasImpl<TileObject>(src, gm1);
-    default:
-        throw std::runtime_error("Unknown encoding");
-    }
-}
-
-SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &rects)
-    throw(std::runtime_error)
-{
-    switch(gm1.encoding()) {
-    case Encoding::Font:
-        /* fallthrough */
-    case Encoding::TGX16:
-        return PartitionAtlasImpl<TGX16>(gm1, rects);
-    case Encoding::TGX8:
-        return PartitionAtlasImpl<TGX8>(gm1, rects);
-    case Encoding::Bitmap:
-        return PartitionAtlasImpl<Bitmap>(gm1, rects);
-    case Encoding::TileObject:
-        return PartitionAtlasImpl<TileObject>(gm1, rects);
-    default:
-        throw std::runtime_error("Unknown encoding");
-    }
-}
-
-int LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas)
-    throw(std::runtime_error)
-{
-    switch(scheme.encoding()) {
-    case Encoding::Font:
-        /* fallthrough */
-    case Encoding::TGX16:
-        return LoadEntriesImpl<TGX16>(src, scheme, atlas);
-    case Encoding::TileObject:
-        return LoadEntriesImpl<TileObject>(src, scheme, atlas);
-    case Encoding::Bitmap:
-        return LoadEntriesImpl<Bitmap>(src, scheme, atlas);
-    case Encoding::TGX8:
-        return LoadEntriesImpl<TGX8>(src, scheme, atlas);
-    default:
-        throw std::runtime_error("Unknown encoding");
-    }
-}
-
-void PrintImageHeader(std::ostream &out, const ImageHeader &header)
-{
-    using namespace std;
-    
-    out << "Width: "            << static_cast<int>(header.width) << endl
-        << "Height: "           << static_cast<int>(header.height) << endl
-        << "PosX: "             << static_cast<int>(header.posX) << endl
-        << "PosY: "             << static_cast<int>(header.posY) << endl
-        << "Group: "            << static_cast<int>(header.group) << endl
-        << "GroupSize: "        << static_cast<int>(header.groupSize) << endl
-        << "TileY: "            << static_cast<int>(header.tileY) << endl
-        << "TileOrient: "       << static_cast<int>(header.tileOrient) << endl
-        << "Horiz Offset: "     << static_cast<int>(header.hOffset) << endl
-        << "Box Width: "        << static_cast<int>(header.boxWidth) << endl
-        << "Flags: "            << static_cast<int>(header.flags) << endl;
-}
-
-void PrintHeader(std::ostream &out, const Header &header)
-{
-    using namespace std;
-    
-    out << "u1: "               << header.u1 << endl
-        << "u2: "               << header.u2 << endl
-        << "u3: "               << header.u3 << endl
-        << "imageCount: "       << header.imageCount << endl
-        << "u4: "               << header.u4 << endl
-        << "dataClass: "        << GetImageClassName(header.dataClass) << endl
-        << "u5: "               << header.u5 << endl
-        << "u6: "               << header.u6 << endl
-        << "sizeCategory: "     << header.sizeCategory << endl
-        << "u7: "               << header.u7 << endl
-        << "u8: "               << header.u8 << endl
-        << "u9: "               << header.u9 << endl
-        << "width: "            << header.width << endl
-        << "height: "           << header.height << endl
-        << "u10: "              << header.u10 << endl
-        << "u11: "              << header.u11 << endl
-        << "u12: "              << header.u12 << endl
-        << "u13: "              << header.u13 << endl
-        << "anchorX: "          << header.anchorX << endl
-        << "anchorY: "          << header.anchorY << endl
-        << "dataSize: "         << header.dataSize << endl
-        << "u14: "              << header.u14 << endl;
-}
-
-void PrintPalette(std::ostream &out, const Palette &palette)
-{
-    for(size_t i = 0; i < palette.size(); ++i) {
-        out << std::hex;
-        for(size_t j = 0; j < 16; ++j, ++i) {
-            out << palette[i] << ' ';
+    PalettePtr CreateSDLPaletteFrom(const Palette &gm1pal)
+    {
+        PalettePtr ptr =
+            PalettePtr(
+                SDL_AllocPalette(CollectionPaletteColors));
+        if(!ptr) {
+            std::cerr << "SDL_AllocPalette failed: "
+                      << SDL_GetError()
+                      << std::endl;
+            return PalettePtr(nullptr);
         }
+
+        std::vector<SDL_Color> colors;
+        colors.reserve(CollectionPaletteColors);
+        for(auto color : gm1pal) {
+            SDL_Color c;
+            c.r = tgx::GetRed(color);
+            c.g = tgx::GetGreen(color);
+            c.b = tgx::GetBlue(color);
+            c.a = tgx::GetAlpha(color);
+            colors.push_back(c);
+        }
+    
+        if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, CollectionPaletteColors) < 0) {
+            std::cerr << "SDL_SetPaletteColors failed: "
+                      << SDL_GetError()
+                      << std::endl;
+            return PalettePtr(nullptr);
+        }
+    
+        return ptr;
+    }
+
+    Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index)
+    {
+        switch(gm1.encoding()) {
+        case Encoding::Font:
+            /* fallthrough */
+        case Encoding::TGX16:
+            return LoadEntryImpl<TGX16>(src, gm1, index);
+        case Encoding::TGX8:
+            return LoadEntryImpl<TGX16>(src, gm1, index);
+        case Encoding::TileObject:
+            return LoadEntryImpl<TGX16>(src, gm1, index);
+        case Encoding::Bitmap:
+            return LoadEntryImpl<TGX16>(src, gm1, index);
+        default:
+            throw std::runtime_error("Unknown encoding");
+        }
+    }
+
+    Surface LoadAtlas(SDL_RWops *src, const Collection &gm1)
+    {
+        switch(gm1.encoding()) {
+        case Encoding::Font:
+            /* fallthrough */
+        case Encoding::TGX16:
+            return LoadAtlasImpl<TGX16>(src, gm1);
+        case Encoding::TGX8:
+            return LoadAtlasImpl<TGX8>(src, gm1);
+        case Encoding::Bitmap:
+            return LoadAtlasImpl<Bitmap>(src, gm1);
+        case Encoding::TileObject:
+            return LoadAtlasImpl<TileObject>(src, gm1);
+        default:
+            throw std::runtime_error("Unknown encoding");
+        }
+    }
+
+    SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &rects)
+    {
+        switch(gm1.encoding()) {
+        case Encoding::Font:
+            /* fallthrough */
+        case Encoding::TGX16:
+            return PartitionAtlasImpl<TGX16>(gm1, rects);
+        case Encoding::TGX8:
+            return PartitionAtlasImpl<TGX8>(gm1, rects);
+        case Encoding::Bitmap:
+            return PartitionAtlasImpl<Bitmap>(gm1, rects);
+        case Encoding::TileObject:
+            return PartitionAtlasImpl<TileObject>(gm1, rects);
+        default:
+            throw std::runtime_error("Unknown encoding");
+        }
+    }
+
+    int LoadEntries(SDL_RWops *src, const Collection &scheme, std::vector<Surface> &atlas)
+    {
+        switch(scheme.encoding()) {
+        case Encoding::Font:
+            /* fallthrough */
+        case Encoding::TGX16:
+            return LoadEntriesImpl<TGX16>(src, scheme, atlas);
+        case Encoding::TileObject:
+            return LoadEntriesImpl<TileObject>(src, scheme, atlas);
+        case Encoding::Bitmap:
+            return LoadEntriesImpl<Bitmap>(src, scheme, atlas);
+        case Encoding::TGX8:
+            return LoadEntriesImpl<TGX8>(src, scheme, atlas);
+        default:
+            throw std::runtime_error("Unknown encoding");
+        }
+    }
+
+    void PrintImageHeader(std::ostream &out, const ImageHeader &header)
+    {
+        using namespace std;
+    
+        out << "Width: "            << static_cast<int>(header.width) << endl
+            << "Height: "           << static_cast<int>(header.height) << endl
+            << "PosX: "             << static_cast<int>(header.posX) << endl
+            << "PosY: "             << static_cast<int>(header.posY) << endl
+            << "Group: "            << static_cast<int>(header.group) << endl
+            << "GroupSize: "        << static_cast<int>(header.groupSize) << endl
+            << "TileY: "            << static_cast<int>(header.tileY) << endl
+            << "TileOrient: "       << static_cast<int>(header.tileOrient) << endl
+            << "Horiz Offset: "     << static_cast<int>(header.hOffset) << endl
+            << "Box Width: "        << static_cast<int>(header.boxWidth) << endl
+            << "Flags: "            << static_cast<int>(header.flags) << endl;
+    }
+
+    void PrintHeader(std::ostream &out, const Header &header)
+    {
+        using namespace std;
+    
+        out << "u1: "               << header.u1 << endl
+            << "u2: "               << header.u2 << endl
+            << "u3: "               << header.u3 << endl
+            << "imageCount: "       << header.imageCount << endl
+            << "u4: "               << header.u4 << endl
+            << "dataClass: "        << GetImageClassName(header.dataClass) << endl
+            << "u5: "               << header.u5 << endl
+            << "u6: "               << header.u6 << endl
+            << "sizeCategory: "     << header.sizeCategory << endl
+            << "u7: "               << header.u7 << endl
+            << "u8: "               << header.u8 << endl
+            << "u9: "               << header.u9 << endl
+            << "width: "            << header.width << endl
+            << "height: "           << header.height << endl
+            << "u10: "              << header.u10 << endl
+            << "u11: "              << header.u11 << endl
+            << "u12: "              << header.u12 << endl
+            << "u13: "              << header.u13 << endl
+            << "anchorX: "          << header.anchorX << endl
+            << "anchorY: "          << header.anchorY << endl
+            << "dataSize: "         << header.dataSize << endl
+            << "u14: "              << header.u14 << endl;
+    }
+
+    void PrintPalette(std::ostream &out, const Palette &palette)
+    {
+        int col = 0;
+
+        out << std::hex;
+        for(auto color : palette) {
+            col++;
+            
+            if(col % 16 == 0)
+                out << std::endl;
+            
+            out << color << ' ';
+        }
+
         out << std::endl;
     }
-}
 
-void PrintCollection(std::ostream &out, const Collection &gm1)
-{
-    using namespace std;
+    void PrintCollection(std::ostream &out, const Collection &gm1)
+    {
+        using namespace std;
     
-    PrintHeader(out, gm1.header);
-    for(size_t index = 0; index < gm1.palettes.size(); ++index) {
-        out << "Palette " << index << endl;
-        PrintPalette(out, gm1.palettes[index]);
+        PrintHeader(out, gm1.header);
+        for(size_t index = 0; index < gm1.palettes.size(); ++index) {
+            out << "Palette " << index << endl;
+            PrintPalette(out, gm1.palettes[index]);
+        }
+    
+        for(size_t i = 0; i < gm1.offsets.size(); ++i)
+            out << "Offset " << i << ": " << gm1.offsets[i] << endl;
+    
+        for(size_t i = 0; i < gm1.sizes.size(); ++i)
+            out << "Size " << i << ": " << gm1.sizes[i] << endl;
+    
+        for(size_t i = 0; i < gm1.headers.size(); ++i) {
+            out << "Image Header " << i << endl;
+            PrintImageHeader(out, gm1.headers[i]);
+        }
+    
+        int64_t origin =
+            // unaligned sizeof(gm1::Header)
+            CollectionHeaderBytes
+            // unaligned sizeof(gm1::ImageHeader) * n
+            + CollectionEntryHeaderBytes * gm1.size()
+            // unaligned sizeof(gm1::Palette) * m
+            + CollectionPaletteColors * CollectionPaletteCount * sizeof(uint16_t)
+            + sizeof(uint32_t) * gm1.size()
+            + sizeof(uint32_t) * gm1.size();
+        out << "Data entry point at " << origin << endl;
     }
-    
-    for(size_t i = 0; i < gm1.offsets.size(); ++i)
-        out << "Offset " << i << ": " << gm1.offsets[i] << endl;
-    
-    for(size_t i = 0; i < gm1.sizes.size(); ++i)
-        out << "Size " << i << ": " << gm1.sizes[i] << endl;
-    
-    for(size_t i = 0; i < gm1.headers.size(); ++i) {
-        out << "Image Header " << i << endl;
-        PrintImageHeader(out, gm1.headers[i]);
-    }
-    
-    Sint64 origin =
-        // unaligned sizeof(gm1::Header)
-        GM1_HEADER_BYTES
-        // unaligned sizeof(gm1::ImageHeader) * n
-        + GM1_IMAGE_HEADER_BYTES * gm1.size()
-        // unaligned sizeof(gm1::Palette) * m
-        + GM1_PALETTE_COLORS * GM1_PALETTE_COUNT * sizeof(Uint16)
-        + sizeof(Uint32) * gm1.size()
-        + sizeof(Uint32) * gm1.size();
-    out << "Data entry point at " << origin << endl;
-}
 
-NAMESPACE_END(gm1)
+} // namespace gm1

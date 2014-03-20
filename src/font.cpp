@@ -9,7 +9,7 @@ namespace
 
     Surface DecodeGM1Glyph(const Surface &src)
     {
-        Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NO_FLAGS);
+        Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NoFlags);
         ThrowSDLError(rgb32);
 
         // Swap green channel with alpha channel, so
@@ -17,7 +17,7 @@ namespace
         // magenta-colored pixels become alpha-blended
 
         // This way we are also reaching font-aliasing
-        auto swap_green_alpha = [](Uint8 r, Uint8 g, Uint8 b, Uint8) {
+        auto swap_green_alpha = [](uint8_t r, uint8_t g, uint8_t b, uint8_t) {
             return SDL_Color { r, 255, b, g };
         };
     

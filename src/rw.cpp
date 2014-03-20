@@ -2,7 +2,7 @@
 #include <memory>
 #include <iostream>
 
-TempSeek::TempSeek(SDL_RWops *src, Sint64 whither, int seek)
+TempSeek::TempSeek(SDL_RWops *src, int64_t whither, int seek)
     : mSrc(src)
     , mOrigin(SDL_RWtell(src))
 {
@@ -20,38 +20,38 @@ RWPtr RWFromFileBuffer(const FileBuffer &buffer)
     return std::move(src);
 }
 
-Sint64 ReadableBytes(SDL_RWops *src)
+int64_t ReadableBytes(SDL_RWops *src)
 {
-    Sint64 size = SDL_RWsize(src);
-    Sint64 pos = SDL_RWtell(src);
+    int64_t size = SDL_RWsize(src);
+    int64_t pos = SDL_RWtell(src);
     return ((size < 0) || (pos < 0) || (size < pos))
         ? 0
         : size - pos;
 }
 
-void ReadInt32ArrayLE(SDL_RWops *src, Uint32 *buffer, size_t num)
+void ReadInt32ArrayLE(SDL_RWops *src, uint32_t *buffer, size_t num)
 {
-    SDL_RWread(src, buffer, num, sizeof(Uint32));
+    SDL_RWread(src, buffer, num, sizeof(uint32_t));
 
     if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-        for(Uint32 *ptr = buffer; ptr != buffer + num; ++ptr)
+        for(uint32_t *ptr = buffer; ptr != buffer + num; ++ptr)
             *ptr = SDL_Swap32(*ptr);
     }
 }
 
-void ReadInt16ArrayLE(SDL_RWops *src, Uint16 *buffer, size_t num)
+void ReadInt16ArrayLE(SDL_RWops *src, uint16_t *buffer, size_t num)
 {
-    SDL_RWread(src, buffer, num, sizeof(Uint16));
+    SDL_RWread(src, buffer, num, sizeof(uint16_t));
 
     if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-        for(Uint16 *ptr = buffer; ptr != buffer + num; ++ptr)
+        for(uint16_t *ptr = buffer; ptr != buffer + num; ++ptr)
             *ptr = SDL_Swap16(*ptr);
     }
 }
 
-void ReadInt8ArrayLE(SDL_RWops *src, Uint8 *buffer, size_t num)
+void ReadInt8ArrayLE(SDL_RWops *src, uint8_t *buffer, size_t num)
 {
-    SDL_RWread(src, buffer, num, sizeof(Uint8));
+    SDL_RWread(src, buffer, num, sizeof(uint8_t));
 }
 
 FileBuffer::FileBuffer(const char *filename, const char *mode)
@@ -87,24 +87,24 @@ void FileBuffer::ReadRW(SDL_RWops *src)
     if(src == NULL)
         throw std::runtime_error("file not readable");
     
-    Sint64 bytes = ReadableBytes(src);
+    int64_t bytes = ReadableBytes(src);
     buffer.resize(bytes);
-    if(SDL_RWread(src, Data(), sizeof(Uint8), bytes) != bytes) {
+    if(SDL_RWread(src, Data(), sizeof(uint8_t), bytes) != bytes) {
         throw std::runtime_error("eof unexpected");
     }
 }
 
-const Uint8 *FileBuffer::Data() const
+const uint8_t *FileBuffer::Data() const
 {
     return &buffer[0];
 }
 
-Uint8 *FileBuffer::Data()
+uint8_t *FileBuffer::Data()
 {
     return &buffer[0];
 }
 
-Sint64 FileBuffer::Size() const
+int64_t FileBuffer::Size() const
 {
     return buffer.size();
 }

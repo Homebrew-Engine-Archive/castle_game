@@ -3,6 +3,8 @@
 
 #include "SDL.h"
 
+class Surface;
+
 class Animation
 {
     std::vector<Surface> mFrames;
@@ -14,8 +16,8 @@ class Playback
 {
 public:
     Playback(const Surface &single);
-    Playback(const Animation &anim, std::int64_t duration);
-    void Advance(std::int64_t elapsed);
+    Playback(const Animation &anim, int64_t duration);
+    void Advance(int64_t elapsed);
     Surface GetFrame() const;
     Playback Translate(const Animation &that);
 };

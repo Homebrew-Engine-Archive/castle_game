@@ -30,16 +30,16 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
         std::vector<Surface> atlas;
         gm1::LoadEntries(src.get(), gm1, atlas);
         
-        for(size_t n = 0; n < GM1_PALETTE_COUNT; ++n) {
+        for(const gm1::Palette &pal : gm1.palettes) {
             PalettePtr palette =
                 PalettePtr(
-                    gm1::CreateSDLPaletteFrom(gm1.palettes[n]));
+                    gm1::CreateSDLPaletteFrom(pal));
             ptr->palettes.push_back(std::move(palette));
         }
         
-        for(size_t n = 0; n < gm1.header.imageCount; ++n) {
+        for(size_t n = 0; n < gm1.size(); ++n) {
             gm1::ImageHeader header = gm1.headers[n];
-            Surface surface = atlas[n];
+            Surface &surface = atlas[n];
             ptr->entries.emplace_back(header, surface);
         }
 

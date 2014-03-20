@@ -1,13 +1,17 @@
 #include "loadingscreen.h"
-#include "geometry.h"
-#include "gm1.h"
-#include "filesystem.h"
-#include "SDL.h"
-#include "collection.h"
+
 #include <memory>
 #include <sstream>
 #include <iostream>
 #include <boost/filesystem/fstream.hpp>
+#include "SDL.h"
+
+#include "collection.h"
+#include "filesystem.h"
+#include "geometry.h"
+#include "gm1.h"
+#include "renderer.h"
+#include "rootscreen.h"
 
 namespace
 {

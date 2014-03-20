@@ -29,7 +29,7 @@ class RendererImpl final : public Renderer
     std::unique_ptr<TextRenderer> mTextRenderer;
     int mFbWidth;
     int mFbHeight;
-    Uint32 mFbFormat;
+    uint32_t mFbFormat;
     TexturePtr mFbTexture;
     Surface mFbSurface;
     std::vector<TextBatch> mTextOverlay;
@@ -129,10 +129,10 @@ bool RendererImpl::CreateFrameTexture(int width, int height)
 
 bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int pitch)
 {
-    Uint32 rmask;
-    Uint32 gmask;
-    Uint32 bmask;
-    Uint32 amask;
+    uint32_t rmask;
+    uint32_t gmask;
+    uint32_t bmask;
+    uint32_t amask;
     int bpp;
     if(!SDL_PixelFormatEnumToMasks(mFbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
         std::cerr << "SDL_PixelFormatEnumToMasks failed: "

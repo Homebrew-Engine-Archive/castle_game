@@ -4,7 +4,7 @@ Action::Action()
 {
 }
 
-Action::Action(SDL_RWops *, Sint64 )
+Action::Action(SDL_RWops *, int64_t )
 {
     
 }

@@ -4,7 +4,7 @@
 #include <vector>
 #include "direction.h"
 
-enum class AnimationClass : Uint32 {
+enum class AnimationClass : uint32_t {
     Walk,
     Run,
     Idle1,

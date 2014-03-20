@@ -20,7 +20,7 @@ namespace
         Pixel *last = first + count;
         
         while(first != last) {
-            Uint8 r, g, b, a;
+            uint8_t r, g, b, a;
             SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
         
             SDL_Color result = f(r, g, b, a);
@@ -37,7 +37,7 @@ namespace
     
         SurfaceLocker lock(dst);
 
-        Uint8 *pixels = reinterpret_cast<Uint8 *>(dst->pixels);
+        uint8_t *pixels = reinterpret_cast<uint8_t *>(dst->pixels);
         const SDL_PixelFormat *fmt = dst->format;
 
         for(int y = 0; y < dst->h; ++y) {
@@ -48,7 +48,7 @@ namespace
     
     void CopySurfaceColorKey(SDL_Surface *src, SDL_Surface *dst)
     {
-        Uint32 colorkey;
+        uint32_t colorkey;
         bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
 
         SDL_SetColorKey(dst, enabled, colorkey);
@@ -71,10 +71,10 @@ namespace
             throw std::invalid_argument("CreateSurfaceFrom: passed NULL format");
         }
         
-        Uint32 rmask = format->Rmask;
-        Uint32 gmask = format->Gmask;
-        Uint32 bmask = format->Bmask;
-        Uint32 amask = format->Amask;
+        uint32_t rmask = format->Rmask;
+        uint32_t gmask = format->Gmask;
+        uint32_t bmask = format->Bmask;
+        uint32_t amask = format->Amask;
         int bpp = format->BitsPerPixel;
 
         return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
@@ -86,13 +86,13 @@ namespace
             throw std::invalid_argument("CreateSurface: passed NULL format");
         }
 
-        Uint32 rmask = format->Rmask;
-        Uint32 gmask = format->Gmask;
-        Uint32 bmask = format->Bmask;
-        Uint32 amask = format->Amask;
+        uint32_t rmask = format->Rmask;
+        uint32_t gmask = format->Gmask;
+        uint32_t bmask = format->Bmask;
+        uint32_t amask = format->Amask;
         int bpp = format->BitsPerPixel;
 
-        return SDL_CreateRGBSurface(NO_FLAGS, width, height, bpp, rmask, gmask, bmask, amask);
+        return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
     }
 
     template<class Pixel>
@@ -130,7 +130,7 @@ SurfaceLocker::~SurfaceLocker()
     }
 }
 
-ColorKeyLocker::ColorKeyLocker(const Surface &surface, bool enabled, Uint32 color)
+ColorKeyLocker::ColorKeyLocker(const Surface &surface, bool enabled, uint32_t color)
     : object(surface)
 {
     if(!object.Null()) {
@@ -227,10 +227,10 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     if(src.Null())
         return;
     
-    Uint32 x;
-    Uint32 y;
-    Uint32 width;
-    Uint32 height;
+    uint32_t x;
+    uint32_t y;
+    uint32_t width;
+    uint32_t height;
 
     if(roi != NULL) {
         x = roi->x;
@@ -245,9 +245,9 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     }
     
 
-    Uint32 bytesPerPixel = src->format->BytesPerPixel;
+    uint32_t bytesPerPixel = src->format->BytesPerPixel;
     
-    Uint8 *pixels = reinterpret_cast<Uint8*>(src->pixels)
+    uint8_t *pixels = reinterpret_cast<uint8_t*>(src->pixels)
         + y * src->pitch
         + x * bytesPerPixel;
     
@@ -286,23 +286,23 @@ void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_
         SDL_BlitSurface(src, srcrect, dst, dstrect));
 }
 
-void DrawFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+void DrawFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)
 {
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
-    Uint8 r, g, b, a;
+    uint8_t r, g, b, a;
     SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
     SDL_SetRenderDrawColor(render.get(), r, g, b, a);
     SDL_RenderDrawRect(render.get(), dstrect);
 }
 
-void FillFrame(Surface &dst, const SDL_Rect *dstrect, Uint32 color)
+void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)
 {
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
-    Uint8 r, g, b, a;
+    uint8_t r, g, b, a;
     SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
     SDL_SetRenderDrawColor(render.get(), r, g, b, a);
     SDL_RenderFillRect(render.get(), dstrect);
@@ -326,16 +326,16 @@ void MapSurface(Surface &dst, PixelMapper f)
 {
     switch(dst->format->BytesPerPixel) {
     case 1:
-        MapSurfaceImpl<Uint8>(dst, f);
+        MapSurfaceImpl<uint8_t>(dst, f);
         break;
     case 2:
-        MapSurfaceImpl<Uint16>(dst, f);
+        MapSurfaceImpl<uint16_t>(dst, f);
         break;
     case 3:
         // TODO implement me
         break;
     case 4:
-        MapSurfaceImpl<Uint32>(dst, f);
+        MapSurfaceImpl<uint32_t>(dst, f);
         break;
     default:
         throw std::runtime_error("Unsupported BPP");
@@ -346,16 +346,16 @@ void BlurSurface(Surface &dst, int radius)
 {
     switch(dst->format->BytesPerPixel) {
     case 1:
-        BlurSurfaceImpl<Uint8>(dst, radius);
+        BlurSurfaceImpl<uint8_t>(dst, radius);
         break;
     case 2:
-        BlurSurfaceImpl<Uint16>(dst, radius);
+        BlurSurfaceImpl<uint16_t>(dst, radius);
         break;
     case 3:
         // TODO implement me
         break;
     case 4:
-        BlurSurfaceImpl<Uint32>(dst, radius);
+        BlurSurfaceImpl<uint32_t>(dst, radius);
         break;
     default:
         throw std::runtime_error("Unsupported BPP");
