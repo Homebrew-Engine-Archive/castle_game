@@ -2,3 +2,9 @@ src/gm/*
 src/gfx/*
 *.out
 *~
+core
+Makefile
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+vgcore.*
