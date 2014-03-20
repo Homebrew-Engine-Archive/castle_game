@@ -11,7 +11,7 @@
 
 class Surface;
 
-namespace gm1
+namespace GM
 {
 
     const size_t CollectionPaletteCount = 10;
@@ -22,11 +22,11 @@ namespace gm1
     const size_t PaletteShadowIndex = 1;
 
     
-/** @brief Is included in every collection only once.
- *
- * NOTE
- * Every field that matches "u\\d+" is unknown purpose field.
- */
+    /** @brief Is included in every collection only once.
+    *
+    * NOTE
+    * Every field that matches "u\\d+" is unknown purpose field.
+    */
     struct Header
     {
         uint32_t u1;
@@ -53,20 +53,20 @@ namespace gm1
         uint32_t u14;
     };
 
-/** @brief Every image in the collection describes by this.
- *
- * This header should be read from the source file before
- * read original image.
- *
- * NOTE:
- * If collection is TileObject encoded, then `tileY' represents
- * an offset from the top pixel of box to the bottom.
- * 
- * If collection is Font encoded, then `tileY' represents
- * a y-bearing font metric.
- * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
- *
- */
+    /** @brief Every image in the collection describes by this.
+    *
+    * This header should be read from the source file before
+    * read original image.
+    *
+    * NOTE:
+    * If collection is TileObject encoded, then `tileY' represents
+    * an offset from the top pixel of box to the bottom.
+    * 
+    * If collection is Font encoded, then `tileY' represents
+    * a y-bearing font metric.
+    * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
+    *
+    */
     struct ImageHeader
     {
         uint16_t width;
@@ -92,13 +92,13 @@ namespace gm1
         Unknown
     };
 
-// TODO Look how this thing really works (if it does).
-// enum class TileAlignment : uint8_t {
-//     Left,
-//     Right,
-//     Center,
-//     None
-// };
+    // TODO Look how this thing really works (if it does).
+    // enum class TileAlignment : uint8_t {
+    //     Left,
+    //     Right,
+    //     Center,
+    //     None
+    // };
 
     typedef std::array<uint16_t, CollectionPaletteColors> Palette;
 
@@ -119,11 +119,15 @@ namespace gm1
     struct Collection
     {
         explicit Collection(SDL_RWops *src);
+        Collection(const Collection &) = default;
+        Collection(Collection &&) = default;
+        Collection &operator=(const Collection &) = default;
+        Collection &operator=(Collection &&) = default;
+        
         Header header;
         std::vector<Palette> palettes;
         std::vector<uint32_t> offsets, sizes;
-        std::vector<ImageHeader> headers;
-
+        std::vector<ImageHeader> headers;        
         Encoding encoding() const;
         size_t size() const;
     };
@@ -141,6 +145,6 @@ namespace gm1
 
     Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index);
 
-} // namespace gm1
+} // namespace GM
 
 #endif

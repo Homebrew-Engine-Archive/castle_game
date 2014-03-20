@@ -46,7 +46,7 @@ static const std::vector<Direction> DIRECTION_FRONT = {
     Direction::South
 };
 
-// Archer::Archer(const gm1::Collection &collection, const std::vector<Frame> &frames)
+// Archer::Archer(const GM::Collection &collection, const std::vector<Frame> &frames)
 // {
 //     AnimationBuilder builder(collection, frames);
 //     builder.Read(16, DIRECTION_FULL, walk);

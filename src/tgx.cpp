@@ -1,13 +1,15 @@
 #include "tgx.h"
-#include "rw.h"
-#include "surface.h"
+
 #include <algorithm>
 #include <iostream>
+#include <sstream>
+#include "SDL.h"
+
+#include "rw.h"
+#include "surface.h"
 
 namespace
 {
-
-    using namespace tgx;
     
     struct Header
     {
@@ -15,7 +17,8 @@ namespace
         uint32_t height;
     };
     
-    enum class TokenType : int {
+    enum class TokenType : int
+    {
         Stream = 0,
         Transparent = 1,
         Repeat = 2,
@@ -58,10 +61,14 @@ namespace
     std::string GetTokenTypeName(TokenType type)
     {
         switch(type) {
-        case TokenType::Transparent: return "Transparent";
-        case TokenType::Stream: return "Stream";
-        case TokenType::LineFeed: return "LineFeed";
-        case TokenType::Repeat: return "Repeat";
+        case TokenType::Transparent:
+            return "Transparent";
+        case TokenType::Stream:
+            return "Stream";
+        case TokenType::LineFeed:
+            return "LineFeed";
+        case TokenType::Repeat:
+            return "Repeat";
         default:
             return "Unknown";
         }
@@ -81,10 +88,10 @@ namespace
         uint32_t amask = DefaultAlphaMask;
         
         if(bpp == 16) {
-            rmask = TGX_RGB16_RMASK;
-            gmask = TGX_RGB16_GMASK;
-            bmask = TGX_RGB16_BMASK;
-            amask = TGX_RGB16_AMASK;
+            rmask = TGX::RedMask16;
+            gmask = TGX::GreenMask16;
+            bmask = TGX::BlueMask16;
+            amask = TGX::AlphaMask16;
         }
     
         Surface surface =
@@ -99,15 +106,14 @@ namespace
                 amask);
 
         if(surface.Null()) {
-            std::cerr << "SDL_CreateRGBSurface failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return Surface();
+            std::ostringstream oss;
+            oss << "SDL_CreateRGBSurface failed: "
+                << SDL_GetError();
+            throw std::runtime_error(oss.str());
         }
     
-        if(DecodeTGX(src, size, surface) < 0) {
-            std::cerr << "DecodeTGX failed" << std::endl;
-            return Surface();
+        if(TGX::DecodeTGX(src, size, surface) < 0) {
+            throw std::runtime_error("DecodeTGX failed");
         }
     
         return surface;
@@ -115,7 +121,7 @@ namespace
 
 }
 
-namespace tgx
+namespace TGX
 {
 
     Surface LoadStandaloneImage(SDL_RWops *src)
@@ -153,7 +159,7 @@ namespace tgx
             return -1;
         }
 
-        if(size < TILE_BYTES) {
+        if(size < TileBytes) {
             std::cerr << "Incorrect size" << std::endl;
             return -1;
         }
@@ -161,8 +167,8 @@ namespace tgx
         SurfaceLocker lock(surface);
 
         int pitchBytes = surface->pitch;
-        size_t height = TILE_RHOMBUS_HEIGHT;
-        size_t width = TILE_RHOMBUS_WIDTH;
+        size_t height = TileHeight;
+        size_t width = TileWidth;
         uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
         int bytesPerPixel = sizeof(uint16_t);
     

@@ -12,7 +12,7 @@
 
 struct CollectionAtlas
 {
-    gm1::Collection gm1;
+    GM::Collection gm1;
     Surface map;
     CollectionAtlas(SDL_RWops *src);
 };
@@ -21,16 +21,16 @@ typedef std::unique_ptr<CollectionAtlas> CollectionAtlasPtr;
 
 struct CollectionEntry
 {
-    gm1::ImageHeader header;
+    GM::ImageHeader header;
     Surface surface;
-    CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf_);
+    CollectionEntry(const GM::ImageHeader &hdr_, const Surface &sf_);
 };
 
 typedef std::unique_ptr<CollectionEntry> CollectionEntryPtr;
 
 struct CollectionData
 {
-    gm1::Header header;
+    GM::Header header;
     std::vector<CollectionEntry> entries;
     std::vector<PalettePtr> palettes;
 };

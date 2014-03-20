@@ -8,7 +8,7 @@
 namespace
 {
 
-    using namespace gm1;
+    using namespace GM;
     
     Encoding GetEncoding(uint32_t dataClass)
     {
@@ -254,10 +254,10 @@ namespace
             return DefaultAlphaMask;
         }
         static uint32_t ColorKey() {
-            return TGX_TRANSPARENT_RGB8;
+            return TGX::Transparent8;
         }
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(tgx::DecodeTGX(src, size, surface)) {
+            if(TGX::DecodeTGX(src, size, surface)) {
                 std::cerr << "TGX8::Load failed" << std::endl;
             }
         }
@@ -275,22 +275,22 @@ namespace
             return 16;
         }    
         static uint32_t RedMask() {
-            return TGX_RGB16_RMASK;
+            return TGX::RedMask16;
         }    
         static uint32_t GreenMask() {
-            return TGX_RGB16_GMASK;
+            return TGX::GreenMask16;
         }    
         static uint32_t BlueMask() {
-            return TGX_RGB16_BMASK;
+            return TGX::BlueMask16;
         }    
         static uint32_t AlphaMask() {
-            return TGX_RGB16_AMASK;
-        }    
+            return TGX::AlphaMask16;
+        }
         static uint32_t ColorKey() {
-            return TGX_TRANSPARENT_RGB16;
+            return TGX::Transparent16;
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(tgx::DecodeTGX(src, size, surface)) {
+            if(TGX::DecodeTGX(src, size, surface)) {
                 std::cerr << "TGX16::Load failed" << std::endl;
             }
         }
@@ -299,37 +299,37 @@ namespace
     struct TileObject
     {
         static int Width(const ImageHeader &) {
-            return TILE_RHOMBUS_WIDTH;
+            return TGX::TileWidth;
         }    
         static int Height(const ImageHeader &header) {
-            return TILE_RHOMBUS_HEIGHT + header.tileY;
+            return TGX::TileHeight + header.tileY;
         }    
         static int Depth() {
             return 16;
         }    
         static uint32_t RedMask() {
-            return TGX_RGB16_RMASK;
+            return TGX::RedMask16;
         }    
         static uint32_t GreenMask() {
-            return TGX_RGB16_GMASK;
+            return TGX::GreenMask16;
         }    
         static uint32_t BlueMask() {
-            return TGX_RGB16_BMASK;
+            return TGX::BlueMask16;
         }    
         static uint32_t AlphaMask() {
-            return TGX_RGB16_AMASK;
+            return TGX::AlphaMask16;
         }    
         static uint32_t ColorKey() {
-            return TGX_TRANSPARENT_RGB16;
+            return TGX::Transparent16;
         }
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &header, Surface &surface) {
             SDL_Rect tilerect = MakeRect(
                 0,
                 header.tileY,
                 Width(header),
-                TILE_RHOMBUS_HEIGHT);
+                TGX::TileHeight);
             SurfaceROI tile(surface, &tilerect);
-            if(tgx::DecodeTile(src, TILE_BYTES, tile)) {
+            if(TGX::DecodeTile(src, TGX::TileBytes, tile)) {
                 std::cerr << "TileObject::Load failed" << std::endl;
             }
         
@@ -339,7 +339,7 @@ namespace
                 header.boxWidth,
                 Height(header));
             SurfaceROI box(surface, &boxrect);
-            if(tgx::DecodeTGX(src, size - TILE_BYTES, box)) {
+            if(TGX::DecodeTGX(src, size - TGX::TileBytes, box)) {
                 std::cerr << "TileObject::Load failed" << std::endl;
             }
         }
@@ -358,22 +358,22 @@ namespace
             return 16;
         }    
         static uint32_t RedMask() {
-            return TGX_RGB16_RMASK;
+            return TGX::RedMask16;
         }    
         static uint32_t GreenMask() {
-            return TGX_RGB16_GMASK;
+            return TGX::GreenMask16;
         }    
         static uint32_t BlueMask() {
-            return TGX_RGB16_BMASK;
+            return TGX::BlueMask16;
         }    
         static uint32_t AlphaMask() {
-            return TGX_RGB16_AMASK;
+            return TGX::AlphaMask16;
         }    
         static uint32_t ColorKey() {
-            return TGX_TRANSPARENT_RGB16;
+            return TGX::Transparent16;
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(tgx::DecodeUncompressed(src, size, surface)) {
+            if(TGX::DecodeUncompressed(src, size, surface)) {
                 std::cerr << "Bitmap::Load failed" << std::endl;
             }
         }
@@ -381,7 +381,7 @@ namespace
 
 }
 
-namespace gm1
+namespace GM
 {
 
     Collection::Collection(SDL_RWops *src)
@@ -439,10 +439,10 @@ namespace gm1
         colors.reserve(CollectionPaletteColors);
         for(auto color : gm1pal) {
             SDL_Color c;
-            c.r = tgx::GetRed(color);
-            c.g = tgx::GetGreen(color);
-            c.b = tgx::GetBlue(color);
-            c.a = tgx::GetAlpha(color);
+            c.r = TGX::GetRed(color);
+            c.g = TGX::GetGreen(color);
+            c.b = TGX::GetBlue(color);
+            c.a = TGX::GetAlpha(color);
             colors.push_back(c);
         }
     
@@ -612,15 +612,15 @@ namespace gm1
         }
     
         int64_t origin =
-            // unaligned sizeof(gm1::Header)
+            // unaligned sizeof(GM::Header)
             CollectionHeaderBytes
-            // unaligned sizeof(gm1::ImageHeader) * n
+            // unaligned sizeof(GM::ImageHeader) * n
             + CollectionEntryHeaderBytes * gm1.size()
-            // unaligned sizeof(gm1::Palette) * m
+            // unaligned sizeof(GM::Palette) * m
             + CollectionPaletteColors * CollectionPaletteCount * sizeof(uint16_t)
             + sizeof(uint32_t) * gm1.size()
             + sizeof(uint32_t) * gm1.size();
         out << "Data entry point at " << origin << endl;
     }
 
-} // namespace gm1
+} // namespace GM

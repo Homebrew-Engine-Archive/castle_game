@@ -5,10 +5,10 @@
 
 CollectionAtlas::CollectionAtlas(SDL_RWops *src)
     : gm1(src)
-    , map(gm1::LoadAtlas(src, gm1))
+    , map(GM::LoadAtlas(src, gm1))
 { }
 
-CollectionEntry::CollectionEntry(const gm1::ImageHeader &hdr_, const Surface &sf_)
+CollectionEntry::CollectionEntry(const GM::ImageHeader &hdr_, const Surface &sf_)
     : header(hdr_)
     , surface(sf_)
 { }
@@ -22,23 +22,23 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
         if(!src)
             throw std::runtime_error("file not readable");
         
-        gm1::Collection gm1(src.get());
+        GM::Collection gm1(src.get());
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = gm1.header;
         
         std::vector<Surface> atlas;
-        gm1::LoadEntries(src.get(), gm1, atlas);
+        GM::LoadEntries(src.get(), gm1, atlas);
         
-        for(const gm1::Palette &pal : gm1.palettes) {
+        for(const GM::Palette &pal : gm1.palettes) {
             PalettePtr palette =
                 PalettePtr(
-                    gm1::CreateSDLPaletteFrom(pal));
+                    GM::CreateSDLPaletteFrom(pal));
             ptr->palettes.push_back(std::move(palette));
         }
         
         for(size_t n = 0; n < gm1.size(); ++n) {
-            gm1::ImageHeader header = gm1.headers[n];
+            GM::ImageHeader header = gm1.headers[n];
             Surface &surface = atlas[n];
             ptr->entries.emplace_back(header, surface);
         }
@@ -83,7 +83,7 @@ Surface LoadSurface(const FilePath &filename)
         if(!src)
             throw std::runtime_error("file not readable");
         
-        return tgx::LoadStandaloneImage(src.get());
+        return TGX::LoadStandaloneImage(src.get());
         
     } catch(const std::exception &e) {
         std::cerr << "Exception in LoadImage: " << std::endl
