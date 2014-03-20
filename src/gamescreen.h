@@ -20,22 +20,22 @@ enum class CursorMode : int {
 
 class GameScreen : public Screen
 {
-    RootScreen *m_root;
-    Renderer *m_renderer;
-    GameMap m_map;
-    int m_cursorX;
-    int m_cursorY;
-    bool m_cursorInvalid;
-    int m_viewportX;
-    int m_viewportY;
-    int m_viewportRadius;
-    Direction m_viewportOrient;
-    bool m_flatView;
-    bool m_lowView;
-    bool m_zoomedOut;
-    bool m_hiddenUI;
-    CursorMode m_cursorMode;
-    bool m_closed;
+    RootScreen *mRoot;
+    Renderer *mRenderer;
+    GameMap mMap;
+    int mCursorX;
+    int mCursorY;
+    bool mCursorInvalid;
+    int mViewportX;
+    int mViewportY;
+    int mViewportRadius;
+    Direction mViewportOrient;
+    bool mFlatView;
+    bool mLowView;
+    bool mZoomedOut;
+    bool mHiddenUI;
+    CursorMode mCursorMode;
+    bool mClosed;
     
 public:
     GameScreen(RootScreen *root);

@@ -16,20 +16,20 @@ enum class BuildingCategory : int {
 };
 
 GameScreen::GameScreen(RootScreen *root)
-    : m_root(root)
-    , m_renderer(root->GetRenderer())
-    , m_cursorX(0)
-    , m_cursorY(0)
-    , m_cursorInvalid(true)
-    , m_viewportX(0)
-    , m_viewportY(0)
-    , m_viewportRadius(1)
-    , m_viewportOrient(Direction::North)
-    , m_flatView(false)
-    , m_lowView(false)
-    , m_zoomedOut(false)
-    , m_hiddenUI(false)
-    , m_cursorMode(CursorMode::Normal)
+    : mRoot(root)
+    , mRenderer(root->GetRenderer())
+    , mCursorX(0)
+    , mCursorY(0)
+    , mCursorInvalid(true)
+    , mViewportX(0)
+    , mViewportY(0)
+    , mViewportRadius(1)
+    , mViewportOrient(Direction::North)
+    , mFlatView(false)
+    , mLowView(false)
+    , mZoomedOut(false)
+    , mHiddenUI(false)
+    , mCursorMode(CursorMode::Normal)
 {
 }
 
@@ -43,7 +43,7 @@ void GameScreen::Draw(Surface &frame)
     SDL_FillRect(frame, &frameRect, 0xff000000);
 
     FilePath filepath = GetGM1FilePath("body_woodcutter");
-    const CollectionData &gm1 = m_renderer->QueryCollection(filepath);
+    const CollectionData &gm1 = mRenderer->QueryCollection(filepath);
     
     for(size_t n = 0; n < 1000; ++n) {
         size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);
@@ -66,9 +66,9 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
     switch(event.type) {
     case SDL_MOUSEMOTION:
         {
-            m_cursorInvalid = false;
-            m_cursorX = event.motion.x;
-            m_cursorY = event.motion.y;
+            mCursorInvalid = false;
+            mCursorX = event.motion.x;
+            mCursorY = event.motion.y;
         }
         break;
     case SDL_KEYDOWN:
@@ -87,13 +87,13 @@ bool GameScreen::HandleEvent(const SDL_Event &event)
 
 void GameScreen::AdjustViewport(const SDL_Rect &screen)
 {
-    if(screen.w == m_cursorX)
-        ++m_viewportX;
-    else if(0 == m_cursorX)
-        --m_viewportX;
+    if(screen.w == mCursorX)
+        ++mViewportX;
+    else if(0 == mCursorX)
+        --mViewportX;
 
-    if(screen.h == m_cursorY)
-        ++m_viewportY;
-    else if(0 == m_cursorY)
-        --m_viewportY;
+    if(screen.h == mCursorY)
+        ++mViewportY;
+    else if(0 == mCursorY)
+        --mViewportY;
 }

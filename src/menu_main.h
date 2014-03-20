@@ -10,10 +10,10 @@
 
 class MenuMain : public Screen
 {
-    RootScreen *m_root;
-    Renderer *m_renderer;
-    Surface m_background;
-    std::vector<Button> m_buttons;
+    RootScreen *mRoot;
+    Renderer *mRenderer;
+    Surface mBackground;
+    std::vector<Button> mButtons;
 
     Button MakeCombatButton();
     

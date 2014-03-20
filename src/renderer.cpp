@@ -25,16 +25,16 @@ namespace
 
 class RendererImpl final : public Renderer
 {   
-    SDL_Renderer *m_renderer;
-    std::unique_ptr<TextRenderer> m_textRenderer;
-    int m_fbWidth;
-    int m_fbHeight;
-    Uint32 m_fbFormat;
-    TexturePtr m_fbTexture;
-    Surface m_fbSurface;
-    std::vector<TextBatch> m_textOverlay;
-    std::map<FilePath, Surface> m_tgxCache;
-    std::map<FilePath, CollectionDataPtr> m_gm1Cache;
+    SDL_Renderer *mRenderer;
+    std::unique_ptr<TextRenderer> mTextRenderer;
+    int mFbWidth;
+    int mFbHeight;
+    Uint32 mFbFormat;
+    TexturePtr mFbTexture;
+    Surface mFbSurface;
+    std::vector<TextBatch> mTextOverlay;
+    std::map<FilePath, Surface> mTgxCache;
+    std::map<FilePath, CollectionDataPtr> mGm1Cache;
         
     int AdjustWidth(int width) const;
     int AdjustHeight(int height) const;
@@ -64,16 +64,16 @@ public:
 };
 
 RendererImpl::RendererImpl(SDL_Renderer *renderer)
-    : m_renderer(renderer)
-    , m_textRenderer(std::move(CreateTextRenderer(renderer)))
-    , m_fbWidth(0)
-    , m_fbHeight(0)
-    , m_fbFormat(0)
-    , m_fbSurface(NULL)
+    : mRenderer(renderer)
+    , mTextRenderer(std::move(CreateTextRenderer(renderer)))
+    , mFbWidth(0)
+    , mFbHeight(0)
+    , mFbFormat(0)
+    , mFbSurface(NULL)
 {
     SDL_Rect rect = GetOutputSize();
-    m_fbWidth = rect.w;
-    m_fbHeight = rect.h;
+    mFbWidth = rect.w;
+    mFbHeight = rect.h;
 
     std::clog << "GetOutputSize(): " << rect << std::endl;
 }
@@ -99,25 +99,25 @@ bool RendererImpl::CreateFrameTexture(int width, int height)
         return false;
     }
     
-    if((m_fbTexture) && (width == m_fbWidth) && (height == m_fbHeight)) {
+    if((mFbTexture) && (width == m_fbWidth) && (height == m_fbHeight)) {
         std::cerr << "Size of texture matches. Skip allocation."
                   << std::endl;
         return true;
     }
     
-    m_fbWidth = width;
-    m_fbHeight = height;
-    m_fbFormat = SDL_PIXELFORMAT_ARGB8888;
-    m_fbTexture =
+    mFbWidth = width;
+    mFbHeight = height;
+    mFbFormat = SDL_PIXELFORMAT_ARGB8888;
+    mFbTexture =
         TexturePtr(
             SDL_CreateTexture(
-                m_renderer,
-                m_fbFormat,
+                mRenderer,
+                mFbFormat,
                 SDL_TEXTUREACCESS_STREAMING,
-                m_fbWidth,
-                m_fbHeight));
+                mFbWidth,
+                mFbHeight));
 
-    if(!m_fbTexture) {
+    if(!mFbTexture) {
         std::cerr << "SDL_CreateTexture failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -134,7 +134,7 @@ bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int p
     Uint32 bmask;
     Uint32 amask;
     int bpp;
-    if(!SDL_PixelFormatEnumToMasks(m_fbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
+    if(!SDL_PixelFormatEnumToMasks(mFbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
         std::cerr << "SDL_PixelFormatEnumToMasks failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -150,33 +150,33 @@ bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int p
         return false;
     }
 
-    m_fbSurface = surface;
+    mFbSurface = surface;
     
     return true;
 }
 
 bool RendererImpl::ReallocationRequired(int width, int height)
 {
-    return (width != m_fbWidth) || (height != m_fbHeight);
+    return (width != mFbWidth) || (height != m_fbHeight);
 }
     
 Surface RendererImpl::BeginFrame()
 {
-    if(!m_textOverlay.empty()) {
+    if(!mTextOverlay.empty()) {
         std::clog << "Discard text overlay which has "
-                  << std::dec << m_textOverlay.size()
+                  << std::dec << mTextOverlay.size()
                   << std::endl;
-        m_textOverlay.clear();
+        mTextOverlay.clear();
     }
 
-    if(!m_fbSurface.Null()) {
+    if(!mFbSurface.Null()) {
         std::cerr << "Previously allocated surface is not null"
                   << std::endl;
-        m_fbSurface.reset();
+        mFbSurface.reset();
     }
     
-    if(!m_fbTexture) {
-        if(!CreateFrameTexture(m_fbWidth, m_fbHeight)) {
+    if(!mFbTexture) {
+        if(!CreateFrameTexture(mFbWidth, m_fbHeight)) {
             std::cerr << "Can't allocate frame texture"
                       << std::endl;
             return Surface();
@@ -185,55 +185,55 @@ Surface RendererImpl::BeginFrame()
     
     int nativePitch;
     void *nativePixels;
-    if(SDL_LockTexture(m_fbTexture.get(), NULL, &nativePixels, &nativePitch)) {
+    if(SDL_LockTexture(mFbTexture.get(), NULL, &nativePixels, &nativePitch)) {
         std::cerr << "SDL_LockTexture failed: "
                   << SDL_GetError()
                   << std::endl;
         return Surface();
     }
         
-    if(!CreateFrameSurface(nativePixels, m_fbWidth, m_fbHeight, nativePitch)) {
+    if(!CreateFrameSurface(nativePixels, mFbWidth, m_fbHeight, nativePitch)) {
         std::cerr << "Can't allocate framebuffer"
                   << std::endl;
-        SDL_UnlockTexture(m_fbTexture.get());
+        SDL_UnlockTexture(mFbTexture.get());
         return Surface();
     }
 
-    return m_fbSurface;
+    return mFbSurface;
 }
 
 void RendererImpl::EndFrame()
 {
-    if(!m_fbSurface.Null()) {
-        SDL_RenderClear(m_renderer);
+    if(!mFbSurface.Null()) {
+        SDL_RenderClear(mRenderer);
 
         // NOTE
         // It wan't deallocate pixels, only surface object
-        m_fbSurface.reset();
+        mFbSurface.reset();
         
-        SDL_UnlockTexture(m_fbTexture.get());
-        if(SDL_RenderCopy(m_renderer, m_fbTexture.get(), NULL, NULL)) {
+        SDL_UnlockTexture(mFbTexture.get());
+        if(SDL_RenderCopy(mRenderer, m_fbTexture.get(), NULL, NULL)) {
             std::cerr << "SDL_RenderCopy failed: "
                       << SDL_GetError()
                       << std::endl;
         }
     }
 
-    if(!m_textOverlay.empty()) {
-        for(TextBatch batch : m_textOverlay) {
+    if(!mTextOverlay.empty()) {
+        for(TextBatch batch : mTextOverlay) {
             batch();
         }
-        m_textOverlay.clear();
+        mTextOverlay.clear();
     }
     
-    SDL_RenderPresent(m_renderer);
+    SDL_RenderPresent(mRenderer);
 }
 
 SDL_Rect RendererImpl::GetOutputSize() const
 {
     int width;
     int height;
-    if(SDL_GetRendererOutputSize(m_renderer, &width, &height)) {
+    if(SDL_GetRendererOutputSize(mRenderer, &width, &height)) {
         std::cerr << "SDL_GetRendererOutputSize failed: "
                   << SDL_GetError()
                   << std::endl;
@@ -243,7 +243,7 @@ SDL_Rect RendererImpl::GetOutputSize() const
 
 void RendererImpl::AdjustBufferSize(int width, int height)
 {
-    if(!m_fbSurface.Null()) {
+    if(!mFbSurface.Null()) {
         throw std::runtime_error("AdjustBufferSize called with active frame.");
     }
 
@@ -263,20 +263,20 @@ void RendererImpl::AdjustBufferSize(int width, int height)
 
 Surface RendererImpl::QuerySurface(const FilePath &filename)
 {
-    auto cached = m_tgxCache.find(filename);
-    if(cached != m_tgxCache.end()) {
+    auto cached = mTgxCache.find(filename);
+    if(cached != mTgxCache.end()) {
         return cached->second;
     } else {
         Surface loaded = LoadSurface(filename);
-        m_tgxCache.insert({filename, loaded});
+        mTgxCache.insert({filename, loaded});
         return loaded;
     }
 }
 
 const CollectionData &RendererImpl::QueryCollection(const FilePath &filename)
 {
-    auto searchResult = m_gm1Cache.find(filename);
-    if(searchResult != m_gm1Cache.end()) {
+    auto searchResult = mGm1Cache.find(filename);
+    if(searchResult != mGm1Cache.end()) {
         return *searchResult->second;
     } else {
         CollectionDataPtr ptr =
@@ -287,7 +287,7 @@ const CollectionData &RendererImpl::QueryCollection(const FilePath &filename)
             throw std::runtime_error("Unable to load collection");
         
         const CollectionData &data = *ptr;
-        m_gm1Cache.insert(
+        mGm1Cache.insert(
             std::make_pair(filename, std::move(ptr)));
 
         return data;
@@ -318,7 +318,7 @@ bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
         size_t skip = 0;
         for(int fontSize : info.sizes) {
             Font font = MakeFont(*data, info.alphabet, skip);
-            if(!m_textRenderer->CacheFont(info.name, fontSize, font)) {
+            if(!mTextRenderer->CacheFont(info.name, fontSize, font)) {
                 std::cerr << "Unable to cache font: "
                           << info.name << ' '
                           << fontSize << std::endl;
@@ -338,31 +338,31 @@ bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
 void RendererImpl::SetFont(const std::string &fontname, int size)
 {
     auto changeFont = [fontname, size, this]() {
-        m_textRenderer->SetFont(fontname, size);
+        mTextRenderer->SetFont(fontname, size);
     };
-    m_textOverlay.push_back(changeFont);
+    mTextOverlay.push_back(changeFont);
 }
 
 void RendererImpl::SetColor(const SDL_Color &color)
 {
     auto changeColor = [color, this]() {
-        m_textRenderer->SetColor(color);
+        mTextRenderer->SetColor(color);
     };
-    m_textOverlay.push_back(changeColor);
+    mTextOverlay.push_back(changeColor);
 }
 
 void RendererImpl::RenderTextLine(const std::string &text, const SDL_Point &point)
 {
     auto drawText = [text, point, this]() {
-        SDL_Rect textRect = m_textRenderer->CalculateTextRect(text);
+        SDL_Rect textRect = mTextRenderer->CalculateTextRect(text);
     
-        m_textRenderer->SetCursor(
+        mTextRenderer->SetCursor(
             ShiftPoint(point, 0, textRect.h));
     
-        m_textRenderer->PutString(text);
+        mTextRenderer->PutString(text);
     };
     
-    m_textOverlay.push_back(drawText);
+    mTextOverlay.push_back(drawText);
 }
 
 void RendererImpl::RenderTextBox(const std::string &text, const SDL_Rect &rect,

@@ -39,8 +39,8 @@ public:
 
 class GameReactor
 {
-    bool m_networking;
-    bool m_server;
+    bool mNetworking;
+    bool mServer;
 public:
     GameReactor();
     ~GameReactor();

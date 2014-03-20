@@ -6,38 +6,38 @@ Button::Button(
     Surface over,
     Surface pressed,
     std::function<void()> handler)
-    : m_boundRect(rect)
-    , m_released(released)
-    , m_over(over)
-    , m_pressed(pressed)
-    , m_handler(handler)
-    , m_state(ButtonState::Released)
+    : mBoundRect(rect)
+    , mReleased(released)
+    , mOver(over)
+    , mPressed(pressed)
+    , mHandler(handler)
+    , mState(ButtonState::Released)
 {
 }
 
 void Button::SetButtonState(ButtonState state)
 {
-    m_state = state;
+    mState = state;
 }
 
 void Button::Draw(Surface surface)
 {
     Surface buttonSurface;
-    switch(m_state) {
+    switch(mState) {
     case ButtonState::Released:
-        buttonSurface = m_released;
+        buttonSurface = mReleased;
         break;
     case ButtonState::Over:
-        buttonSurface = m_over;
+        buttonSurface = mOver;
         break;
     case ButtonState::Pressed:
-        buttonSurface = m_pressed;
+        buttonSurface = mPressed;
         break;
     default:
         throw std::runtime_error("Another button state?");
     }
 
-    BlitSurface(buttonSurface, NULL, surface, &m_boundRect);
+    BlitSurface(buttonSurface, NULL, surface, &mBoundRect);
 }
 
 void Button::HandleEvent(const SDL_Event &event)
@@ -62,7 +62,7 @@ void Button::HandleEvent(const SDL_Event &event)
 
 void Button::MouseMotion(int x, int y)
 {
-    if(IsInRect(m_boundRect, x, y)) {
+    if(IsInRect(mBoundRect, x, y)) {
         SetButtonState(ButtonState::Over);
     } else {
         SetButtonState(ButtonState::Released);
@@ -71,9 +71,9 @@ void Button::MouseMotion(int x, int y)
 
 void Button::MousePressed(int x, int y)
 {
-    if(IsInRect(m_boundRect, x, y)) {
+    if(IsInRect(mBoundRect, x, y)) {
         SetButtonState(ButtonState::Pressed);
-        m_handler();
+        mHandler();
     } else {
         SetButtonState(ButtonState::Released);
     }
@@ -81,7 +81,7 @@ void Button::MousePressed(int x, int y)
 
 void Button::MouseReleased(int x, int y)
 {
-    if(IsInRect(m_boundRect, x, y)) {
+    if(IsInRect(mBoundRect, x, y)) {
         SetButtonState(ButtonState::Over);
     } else {
         SetButtonState(ButtonState::Released);
@@ -90,5 +90,5 @@ void Button::MouseReleased(int x, int y)
 
 SDL_Rect Button::GetDrawingRect(int xoff, int yoff)
 {
-    return ShiftRect(m_boundRect, xoff, yoff);
+    return ShiftRect(mBoundRect, xoff, yoff);
 }

@@ -14,12 +14,12 @@ enum class ButtonState : int {
 
 class Button
 {
-    SDL_Rect m_boundRect;
-    Surface m_released;
-    Surface m_over;
-    Surface m_pressed;
-    std::function<void()> m_handler;
-    ButtonState m_state;
+    SDL_Rect mBoundRect;
+    Surface mReleased;
+    Surface mOver;
+    Surface mPressed;
+    std::function<void()> mHandler;
+    ButtonState mState;
 
     void MouseMotion(int x, int y);
     void MousePressed(int x, int y);

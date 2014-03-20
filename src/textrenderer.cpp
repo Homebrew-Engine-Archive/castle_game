@@ -82,12 +82,12 @@ namespace
 
 class TextRendererImpl final : public TextRenderer
 {
-    SDL_Renderer *m_renderer;
-    SDL_Color m_color;
-    int m_cursorX;
-    int m_cursorY;
-    std::vector<FontData> m_fonts;
-    const FontData *m_fontData;
+    SDL_Renderer *mRenderer;
+    SDL_Color mColor;
+    int mCursorX;
+    int mCursorY;
+    std::vector<FontData> mFonts;
+    const FontData *mFontData;
 
     TexturePtr CreateFontAtlas(const Font &font, std::vector<SDL_Rect> &partition) const;
     SDL_Rect FindTextureSubrect(int character) const;    
@@ -95,7 +95,7 @@ class TextRendererImpl final : public TextRenderer
     void PutChar(int character);
 
 public:
-    TextRendererImpl(SDL_Renderer *m_renderer);
+    TextRendererImpl(SDL_Renderer *mRenderer);
     TextRendererImpl(const TextRendererImpl &) = delete;
     TextRendererImpl(TextRendererImpl &&) = default;
     TextRendererImpl &operator=(const TextRendererImpl &) = delete;
@@ -105,35 +105,35 @@ public:
     bool SetFont(const std::string &name, int size);
     bool SetFontName(const std::string &name);
     bool SetFontSize(int size);
-    void SetColor(const SDL_Color &m_color);
+    void SetColor(const SDL_Color &mColor);
     void SetCursor(const SDL_Point &cursor);
     SDL_Rect CalculateTextRect(const std::string &str) const;
     void PutString(const std::string &str);
 };
 
-TextRendererImpl::TextRendererImpl(SDL_Renderer *m_renderer)
-    : m_renderer(m_renderer)
-    , m_color {0, 0, 0, 0}
-    , m_cursorX(0)
-    , m_cursorY(0)
-    , m_fontData(NULL)
+TextRendererImpl::TextRendererImpl(SDL_Renderer *mRenderer)
+    : mRenderer(m_renderer)
+    , mColor {0, 0, 0, 0}
+    , mCursorX(0)
+    , mCursorY(0)
+    , mFontData(NULL)
 { }
 
 void TextRendererImpl::PutChar(int character)
 {
-    if(m_fontData != NULL) {
-        SDL_Texture *texture = m_fontData->texture.get();
-        SDL_SetTextureColorMod(texture, m_color.r, m_color.g, m_color.b);
-        SDL_SetTextureAlphaMod(texture, m_color.a);
+    if(mFontData != NULL) {
+        SDL_Texture *texture = mFontData->texture.get();
+        SDL_SetTextureColorMod(texture, mColor.r, m_color.g, m_color.b);
+        SDL_SetTextureAlphaMod(texture, mColor.a);
         
         const GlyphData *glyphData = FindGlyphData(character);
         if(glyphData != NULL) {
             SDL_Rect srcRect = FindTextureSubrect(character);
-            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, m_cursorX, m_cursorY);
+            SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, mCursorX, m_cursorY);
             ThrowSDLError(
-                SDL_RenderCopy(m_renderer, texture, &srcRect, &dstRect));
-            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, m_cursorX, m_cursorY);
-            m_cursorX += advanceBox.w;
+                SDL_RenderCopy(mRenderer, texture, &srcRect, &dstRect));
+            SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, mCursorX, m_cursorY);
+            mCursorX += advanceBox.w;
         }
     }
 }
@@ -141,18 +141,18 @@ void TextRendererImpl::PutChar(int character)
 
 const GlyphData *TextRendererImpl::FindGlyphData(int character) const
 {
-    if(m_fontData != NULL) {
-        return m_fontData->font.FindGlyph(character);
+    if(mFontData != NULL) {
+        return mFontData->font.FindGlyph(character);
     }
     return NULL;
 }
 
 SDL_Rect TextRendererImpl::FindTextureSubrect(int character) const
 {
-    if(m_fontData != NULL) {
-        size_t idx = m_fontData->font.GetGlyphIndex(character);
-        if(idx < m_fontData->partition.size())
-            return m_fontData->partition[idx];
+    if(mFontData != NULL) {
+        size_t idx = mFontData->font.GetGlyphIndex(character);
+        if(idx < mFontData->partition.size())
+            return mFontData->partition[idx];
     }
     return MakeEmptyRect();
 }
@@ -165,7 +165,7 @@ TexturePtr TextRendererImpl::CreateFontAtlas(const Font &font, std::vector<SDL_R
     }
 
     SDL_RendererInfo info;
-    if(SDL_GetRendererInfo(m_renderer, &info) < 0) {
+    if(SDL_GetRendererInfo(mRenderer, &info) < 0) {
         std::cerr << "Failed to get driver info" << std::endl;
         return TexturePtr(nullptr);
     }
@@ -180,7 +180,7 @@ TexturePtr TextRendererImpl::CreateFontAtlas(const Font &font, std::vector<SDL_R
     }
     
     TexturePtr ptr = TexturePtr(
-        SDL_CreateTextureFromSurface(m_renderer, atlas));
+        SDL_CreateTextureFromSurface(mRenderer, atlas));
     if(!ptr) {
         std::cerr << "SDL_CreateTextureFromSurface failed: "
                   << SDL_GetError()
@@ -201,12 +201,12 @@ void TextRendererImpl::PutString(const std::string &str)
 SDL_Rect TextRendererImpl::CalculateTextRect(const std::string &str) const
 {
     SDL_Rect bounds = MakeEmptyRect();
-    if(m_fontData != NULL) {
-        int x = m_cursorX;
+    if(mFontData != NULL) {
+        int x = mCursorX;
         for(int character : str) {
             const GlyphData *glyphData = FindGlyphData(character);
             if(glyphData != NULL) {
-                SDL_Rect glyphRect = GetGlyphAdvanceBox(*glyphData, x, m_cursorY);
+                SDL_Rect glyphRect = GetGlyphAdvanceBox(*glyphData, x, mCursorY);
                 SDL_UnionRect(&glyphRect, &bounds, &bounds);
                 x += glyphRect.w;
             }
@@ -230,32 +230,32 @@ bool TextRendererImpl::CacheFont(const std::string &name, int size, const Font &
         return false;
     }
 
-    m_fonts.push_back(std::move(fontData));
+    mFonts.push_back(std::move(fontData));
     
     return true;
 }
 
 void TextRendererImpl::SetCursor(const SDL_Point &cursor)
 {
-    m_cursorX = cursor.x;
-    m_cursorY = cursor.y;
+    mCursorX = cursor.x;
+    mCursorY = cursor.y;
 }
 
 void TextRendererImpl::SetColor(const SDL_Color &color)
 {
-    m_color = color;
+    mColor = color;
 }
 
 bool TextRendererImpl::SetFont(const std::string &fontname, int size)
 {
-    if(m_fontData != NULL) {
-        if((m_fontData->fontname == fontname) && (m_fontData->size == size))
+    if(mFontData != NULL) {
+        if((mFontData->fontname == fontname) && (m_fontData->size == size))
             return true;
     }
-    for(const FontData &font : m_fonts) {
-        m_fontData = GetBestMatch(fontname, size, m_fontData, &font);
+    for(const FontData &font : mFonts) {
+        mFontData = GetBestMatch(fontname, size, m_fontData, &font);
     }
-    if(m_fontData == NULL) {
+    if(mFontData == NULL) {
         return false;
     }
     return true;
@@ -264,8 +264,8 @@ bool TextRendererImpl::SetFont(const std::string &fontname, int size)
 bool TextRendererImpl::SetFontSize(int size)
 {
     std::string fontName;
-    if(m_fontData != NULL) {
-        fontName = m_fontData->fontname;
+    if(mFontData != NULL) {
+        fontName = mFontData->fontname;
     }
     return SetFont(fontName, size);
 }
@@ -273,8 +273,8 @@ bool TextRendererImpl::SetFontSize(int size)
 bool TextRendererImpl::SetFontName(const std::string &name)
 {
     int size = 0;    
-    if(m_fontData != NULL) {
-        size = m_fontData->size;
+    if(mFontData != NULL) {
+        size = mFontData->size;
     }
     return SetFont(name, size);
 }

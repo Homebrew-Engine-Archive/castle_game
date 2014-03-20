@@ -86,9 +86,9 @@ int RunLoadingScreen(RootScreen *root)
 }
 
 LoadingScreen::LoadingScreen(RootScreen *root)
-    : m_renderer(root->GetRenderer())
-    , m_root(root)
-    , m_quit(false)
+    : mRenderer(root->GetRenderer())
+    , mRoot(root)
+    , mQuit(false)
 {
     FilePath preloadsPath = GetGMPath("preloads.txt");
     for(const string &str : GetStringList(preloadsPath)) {
@@ -101,32 +101,32 @@ LoadingScreen::LoadingScreen(RootScreen *root)
     }
 
     FilePath filepath = GetTGXFilePath("frontend_loading");
-    m_background = m_renderer->QuerySurface(filepath);
+    mBackground = m_renderer->QuerySurface(filepath);
 }
 
 void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
 {
     FilePath path = GetGM1FilePath(filename);
     auto task = [path, this]() {
-        if(!m_renderer->CacheCollection(path)) {
+        if(!mRenderer->CacheCollection(path)) {
             ostringstream oss;
             oss << "Unable to load file: " << path;
             throw runtime_error(oss.str());
         }
     };
-    m_tasks.push_back(task);
+    mTasks.push_back(task);
 }
 
 void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
 {
     auto task = [info, this]() {
-        if(!m_renderer->CacheFontCollection(info)) {
+        if(!mRenderer->CacheFontCollection(info)) {
             ostringstream oss;
             oss << "Unable to load file: " << info.filename;
             throw runtime_error(oss.str());
         }
     };
-    m_tasks.push_back(task);
+    mTasks.push_back(task);
 }
 
 int LoadingScreen::Exec()
@@ -134,10 +134,10 @@ int LoadingScreen::Exec()
     const uint32_t frameRate = 5;
     const uint32_t frameInterval = 1000 / frameRate;
     uint32_t lastFrame = 0;
-    const uint32_t total = m_tasks.size();
+    const uint32_t total = mTasks.size();
     uint32_t completed = 0;
         
-    for(const auto &task : m_tasks) {
+    for(const auto &task : mTasks) {
         if(lastFrame + frameInterval < SDL_GetTicks()) {
             lastFrame = SDL_GetTicks();
             double done = static_cast<double>(completed) / total;
@@ -146,7 +146,7 @@ int LoadingScreen::Exec()
 
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
-            if(!m_root->HandleEvent(event))
+            if(!mRoot->HandleEvent(event))
                 return -1;
         }
 
@@ -160,13 +160,13 @@ int LoadingScreen::Exec()
 
 void LoadingScreen::Draw(double done)
 {
-    Surface frame = m_renderer->BeginFrame();
+    Surface frame = mRenderer->BeginFrame();
 
     SDL_Rect frameRect = SurfaceBounds(frame);
-    SDL_Rect bgRect = SurfaceBounds(m_background);
+    SDL_Rect bgRect = SurfaceBounds(mBackground);
 
     SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-    SDL_BlitSurface(m_background, NULL, frame, &bgAligned);
+    SDL_BlitSurface(mBackground, NULL, frame, &bgAligned);
     
     SDL_Rect barOuter = MakeRect(300, 25);
     SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
@@ -178,5 +178,5 @@ void LoadingScreen::Draw(double done)
     SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
     FillFrame(frame, &barInnerAligned, 0xff000000);
     
-    m_renderer->EndFrame();
+    mRenderer->EndFrame();
 }

@@ -3,15 +3,15 @@
 #include <iostream>
 
 TempSeek::TempSeek(SDL_RWops *src, Sint64 whither, int seek)
-    : m_src(src)
-    , m_origin(SDL_RWtell(src))
+    : mSrc(src)
+    , mOrigin(SDL_RWtell(src))
 {
-    SDL_RWseek(m_src, whither, seek);
+    SDL_RWseek(mSrc, whither, seek);
 }
 
 TempSeek::~TempSeek()
 {
-    SDL_RWseek(m_src, m_origin, RW_SEEK_SET);
+    SDL_RWseek(mSrc, m_origin, RW_SEEK_SET);
 }
 
 RWPtr RWFromFileBuffer(const FileBuffer &buffer)

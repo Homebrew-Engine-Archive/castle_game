@@ -7,7 +7,7 @@
 
 class Window
 {
-    SDL_Window *m_wnd;
+    SDL_Window *mWnd;
     
 public:
     Window(const char *title, int width, int height);

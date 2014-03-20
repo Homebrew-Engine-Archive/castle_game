@@ -13,11 +13,11 @@ class FontCollectionInfo;
 
 class LoadingScreen
 {
-    Renderer *m_renderer;
-    RootScreen *m_root;
-    Surface m_background;
-    bool m_quit;
-    std::vector<std::function<void()>> m_tasks;
+    Renderer *mRenderer;
+    RootScreen *mRoot;
+    Surface mBackground;
+    bool mQuit;
+    std::vector<std::function<void()>> mTasks;
 
     void ScheduleCacheGM1(const FilePath &filename);
     void ScheduleCacheFont(const FontCollectionInfo &info);

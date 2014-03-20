@@ -11,7 +11,7 @@
 class Connection
 {
     std::array<char, 256> readBuffer;
-    boost::asio::ip::tcp::socket m_sock;
+    boost::asio::ip::tcp::socket mSock;
     void StartReceive();
     void ReceiveHandler(const boost::system::error_code &e, size_t size);
     
@@ -22,11 +22,11 @@ public:
 class Server
 {
     std::vector<Connection> connections;
-    boost::asio::io_service &m_io;
-    short m_port;
-    boost::asio::ip::tcp::endpoint m_addr;
-    boost::asio::ip::tcp::acceptor m_accept;
-    boost::asio::ip::tcp::socket m_sock;
+    boost::asio::io_service &mIo;
+    short mPort;
+    boost::asio::ip::tcp::endpoint mAddr;
+    boost::asio::ip::tcp::acceptor mAccept;
+    boost::asio::ip::tcp::socket mSock;
     
 public:
     Server(boost::asio::io_service &io, short port);

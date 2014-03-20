@@ -20,11 +20,11 @@ struct GlyphData
 
 class Font
 {
-    std::vector<GlyphData> m_glyphs;
-    std::vector<size_t> m_ascii;
+    std::vector<GlyphData> mGlyphs;
+    std::vector<size_t> mAscii;
     
-    int m_fontWidth;
-    int m_fontHeight;
+    int mFontWidth;
+    int mFontHeight;
 
 public:
     Font();
@@ -33,8 +33,8 @@ public:
     size_t GetGlyphIndex(int character) const;
     std::vector<GlyphData> GetGlyphList() const;
     
-    inline int FontHeight() const { return m_fontHeight; }
-    inline int FontWidth() const { return m_fontWidth; }
+    inline int FontHeight() const { return mFontHeight; }
+    inline int FontWidth() const { return mFontWidth; }
     inline int LineSpacing() const { return 0; };
     inline int Kerning() const { return 0; };
 

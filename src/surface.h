@@ -19,7 +19,7 @@ const int AMASK_DEFAULT = 0;
 class Surface
 {
 protected:
-    SDL_Surface *m_surface;
+    SDL_Surface *mSurface;
     void Assign(SDL_Surface *);
     
 public:
@@ -65,7 +65,7 @@ public:
 // 
 class SurfaceROI : public Surface
 {
-    SDL_Surface *m_referer;
+    SDL_Surface *mReferer;
 public:
     SurfaceROI(const Surface &src, const SDL_Rect *roi);
     virtual ~SurfaceROI();

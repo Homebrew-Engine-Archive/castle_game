@@ -5,7 +5,7 @@
 
 class Animation
 {
-    std::vector<Surface> m_frames;
+    std::vector<Surface> mFrames;
 public:
     Animation(const std::vector<Surface>, size_t from, size_t stride, size_t count);
 };

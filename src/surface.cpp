@@ -149,23 +149,23 @@ ColorKeyLocker::~ColorKeyLocker()
 
 Surface::~Surface()
 {
-    SDL_FreeSurface(m_surface);
+    SDL_FreeSurface(mSurface);
 }
 
 Surface::Surface()
-    : m_surface(NULL)
+    : mSurface(NULL)
 {
 }
 
 Surface::Surface(SDL_Surface *s)
-    : m_surface(s)
+    : mSurface(s)
 {
 }
 
 Surface::Surface(const Surface &that)
-    : m_surface(that.m_surface)
+    : mSurface(that.m_surface)
 {
-    AddSurfaceRef(m_surface);
+    AddSurfaceRef(mSurface);
 }
 
 Surface &Surface::operator=(SDL_Surface *s)
@@ -176,42 +176,42 @@ Surface &Surface::operator=(SDL_Surface *s)
 
 Surface &Surface::operator=(const Surface &that)
 {
-    AddSurfaceRef(that.m_surface);
-    Assign(that.m_surface);
+    AddSurfaceRef(that.mSurface);
+    Assign(that.mSurface);
     return *this;
 }
 
 bool Surface::operator==(const Surface &that)
 {
-    return that.m_surface == m_surface;
+    return that.mSurface == m_surface;
 }
 
 void Surface::Assign(SDL_Surface *s)
 {
     // SDL_FreeSurface manages refcount by itself
     // Suddenly.
-    if(m_surface != NULL) {
-        if(m_surface->refcount == 1) {
-            clog << "Remove this shitty surface: " << hex << m_surface << endl;
+    if(mSurface != NULL) {
+        if(mSurface->refcount == 1) {
+            clog << "Remove this shitty surface: " << hex << mSurface << endl;
         }
     }
-    SDL_FreeSurface(m_surface);
-    m_surface = s;
+    SDL_FreeSurface(mSurface);
+    mSurface = s;
 }
 
 bool Surface::Null() const
 {
-    return (m_surface == NULL);
+    return (mSurface == NULL);
 }
 
 SDL_Surface *Surface::operator->() const
 {
-    return m_surface;
+    return mSurface;
 }
 
 Surface::operator SDL_Surface *() const
 {
-    return m_surface;
+    return mSurface;
 }
 
 void Surface::reset()
@@ -220,7 +220,7 @@ void Surface::reset()
 }
 
 SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
-    : m_referer(NULL)
+    : mReferer(NULL)
 {
     if(src.Null())
         return;
@@ -249,18 +249,18 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         + y * src->pitch
         + x * bytesPerPixel;
     
-    m_surface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);    
-    ThrowSDLError(m_surface);
+    mSurface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);    
+    ThrowSDLError(mSurface);
     
-    CopySurfaceColorKey(src, m_surface);
+    CopySurfaceColorKey(src, mSurface);
     
-    m_referer = src;
-    AddSurfaceRef(m_referer);
+    mReferer = src;
+    AddSurfaceRef(mReferer);
 }
 
 SurfaceROI::~SurfaceROI()
 {
-    SDL_FreeSurface(m_referer);
+    SDL_FreeSurface(mReferer);
 }
 
 Surface CopySurfaceFormat(const Surface &src, int width, int height)

@@ -18,9 +18,9 @@ struct GameMapLocation
 
 class GameMap
 {
-    std::vector<int> m_heightMap;
-    std::vector<int> m_shadowMap;
-    std::vector<LandscapeClass> m_landscape;
+    std::vector<int> mHeightMap;
+    std::vector<int> mShadowMap;
+    std::vector<LandscapeClass> mLandscape;
 
 public:
     GameMap();

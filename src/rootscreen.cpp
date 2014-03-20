@@ -14,15 +14,15 @@ using namespace std;
     
 class RootScreenImpl final : public RootScreen
 {
-    Renderer *m_renderer;
-    double m_fpsAverage;
-    uint64_t m_frameCounter;
-    bool m_closed;
-    int m_frameRate;
-    bool m_fpsLimited;
-    bool m_showConsole;
-    ScreenPtr m_debugConsole;
-    vector<ScreenPtr> m_screenStack;
+    Renderer *mRenderer;
+    double mFpsAverage;
+    uint64_t mFrameCounter;
+    bool mClosed;
+    int mFrameRate;
+    bool mFpsLimited;
+    bool mShowConsole;
+    ScreenPtr mDebugConsole;
+    vector<ScreenPtr> mScreenStack;
         
     bool HandleWindowEvent(const SDL_WindowEvent &event);
     bool HandleKeyboardEvent(const SDL_KeyboardEvent &event);
@@ -30,7 +30,7 @@ class RootScreenImpl final : public RootScreen
     void ToggleConsole();
     
 public:
-    RootScreenImpl(Renderer *m_renderer);
+    RootScreenImpl(Renderer *mRenderer);
     RootScreenImpl(const RootScreenImpl &) = delete;
     RootScreenImpl(RootScreenImpl &&) = default;
     RootScreenImpl &operator=(const RootScreenImpl &) = delete;
@@ -47,14 +47,14 @@ public:
 };
 
 RootScreenImpl::RootScreenImpl(Renderer *renderer)
-    : m_renderer(renderer)
-    , m_fpsAverage(0.0f)
-    , m_frameCounter(0.0f)
-    , m_closed(false)
-    , m_frameRate(16)
-    , m_fpsLimited(true)
-    , m_showConsole(false)
-    , m_debugConsole(std::move(CreateDebugConsole(this)))
+    : mRenderer(renderer)
+    , mFpsAverage(0.0f)
+    , mFrameCounter(0.0f)
+    , mClosed(false)
+    , mFrameRate(16)
+    , mFpsLimited(true)
+    , mShowConsole(false)
+    , mDebugConsole(std::move(CreateDebugConsole(this)))
 { }
 
 bool RootScreenImpl::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -64,7 +64,7 @@ bool RootScreenImpl::HandleWindowEvent(const SDL_WindowEvent &window)
         {
             int width = window.data1;
             int height = window.data2;
-            m_renderer->AdjustBufferSize(width, height);
+            mRenderer->AdjustBufferSize(width, height);
         }
         return true;
     default:
@@ -76,7 +76,7 @@ bool RootScreenImpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
 {
     switch(key.keysym.sym) {
     case SDLK_ESCAPE:
-        m_closed = true;
+        mClosed = true;
         return false;
     case SDLK_BACKSLASH:
         ToggleConsole();
@@ -88,39 +88,39 @@ bool RootScreenImpl::HandleKeyboardEvent(const SDL_KeyboardEvent &key)
 
 void RootScreenImpl::ToggleConsole()
 {
-    m_showConsole = !m_showConsole;
+    mShowConsole = !m_showConsole;
 
-    if(m_showConsole) {
-        PushScreen(move(m_debugConsole));
+    if(mShowConsole) {
+        PushScreen(move(mDebugConsole));
     } else {
-        m_debugConsole = move(PopScreen());
+        mDebugConsole = move(PopScreen());
     }
 }
 
 Screen *RootScreenImpl::GetCurrentScreen() const
 {
-    if(m_screenStack.empty())
+    if(mScreenStack.empty())
         return NULL;
     else
-        return m_screenStack.back().get();
+        return mScreenStack.back().get();
 }
 
 void RootScreenImpl::SetCurrentScreen(ScreenPtr &&screen)
 {
-    m_screenStack.clear();
+    mScreenStack.clear();
     PushScreen(move(screen));
 }
 
 void RootScreenImpl::PushScreen(ScreenPtr &&screen)
 {
-    m_screenStack.push_back(move(screen));
+    mScreenStack.push_back(move(screen));
 }
 
 ScreenPtr RootScreenImpl::PopScreen()
 {
-    if(!m_screenStack.empty()) {
-        ScreenPtr ptr = std::move(m_screenStack.back());
-        m_screenStack.pop_back();
+    if(!mScreenStack.empty()) {
+        ScreenPtr ptr = std::move(mScreenStack.back());
+        mScreenStack.pop_back();
         return ptr;
     }
 
@@ -152,8 +152,8 @@ int RootScreenImpl::Exec()
     Server server(io, port);
     server.StartAccept();
     
-    while(!m_closed) {
-        const int64_t frameInterval = msPerSec / m_frameRate;
+    while(!mClosed) {
+        const int64_t frameInterval = msPerSec / mFrameRate;
         const int64_t pollStart = SDL_GetTicks();
         if(lastPoll + pollInterval < pollStart) {
             io.poll();
@@ -172,21 +172,21 @@ int RootScreenImpl::Exec()
 
         const int64_t frameStart = SDL_GetTicks();
         if(lastSecond + msPerSec < frameStart) {
-            double fps = m_frameCounter - fpsCounterLastSecond;
+            double fps = mFrameCounter - fpsCounterLastSecond;
             double elapsed = frameStart - lastSecond;
-            m_fpsAverage = fps * (msPerSec / elapsed);
+            mFpsAverage = fps * (msPerSec / elapsed);
             lastSecond = frameStart;
-            fpsCounterLastSecond = m_frameCounter;
+            fpsCounterLastSecond = mFrameCounter;
         }
 
         if(lastFrame + frameInterval < frameStart) {
             DrawFrame();
             lastFrame = frameStart;
-            ++m_frameCounter;
+            ++mFrameCounter;
         }
 
         const int64_t delayStart = SDL_GetTicks();
-        if(m_fpsLimited) {
+        if(mFpsLimited) {
             const int64_t nextTick =
                 min(lastPoll + pollInterval,
                          lastFrame + frameInterval);
@@ -203,9 +203,9 @@ int RootScreenImpl::Exec()
 
 void RootScreenImpl::DrawFrame()
 {
-    Surface frame = m_renderer->BeginFrame();
+    Surface frame = mRenderer->BeginFrame();
 
-    for(ScreenPtr &ptr : m_screenStack) {
+    for(ScreenPtr &ptr : mScreenStack) {
         if(ptr) {
             ptr->Draw(frame);
         } else {
@@ -218,16 +218,16 @@ void RootScreenImpl::DrawFrame()
     int size = 24;
     string fontname = "font_stronghold_aa";
     SDL_Color color = MakeColor(255, 255, 255, 255);
-    m_renderer->SetColor(color);
-    m_renderer->SetFont(fontname, size);
+    mRenderer->SetColor(color);
+    mRenderer->SetFont(fontname, size);
 
-    SDL_Point pos = ShiftPoint(TopLeft(m_renderer->GetOutputSize()), 5, 5);
+    SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);
     
     ostringstream oss;
-    oss << "FPS: " << m_fpsAverage;
-    m_renderer->RenderTextLine(oss.str(), pos);
+    oss << "FPS: " << mFpsAverage;
+    mRenderer->RenderTextLine(oss.str(), pos);
 
-    m_renderer->EndFrame();
+    mRenderer->EndFrame();
 }
 
 bool RootScreenImpl::HandleEvent(const SDL_Event &event)
@@ -236,7 +236,7 @@ bool RootScreenImpl::HandleEvent(const SDL_Event &event)
     case SDL_WINDOWEVENT:
         return HandleWindowEvent(event.window);
     case SDL_QUIT:
-        m_closed = true;
+        mClosed = true;
         return false;
     case SDL_KEYDOWN:
         return HandleKeyboardEvent(event.key);
@@ -247,7 +247,7 @@ bool RootScreenImpl::HandleEvent(const SDL_Event &event)
 
 Renderer *RootScreenImpl::GetRenderer()
 {
-    return m_renderer;
+    return mRenderer;
 }
 
 std::unique_ptr<RootScreen> CreateRootScreen(Renderer *renderer)

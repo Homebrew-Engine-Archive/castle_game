@@ -9,9 +9,9 @@
 
 class MenuCombat : public Screen
 {
-    RootScreen *m_root;
-    Renderer *m_renderer;
-    Surface m_background;
+    RootScreen *mRoot;
+    Renderer *mRenderer;
+    Surface mBackground;
     
 public:
     MenuCombat(RootScreen *root);

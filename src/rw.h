@@ -27,8 +27,8 @@ public:
 
 class TempSeek
 {
-    SDL_RWops *m_src;
-    Sint64 m_origin;
+    SDL_RWops *mSrc;
+    Sint64 mOrigin;
 public:
     TempSeek(SDL_RWops *src, Sint64 offset, int mode);
     ~TempSeek();

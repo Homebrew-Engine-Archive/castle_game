@@ -31,9 +31,9 @@ void PrintRendererInfo(ostream &out, const SDL_RendererInfo &info)
         << info.name
         << endl;
             
-    out << "\tnum_texture_formats: "
+    out << "\tnumTexture_formats: "
         << dec
-        << info.num_texture_formats
+        << info.numTexture_formats
         << endl;
             
     out << "\tmax_texture_width: "
@@ -47,10 +47,10 @@ void PrintRendererInfo(ostream &out, const SDL_RendererInfo &info)
         << endl;
 
     out << "\ttexture_formats: ";
-    if(info.num_texture_formats == 0) {
+    if(info.numTexture_formats == 0) {
         out << "None";
     } else {
-        for(size_t index = 0; index < info.num_texture_formats; ++index) {
+        for(size_t index = 0; index < info.numTexture_formats; ++index) {
             out << hex
                 << info.texture_formats[index]
                 << " ";

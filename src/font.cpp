@@ -57,9 +57,9 @@ namespace
 }
 
 Font::Font()
-    : m_ascii(256)
-    , m_fontWidth(0)
-    , m_fontHeight(0)
+    : mAscii(256)
+    , mFontWidth(0)
+    , mFontHeight(0)
 { }
 
 Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int skip)
@@ -104,11 +104,11 @@ Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int 
 
 bool Font::AddGlyph(int character, const GlyphData &glyph)
 {
-    if(character < (int)m_ascii.size()) {
-        m_ascii[character] = m_glyphs.size();
-        m_fontWidth = std::max(m_fontWidth, glyph.hbox);
-        m_fontHeight = std::max(m_fontHeight, glyph.vbox);
-        m_glyphs.push_back(glyph);
+    if(character < (int)mAscii.size()) {
+        mAscii[character] = m_glyphs.size();
+        mFontWidth = std::max(m_fontWidth, glyph.hbox);
+        mFontHeight = std::max(m_fontHeight, glyph.vbox);
+        mGlyphs.push_back(glyph);
         return true;
     }
 
@@ -123,8 +123,8 @@ const GlyphData *Font::FindGlyph(int character) const
 
 const GlyphData *Font::GetGlyph(size_t idx) const
 {
-    if(idx < m_glyphs.size()) {
-        return &m_glyphs[idx];
+    if(idx < mGlyphs.size()) {
+        return &mGlyphs[idx];
     }
 
     return NULL;
@@ -132,13 +132,13 @@ const GlyphData *Font::GetGlyph(size_t idx) const
 
 std::vector<GlyphData> Font::GetGlyphList() const
 {
-    return m_glyphs;
+    return mGlyphs;
 }
 
 size_t Font::GetGlyphIndex(int character) const
 {
-    if(character < (int)m_ascii.size())
-        return m_ascii[character];
+    if(character < (int)mAscii.size())
+        return mAscii[character];
     
-    return m_glyphs.size();
+    return mGlyphs.size();
 }

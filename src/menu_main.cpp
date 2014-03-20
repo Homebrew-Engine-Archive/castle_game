@@ -7,7 +7,7 @@
 Button MenuMain::MakeCombatButton()
 {
     FilePath filepath = GetGM1FilePath("icons_front_end");
-    const CollectionData &icons = m_renderer->QueryCollection(filepath);
+    const CollectionData &icons = mRenderer->QueryCollection(filepath);
     
     Surface released = icons.entries.at(0).surface;
     Surface pressed = icons.entries.at(16).surface;
@@ -23,17 +23,17 @@ Button MenuMain::MakeCombatButton()
 }
 
 MenuMain::MenuMain(RootScreen *root)
-    : m_root(root)
-    , m_renderer(root->GetRenderer())
+    : mRoot(root)
+    , mRenderer(root->GetRenderer())
 {
     FilePath filepath = GetTGXFilePath("frontend_main");
-    m_background = m_renderer->QuerySurface(filepath);
-    m_buttons.push_back(MakeCombatButton());
+    mBackground = m_renderer->QuerySurface(filepath);
+    mButtons.push_back(MakeCombatButton());
 }
 
 bool MenuMain::HandleEvent(const SDL_Event &event)
 {
-    for(Button &button : m_buttons) {
+    for(Button &button : mButtons) {
         button.HandleEvent(event);
     }
     return false;
@@ -42,11 +42,11 @@ bool MenuMain::HandleEvent(const SDL_Event &event)
 void MenuMain::Draw(Surface &frame)
 {
     SDL_Rect frameRect = SurfaceBounds(frame);
-    SDL_Rect bgRect = SurfaceBounds(m_background);
+    SDL_Rect bgRect = SurfaceBounds(mBackground);
     SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
-    BlitSurface(m_background, NULL, frame, &bgAligned);
-    for(Button &button : m_buttons) {
+    BlitSurface(mBackground, NULL, frame, &bgAligned);
+    for(Button &button : mButtons) {
         SDL_Rect buttonRect = button.GetDrawingRect(bgAligned.x, bgAligned.y);
         SurfaceROI hud(frame, &buttonRect);
         button.Draw(hud);
@@ -55,9 +55,9 @@ void MenuMain::Draw(Surface &frame)
 
 void MenuMain::GoCombat()
 {
-    m_root->SetCurrentScreen(
+    mRoot->SetCurrentScreen(
         std::unique_ptr<Screen>(
-            new MenuCombat(m_root)));
+            new MenuCombat(mRoot)));
 }
 
 void MenuMain::GoEconomics()
