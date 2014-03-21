@@ -1,6 +1,11 @@
 #include "collection.h"
+
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
+
 #include "rw.h"
+#include "sdl_utils.h"
 #include "tgx.h"
 
 CollectionAtlas::CollectionAtlas(SDL_RWops *src)
@@ -13,11 +18,47 @@ CollectionEntry::CollectionEntry(const GM::ImageHeader &hdr_, const Surface &sf_
     , surface(sf_)
 { }
 
+namespace
+{
+
+    void Fail(const std::string &where)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << SDL_GetError();
+        throw std::runtime_error(oss.str());
+    }
+    
+    PalettePtr ConvertPaletteToSDLPalette(const GM::Palette &palette)
+    {
+        PalettePtr ptr(SDL_AllocPalette(GM::CollectionPaletteColors));
+        if(!ptr) {
+            Fail("SDL_AllocPalette");
+        }
+
+        std::vector<SDL_Color> colors;
+        colors.reserve(ptr->ncolors);
+        for(auto color : palette) {
+            colors.push_back(
+                MakeColor(
+                    TGX::GetRed(color),
+                    TGX::GetGreen(color),
+                    TGX::GetBlue(color),
+                    TGX::GetAlpha(color)));
+        }
+
+        if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, ptr->ncolors) < 0) {
+            Fail("SDL_SetPaletteColors");
+        }
+    
+        return ptr;
+    }
+}
+
 CollectionDataPtr LoadCollectionData(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");
-        RWPtr src = std::move(RWFromFileBuffer(filebuff));
+        RWPtr &&src = RWFromFileBuffer(filebuff);
         
         if(!src)
             throw std::runtime_error("file not readable");
@@ -26,30 +67,26 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = gm1.header;
+        for(const GM::Palette &palette : gm1.palettes) {
+            ptr->palettes.push_back(
+                std::move(
+                    ConvertPaletteToSDLPalette(palette)));
+        }
         
         std::vector<Surface> atlas;
         GM::LoadEntries(src.get(), gm1, atlas);
-        
-        for(const GM::Palette &pal : gm1.palettes) {
-            PalettePtr palette =
-                PalettePtr(
-                    GM::CreateSDLPaletteFrom(pal));
-            ptr->palettes.push_back(std::move(palette));
-        }
-        
         for(size_t n = 0; n < gm1.size(); ++n) {
             GM::ImageHeader header = gm1.headers[n];
             Surface &surface = atlas[n];
             ptr->entries.emplace_back(header, surface);
         }
-
-        return ptr;
         
+        return ptr;
     } catch(const std::exception &e) {
-        std::cerr << "Exception in LoadImageCollection: " << std::endl
-                  << "\tFilename: " << filename << std::endl
-                  << "\tWhat: " << e.what() << std::endl;
-        throw;
+        std::ostringstream oss;
+        oss << "In LoadImageCollection [with filename = " << filename << ']' << std::endl;
+        oss << e.what() << std::endl;
+        throw std::runtime_error(oss.str());
     }
 }
 
@@ -57,20 +94,18 @@ CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");
-        RWPtr src = std::move(RWFromFileBuffer(filebuff));
+        RWPtr &&src = RWFromFileBuffer(filebuff);
         if(!src)
             throw std::runtime_error("file not readable");
         
-        CollectionAtlasPtr ptr(
-            new CollectionAtlas(src.get()));
+        CollectionAtlasPtr ptr(new CollectionAtlas(src.get()));
 
         return ptr;
-        
     } catch(const std::exception &e) {
-        std::cerr << "Exception in LoadCollectionAtlas: " << std::endl
-                  << "\tFilename: " << filename << std::endl
-                  << "\tWhat: " << e.what() << std::endl;
-        throw;
+        std::ostringstream oss;
+        oss << "In LoadCollectionAtlas [with filename = " << filename << ']' << std::endl;
+        oss << e.what() << std::endl;
+        throw std::runtime_error(oss.str());
     }
 }
 
@@ -78,7 +113,7 @@ Surface LoadSurface(const FilePath &filename)
 {
     try {
         FileBuffer filebuff(filename, "rb");
-        RWPtr src = std::move(RWFromFileBuffer(filebuff));
+        RWPtr &&src = RWFromFileBuffer(filebuff);
         
         if(!src)
             throw std::runtime_error("file not readable");
@@ -86,10 +121,10 @@ Surface LoadSurface(const FilePath &filename)
         return TGX::LoadStandaloneImage(src.get());
         
     } catch(const std::exception &e) {
-        std::cerr << "Exception in LoadImage: " << std::endl
-                  << "\tFilename: " << filename << std::endl
-                  << "\tWhat: " << e.what() << std::endl;
-        throw;
+        std::ostringstream oss;
+        oss << "In LoadSurface [with filename = " << filename << ']' << std::endl;
+        oss << e.what() << std::endl;
+        throw std::runtime_error(oss.str());
     }
 }
 

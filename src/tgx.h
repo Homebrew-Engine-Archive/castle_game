@@ -13,6 +13,7 @@ namespace TGX
     const size_t TileHeight = 16;
 
     // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
+    // 1111100000011111
     const uint16_t Transparent16 = 0xF81F;
     
     // Palette's first entry
@@ -27,7 +28,7 @@ namespace TGX
     // One bit to rule them all, one bit to find them
     // One bit to bring them all, and in the ARGB bind them
     // In the land of sprites where some shadows was
-    const uint32_t AlphaMask16 = 0;
+    const uint32_t AlphaMask16 = 1;
     const uint32_t RedMask16 = 0x7c00;   // 0111110000000000
     const uint32_t GreenMask16 = 0x3e0;  // 0000001111100000
     const uint32_t BlueMask16 = 0x1f;    // 0000000000011111

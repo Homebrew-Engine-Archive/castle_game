@@ -3,12 +3,21 @@
 #include "rw.h"
 #include "tgx.h"
 #include "surface.h"
+#include <string>
 #include <iostream>
+#include <sstream>
 
 namespace
 {
 
     using namespace GM;
+
+    void Fail(const std::string &where, const std::string &what)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << what;
+        throw std::runtime_error(oss.str());
+    }
     
     Encoding GetEncoding(uint32_t dataClass)
     {
@@ -51,23 +60,21 @@ namespace
     template<class EntryClass>
     Surface AllocateSurface(int width, int height)
     {
-        Surface sf = SDL_CreateRGBSurface(
+        Surface surface = SDL_CreateRGBSurface(
             NoFlags, width, height, EntryClass::Depth(),
             EntryClass::RedMask(),
             EntryClass::GreenMask(),
             EntryClass::BlueMask(),
             EntryClass::AlphaMask());
     
-        if(sf.Null()) {
-            std::cerr << "SDL_CreateRGBSurface failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return Surface();
+        if(surface.Null()) {
+            Fail("SDL_CreateRGBSurface", SDL_GetError());
         }
 
-        SDL_SetColorKey(sf, SDL_TRUE, EntryClass::ColorKey());
-        SDL_FillRect(sf, NULL, EntryClass::ColorKey());
-        return sf;
+        SDL_SetColorKey(surface, SDL_TRUE, EntryClass::ColorKey());
+        SDL_FillRect(surface, NULL, EntryClass::ColorKey());
+        
+        return surface;
     }
 
     template<class EntryClass>
@@ -98,18 +105,12 @@ namespace
         }
     
         if(ReadableBytes(src) < lastByte) {
-            std::cerr << "Checking file size failed: " << std::endl
-                      << "MaxOffset=" << lastByte
-                      << std::endl;
-            return Surface();
+            Fail("Checking file size", "EOF");
         }
 
         int64_t origin = SDL_RWtell(src);
         if(origin < 0) {
-            std::cerr << "SDL_RWtell failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            throw std::runtime_error(SDL_GetError());
+            Fail("SDL_RWtell", SDL_GetError());
         }
 
         std::vector<SDL_Rect> partition;
@@ -119,16 +120,18 @@ namespace
         Surface atlas = AllocateSurface<EntryClass>(
             bounds.x + bounds.w,
             bounds.y + bounds.h);
-        if(atlas.Null()) {
-            throw std::runtime_error("Failed to allocate surface");
+        
+        if(!atlas.Null()) {
+            for(size_t i = 0; i < gm1.size(); ++i) {
+                SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
+                ImageHeader header = gm1.headers[i];
+                SurfaceROI roi(atlas, &partition[i]);
+                EntryClass::Load(src, gm1.sizes[i], header, roi);
+            }
+        } else {
+            Fail("LoadAtlasImpl", "Unable to allocate surface");
         }
-
-        for(size_t i = 0; i < gm1.size(); ++i) {
-            SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
-            ImageHeader header = gm1.headers[i];
-            SurfaceROI roi(atlas, &partition[i]);
-            EntryClass::Load(src, gm1.sizes[i], header, roi);
-        }    
+        
         return atlas;
     }
 
@@ -140,17 +143,19 @@ namespace
         int64_t origin = SDL_RWtell(src);
         
         for(size_t i = 0; i < gm1.size(); ++i) {
-            const ImageHeader &header = gm1.headers.at(i);    
+            const ImageHeader &header = gm1.headers.at(i);
+            
             Surface surface = AllocateSurface<EntryClass>(
                 EntryClass::Width(header),
                 EntryClass::Height(header));
+            
             if(!surface.Null()) {
                 SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
                 EntryClass::Load(src, gm1.sizes[i], header, surface);
                 atlas.push_back(surface);
                 ++successfullLoads;
             } else {
-                throw std::runtime_error("Unable to allocate surface");
+                Fail("LoadEntriesImpl", "Unable to allocate surface");
             }
         }
 
@@ -168,67 +173,68 @@ namespace
         Surface surface = AllocateSurface<EntryClass>(
             EntryClass::Width(header),
             EntryClass::Height(header));
+        
         if(!surface.Null()) {
             TempSeek seekLock(src, origin + offset, RW_SEEK_SET);
             EntryClass::Load(src, size, header, surface);
         } else {
-            throw std::runtime_error("Unable to allocate surface");
+            Fail("LoadEntryImpl", "Unable to allocate surface");
         }
 
         return surface;
     }
     
-    void ReadHeader(SDL_RWops *src, Header *hdr)
+    Header ReadHeader(SDL_RWops *src)
     {
-        if(ReadableBytes(src) < CollectionHeaderBytes)
-            throw std::runtime_error("EOF while ReadHeader");
-        hdr->u1             = SDL_ReadLE32(src);
-        hdr->u2             = SDL_ReadLE32(src);
-        hdr->u3             = SDL_ReadLE32(src);
-        hdr->imageCount     = SDL_ReadLE32(src);
-        hdr->u4             = SDL_ReadLE32(src);
-        hdr->dataClass      = SDL_ReadLE32(src);
-        hdr->u5             = SDL_ReadLE32(src);
-        hdr->u6             = SDL_ReadLE32(src);
-        hdr->sizeCategory   = SDL_ReadLE32(src);
-        hdr->u7             = SDL_ReadLE32(src);
-        hdr->u8             = SDL_ReadLE32(src);
-        hdr->u9             = SDL_ReadLE32(src);
-        hdr->width          = SDL_ReadLE32(src);
-        hdr->height         = SDL_ReadLE32(src);
-        hdr->u10            = SDL_ReadLE32(src);
-        hdr->u11            = SDL_ReadLE32(src);
-        hdr->u12            = SDL_ReadLE32(src);
-        hdr->u13            = SDL_ReadLE32(src);
-        hdr->anchorX        = SDL_ReadLE32(src);
-        hdr->anchorY        = SDL_ReadLE32(src);
-        hdr->dataSize       = SDL_ReadLE32(src);
-        hdr->u14            = SDL_ReadLE32(src);
+        Header hdr;
+        hdr.u1             = SDL_ReadLE32(src);
+        hdr.u2             = SDL_ReadLE32(src);
+        hdr.u3             = SDL_ReadLE32(src);
+        hdr.imageCount     = SDL_ReadLE32(src);
+        hdr.u4             = SDL_ReadLE32(src);
+        hdr.dataClass      = SDL_ReadLE32(src);
+        hdr.u5             = SDL_ReadLE32(src);
+        hdr.u6             = SDL_ReadLE32(src);
+        hdr.sizeCategory   = SDL_ReadLE32(src);
+        hdr.u7             = SDL_ReadLE32(src);
+        hdr.u8             = SDL_ReadLE32(src);
+        hdr.u9             = SDL_ReadLE32(src);
+        hdr.width          = SDL_ReadLE32(src);
+        hdr.height         = SDL_ReadLE32(src);
+        hdr.u10            = SDL_ReadLE32(src);
+        hdr.u11            = SDL_ReadLE32(src);
+        hdr.u12            = SDL_ReadLE32(src);
+        hdr.u13            = SDL_ReadLE32(src);
+        hdr.anchorX        = SDL_ReadLE32(src);
+        hdr.anchorY        = SDL_ReadLE32(src);
+        hdr.dataSize       = SDL_ReadLE32(src);
+        hdr.u14            = SDL_ReadLE32(src);
+        return hdr;
     }
 
-    void ReadPalette(SDL_RWops *src, Palette *palette)
+    Palette ReadPalette(SDL_RWops *src)
     {
-        if(ReadableBytes(src) < sizeof(Palette))
-            throw std::runtime_error("EOF while ReadPalette");    
-        ReadInt16ArrayLE(src, &(*palette)[0], CollectionPaletteColors);
+        Palette palette;
+        ReadInt16ArrayLE(src, &palette[0], CollectionPaletteColors);
+        return palette;
     }
 
-    void ReadImageHeader(SDL_RWops *src, ImageHeader *hdr)
+    ImageHeader ReadImageHeader(SDL_RWops *src)
     {
-        if(ReadableBytes(src) < CollectionEntryHeaderBytes)
-            throw std::runtime_error("EOF while ReadImageHeader");        
-        hdr->width      = SDL_ReadLE16(src);
-        hdr->height     = SDL_ReadLE16(src);
-        hdr->posX       = SDL_ReadLE16(src);
-        hdr->posY       = SDL_ReadLE16(src);
-        hdr->group      = SDL_ReadU8(src);
-        hdr->groupSize  = SDL_ReadU8(src);
-        hdr->tileY      = SDL_ReadLE16(src);
-        hdr->tileOrient = SDL_ReadU8(src);
-        hdr->hOffset    = SDL_ReadU8(src);
-        hdr->boxWidth   = SDL_ReadU8(src);
-        hdr->flags      = SDL_ReadU8(src);
-    } 
+        ImageHeader hdr;
+        hdr.width      = SDL_ReadLE16(src);
+        hdr.height     = SDL_ReadLE16(src);
+        hdr.posX       = SDL_ReadLE16(src);
+        hdr.posY       = SDL_ReadLE16(src);
+        hdr.group      = SDL_ReadU8(src);
+        hdr.groupSize  = SDL_ReadU8(src);
+        hdr.tileY      = SDL_ReadLE16(src);
+        hdr.tileOrient = SDL_ReadU8(src);
+        hdr.hOffset    = SDL_ReadU8(src);
+        hdr.boxWidth   = SDL_ReadU8(src);
+        hdr.flags      = SDL_ReadU8(src);
+        return hdr;
+    }
 
     struct TGX8
     {
@@ -258,7 +264,7 @@ namespace
         }
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(TGX::DecodeTGX(src, size, surface)) {
-                std::cerr << "TGX8::Load failed" << std::endl;
+                Fail("TGX8::Load", "Unable to decode tgx");
             }
         }
     };
@@ -291,7 +297,7 @@ namespace
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(TGX::DecodeTGX(src, size, surface)) {
-                std::cerr << "TGX16::Load failed" << std::endl;
+                Fail("TGX16::Load", "Unable to decode file");
             }
         }
     };
@@ -323,24 +329,16 @@ namespace
             return TGX::Transparent16;
         }
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &header, Surface &surface) {
-            SDL_Rect tilerect = MakeRect(
-                0,
-                header.tileY,
-                Width(header),
-                TGX::TileHeight);
+            SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TGX::TileHeight);
             SurfaceROI tile(surface, &tilerect);
             if(TGX::DecodeTile(src, TGX::TileBytes, tile)) {
-                std::cerr << "TileObject::Load failed" << std::endl;
+                Fail("TileObject::Load", "Unable to decode tile");
             }
         
-            SDL_Rect boxrect = MakeRect(
-                header.hOffset,
-                0,
-                header.boxWidth,
-                Height(header));
+            SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
             SurfaceROI box(surface, &boxrect);
             if(TGX::DecodeTGX(src, size - TGX::TileBytes, box)) {
-                std::cerr << "TileObject::Load failed" << std::endl;
+                Fail("TileObject::Load", "Unable to decode box");
             }
         }
     };
@@ -374,7 +372,7 @@ namespace
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
             if(TGX::DecodeUncompressed(src, size, surface)) {
-                std::cerr << "Bitmap::Load failed" << std::endl;
+                Fail("Bitmap::Load", "Unable to decode bitmap");
             }
         }
     };
@@ -386,31 +384,29 @@ namespace GM
 
     Collection::Collection(SDL_RWops *src)
     {
-        if(src == NULL)
-            throw std::runtime_error("passed NULL file");
+        if(src == NULL) {
+            Fail("Collection::Collection", "NULL src");
+        }
     
-        ReadHeader(src, &header);
-        if(ReadableBytes(src) < header.dataSize)
-            throw std::runtime_error("failed comparision against header.dataSize");
-        uint32_t count = header.imageCount;
-
+        header = ReadHeader(src);
+        if(ReadableBytes(src) < header.dataSize) {
+            Fail("Collection::Collection", "EOF");
+        }
+        
         palettes.resize(CollectionPaletteCount);
         for(Palette &palette : palettes)
-            ReadPalette(src, &palette);
+            palette = ReadPalette(src);
 
-        if(ReadableBytes(src) < sizeof(uint32_t) * count)
-            throw std::runtime_error("EOF while reading offsets");
+        uint32_t count = header.imageCount;
         offsets.resize(count);
         ReadInt32ArrayLE(src, offsets.data(), offsets.size());
-
-        if(ReadableBytes(src) < sizeof(uint32_t) * count)
-            throw std::runtime_error("EOF while reading sizes");
+        
         sizes.resize(count);
         ReadInt32ArrayLE(src, sizes.data(), sizes.size());
 
         headers.resize(count);
         for(ImageHeader &hdr : headers)
-            ReadImageHeader(src, &hdr);
+            hdr = ReadImageHeader(src);
     }
 
     Encoding Collection::encoding() const
@@ -421,39 +417,6 @@ namespace GM
     size_t Collection::size() const
     {
         return header.imageCount;
-    }
-
-    PalettePtr CreateSDLPaletteFrom(const Palette &gm1pal)
-    {
-        PalettePtr ptr =
-            PalettePtr(
-                SDL_AllocPalette(CollectionPaletteColors));
-        if(!ptr) {
-            std::cerr << "SDL_AllocPalette failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return PalettePtr(nullptr);
-        }
-
-        std::vector<SDL_Color> colors;
-        colors.reserve(CollectionPaletteColors);
-        for(auto color : gm1pal) {
-            SDL_Color c;
-            c.r = TGX::GetRed(color);
-            c.g = TGX::GetGreen(color);
-            c.b = TGX::GetBlue(color);
-            c.a = TGX::GetAlpha(color);
-            colors.push_back(c);
-        }
-    
-        if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, CollectionPaletteColors) < 0) {
-            std::cerr << "SDL_SetPaletteColors failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return PalettePtr(nullptr);
-        }
-    
-        return ptr;
     }
 
     Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index)

@@ -76,7 +76,7 @@ namespace GM
         uint8_t group;
         uint8_t groupSize;
         int16_t tileY;
-        uint8_t tileOrient;
+        uint8_t tileOrient;                              // TileAlignment
         uint8_t hOffset;
         uint8_t boxWidth;
         uint8_t flags;
@@ -123,6 +123,7 @@ namespace GM
         Collection(Collection &&) = default;
         Collection &operator=(const Collection &) = default;
         Collection &operator=(Collection &&) = default;
+        ~Collection() = default;
         
         Header header;
         std::vector<Palette> palettes;
@@ -132,8 +133,6 @@ namespace GM
         size_t size() const;
     };
 
-    PalettePtr CreateSDLPaletteFrom(const Palette &palette);
-
     void PrintImageHeader(std::ostream &out, const ImageHeader &header);
     void PrintHeader(std::ostream &out, const Header &gm1);
     void PrintPalette(std::ostream &out, const Palette &palette);
@@ -142,7 +141,6 @@ namespace GM
     int LoadEntries(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas);
     Surface LoadAtlas(SDL_RWops *src, const Collection &gm1);
     SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
-
     Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index);
 
 } // namespace GM

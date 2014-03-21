@@ -25,6 +25,13 @@ namespace
         LineFeed = 4
     };
 
+    void Fail(const std::string &where, const std::string &what)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << what;
+        throw std::runtime_error(oss.str());
+    }
+    
     // Width of rhombus rows in pixels.
     inline int GetTilePixelsPerRow(int row)
     {
@@ -34,16 +41,12 @@ namespace
         return PerRow[row];
     }
 
-    int ReadHeader(SDL_RWops *src, Header *hdr)
+    Header ReadHeader(SDL_RWops *src)
     {
-        if(ReadableBytes(src) < 2 * sizeof(uint32_t)) {
-            std::cerr << "Buffer overrun" << std::endl;
-            return -1;
-        }
-    
-        hdr->width = SDL_ReadLE32(src);
-        hdr->height = SDL_ReadLE32(src);
-        return 0;
+        Header hdr;
+        hdr.width = SDL_ReadLE32(src);
+        hdr.height = SDL_ReadLE32(src);
+        return hdr;
     }
     
     size_t ExtractTokenLength(const uint8_t &token)
@@ -94,26 +97,19 @@ namespace
             amask = TGX::AlphaMask16;
         }
     
-        Surface surface =
-            SDL_CreateRGBSurface(
-                NoFlags,
-                width,
-                height,
-                bpp,
-                rmask,
-                gmask,
-                bmask,
-                amask);
+        Surface surface = SDL_CreateRGBSurface(
+            NoFlags, width, height, bpp,
+            rmask,
+            gmask,
+            bmask,
+            amask);
 
         if(surface.Null()) {
-            std::ostringstream oss;
-            oss << "SDL_CreateRGBSurface failed: "
-                << SDL_GetError();
-            throw std::runtime_error(oss.str());
+            Fail("LoadTGX", SDL_GetError());
         }
     
         if(TGX::DecodeTGX(src, size, surface) < 0) {
-            throw std::runtime_error("DecodeTGX failed");
+            Fail("LoadTGX", "Unable to decode tgx");
         }
     
         return surface;
@@ -126,12 +122,7 @@ namespace TGX
 
     Surface LoadStandaloneImage(SDL_RWops *src)
     {
-        Header header;
-        if(ReadHeader(src, &header) < 0) {
-            std::cerr << "ReadHeader failed" << std::endl;
-            return Surface();
-        }
-
+        Header header = ReadHeader(src);
         return LoadTGX(src, ReadableBytes(src), header.width, header.height, 16);
     }
 
@@ -155,13 +146,11 @@ namespace TGX
     int DecodeTile(SDL_RWops *src, int64_t size, Surface &surface)
     {
         if(ReadableBytes(src) < size) {
-            std::cerr << "Source buffer overrun" << std::endl;
-            return -1;
+            Fail("DecodeTile", "EOF");
         }
 
         if(size < TileBytes) {
-            std::cerr << "Incorrect size" << std::endl;
-            return -1;
+            Fail("DecodeTile", "Wrong size");
         }
 
         SurfaceLocker lock(surface);
@@ -283,6 +272,7 @@ namespace TGX
                           << std::endl;
                 return -1;
             }
+            
             if(overrun) {
                 std::cerr << "Overrun "
                           << std::dec
