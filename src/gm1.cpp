@@ -9,7 +9,7 @@
 
 namespace
 {
-
+    
     using namespace GM;
 
     void Fail(const std::string &where, const std::string &what)
@@ -47,44 +47,44 @@ namespace
         }
     }
 
-    template<class EntryClass>
+    template<class Entry>
     SDL_Rect GetRectOnAtlas(const ImageHeader &header)
     {
         return MakeRect(
             header.posX,
             header.posY,
-            EntryClass::Width(header),
-            EntryClass::Height(header));
+            Entry::Width(header),
+            Entry::Height(header));
     }
 
-    template<class EntryClass>
+    template<class Entry>
     Surface AllocateSurface(int width, int height)
     {
         Surface surface = SDL_CreateRGBSurface(
-            NoFlags, width, height, EntryClass::Depth(),
-            EntryClass::RedMask(),
-            EntryClass::GreenMask(),
-            EntryClass::BlueMask(),
-            EntryClass::AlphaMask());
+            NoFlags, width, height, Entry::Depth(),
+            Entry::RedMask(),
+            Entry::GreenMask(),
+            Entry::BlueMask(),
+            Entry::AlphaMask());
     
         if(surface.Null()) {
             Fail("SDL_CreateRGBSurface", SDL_GetError());
         }
 
-        SDL_SetColorKey(surface, SDL_TRUE, EntryClass::ColorKey());
-        SDL_FillRect(surface, NULL, EntryClass::ColorKey());
+        SDL_SetColorKey(surface, SDL_TRUE, Entry::ColorKey());
+        SDL_FillRect(surface, NULL, Entry::ColorKey());
         
         return surface;
     }
 
-    template<class EntryClass>
+    template<class Entry>
     SDL_Rect PartitionAtlasImpl(const Collection &gm1, std::vector<SDL_Rect> &rects)
     {
         rects.reserve(gm1.size());
         SDL_Rect bounds = MakeEmptyRect();
         
         for(const ImageHeader &header : gm1.headers) {
-            SDL_Rect rect = GetRectOnAtlas<EntryClass>(header);
+            SDL_Rect rect = GetRectOnAtlas<Entry>(header);
             SDL_UnionRect(&rect, &bounds, &bounds);
             rects.push_back(rect);
         }
@@ -92,7 +92,7 @@ namespace
         return bounds;
     }
 
-    template<class EntryClass>
+    template<class Entry>
     Surface LoadAtlasImpl(SDL_RWops *src, const Collection &gm1)
     {
         if(src == NULL)
@@ -114,10 +114,10 @@ namespace
         }
 
         std::vector<SDL_Rect> partition;
-        SDL_Rect bounds = PartitionAtlasImpl<EntryClass>(gm1, partition);
+        SDL_Rect bounds = PartitionAtlasImpl<Entry>(gm1, partition);
 
         // TODO fix little overhead with bounds.x and bounds.y > 0
-        Surface atlas = AllocateSurface<EntryClass>(
+        Surface atlas = AllocateSurface<Entry>(
             bounds.x + bounds.w,
             bounds.y + bounds.h);
         
@@ -126,7 +126,7 @@ namespace
                 SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
                 ImageHeader header = gm1.headers[i];
                 SurfaceROI roi(atlas, &partition[i]);
-                EntryClass::Load(src, gm1.sizes[i], header, roi);
+                Entry::Load(src, gm1.sizes[i], header, roi);
             }
         } else {
             Fail("LoadAtlasImpl", "Unable to allocate surface");
@@ -135,7 +135,7 @@ namespace
         return atlas;
     }
 
-    template<class EntryClass>
+    template<class Entry>
     int LoadEntriesImpl(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas)
     {
         atlas.reserve(gm1.size());
@@ -145,13 +145,13 @@ namespace
         for(size_t i = 0; i < gm1.size(); ++i) {
             const ImageHeader &header = gm1.headers.at(i);
             
-            Surface surface = AllocateSurface<EntryClass>(
-                EntryClass::Width(header),
-                EntryClass::Height(header));
+            Surface surface = AllocateSurface<Entry>(
+                Entry::Width(header),
+                Entry::Height(header));
             
             if(!surface.Null()) {
                 SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
-                EntryClass::Load(src, gm1.sizes[i], header, surface);
+                Entry::Load(src, gm1.sizes[i], header, surface);
                 atlas.push_back(surface);
                 ++successfullLoads;
             } else {
@@ -162,7 +162,7 @@ namespace
         return successfullLoads;
     }
 
-    template<class EntryClass>
+    template<class Entry>
     Surface LoadEntryImpl(SDL_RWops *src, const Collection &gm1, size_t index)
     {
         int64_t origin = SDL_RWtell(src);
@@ -170,13 +170,13 @@ namespace
         uint32_t offset = gm1.offsets.at(index);
         const ImageHeader &header = gm1.headers.at(index);
 
-        Surface surface = AllocateSurface<EntryClass>(
-            EntryClass::Width(header),
-            EntryClass::Height(header));
+        Surface surface = AllocateSurface<Entry>(
+            Entry::Width(header),
+            Entry::Height(header));
         
         if(!surface.Null()) {
             TempSeek seekLock(src, origin + offset, RW_SEEK_SET);
-            EntryClass::Load(src, size, header, surface);
+            Entry::Load(src, size, header, surface);
         } else {
             Fail("LoadEntryImpl", "Unable to allocate surface");
         }
