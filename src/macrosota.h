@@ -3,10 +3,9 @@
 
 #include <memory>
 
-/** @brief C++14's std::make_unique forward defintion :D
- *
- * @return Pointer to constructed object with given args.
- *
+/** 
+ * \brief C++14's std::make_unique forward defintion :D
+ * \return Pointer to constructed object with given args.
  */
 template<class T, class ...U>
 std::unique_ptr<T> make_unique(U&&... u)

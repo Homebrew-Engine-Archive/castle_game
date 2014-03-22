@@ -7,14 +7,18 @@
 #include "filesystem.h"
 #include "surface.h"
 
+namespace Castle
+{
+    class Engine;
+}
+
 class Renderer;
-class RootScreen;
 class FontCollectionInfo;
 
 class LoadingScreen
 {
     Renderer *mRenderer;
-    RootScreen *mRoot;
+    Castle::Engine *mRoot;
     Surface mBackground;
     bool mQuit;
     std::vector<std::function<void()>> mTasks;
@@ -23,11 +27,11 @@ class LoadingScreen
     void ScheduleCacheFont(const FontCollectionInfo &info);
     
 public:
-    LoadingScreen(RootScreen *root);
-    int Exec();
+    LoadingScreen(Castle::Engine *root);
+    bool Exec();
     void Draw(double done);
 };
 
-int RunLoadingScreen(RootScreen *root);
+bool RunLoadingScreen(Castle::Engine *root);
 
 #endif

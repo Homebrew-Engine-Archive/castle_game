@@ -1,7 +1,7 @@
 #ifndef WIDGET_H_
 #define WIDGET_H_
 
-#include "SDL.h"
+#include <SDL.h>
 
 class Surface;
 

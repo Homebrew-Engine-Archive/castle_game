@@ -22,7 +22,7 @@ Button MenuMain::MakeCombatButton()
     return Button(bounds, released, over, pressed, handler);
 }
 
-MenuMain::MenuMain(RootScreen *root)
+MenuMain::MenuMain(Castle::Engine *root)
     : mRoot(root)
     , mRenderer(root->GetRenderer())
 {

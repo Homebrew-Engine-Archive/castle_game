@@ -15,7 +15,7 @@ enum class BuildingCategory : int {
     Production
 };
 
-GameScreen::GameScreen(RootScreen *root)
+GameScreen::GameScreen(Castle::Engine *root)
     : mRoot(root)
     , mRenderer(root->GetRenderer())
     , mCursorX(0)

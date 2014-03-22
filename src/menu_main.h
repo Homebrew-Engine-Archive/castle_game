@@ -2,15 +2,20 @@
 #define MENU_MAIN_H_
 
 #include <vector>
-#include "SDL.h"
+#include <SDL.h>
 #include "renderer.h"
-#include "rootscreen.h"
+#include "engine.h"
 #include "screen.h"
 #include "button.h"
 
+namespace Castle
+{
+    class Engine;
+}
+
 class MenuMain : public Screen
 {
-    RootScreen *mRoot;
+    Castle::Engine *mRoot;
     Renderer *mRenderer;
     Surface mBackground;
     std::vector<Button> mButtons;
@@ -18,7 +23,7 @@ class MenuMain : public Screen
     Button MakeCombatButton();
     
 public:
-    MenuMain(RootScreen *root);
+    MenuMain(Castle::Engine *root);
     
     void GoCombat();
     void GoEconomics();

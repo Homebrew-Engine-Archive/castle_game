@@ -2,7 +2,7 @@
 #define SCREEN_INCLUDED_H_
 
 #include <memory>
-#include "SDL.h"
+#include <SDL.h>
 
 class Surface;
 

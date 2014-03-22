@@ -1,7 +1,7 @@
 #ifndef COLLECTION_H_
 #define COLLECTION_H_
 
-#include "SDL.h"
+#include <SDL.h>
 #include <string>
 #include <iosfwd>
 #include <vector>

@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-#include "SDL.h"
+#include <SDL.h>
 #include "sdl_utils.h"
 
 class Text;

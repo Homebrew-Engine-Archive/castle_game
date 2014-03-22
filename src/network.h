@@ -3,7 +3,7 @@
 
 #include <array>
 #include <vector>
-#include "SDL.h"
+#include <SDL.h>
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>

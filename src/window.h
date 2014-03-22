@@ -2,7 +2,7 @@
 #define WINDOW_H_
 
 #include <stdexcept>
-#include "SDL.h"
+#include <SDL.h>
 #include "sdl_utils.h"
 
 class Window

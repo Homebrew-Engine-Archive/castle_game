@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "SDL.h"
+#include <SDL.h>
 #include "filesystem.h"
 #include "sdl_utils.h"
 

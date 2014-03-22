@@ -2,7 +2,7 @@
 #define GAMEMAP_H_
 
 #include <vector>
-#include "SDL.h"
+#include <SDL.h>
 #include "landscape.h"
 
 struct GameMapLocation

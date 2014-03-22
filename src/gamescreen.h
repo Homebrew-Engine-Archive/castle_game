@@ -4,8 +4,8 @@
 class GameScreen;
 
 #include <memory>
-#include "SDL.h"
-#include "rootscreen.h"
+#include <SDL.h>
+#include "engine.h"
 #include "screen.h"
 #include "renderer.h"
 #include "gamemap.h"
@@ -18,9 +18,14 @@ enum class CursorMode : int {
     Delete
 };
 
+namespace Castle
+{
+    class Engine;
+}
+
 class GameScreen : public Screen
 {
-    RootScreen *mRoot;
+    Castle::Engine *mRoot;
     Renderer *mRenderer;
     GameMap mMap;
     int mCursorX;
@@ -38,7 +43,7 @@ class GameScreen : public Screen
     bool mClosed;
     
 public:
-    GameScreen(RootScreen *root);
+    GameScreen(Castle::Engine *root);
     GameScreen(const GameScreen &that) = delete;
     GameScreen &operator=(const GameScreen &that) = delete;
     ~GameScreen();

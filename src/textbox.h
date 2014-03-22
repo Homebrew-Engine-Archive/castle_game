@@ -4,12 +4,12 @@
 #include "widget.h"
 
 class Text;
-class RootScreen;
+class Engine;
 
 class TextBox : public Widget
 {
 public:
-    TextBox(RootScreen *root);
+    TextBox(Engine *root);
     void SetText(const Text &text);
 };
 

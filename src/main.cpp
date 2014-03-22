@@ -1,8 +1,10 @@
 #include "main.h"
+
 #include <iostream>
-#include "SDL.h"
+
+#include <SDL.h>
 #include "sdl_utils.h"
-#include "rootscreen.h"
+#include "engine.h"
 #include "sdl_init.h"
 #include "renderer.h"
 
@@ -68,7 +70,7 @@ int main()
     
     std::unique_ptr<Renderer> &&renderer = CreateRenderer(sdlRenderer.get());
     
-    std::unique_ptr<RootScreen> &&root = CreateRootScreen(renderer.get());
+    std::unique_ptr<Castle::Engine> &&root = Castle::CreateEngine(renderer.get());
 
     return root->Exec();
 }

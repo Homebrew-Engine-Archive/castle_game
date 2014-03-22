@@ -1,7 +1,7 @@
 #ifndef PLAYBACK_H_
 #define PLAYBACK_H_
 
-#include "SDL.h"
+#include <SDL.h>
 
 class Surface;
 

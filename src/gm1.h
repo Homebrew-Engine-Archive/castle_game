@@ -5,7 +5,7 @@
 #include <array>
 #include <vector>
 #include <stdexcept>
-#include "SDL.h"
+#include <SDL.h>
 #include "macrosota.h"
 #include "sdl_utils.h"
 
@@ -22,11 +22,10 @@ namespace GM
     const size_t PaletteShadowIndex = 1;
 
     
-    /** @brief Is included in every collection only once.
-    *
-    * NOTE
-    * Every field that matches "u\\d+" is unknown purpose field.
-    */
+    /**
+     * \brief Is included in every collection only once.
+     * \note There are many fields have undefined purpose. Each of them prefix with 'u'.
+     */
     struct Header
     {
         uint32_t u1;
@@ -53,20 +52,21 @@ namespace GM
         uint32_t u14;
     };
 
-    /** @brief Every image in the collection describes by this.
-    *
-    * This header should be read from the source file before
-    * read original image.
-    *
-    * NOTE:
-    * If collection is TileObject encoded, then `tileY' represents
-    * an offset from the top pixel of box to the bottom.
-    * 
-    * If collection is Font encoded, then `tileY' represents
-    * a y-bearing font metric.
-    * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
-    *
-    */
+    /**
+     * \brief Every image in the collection describes by this.
+     *
+     * This header should be read from the source file before
+     * read original image.
+     *
+     * NOTE:
+     * If collection is TileObject encoded, then `tileY' represents
+     * an offset from the top pixel of box to the bottom.
+     * 
+     * If collection is Font encoded, then `tileY' represents
+     * a y-bearing font metric.
+     * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
+     *
+     */
     struct ImageHeader
     {
         uint16_t width;

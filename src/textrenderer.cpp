@@ -2,7 +2,7 @@
 #include "geometry.h"
 #include "text.h"
 #include "atlas.h"
-#include "SDL.h"
+#include <SDL.h>
 #include "font.h"
 #include "macrosota.h"
 #include <iostream>

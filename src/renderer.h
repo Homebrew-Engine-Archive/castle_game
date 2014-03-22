@@ -2,7 +2,7 @@
 #define RENDERER_H_
 
 #include <string>
-#include "SDL.h"
+#include <SDL.h>
 #include "filesystem.h"
 
 enum class AlignH;

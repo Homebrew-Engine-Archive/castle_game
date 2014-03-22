@@ -1,7 +1,7 @@
 #ifndef BUTTON_H_
 #define BUTTON_H_
 
-#include "SDL.h"
+#include <SDL.h>
 #include <functional>
 #include "geometry.h"
 #include "surface.h"

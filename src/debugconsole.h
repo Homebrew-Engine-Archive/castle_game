@@ -4,8 +4,14 @@
 #include <memory>
 #include "screen.h"
 
-class RootScreen;
+namespace Castle
+{
+    class Engine;
+}
 
-ScreenPtr CreateDebugConsole(RootScreen *root);
+namespace GUI
+{
+    ScreenPtr CreateDebugConsole(Castle::Engine *root);
+}
 
 #endif

@@ -4,14 +4,14 @@
 #include <sstream>
 #include <iostream>
 #include <boost/filesystem/fstream.hpp>
-#include "SDL.h"
+#include <SDL.h>
 
 #include "collection.h"
 #include "filesystem.h"
 #include "geometry.h"
 #include "gm1.h"
 #include "renderer.h"
-#include "rootscreen.h"
+#include "engine.h"
 
 namespace
 {
@@ -81,15 +81,16 @@ namespace
 
 }
 
-int RunLoadingScreen(RootScreen *root)
+bool RunLoadingScreen(Castle::Engine *root)
 {
     LoadingScreen ls(root);
     return ls.Exec();
 }
 
-LoadingScreen::LoadingScreen(RootScreen *root)
+LoadingScreen::LoadingScreen(Castle::Engine *root)
     : mRenderer(root->GetRenderer())
     , mRoot(root)
+    , mBackground(NULL)
     , mQuit(false)
 {
     FilePath preloadsPath = GetGMPath("preloads.txt");
@@ -131,7 +132,7 @@ void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
     mTasks.push_back(task);
 }
 
-int LoadingScreen::Exec()
+bool LoadingScreen::Exec()
 {
     const uint32_t frameRate = 5;
     const uint32_t frameInterval = 1000 / frameRate;
@@ -146,18 +147,15 @@ int LoadingScreen::Exec()
             Draw(done);
         }
 
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(!mRoot->HandleEvent(event))
-                return -1;
-        }
+        mRoot->PollInput();
+        if(mRoot->Closed())
+            return false;
 
         task();
         completed += 1;
-        
     }
     
-    return 0;
+    return true;
 }
 
 void LoadingScreen::Draw(double done)

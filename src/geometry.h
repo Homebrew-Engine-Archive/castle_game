@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_H_
 #define GEOMETRY_H_
 
-#include "SDL.h"
+#include <SDL.h>
 
 /**
  * The best application, i guess.

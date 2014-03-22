@@ -19,4 +19,4 @@ cxx_set_flag ("-Wextra" CXX_EXTRA_WARN)
 cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_WARN)
 
 add_subdirectory (src)
-add_subdirectory (tools/gm1explorer)
+add_subdirectory (tools/gmviewer)

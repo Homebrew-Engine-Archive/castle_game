@@ -1,7 +1,7 @@
 #include "surface.h"
 #include "geometry.h"
 #include "macrosota.h"
-#include "SDL.h"
+#include <SDL.h>
 #include <memory>
 #include <algorithm>
 #include <stdexcept>

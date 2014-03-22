@@ -1,5 +1,5 @@
 #include "sdl_init.h"
-#include "SDL.h"
+#include <SDL.h>
 
 SDLInit::SDLInit(int flags)
     throw(std::runtime_error)

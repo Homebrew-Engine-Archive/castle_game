@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <boost/filesystem.hpp>
-#include "SDL.h"
+#include <SDL.h>
 
 using FilePath = boost::filesystem::path;
 

@@ -9,33 +9,33 @@ include_directories (
 )
 
 set (SRCS
-  sdl_utils.cpp
   atlas.cpp
+  button.cpp
+  collection.cpp
+  debugconsole.cpp
+  direction.cpp
+  engine.cpp
+  filesystem.cpp
+  font.cpp
   gamemap.cpp
+  gamereactor.cpp
+  gamescreen.cpp
   geometry.cpp
   gm1.cpp
-  button.cpp
-  network.cpp
-  sdl_init.cpp
-  tgx.cpp
-  gamereactor.cpp
   loadingscreen.cpp
-  font.cpp
-  textrenderer.cpp
-  renderer.cpp
-  window.cpp
-  gamescreen.cpp
-  rootscreen.cpp
-  menu_main.cpp
-  menu_combat.cpp
   main.cpp
-  rw.cpp
-  surface.cpp
-  collection.cpp
-  filesystem.cpp
+  menu_combat.cpp
+  menu_main.cpp
+  network.cpp
   point.cpp
-  direction.cpp
-  debugconsole.cpp
+  renderer.cpp
+  rw.cpp
+  sdl_init.cpp
+  sdl_utils.cpp
+  surface.cpp
+  textrenderer.cpp
+  tgx.cpp
+  window.cpp
 )
 
 find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)

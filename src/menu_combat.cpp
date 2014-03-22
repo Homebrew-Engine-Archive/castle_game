@@ -2,8 +2,9 @@
 #include "macrosota.h"
 #include "filesystem.h"
 #include "geometry.h"
+#include "engine.h"
 
-MenuCombat::MenuCombat(RootScreen *root)
+MenuCombat::MenuCombat(Castle::Engine *root)
     : mRoot(root)
     , mRenderer(root->GetRenderer())
 {
