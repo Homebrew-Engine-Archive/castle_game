@@ -47,7 +47,7 @@ void GetAndPrintRendererInfo(std::ostream &out, SDL_Renderer *renderer)
 int main()
 {
     SDLInit(SDL_INIT_EVERYTHING);
-
+    
     EnumRenderDrivers(std::clog);
 
     const int screenwidth = 1024;
@@ -68,7 +68,7 @@ int main()
 
     GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
     
-    std::unique_ptr<Renderer> &&renderer = CreateRenderer(sdlRenderer.get());
+    std::unique_ptr<Render::Renderer> &&renderer = Render::CreateRenderer(sdlRenderer.get());
     
     std::unique_ptr<Castle::Engine> &&root = Castle::CreateEngine(renderer.get());
 

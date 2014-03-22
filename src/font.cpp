@@ -26,11 +26,11 @@ namespace
         return rgb32;
     }
     
-    void AddNonPrintableGlyphs(Surface face, int xadvance, int ybearing, Font &font)
+    void AddNonPrintableGlyphs(Surface face, int xadvance, int ybearing, Render::Font &font)
     {
         const int NonPrintableLast = '!';
         for(int character = 0; character < NonPrintableLast; ++character) {
-            GlyphData glyph;
+            Render::GlyphData glyph;
             glyph.face = face;
             glyph.hbox = 0;
             glyph.vbox = 0;
@@ -44,101 +44,127 @@ namespace
         }
     }
     
-    int GlyphWidth(const GlyphData &glyph)
+    int GlyphWidth(const Render::GlyphData &glyph)
     {
         return glyph.xadvance;
     }
 
-    int GlyphHeight(const GlyphData &glyph)
+    int GlyphHeight(const Render::GlyphData &glyph)
     {
         return glyph.vbox;
     }
 
 }
 
-Font::Font()
-    : mAscii(256)
-    , mFontWidth(0)
-    , mFontHeight(0)
-{ }
-
-Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int skip)
+namespace Render
 {
-    Font font;
-    AddNonPrintableGlyphs(Surface(), data.header.anchorX, 0, font);
+
+    Font::Font()
+        : mGlyphs()
+        , mAscii(256)
+        , mFontWidth(0)
+        , mFontHeight(0)
+    { }
+
+    int Font::Height() const
+    {
+        return mFontHeight;
+    }
+
+    int Font::Width() const
+    {
+        return mFontWidth;
+    }
+
+    int Font::LineSpacing() const
+    {
+        return 0;
+    }
+
+    int Font::Kerning() const
+    {
+        return 0;
+    }
+
+    Font MakeFont(const CollectionData &data, const std::vector<int> &alphabet, int skip)
+    {
+        Font font;
+        AddNonPrintableGlyphs(Surface(), data.header.anchorX, 0, font);
     
-    auto entry = data.entries.begin();
-    std::advance(entry, skip);
-    for(int character : alphabet) {
-        if(entry >= data.entries.end()) {
-            throw std::runtime_error("Entry index out of bounds");
-        }
+        auto entry = data.entries.begin();
+        std::advance(entry, skip);
+        for(int character : alphabet) {
+            if(entry >= data.entries.end()) {
+                throw std::runtime_error("Entry index out of bounds");
+            }
         
-        GlyphData glyph;
+            GlyphData glyph;
         
-        // Copy original surface and convert to argb32
-        if(entry->surface.Null()) {
-            glyph.face = Surface();
-            glyph.hbox = 0;
-            glyph.vbox = 0;
-        } else {
-            glyph.face = DecodeGM1Glyph(entry->surface);
-            glyph.hbox = glyph.face->w;
-            glyph.vbox = glyph.face->h;
-        }
+            // Copy original surface and convert to argb32
+            if(entry->surface.Null()) {
+                glyph.face = Surface();
+                glyph.hbox = 0;
+                glyph.vbox = 0;
+            } else {
+                glyph.face = DecodeGM1Glyph(entry->surface);
+                glyph.hbox = glyph.face->w;
+                glyph.vbox = glyph.face->h;
+            }
         
-        glyph.xadvance = glyph.hbox;
-        glyph.xbearing = 0;
-        glyph.yadvance = 0;
-        glyph.ybearing = entry->header.tileY;
+            glyph.xadvance = glyph.hbox;
+            glyph.xbearing = 0;
+            glyph.yadvance = 0;
+            glyph.ybearing = entry->header.tileY;
 
-        if(!font.AddGlyph(character, glyph)) {
-            throw std::runtime_error("Unable to add glyph into font");
+            if(!font.AddGlyph(character, glyph)) {
+                throw std::runtime_error("Unable to add glyph into font");
+            }
+
+            ++entry;
         }
 
-        ++entry;
+        return font;
     }
 
-    return font;
-}
+    bool Font::AddGlyph(int character, const GlyphData &glyph)
+    {
+        if(character < (int)mAscii.size()) {
+            mAscii[character] = mGlyphs.size();
+            mFontWidth = std::max(mFontWidth, glyph.hbox);
+            mFontHeight = std::max(mFontHeight, glyph.vbox);
+            mGlyphs.push_back(glyph);
+            return true;
+        }
 
-bool Font::AddGlyph(int character, const GlyphData &glyph)
-{
-    if(character < (int)mAscii.size()) {
-        mAscii[character] = mGlyphs.size();
-        mFontWidth = std::max(mFontWidth, glyph.hbox);
-        mFontHeight = std::max(mFontHeight, glyph.vbox);
-        mGlyphs.push_back(glyph);
-        return true;
+        return false;
     }
 
-    return false;
-}
-
-const GlyphData *Font::FindGlyph(int character) const
-{
-    size_t idx = GetGlyphIndex(character);
-    return GetGlyph(idx);
-}
-
-const GlyphData *Font::GetGlyph(size_t idx) const
-{
-    if(idx < mGlyphs.size()) {
-        return &mGlyphs[idx];
+    const GlyphData *Font::FindGlyph(int character) const
+    {
+        size_t idx = GetGlyphIndex(character);
+        return GetGlyph(idx);
     }
 
-    return NULL;
-}
+    const GlyphData *Font::GetGlyph(size_t idx) const
+    {
+        if(idx < mGlyphs.size()) {
+            return &mGlyphs[idx];
+        }
 
-std::vector<GlyphData> Font::GetGlyphList() const
-{
-    return mGlyphs;
-}
+        return NULL;
+    }
 
-size_t Font::GetGlyphIndex(int character) const
-{
-    if(character < (int)mAscii.size())
-        return mAscii[character];
+    std::vector<GlyphData> Font::GetGlyphList() const
+    {
+        return mGlyphs;
+    }
+
+    size_t Font::GetGlyphIndex(int character) const
+    {
+        if(character < (int)mAscii.size())
+            return mAscii[character];
     
-    return mGlyphs.size();
-}
+        return mGlyphs.size();
+    }
+
+} // namespace Render

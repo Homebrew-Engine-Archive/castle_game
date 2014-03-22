@@ -1,13 +1,9 @@
 #ifndef GAMESCREEN_H_
 #define GAMESCREEN_H_
 
-class GameScreen;
-
 #include <memory>
 #include <SDL.h>
-#include "engine.h"
 #include "screen.h"
-#include "renderer.h"
 #include "gamemap.h"
 
 enum class Direction;
@@ -23,37 +19,49 @@ namespace Castle
     class Engine;
 }
 
-class GameScreen : public Screen
+namespace Render
 {
-    Castle::Engine *mRoot;
-    Renderer *mRenderer;
-    GameMap mMap;
-    int mCursorX;
-    int mCursorY;
-    bool mCursorInvalid;
-    int mViewportX;
-    int mViewportY;
-    int mViewportRadius;
-    Direction mViewportOrient;
-    bool mFlatView;
-    bool mLowView;
-    bool mZoomedOut;
-    bool mHiddenUI;
-    CursorMode mCursorMode;
-    bool mClosed;
-    
-public:
-    GameScreen(Castle::Engine *root);
-    GameScreen(const GameScreen &that) = delete;
-    GameScreen &operator=(const GameScreen &that) = delete;
-    ~GameScreen();
-    
-    void Draw(Surface &frame);
-    bool HandleEvent(const SDL_Event &event);
+    class Renderer;
+}
 
-    // void LogWindowEvent(const SDL_WindowEvent &event);
-    void AdjustViewport(const SDL_Rect &screen);
+namespace GUI
+{
+
+    class GameScreen : public Screen
+    {
+        Castle::Engine *mEngine;
+        Render::Renderer *mRenderer;
+        GameMap mMap;
+        int mCursorX;
+        int mCursorY;
+        bool mCursorInvalid;
+        int mViewportX;
+        int mViewportY;
+        int mViewportRadius;
+        Direction mViewportOrient;
+        bool mFlatView;
+        bool mLowView;
+        bool mZoomedOut;
+        bool mHiddenUI;
+        CursorMode mCursorMode;
+        bool mClosed;
     
-};
+    public:
+        GameScreen(Castle::Engine *engine);
+        GameScreen(const GameScreen &that) = delete;
+        GameScreen &operator=(const GameScreen &that) = delete;
+        ~GameScreen();
+    
+        void Draw(Surface &frame);
+        bool HandleEvent(const SDL_Event &event);
+
+        // void LogWindowEvent(const SDL_WindowEvent &event);
+        void AdjustViewport(const SDL_Rect &screen);
+    
+    };
+
+    std::unique_ptr<GameScreen> CreateGameScreen(Castle::Engine *engine);
+    
+}
 
 #endif

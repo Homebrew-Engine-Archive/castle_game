@@ -81,15 +81,15 @@ namespace
 
 }
 
-bool RunLoadingScreen(Castle::Engine *root)
+bool RunLoadingScreen(Castle::Engine *engine)
 {
-    LoadingScreen ls(root);
+    LoadingScreen ls(engine);
     return ls.Exec();
 }
 
-LoadingScreen::LoadingScreen(Castle::Engine *root)
-    : mRenderer(root->GetRenderer())
-    , mRoot(root)
+LoadingScreen::LoadingScreen(Castle::Engine *engine)
+    : mRenderer(engine->GetRenderer())
+    , mEngine(engine)
     , mBackground(NULL)
     , mQuit(false)
 {
@@ -147,8 +147,8 @@ bool LoadingScreen::Exec()
             Draw(done);
         }
 
-        mRoot->PollInput();
-        if(mRoot->Closed())
+        mEngine->PollInput();
+        if(mEngine->Closed())
             return false;
 
         task();

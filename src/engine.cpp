@@ -6,6 +6,7 @@
 #include <vector>
 #include <SDL.h>
 
+#include "renderer.h"
 #include "menu_combat.h"
 #include "menu_main.h"
 #include "loadingscreen.h"
@@ -18,7 +19,7 @@ namespace Castle
 
     class EngineImpl final : public Engine
     {
-        Renderer *mRenderer;
+        Render::Renderer *mRenderer;
         double mFpsAverage;
         std::uint64_t mFrameCounter;
         bool mClosed;
@@ -35,25 +36,25 @@ namespace Castle
         void DrawFrame();
         bool HandleEvent(const SDL_Event &event);
     
-      public:
-        EngineImpl(Renderer *mRenderer);
+    public:
+        EngineImpl(Render::Renderer *mRenderer);
         EngineImpl(const EngineImpl &) = delete;
         EngineImpl(EngineImpl &&) = default;
         EngineImpl &operator=(const EngineImpl &) = delete;
         EngineImpl &operator=(EngineImpl &&) = default;
+        ~EngineImpl() = default;
     
         int Exec();
         void SetCurrentScreen(ScreenPtr &&screen);
         void PushScreen(ScreenPtr &&screen);
         ScreenPtr PopScreen();
-        Renderer *GetRenderer();
+        Render::Renderer *GetRenderer();
 
-        inline bool Closed() const { return mClosed; }
+        bool Closed() const;
         void PollInput();
-        
     };
-
-    EngineImpl::EngineImpl(Renderer *renderer)
+    
+    EngineImpl::EngineImpl(Render::Renderer *renderer)
         : mRenderer(renderer)
         , mFpsAverage(0.0f)
         , mFrameCounter(0.0f)
@@ -62,6 +63,7 @@ namespace Castle
         , mFpsLimited(true)
         , mShowConsole(false)
         , mDebugConsole(std::move(GUI::CreateDebugConsole(this)))
+        , mScreenStack{}
     { }
 
     bool EngineImpl::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -104,6 +106,11 @@ namespace Castle
         }
     }
 
+    bool EngineImpl::Closed() const
+    {
+        return mClosed;
+    }
+    
     Screen *EngineImpl::GetCurrentScreen() const
     {
         if(mScreenStack.empty())
@@ -157,7 +164,7 @@ namespace Castle
             return false;
         }
 
-        PushScreen(make_unique<MenuMain>(this));
+        PushScreen(GUI::CreateMenuMain(this));
 
         const int64_t msPerSec = 1000;
         const int64_t pollRate = 66;
@@ -175,18 +182,14 @@ namespace Castle
         server.StartAccept();
     
         while(!Closed()) {
+            PollInput();
+            
             const int64_t frameInterval = msPerSec / mFrameRate;
             const int64_t pollStart = SDL_GetTicks();
             if(lastPoll + pollInterval < pollStart) {
                 io.poll();
                 lastPoll = pollStart;
             }
-
-            if(GetCurrentScreen() == NULL) {
-                throw std::runtime_error("No current screen");
-            }
-        
-            PollInput();
 
             const int64_t frameStart = SDL_GetTicks();
             if(lastSecond + msPerSec < frameStart) {
@@ -233,11 +236,9 @@ namespace Castle
             }
         }
     
-        SDL_Color color = MakeColor(255, 255, 255, 255);
+        SDL_Color color = MakeColor(128, 128, 255, 128);
         mRenderer->SetColor(color);
-        mRenderer->SetFont(
-            "font_stronghold_aa",
-            24);
+        mRenderer->SetFont("font_stronghold_aa", 24);
 
         SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);
     
@@ -263,12 +264,12 @@ namespace Castle
         }
     }
 
-    Renderer *EngineImpl::GetRenderer()
+    Render::Renderer *EngineImpl::GetRenderer()
     {
         return mRenderer;
     }
 
-    std::unique_ptr<Engine> CreateEngine(Renderer *renderer)
+    std::unique_ptr<Engine> CreateEngine(Render::Renderer *renderer)
     {
         return make_unique<EngineImpl>(renderer);
     }

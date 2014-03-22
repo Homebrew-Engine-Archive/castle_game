@@ -2,8 +2,8 @@
 #define MENU_COMBAT_H_
 
 #include <SDL.h>
+#include <memory>
 
-#include "engine.h"
 #include "screen.h"
 #include "surface.h"
 
@@ -12,16 +12,28 @@ namespace Castle
     class Engine;
 }
 
-class MenuCombat : public Screen
+namespace Render
 {
-    Castle::Engine *mRoot;
-    Renderer *mRenderer;
-    Surface mBackground;
+    class Renderer;
+}
+
+namespace GUI
+{
+
+    class MenuCombat : public Screen
+    {
+        Castle::Engine *mEngine;
+        Render::Renderer *mRenderer;
+        Surface mBackground;
     
-public:
-    MenuCombat(Castle::Engine *root);
-    void Draw(Surface &frame);
-    bool HandleEvent(const SDL_Event &event);
-};
+    public:
+        MenuCombat(Castle::Engine *engine);
+        void Draw(Surface &frame);
+        bool HandleEvent(const SDL_Event &event);
+    };
+
+
+    std::unique_ptr<MenuCombat> CreateMenuCombat(Castle::Engine *engine);
+}
 
 #endif

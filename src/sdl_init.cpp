@@ -1,15 +1,20 @@
 #include "sdl_init.h"
+
+#include <stdexcept>
+#include <sstream>
 #include <SDL.h>
 
 SDLInit::SDLInit(int flags)
-    throw(std::runtime_error)
 {
-    if(SDL_Init(flags))
-        throw std::runtime_error(SDL_GetError());
-    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+    SDL_SetMainReady();
+    if(SDL_Init(flags) < 0) {
+        std::stringstream oss;
+        oss << "SDL_Init failed: " << SDL_GetError();
+        throw std::runtime_error(oss.str());
+    }
 }
 
-SDLInit::~SDLInit() throw()
+SDLInit::~SDLInit()
 {
     SDL_Quit();
 }

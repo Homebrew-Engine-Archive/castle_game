@@ -17,7 +17,7 @@ namespace GUI
     class DebugConsole : public Screen
     {
     private:
-        Castle::Engine *mRoot;
+        Castle::Engine *mEngine;
         std::string mText;
         std::string mFontName;
         int mFontSize;
@@ -26,7 +26,7 @@ namespace GUI
         bool HandleTextInput(const SDL_TextInputEvent &text);
     
     public:
-        DebugConsole(Castle::Engine *root);
+        DebugConsole(Castle::Engine *engine);
         DebugConsole(const DebugConsole &) = delete;
         DebugConsole(DebugConsole &&) = default;
         DebugConsole &operator=(const DebugConsole &) = delete;
@@ -37,8 +37,8 @@ namespace GUI
     };
 
 
-    DebugConsole::DebugConsole(Castle::Engine *root)
-        : mRoot(root)
+    DebugConsole::DebugConsole(Castle::Engine *engine)
+        : mEngine(engine)
         , mText("")
         , mFontName("font_stronghold_aa")
         , mFontSize(14)
@@ -52,7 +52,7 @@ namespace GUI
         FillFrame(frame, &tophalf, 0x7f000000);
 
         SDL_Rect textBox = PutIn(MakeRect(tophalf.w, mFontSize), tophalf, 0.0f, 1.0f);
-        Renderer *renderer = mRoot->GetRenderer();
+        Render::Renderer *renderer = mEngine->GetRenderer();
         renderer->SetFont(mFontName, mFontSize);
         renderer->RenderTextLine(mText, BottomLeft(textBox));
     }
@@ -92,9 +92,9 @@ namespace GUI
         return true;
     }
 
-    ScreenPtr CreateDebugConsole(Castle::Engine *root)
+    ScreenPtr CreateDebugConsole(Castle::Engine *engine)
     {
-        return make_unique<DebugConsole>(root);
+        return make_unique<DebugConsole>(engine);
     }
 
 } // namespace GUI

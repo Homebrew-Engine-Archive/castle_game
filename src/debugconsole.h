@@ -11,7 +11,7 @@ namespace Castle
 
 namespace GUI
 {
-    ScreenPtr CreateDebugConsole(Castle::Engine *root);
+    ScreenPtr CreateDebugConsole(Castle::Engine *engine);
 }
 
 #endif

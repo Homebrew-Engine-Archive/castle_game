@@ -12,13 +12,17 @@ namespace Castle
     class Engine;
 }
 
-class Renderer;
+namespace Render
+{
+    class Renderer;
+}
+
 class FontCollectionInfo;
 
 class LoadingScreen
 {
-    Renderer *mRenderer;
-    Castle::Engine *mRoot;
+    Render::Renderer *mRenderer;
+    Castle::Engine *mEngine;
     Surface mBackground;
     bool mQuit;
     std::vector<std::function<void()>> mTasks;
@@ -27,11 +31,11 @@ class LoadingScreen
     void ScheduleCacheFont(const FontCollectionInfo &info);
     
 public:
-    LoadingScreen(Castle::Engine *root);
+    LoadingScreen(Castle::Engine *engine);
     bool Exec();
     void Draw(double done);
 };
 
-bool RunLoadingScreen(Castle::Engine *root);
+bool RunLoadingScreen(Castle::Engine *engine);
 
 #endif

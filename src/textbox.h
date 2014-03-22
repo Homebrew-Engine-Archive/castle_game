@@ -9,7 +9,7 @@ class Engine;
 class TextBox : public Widget
 {
 public:
-    TextBox(Engine *root);
+    TextBox(Engine *engine);
     void SetText(const Text &text);
 };
 
