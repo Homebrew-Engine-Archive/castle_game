@@ -18,5 +18,15 @@ cxx_set_flag ("-Wall" CXX_WALL_WARN)
 cxx_set_flag ("-Wextra" CXX_EXTRA_WARN)
 cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_WARN)
 
+include (FindPkgConfig)
+pkg_search_module (SDL2 REQUIRED sdl2)
+
+include_directories (${SDL2_INCLUDE_DIRS})
+
+find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
+find_package (Boost 1.47.0 REQUIRED COMPONENTS date_time system)
+
+set (BOOST_LIBS boost_system boost_filesystem boost_date_time)
+
 add_subdirectory (src)
 add_subdirectory (tools/gmviewer)

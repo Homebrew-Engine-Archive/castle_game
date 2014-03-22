@@ -1,12 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
-
-include (FindPkgConfig)
-pkg_search_module (SDL2 REQUIRED sdl2)
-
-include_directories (
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${SDL2_INCLUDE_DIRS}
-)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
   atlas.cpp
@@ -38,14 +30,8 @@ set (SRCS
   window.cpp
 )
 
-find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
-find_package (Boost 1.47.0 REQUIRED COMPONENTS date_time system)
+set (TARGET "a.out")
 
-set (BOOST_LIBS boost_system boost_filesystem boost_date_time)
+add_executable (${TARGET} ${SRCS})
 
-add_executable (a.out ${SRCS})
-
-target_link_libraries (a.out
-  ${BOOST_LIBS}
-  ${SDL2_LIBRARIES}
-)
+target_link_libraries (${TARGET} ${BOOST_LIBS} ${SDL2_LIBRARIES})
