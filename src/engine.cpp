@@ -6,6 +6,7 @@
 #include <vector>
 #include <SDL.h>
 
+#include "screenmanager.h"
 #include "renderer.h"
 #include "menu_combat.h"
 #include "menu_main.h"
@@ -26,12 +27,11 @@ namespace Castle
         int mFrameRate;
         bool mFpsLimited;
         bool mShowConsole;
-        ScreenPtr mDebugConsole;
-        std::vector<ScreenPtr> mScreenStack;
+        std::unique_ptr<GUI::ScreenManager> mScreenMgr;
         
         bool HandleWindowEvent(const SDL_WindowEvent &event);
         bool HandleKeyboardEvent(const SDL_KeyboardEvent &event);
-        Screen *GetCurrentScreen() const;
+        GUI::Screen *GetCurrentScreen() const;
         void ToggleConsole();
         void DrawFrame();
         bool HandleEvent(const SDL_Event &event);
@@ -45,9 +45,9 @@ namespace Castle
         ~EngineImpl() = default;
     
         int Exec();
-        void SetCurrentScreen(ScreenPtr &&screen);
-        void PushScreen(ScreenPtr &&screen);
-        ScreenPtr PopScreen();
+        void SetCurrentScreen(GUI::ScreenPtr &&screen);
+        void PushScreen(GUI::ScreenPtr &&screen);
+        GUI::ScreenPtr PopScreen();
         Render::Renderer *GetRenderer();
 
         bool Closed() const;
@@ -62,8 +62,7 @@ namespace Castle
         , mFrameRate(16)
         , mFpsLimited(true)
         , mShowConsole(false)
-        , mDebugConsole(std::move(GUI::CreateDebugConsole(this)))
-        , mScreenStack{}
+        , mScreenMgr(make_unique<GUI::ScreenManager>(this))
     { }
 
     bool EngineImpl::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -98,12 +97,7 @@ namespace Castle
     void EngineImpl::ToggleConsole()
     {
         mShowConsole = !mShowConsole;
-
-        if(mShowConsole) {
-            PushScreen(move(mDebugConsole));
-        } else {
-            mDebugConsole = move(PopScreen());
-        }
+        mScreenMgr->ShowConsole(mShowConsole);
     }
 
     bool EngineImpl::Closed() const
@@ -111,34 +105,24 @@ namespace Castle
         return mClosed;
     }
     
-    Screen *EngineImpl::GetCurrentScreen() const
+    GUI::Screen *EngineImpl::GetCurrentScreen() const
     {
-        if(mScreenStack.empty())
-            return NULL;
-        else
-            return mScreenStack.back().get();
+        return mScreenMgr->GetCurrentScreen();
     }
 
-    void EngineImpl::SetCurrentScreen(ScreenPtr &&screen)
+    void EngineImpl::SetCurrentScreen(GUI::ScreenPtr &&screen)
     {
-        mScreenStack.clear();
-        PushScreen(move(screen));
+        mScreenMgr->SetCurrentScreen(std::move(screen));
     }
 
-    void EngineImpl::PushScreen(ScreenPtr &&screen)
+    void EngineImpl::PushScreen(GUI::ScreenPtr &&screen)
     {
-        mScreenStack.push_back(move(screen));
+        mScreenMgr->PushScreen(std::move(screen));
     }
 
-    ScreenPtr EngineImpl::PopScreen()
+    GUI::ScreenPtr EngineImpl::PopScreen()
     {
-        if(!mScreenStack.empty()) {
-            ScreenPtr ptr = std::move(mScreenStack.back());
-            mScreenStack.pop_back();
-            return ptr;
-        }
-
-        return ScreenPtr(nullptr);
+        return mScreenMgr->PopScreen();
     }
 
     void EngineImpl::PollInput()
@@ -226,15 +210,7 @@ namespace Castle
     {
         Surface frame = mRenderer->BeginFrame();
 
-        for(ScreenPtr &ptr : mScreenStack) {
-            if(ptr) {
-                ptr->Draw(frame);
-            } else {
-                // NOTE
-                // It's assumed to be impossible
-                throw std::runtime_error("empty screen in screen stack");
-            }
-        }
+        mScreenMgr->DrawScreen(frame);
     
         SDL_Color color = MakeColor(128, 128, 255, 128);
         mRenderer->SetColor(color);

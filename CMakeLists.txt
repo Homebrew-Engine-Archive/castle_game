@@ -30,3 +30,4 @@ set (BOOST_LIBS boost_system boost_filesystem boost_date_time)
 
 add_subdirectory (src)
 add_subdirectory (tools/gmviewer)
+add_subdirectory (tools/gfxviewer)

@@ -17,9 +17,9 @@ namespace Castle
     {
     public:
         virtual int Exec() = 0;
-        virtual void SetCurrentScreen(ScreenPtr &&screen) = 0;
-        virtual void PushScreen(ScreenPtr &&screen) = 0;
-        virtual ScreenPtr PopScreen() = 0;
+        virtual void SetCurrentScreen(GUI::ScreenPtr &&screen) = 0;
+        virtual void PushScreen(GUI::ScreenPtr &&screen) = 0;
+        virtual GUI::ScreenPtr PopScreen() = 0;
         virtual Render::Renderer *GetRenderer() = 0;
         virtual bool Closed() const = 0;
         virtual void PollInput() = 0;

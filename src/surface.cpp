@@ -1,6 +1,6 @@
 #include "surface.h"
-#include "geometry.h"
-#include "macrosota.h"
+
+#include <cassert>
 #include <SDL.h>
 #include <memory>
 #include <algorithm>
@@ -9,6 +9,10 @@
 #include <iostream>
 #include <queue>
 #include <cstdint>
+#include <boost/circular_buffer.hpp>
+
+#include "geometry.h"
+#include "macrosota.h"
 
 namespace
 {
@@ -96,17 +100,77 @@ namespace
     }
 
     template<class Pixel>
+    void BlurHorizontal(Surface &dst, int radius)
+    {
+        std::vector<int> reds(dst->w, 0);
+        std::vector<int> greens(dst->w, 0);
+        std::vector<int> blues(dst->w, 0);
+
+        for(int y = 0; y < dst->h; ++y) {
+            Pixel *scanline = (Pixel *)((uint8_t *)dst->pixels + y * dst->pitch);
+            
+            for(int x = 0; x < dst->w; ++x) {
+                uint8_t r, g, b;
+                SDL_GetRGB(scanline[x], dst->format, &r, &g, &b);
+                if(x != 0) {
+                    reds[x] = reds[x-1] + r;
+                    greens[x] = greens[x-1] + g;
+                    blues[x] = blues[x-1] + b;
+                } else {
+                    reds[x] = r;
+                    greens[x] = g;
+                    blues[x] = b;
+                }
+            }
+
+            for(int x = 0; x < dst->w; ++x) {
+                int red = 0;
+                int green = 0;
+                int blue = 0;
+                int count = 0;                
+                if(x - radius >= 0) {
+                    red -= reds[x - radius];
+                    green -= greens[x - radius];
+                    blue -= blues[x - radius];
+                    count += radius;
+                } else {
+                    count += x;
+                }
+                if(x + radius < dst->w) {
+                    red += reds[x + radius];
+                    green += greens[x + radius];
+                    blue += blues[x + radius];
+                    count += radius;
+                } else {
+                    red += reds[dst->w - 1];
+                    green += greens[dst->w - 1];
+                    blue += blues[dst->w - 1];
+                    count += dst->w - x;
+                }
+                scanline[x] = SDL_MapRGB(dst->format,
+                                         red / count,
+                                         green / count,
+                                         blue / count);
+            }
+        }
+    }
+
+        template<class Pixel>
+    void BlurVertical(Surface &dst, int radius)
+    {
+        UNUSED(dst);
+        UNUSED(radius);
+    }
+    
+    template<class Pixel>
     void BlurSurfaceImpl(Surface &dst, int radius)
     {
         SurfaceLocker lock(dst);
         if(dst.Null())
             return;
 
-        std::deque<uint8_t> redSum(radius, 0);
-        std::deque<uint8_t> greenSum(radius, 0);
-        std::deque<uint8_t> blueSum(radius, 0);
-
-        
+        BlurHorizontal<Pixel>(dst, radius);
+        BlurVertical<Pixel>(dst, radius);
     }
     
 }
@@ -242,8 +306,7 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         y = 0;
         width = src->w;
         height = src->h;
-    }
-    
+    }    
 
     uint32_t bytesPerPixel = src->format->BytesPerPixel;
     

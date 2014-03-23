@@ -27,7 +27,7 @@ set (SRCS
   surface.cpp
   textrenderer.cpp
   tgx.cpp
-  window.cpp
+  screenmanager.cpp
 )
 
 set (TARGET "a.out")

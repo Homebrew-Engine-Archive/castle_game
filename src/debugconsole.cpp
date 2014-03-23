@@ -46,7 +46,7 @@ namespace GUI
 
     void DebugConsole::Draw(Surface &frame)
     {
-        BlurSurface(frame, 5);
+        BlurSurface(frame, 15);
         SDL_Rect bounds = SurfaceBounds(frame);
         SDL_Rect tophalf = MakeRect(bounds.w, bounds.h / 2);
         FillFrame(frame, &tophalf, 0x7f000000);
