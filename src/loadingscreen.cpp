@@ -81,102 +81,106 @@ namespace
 
 }
 
-bool RunLoadingScreen(Castle::Engine *engine)
+namespace UI
 {
-    LoadingScreen ls(engine);
-    return ls.Exec();
-}
 
-LoadingScreen::LoadingScreen(Castle::Engine *engine)
-    : mRenderer(engine->GetRenderer())
-    , mEngine(engine)
-    , mBackground(NULL)
-    , mQuit(false)
-{
-    FilePath preloadsPath = GetGMPath("preloads.txt");
-    for(const std::string &str : GetStringList(preloadsPath)) {
-        ScheduleCacheGM1(str);
+    bool RunLoadingScreen(Castle::Engine *engine)
+    {
+        LoadingScreen ls(engine);
+        return ls.Exec();
     }
 
-    FilePath fontsPath = GetGMPath("fonts.txt");
-    for(const FontCollectionInfo &info : GetFontCollectionInfoList(fontsPath)) {
-        ScheduleCacheFont(info);
+    LoadingScreen::LoadingScreen(Castle::Engine *engine)
+        : mRenderer(engine->GetRenderer())
+        , mEngine(engine)
+        , mBackground(NULL)
+    {
+        FilePath preloadsPath = GetGMPath("preloads.txt");
+        for(const std::string &str : GetStringList(preloadsPath)) {
+            ScheduleCacheGM1(str);
+        }
+
+        FilePath fontsPath = GetGMPath("fonts.txt");
+        for(const FontCollectionInfo &info : GetFontCollectionInfoList(fontsPath)) {
+            ScheduleCacheFont(info);
+        }
+
+        FilePath filepath = GetTGXFilePath("frontend_loading");
+        mBackground = mRenderer->QuerySurface(filepath);
     }
 
-    FilePath filepath = GetTGXFilePath("frontend_loading");
-    mBackground = mRenderer->QuerySurface(filepath);
-}
+    void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
+    {
+        FilePath path = GetGM1FilePath(filename);
+        auto task = [path, this]() {
+            if(!mRenderer->CacheCollection(path)) {
+                std::ostringstream oss;
+                oss << "Unable to load file: " << path;
+                throw std::runtime_error(oss.str());
+            }
+        };
+        mTasks.push_back(task);
+    }
 
-void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
-{
-    FilePath path = GetGM1FilePath(filename);
-    auto task = [path, this]() {
-        if(!mRenderer->CacheCollection(path)) {
-            std::ostringstream oss;
-            oss << "Unable to load file: " << path;
-            throw std::runtime_error(oss.str());
-        }
-    };
-    mTasks.push_back(task);
-}
+    void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
+    {
+        auto task = [info, this]() {
+            if(!mRenderer->CacheFontCollection(info)) {
+                std::ostringstream oss;
+                oss << "Unable to load file: " << info.filename;
+                throw std::runtime_error(oss.str());
+            }
+        };
+        mTasks.push_back(task);
+    }
 
-void LoadingScreen::ScheduleCacheFont(const FontCollectionInfo &info)
-{
-    auto task = [info, this]() {
-        if(!mRenderer->CacheFontCollection(info)) {
-            std::ostringstream oss;
-            oss << "Unable to load file: " << info.filename;
-            throw std::runtime_error(oss.str());
-        }
-    };
-    mTasks.push_back(task);
-}
-
-bool LoadingScreen::Exec()
-{
-    const uint32_t frameRate = 5;
-    const uint32_t frameInterval = 1000 / frameRate;
-    uint32_t lastFrame = 0;
-    const uint32_t total = mTasks.size();
-    uint32_t completed = 0;
+    bool LoadingScreen::Exec()
+    {
+        const uint32_t frameRate = 5;
+        const uint32_t frameInterval = 1000 / frameRate;
+        uint32_t lastFrame = 0;
+        const uint32_t total = mTasks.size();
+        uint32_t completed = 0;
         
-    for(const auto &task : mTasks) {
-        if(lastFrame + frameInterval < SDL_GetTicks()) {
-            lastFrame = SDL_GetTicks();
-            double done = static_cast<double>(completed) / total;
-            Draw(done);
+        for(const auto &task : mTasks) {
+            if(lastFrame + frameInterval < SDL_GetTicks()) {
+                lastFrame = SDL_GetTicks();
+                double done = static_cast<double>(completed) / total;
+                Draw(done);
+            }
+
+            mEngine->PollInput();
+            if(mEngine->Closed())
+                return false;
+
+            task();
+            completed += 1;
         }
-
-        mEngine->PollInput();
-        if(mEngine->Closed())
-            return false;
-
-        task();
-        completed += 1;
+    
+        return true;
     }
+
+    void LoadingScreen::Draw(double done)
+    {
+        Surface frame = mRenderer->BeginFrame();
+
+        SDL_Rect frameRect = SurfaceBounds(frame);
+        SDL_Rect bgRect = SurfaceBounds(mBackground);
+
+        SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
+        SDL_BlitSurface(mBackground, NULL, frame, &bgAligned);
     
-    return true;
-}
+        SDL_Rect barOuter = MakeRect(300, 25);
+        SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
+        FillFrame(frame, &barOuterAligned, 0x7f000000);
+        DrawFrame(frame, &barOuterAligned, 0xff000000);
 
-void LoadingScreen::Draw(double done)
-{
-    Surface frame = mRenderer->BeginFrame();
-
-    SDL_Rect frameRect = SurfaceBounds(frame);
-    SDL_Rect bgRect = SurfaceBounds(mBackground);
-
-    SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-    SDL_BlitSurface(mBackground, NULL, frame, &bgAligned);
+        SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
+        SDL_Rect barInner = MakeRect(barOuterPadded.w * done, barOuterPadded.h);
+        SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
+        FillFrame(frame, &barInnerAligned, 0xff000000);
     
-    SDL_Rect barOuter = MakeRect(300, 25);
-    SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-    FillFrame(frame, &barOuterAligned, 0x7f000000);
-    DrawFrame(frame, &barOuterAligned, 0xff000000);
+        mRenderer->EndFrame();
+    }
 
-    SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
-    SDL_Rect barInner = MakeRect(barOuterPadded.w * done, barOuterPadded.h);
-    SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-    FillFrame(frame, &barInnerAligned, 0xff000000);
-    
-    mRenderer->EndFrame();
-}
+} // namespace UI

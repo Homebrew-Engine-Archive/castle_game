@@ -5,7 +5,6 @@
 #include <memory>
 #include <SDL.h>
 #include "renderer.h"
-#include "engine.h"
 #include "screen.h"
 #include "button.h"
 
@@ -19,20 +18,22 @@ namespace Render
     class Renderer;
 }
 
-namespace GUI
+namespace UI
 {
 
+    class ScreenManager;
+    
     class MenuMain : public Screen
     {
-        Castle::Engine *mEngine;
+        UI::ScreenManager *mScreenMgr;
         Render::Renderer *mRenderer;
         Surface mBackground;
-        std::vector<Button> mButtons;
+        std::vector<UI::Button> mButtons;
 
         Button MakeCombatButton();
     
     public:
-        MenuMain(Castle::Engine *engine);
+        MenuMain(UI::ScreenManager *mgr, Render::Renderer *render);
     
         void GoCombat();
         void GoEconomics();
@@ -42,9 +43,11 @@ namespace GUI
     
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
+
+        bool IsDirty(int64_t elapsed);
     };
 
-    std::unique_ptr<MenuMain> CreateMenuMain(Castle::Engine *engine);
+    std::unique_ptr<MenuMain> CreateMenuMain(UI::ScreenManager *mgr, Render::Renderer *render);
 }
 
 #endif

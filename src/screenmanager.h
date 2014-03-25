@@ -1,6 +1,7 @@
 #ifndef SCREENMANAGER_H_
 #define SCREENMANAGER_H_
 
+#include "debugconsole.h"
 #include <vector>
 #include "screen.h"
 
@@ -9,14 +10,14 @@ namespace Castle
     class Engine;
 }
 
-namespace GUI
+namespace UI
 {
-
+    
     class ScreenManager
     {
         Castle::Engine *mEngine;
-        ScreenPtr mConsole;
-        bool mShowConsole;
+
+        // From bottom to top
         std::vector<ScreenPtr> mScreenStack;
         
     public:
@@ -28,11 +29,9 @@ namespace GUI
 
         ScreenPtr PopScreen();
 
-        ScreenPtr RemoveScreen(Screen *screen);
+        ScreenPtr CloseScreen(Screen *screen);
         
         void SetCurrentScreen(ScreenPtr &&screen);
-
-        void ShowConsole(bool show);
         
         bool HandleEvent(const SDL_Event &event);
 
@@ -40,6 +39,6 @@ namespace GUI
         
     };
     
-} // namespace GUI
+} // namespace UI
 
 #endif

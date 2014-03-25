@@ -4,18 +4,22 @@
 #include <sstream>
 #include <SDL.h>
 
-SDLInit::SDLInit(int flags)
+namespace Init
 {
-    SDL_SetMainReady();
-    if(SDL_Init(flags) < 0) {
-        std::stringstream oss;
-        oss << "SDL_Init failed: " << SDL_GetError();
-        throw std::runtime_error(oss.str());
+
+    SDLInit::SDLInit()
+    {
+        SDL_SetMainReady();
+        if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+            std::stringstream oss;
+            oss << "SDL_Init failed: " << SDL_GetError();
+            throw std::runtime_error(oss.str());
+        }
     }
-}
 
-SDLInit::~SDLInit()
-{
-    SDL_Quit();
-}
+    SDLInit::~SDLInit()
+    {
+        SDL_Quit();
+    }
 
+}

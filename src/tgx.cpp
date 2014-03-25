@@ -78,16 +78,11 @@ namespace
     std::string GetTokenTypeName(TokenType type)
     {
         switch(type) {
-        case TokenType::Transparent:
-            return "Transparent";
-        case TokenType::Stream:
-            return "Stream";
-        case TokenType::LineFeed:
-            return "LineFeed";
-        case TokenType::Repeat:
-            return "Repeat";
-        default:
-            return "Unknown";
+        case TokenType::Transparent: return "Transparent";
+        case TokenType::Stream: return "Stream";
+        case TokenType::LineFeed: return "LineFeed";
+        case TokenType::Repeat: return "Repeat";
+        default: return "Unknown";
         }
     }
 
@@ -106,26 +101,24 @@ namespace
         }
     
         Surface surface = SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
+        if(surface.Null()) {
+            Fail(__FUNCTION__, SDL_GetError());
+        }
         return surface;
     }
     
     void RepeatPixel(const uint8_t *pixel, uint8_t *buff, size_t size, size_t count)
     {
-        for(size_t i = 0; i < count; ++i)
-            std::copy(pixel, pixel + size, buff + i * size);
+        for(size_t i = 0; i < count; ++i) {
+            std::copy(pixel, pixel + size, buff);
+            buff += size;
+        }
     }
 
     Surface LoadTGX(SDL_RWops *src, int64_t size, int width, int height, int bpp)
     {
         Surface surface = CreateCompatibleSurface(width, height, bpp);
-        if(surface.Null()) {
-            Fail("LoadTGX", SDL_GetError());
-        }
-    
-        if(TGX::DecodeTGX(src, size, surface) < 0) {
-            Fail("LoadTGX", "Unable to decode tgx");
-        }
-    
+        TGX::DecodeTGX(src, size, surface);
         return surface;
     }
 
@@ -140,14 +133,10 @@ namespace TGX
         return LoadTGX(src, ReadableBytes(src), header.width, header.height, 16);
     }
 
-    int DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface)
+    void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface)
     {
         SurfaceLocker lock(surface);
-
-        if(surface.Null()) {
-            Fail("DecodeUncompressed", "Surface is NULL");
-        }
-    
+        
         int bytesPerPixel = surface->format->BytesPerPixel;
         int widthBytes = surface->w * bytesPerPixel;    
         uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
@@ -157,18 +146,12 @@ namespace TGX
             SDL_RWread(src, dst, bytesPerPixel, surface->w);
             dst += surface->pitch;
         }
-    
-        return 0;
     }
 
-    int DecodeTile(SDL_RWops *src, int64_t size, Surface &surface)
+    void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface)
     {
-        if(ReadableBytes(src) < size) {
-            Fail("DecodeTile", "EOF");
-        }
-
         if(size < TileBytes) {
-            Fail("DecodeTile", "Wrong size");
+            Fail(__FUNCTION__, "Inconsistent tile size");
         }
 
         SurfaceLocker lock(surface);
@@ -182,16 +165,12 @@ namespace TGX
         for(size_t y = 0; y < height; ++y) {
             size_t length = GetTilePixelsPerRow(y);
             size_t offset = (width - length) / 2;
-
             SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
-
             dst += pitchBytes;
         }
-    
-        return 0;
     }
 
-    int DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface)
+    void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface)
     {
         SurfaceLocker lock(surface);
 
@@ -215,10 +194,10 @@ namespace TGX
             case TokenType::LineFeed:
                 {
                     if(length != 1) {
-                        Fail("DecodeTGX", "LineFeed token length should be 1");
+                        Fail(__FUNCTION__, "LineFeed token length should be 1");
                     }
                     if(dst > dstNextLine) {
-                        Fail("DecodeTGX", "dst is ahead of dstNextLine");
+                        Fail(__FUNCTION__, "dst is ahead of dstNextLine");
                     }
                     dst = dstNextLine;
                     dstNextLine += bytesPitch;
@@ -267,21 +246,19 @@ namespace TGX
 
             default:
                 {
-                    Fail("DecodeTGX", "Unknown token");
+                    Fail(__FUNCTION__, "Unknown token");
                 }
                 break;
             }
 
             if(overflow) {
-                Overflow("DecodeTGX", dst - dstBegin);
+                Overflow(__FUNCTION__, dst - dstBegin);
             }
             
             if(overrun) {
-                Overrun("DecodeTGX", SDL_RWtell(src));
+                Overrun(__FUNCTION__, SDL_RWtell(src));
             }
         }
-    
-        return 0;
     }
 
 } // namespace tgx

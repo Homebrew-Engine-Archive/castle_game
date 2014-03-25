@@ -1,17 +1,20 @@
 #include "direction.h"
+
+#include <stdexcept>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 namespace
 {
 
-    const int DIR_COUNT = 8;
+    const int DirCount = 8;
 
     Direction Rotated(const Direction &dir, int times)
     {
         return Direction(
-            (static_cast<int>(dir) + times + DIR_COUNT) % DIR_COUNT);
+            (static_cast<int>(dir) + times + DirCount) % DirCount);
     }
     
 }
@@ -26,20 +29,19 @@ Direction RotatedRight(const Direction &dir, int times)
     return Rotated(dir, times);
 }
 
-int LeftAngle(const Direction &lhs, const Direction &rhs)
+int LeftRotates(const Direction &lhs, const Direction &rhs)
 {
-    return (static_cast<int>(lhs) - static_cast<int>(rhs) + DIR_COUNT) % DIR_COUNT;
+    return (static_cast<int>(lhs) - static_cast<int>(rhs) + DirCount) % DirCount;
 }
 
-int RightAngle(const Direction &lhs, const Direction &rhs)
+int RightRotates(const Direction &lhs, const Direction &rhs)
 {
-    return LeftAngle(rhs, lhs);
+    return LeftRotates(rhs, lhs);
 }
 
-int MinAngle(const Direction &lhs, const Direction &rhs)
+int MinRotates(const Direction &lhs, const Direction &rhs)
 {
-    return std::min(LeftAngle(lhs, rhs),
-                    RightAngle(lhs, rhs));
+    return std::min(LeftRotates(lhs, rhs), RightRotates(lhs, rhs));
 }
 
 Direction RadiansToDirection(double angle)
@@ -50,13 +52,13 @@ Direction RadiansToDirection(double angle)
     double alpha = fmod(2 * PI + angle, 2 * PI);
 
     // Rotate by half of the direction's angle
-    double beta = (alpha - 1.0f / (2 * DIR_COUNT));
+    double beta = (alpha - 1.0f / (2 * DirCount));
 
     // scale down to range [0, 1)
     double gamma = beta / (2 * PI);
 
     // and now avoid cyclic directions
-    int d = (int(gamma * DIR_COUNT) + DIR_COUNT) % DIR_COUNT;
+    int d = (int(gamma * DirCount) + DirCount) % DirCount;
     
     return static_cast<Direction>(d);
 }
@@ -64,6 +66,36 @@ Direction RadiansToDirection(double angle)
 Direction PointsDirection(const Point &lhs, const Point &rhs)
 {
     return RadiansToDirection(atan2(lhs.x - rhs.x, lhs.y - rhs.y));
+}
+
+Direction GetOppositeDirection(const Direction &dir)
+{    
+    switch(dir) {
+    case Direction::East: return Direction::West;
+    case Direction::NorthEast: return Direction::SouthWest;
+    case Direction::North: return Direction::South;
+    case Direction::NorthWest: return Direction::SouthEast;
+    case Direction::West: return Direction::East;
+    case Direction::SouthWest: return Direction::NorthEast;
+    case Direction::South: return Direction::North;
+    case Direction::SouthEast: return Direction::NorthWest;
+    }
+
+    throw std::runtime_error("Wrong direction");
+}
+
+Direction ClosestDirection(const DirectionSet &set, const Direction &dir)
+{
+    Direction closest = dir;
+    int bestDist = std::numeric_limits<int>::max();
+    for(const Direction &d : set) {
+        int dist = MinRotates(d, dir);
+        if(bestDist > dist) {
+            closest = d;
+            bestDist = dist;
+        }
+    }
+    return closest;
 }
 
 bool operator==(const Direction &lhs, const Direction &rhs)

@@ -21,7 +21,6 @@ namespace GM
     const size_t PaletteTransparentIndex = 0;
     const size_t PaletteShadowIndex = 1;
 
-    
     /**
      * \brief Is included in every collection only once.
      * \note There are many fields have undefined purpose. Each of them prefix with 'u'.

@@ -1,24 +1,25 @@
 #include "menu_combat.h"
 
+#include "SDL.h"
 #include <memory>
 
 #include "renderer.h"
 #include "macrosota.h"
 #include "filesystem.h"
 #include "geometry.h"
-#include "engine.h"
+#include "screenmanager.h"
 
-namespace GUI
+namespace UI
 {
 
-    std::unique_ptr<MenuCombat> CreateMenuCombat(Castle::Engine *engine)
+    std::unique_ptr<MenuCombat> CreateMenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
     {
-        return make_unique<MenuCombat>(engine);
+        return make_unique<MenuCombat>(mgr, render);
     }
     
-    MenuCombat::MenuCombat(Castle::Engine *engine)
-        : mEngine(engine)
-        , mRenderer(engine->GetRenderer())
+    MenuCombat::MenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
+        : mScreenMgr(mgr)
+        , mRenderer(render)
     {
         FilePath filepath = GetTGXFilePath("frontend_combat");
         mBackground = mRenderer->QuerySurface(filepath);
@@ -33,10 +34,28 @@ namespace GUI
         BlitSurface(mBackground, NULL, frame, &bgAligned);
     }
 
+    bool MenuCombat::IsDirty(int64_t elapsed)
+    {
+        return elapsed != 0;
+    }
+
+    bool MenuCombat::HandleKey(const SDL_KeyboardEvent &event)
+    {
+        switch(event.keysym.sym) {
+        case SDLK_ESCAPE:
+            mScreenMgr->CloseScreen(this);
+            return true;
+        }
+        return false;
+    }
+    
     bool MenuCombat::HandleEvent(const SDL_Event &event)
     {
-        UNUSED(event);
+        switch(event.type) {
+        case SDL_KEYDOWN:
+            return HandleKey(event.key);
+        }
         return false;
     }
 
-} // namespace GUI
+} // namespace UI

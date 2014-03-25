@@ -17,23 +17,29 @@ namespace Render
     class Renderer;
 }
 
-namespace GUI
+namespace UI
 {
 
+    class ScreenManager;
+    
     class MenuCombat : public Screen
     {
-        Castle::Engine *mEngine;
+        UI::ScreenManager *mScreenMgr;
         Render::Renderer *mRenderer;
         Surface mBackground;
-    
+
+        bool HandleKey(const SDL_KeyboardEvent &event);
+        
     public:
-        MenuCombat(Castle::Engine *engine);
+        MenuCombat(UI::ScreenManager *mgr, Render::Renderer *render);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
+
+        bool IsDirty(int64_t elapsed);
     };
 
 
-    std::unique_ptr<MenuCombat> CreateMenuCombat(Castle::Engine *engine);
+    std::unique_ptr<MenuCombat> CreateMenuCombat(UI::ScreenManager *mgr, Render::Renderer *render);
 }
 
 #endif

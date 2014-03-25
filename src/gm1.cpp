@@ -68,7 +68,7 @@ namespace
             Entry::AlphaMask());
     
         if(surface.Null()) {
-            Fail("SDL_CreateRGBSurface", SDL_GetError());
+            Fail(__FUNCTION__, SDL_GetError());
         }
 
         SDL_SetColorKey(surface, SDL_TRUE, Entry::ColorKey());
@@ -105,12 +105,12 @@ namespace
         }
     
         if(ReadableBytes(src) < lastByte) {
-            Fail("Checking file size", "EOF");
+            Fail(__FUNCTION__, "Inconsistent size of file");
         }
 
         int64_t origin = SDL_RWtell(src);
         if(origin < 0) {
-            Fail("SDL_RWtell", SDL_GetError());
+            Fail(__FUNCTION__, SDL_GetError());
         }
 
         std::vector<SDL_Rect> partition;
@@ -129,7 +129,7 @@ namespace
                 Entry::Load(src, gm1.sizes[i], header, roi);
             }
         } else {
-            Fail("LoadAtlasImpl", "Unable to allocate surface");
+            Fail(__FUNCTION__, "Unable to allocate surface");
         }
         
         return atlas;
@@ -155,7 +155,7 @@ namespace
                 atlas.push_back(surface);
                 ++successfullLoads;
             } else {
-                Fail("LoadEntriesImpl", "Unable to allocate surface");
+                Fail(__FUNCTION__, "Unable to allocate surface");
             }
         }
 
@@ -178,7 +178,7 @@ namespace
             TempSeek seekLock(src, origin + offset, RW_SEEK_SET);
             Entry::Load(src, size, header, surface);
         } else {
-            Fail("LoadEntryImpl", "Unable to allocate surface");
+            Fail(__FUNCTION__, "Unable to allocate surface");
         }
 
         return surface;
@@ -263,9 +263,7 @@ namespace
             return TGX::Transparent8;
         }
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(TGX::DecodeTGX(src, size, surface)) {
-                Fail("TGX8::Load", "Unable to decode tgx");
-            }
+            TGX::DecodeTGX(src, size, surface);
         }
     };
 
@@ -296,9 +294,7 @@ namespace
             return TGX::Transparent16;
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(TGX::DecodeTGX(src, size, surface)) {
-                Fail("TGX16::Load", "Unable to decode file");
-            }
+            TGX::DecodeTGX(src, size, surface);
         }
     };
 
@@ -331,15 +327,11 @@ namespace
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &header, Surface &surface) {
             SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TGX::TileHeight);
             SurfaceROI tile(surface, &tilerect);
-            if(TGX::DecodeTile(src, TGX::TileBytes, tile)) {
-                Fail("TileObject::Load", "Unable to decode tile");
-            }
+            TGX::DecodeTile(src, TGX::TileBytes, tile);
         
             SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
             SurfaceROI box(surface, &boxrect);
-            if(TGX::DecodeTGX(src, size - TGX::TileBytes, box)) {
-                Fail("TileObject::Load", "Unable to decode box");
-            }
+            TGX::DecodeTGX(src, size - TGX::TileBytes, box);
         }
     };
 
@@ -371,9 +363,7 @@ namespace
             return TGX::Transparent16;
         }    
         static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
-            if(TGX::DecodeUncompressed(src, size, surface)) {
-                Fail("Bitmap::Load", "Unable to decode bitmap");
-            }
+            TGX::DecodeUncompressed(src, size, surface);
         }
     };
 
@@ -385,12 +375,12 @@ namespace GM
     Collection::Collection(SDL_RWops *src)
     {
         if(src == NULL) {
-            Fail("Collection::Collection", "NULL src");
+            Fail(__FUNCTION__, "NULL src");
         }
     
         header = ReadHeader(src);
         if(ReadableBytes(src) < header.dataSize) {
-            Fail("Collection::Collection", "EOF");
+            Fail(__FUNCTION__, "Premate EOF");
         }
         
         palettes.resize(CollectionPaletteCount);
@@ -494,7 +484,6 @@ namespace GM
     void PrintImageHeader(std::ostream &out, const ImageHeader &header)
     {
         using namespace std;
-    
         out << "Width: "            << static_cast<int>(header.width) << endl
             << "Height: "           << static_cast<int>(header.height) << endl
             << "PosX: "             << static_cast<int>(header.posX) << endl
@@ -511,7 +500,6 @@ namespace GM
     void PrintHeader(std::ostream &out, const Header &header)
     {
         using namespace std;
-    
         out << "u1: "               << header.u1 << endl
             << "u2: "               << header.u2 << endl
             << "u3: "               << header.u3 << endl
@@ -538,13 +526,13 @@ namespace GM
 
     void PrintPalette(std::ostream &out, const Palette &palette)
     {
-        int col = 0;
+        int column = 0;
 
         out << std::hex;
         for(auto color : palette) {
-            col++;
+            column++;
             
-            if(col % 16 == 0)
+            if(column % 16 == 0)
                 out << std::endl;
             
             out << color << ' ';
@@ -583,7 +571,7 @@ namespace GM
             + CollectionPaletteColors * CollectionPaletteCount * sizeof(uint16_t)
             + sizeof(uint32_t) * gm1.size()
             + sizeof(uint32_t) * gm1.size();
-        out << "Data entry point at " << origin << endl;
+        out << "Data entry point at " << dec << origin << endl;
     }
 
 } // namespace GM

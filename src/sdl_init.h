@@ -1,11 +1,16 @@
 #ifndef SDL_INIT_H_
 #define SDL_INIT_H_
 
-class SDLInit
+namespace Init
 {
-public:
-    SDLInit(int flags);
-    ~SDLInit();
-};
+
+    class SDLInit final
+    {
+      public:
+        SDLInit();
+        ~SDLInit();
+    };
+
+}
 
 #endif

@@ -4,14 +4,22 @@
 #include "widget.h"
 
 class Text;
-class Engine;
 
-class TextBox : public Widget
+namespace Castle
 {
-public:
-    TextBox(Engine *engine);
-    void SetText(const Text &text);
-};
+    class Engine;
+}
 
+namespace UI
+{
+
+    class TextBox : public Widget
+    {
+    public:
+        TextBox(Castle::Engine *engine);
+        void SetText(const Text &text);
+    };
+
+}
 
 #endif

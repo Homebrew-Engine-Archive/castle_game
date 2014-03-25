@@ -19,23 +19,32 @@ namespace Render
 
 class FontCollectionInfo;
 
-class LoadingScreen
+namespace UI
 {
-    Render::Renderer *mRenderer;
-    Castle::Engine *mEngine;
-    Surface mBackground;
-    bool mQuit;
-    std::vector<std::function<void()>> mTasks;
 
-    void ScheduleCacheGM1(const FilePath &filename);
-    void ScheduleCacheFont(const FontCollectionInfo &info);
+    class Screen;
     
-public:
-    LoadingScreen(Castle::Engine *engine);
-    bool Exec();
-    void Draw(double done);
-};
+    class LoadingScreen
+    {
+        Render::Renderer *mRenderer;
+        Castle::Engine *mEngine;
+        Surface mBackground;
+        std::vector<std::function<void()>> mTasks;
 
-bool RunLoadingScreen(Castle::Engine *engine);
+        void ScheduleCacheGM1(const FilePath &filename);
+        void ScheduleCacheFont(const FontCollectionInfo &info);
+    
+    public:
+        LoadingScreen(Castle::Engine *engine);
+
+        void SetDonePercentage(double done);
+        
+        bool Exec();
+        void Draw(double done);
+    };
+
+    bool RunLoadingScreen(Castle::Engine *engine);
+    
+}
 
 #endif

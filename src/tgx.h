@@ -77,7 +77,7 @@ namespace TGX
      * \param size Image size in bytes.
      * \param surface Preallocated 8 or 16-bit surface for image to store.
      */
-    int DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface);
+    void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface);
 
     /**
      * \brief Read bitmap from the source file.
@@ -85,7 +85,7 @@ namespace TGX
      * \param size Bytes to read.
      * \param surface Preallocated 16-bit surface.
      */
-    int DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface);
+    void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface);
 
     /**
      * \brief Read tile object from the source file.
@@ -93,7 +93,7 @@ namespace TGX
      * \param size Bytes to read.
      * \param surface Preallocated 16-bit surface.
      */
-    int DecodeTile(SDL_RWops *src, int64_t size, Surface &surface);
+    void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface);
 
     /**
      * \brief Read 16-bit .tgx file from source.

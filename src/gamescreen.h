@@ -24,12 +24,14 @@ namespace Render
     class Renderer;
 }
 
-namespace GUI
+namespace UI
 {
 
+    class ScreenManager;
+    
     class GameScreen : public Screen
     {
-        Castle::Engine *mEngine;
+        UI::ScreenManager *mScreenMgr;
         Render::Renderer *mRenderer;
         GameMap mMap;
         int mCursorX;
@@ -47,7 +49,7 @@ namespace GUI
         bool mClosed;
     
     public:
-        GameScreen(Castle::Engine *engine);
+        GameScreen(UI::ScreenManager *mgr, Render::Renderer *render);
         GameScreen(const GameScreen &that) = delete;
         GameScreen &operator=(const GameScreen &that) = delete;
         ~GameScreen();
@@ -55,12 +57,9 @@ namespace GUI
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
 
-        // void LogWindowEvent(const SDL_WindowEvent &event);
         void AdjustViewport(const SDL_Rect &screen);
     
     };
-
-    std::unique_ptr<GameScreen> CreateGameScreen(Castle::Engine *engine);
     
 }
 

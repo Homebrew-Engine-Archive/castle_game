@@ -5,13 +5,11 @@
 #include "debugconsole.h"
 #include "macrosota.h"
 
-namespace GUI
+namespace UI
 {
 
     ScreenManager::ScreenManager(Castle::Engine *engine)
         : mEngine(engine)
-        , mConsole(std::move(GUI::CreateDebugConsole(engine)))
-        , mShowConsole(false)
         , mScreenStack()
     {
     }
@@ -32,7 +30,7 @@ namespace GUI
     ScreenPtr ScreenManager::PopScreen()
     {
         if(mScreenStack.empty()) {
-            return ScreenPtr(nullptr);
+            throw std::runtime_error("Pop screen from empty stack");
         }
         ScreenPtr ptr = std::move(mScreenStack.back());
         mScreenStack.pop_back();
@@ -45,7 +43,7 @@ namespace GUI
         mScreenStack.push_back(std::move(screen));
     }
 
-    ScreenPtr ScreenManager::RemoveScreen(Screen *screen)
+    ScreenPtr ScreenManager::CloseScreen(Screen *screen)
     {
         ScreenPtr removed;
 
@@ -65,17 +63,6 @@ namespace GUI
         return removed;
     }
     
-    void ScreenManager::ShowConsole(bool show)
-    {
-        if(mShowConsole != show) {
-            if(show) {
-                PushScreen(std::move(mConsole));
-            } else {
-                mConsole = std::move(PopScreen());
-            }
-            mShowConsole = show;
-        }        
-    }
     
     bool ScreenManager::HandleEvent(const SDL_Event &event)
     {
@@ -88,7 +75,7 @@ namespace GUI
 
     void ScreenManager::DrawScreen(Surface &frame)
     {
-        for(GUI::ScreenPtr &ptr : mScreenStack) {
+        for(UI::ScreenPtr &ptr : mScreenStack) {
             if(ptr) {
                 ptr->Draw(frame);
             } else {
@@ -99,4 +86,4 @@ namespace GUI
         }
     }
     
-}
+} // namespace UI

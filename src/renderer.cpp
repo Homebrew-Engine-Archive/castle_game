@@ -215,12 +215,13 @@ namespace Render
         if(!mBuffSurface.Null()) {
             SDL_RenderClear(mRenderer);
 
-            // NOTE
-            // It wan't deallocate pixels, only surface object
+            /// \note Pixel are not deallocated only surface
             mBuffSurface.reset();
         
             SDL_UnlockTexture(mBuffTexture.get());
-            if(SDL_RenderCopy(mRenderer, mBuffTexture.get(), NULL, NULL)) {
+
+            SDL_Rect textureRect = MakeRect(mBufferWidth, mBufferHeight);
+            if(SDL_RenderCopy(mRenderer, mBuffTexture.get(), &textureRect, &textureRect)) {
                 std::cerr << "SDL_RenderCopy failed: "
                           << SDL_GetError()
                           << std::endl;
@@ -386,4 +387,4 @@ namespace Render
         return make_unique<RendererImpl>(renderer);
     }
 
-}
+} // namespace Render

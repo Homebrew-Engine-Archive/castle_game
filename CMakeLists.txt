@@ -23,6 +23,8 @@ pkg_search_module (SDL2 REQUIRED sdl2)
 
 include_directories (${SDL2_INCLUDE_DIRS})
 
+add_definitions (-DSDL_MAIN_HANDLED)
+
 find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
 find_package (Boost 1.47.0 REQUIRED COMPONENTS date_time system)
 

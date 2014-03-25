@@ -46,7 +46,7 @@ void GetAndPrintRendererInfo(std::ostream &out, SDL_Renderer *renderer)
 
 int main()
 {
-    SDLInit(SDL_INIT_EVERYTHING);
+    Init::SDLInit init();
     
     EnumRenderDrivers(std::clog);
 
@@ -59,7 +59,7 @@ int main()
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
             screenwidth, screenheight,
-            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+            SDL_WINDOW_OPENGL));
     ThrowSDLError(sdlWindow);
 
     RendererPtr sdlRenderer = RendererPtr(
@@ -69,8 +69,6 @@ int main()
     GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
     
     std::unique_ptr<Render::Renderer> &&renderer = Render::CreateRenderer(sdlRenderer.get());
-    
-    std::unique_ptr<Castle::Engine> &&root = Castle::CreateEngine(renderer.get());
-
+    std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
     return root->Exec();
 }

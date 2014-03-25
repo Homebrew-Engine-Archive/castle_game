@@ -1,6 +1,5 @@
 #include "gamescreen.h"
 
-#include "engine.h"
 #include "renderer.h"
 #include "landscape.h"
 #include "geometry.h"
@@ -9,7 +8,7 @@
 #include "collection.h"
 #include "direction.h"
 
-namespace GUI
+namespace UI
 {
 
     enum class BuildingCategory : int {
@@ -21,9 +20,9 @@ namespace GUI
         Production
     };
 
-    GameScreen::GameScreen(Castle::Engine *engine)
-        : mEngine(engine)
-        , mRenderer(engine->GetRenderer())
+    GameScreen::GameScreen(UI::ScreenManager *mgr, Render::Renderer *render)
+        : mScreenMgr(mgr)
+        , mRenderer(render)
         , mCursorX(0)
         , mCursorY(0)
         , mCursorInvalid(true)
@@ -104,4 +103,4 @@ namespace GUI
             --mViewportY;
     }
 
-} // namespace GUI
+} // namespace UI

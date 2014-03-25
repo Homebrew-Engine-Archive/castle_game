@@ -3,6 +3,10 @@
 
 #include <vector>
 #include "direction.h"
+#include "gm1.h"
+#include "surface.h"
+#include "filesystem.h"
+#include "resourcemanager.h"
 
 enum class AnimationClass : uint32_t {
     Walk,
@@ -21,49 +25,62 @@ enum class AnimationClass : uint32_t {
     Victory                                              // swordman, mace
 };
 
-// Most of unit animations
-static const std::vector<Direction> DIRECTION_FULL = {
-    Direction::NorthEast,
-    Direction::East,
-    Direction::SouthEast,
-    Direction::South,
-    Direction::SouthWest,
-    Direction::West,
-    Direction::NorthWest,
-    Direction::North
-};
+namespace Render
+{
+    class ResourceManager;
+}
 
-// I saw archers melee combat and maceman victory
-static const std::vector<Direction> DIRECTION_MAIN = {
-    Direction::East,
-    Direction::South,
-    Direction::West,
-    Direction::North
-};
+namespace {
 
-// Most of deaths, idle, building animations
-static const std::vector<Direction> DIRECTION_FRONT = {
-    Direction::South
-};
+    struct SpriteGroup
+    {
+        std::string collectionName;
+        std::string name;
+        int nize;
+        DirectionSet dirs;
+    };
 
-// Archer::Archer(const GM::Collection &collection, const std::vector<Frame> &frames)
-// {
-//     AnimationBuilder builder(collection, frames);
-//     builder.Read(16, DIRECTION_FULL, walk);
-//     builder.Read(16, DIRECTION_FULL, run);
-//     builder.Read(24, DIRECTION_FULL, shot);
-//     builder.Read(12, DIRECTION_FULL, shotDown);
-//     builder.Read(12, DIRECTION_FULL, shotUp);
-//     builder.Read(12, DIRECTION_MAIN, tilt);
-//     builder.Read(16, aware);
-//     builder.Read(16, idle);
-//     builder.Read(24, deathArrow);
-//     builder.Read(24, deathMelee1);
-//     builder.Read(24, deathMelee2);
-//     builder.Read(12, DIRECTION_FULL, attack);
-//     builder.Read(12, DIRECTION_FULL, climb);
-//     builder.Read(8, DIRECTION_FULL, fall);
-//     builder.Read(16, DIRECTION_FULL, dig);
-// }
+    class Entity {};
+
+    class Archer : public Entity
+    {
+    public:
+        std::string GetArchiveName() const;
+        bool HasSpriteGroup(const std::string &name) const;
+        
+    };
+    
+    void BuildArcher(Render::ResourceManager *manager)
+    {
+        static const SpriteGroup groups[] = {
+            {"body_archer", "walk", 16, FullDirectionSet},
+            {"body_archer", "run", 16, FullDirectionSet},
+            {"body_archer", "shot", 24, FullDirectionSet},
+            {"body_archer", "shotdown", 12, FullDirectionSet},
+            {"body_archer", "shotup", 12, FullDirectionSet},
+            {"body_archer", "tilt", 12, MainDirectionSet},
+            {"body_archer", "aware", 16, SingleDirectionSet},
+            {"body_archer", "idle", 16, SingleDirectionSet},
+            {"body_archer", "deatharrow", 24, SingleDirectionSet},
+            {"body_archer", "deathmelee1", 24, SingleDirectionSet},
+            {"body_archer", "deathmelee2", 24, SingleDirectionSet},
+            {"body_archer", "attack", 12, FullDirectionSet},
+            {"body_archer", "climb", 12, FullDirectionSet},
+            {"body_archer", "fall", 8, FullDirectionSet},
+            {"body_archer", "dig", 16, FullDirectionSet}
+        };
+
+        size_t skip = 0;
+        for(const SpriteGroup &group : groups) {
+            for(size_t index = 0; index < group.size; ++index) {
+                for(const Direction &dir : group.dirs) {
+                    manager->AddSprite(group.collectionName, skip, group.name, dir, index);
+                    ++skip;
+                }
+            }
+        }
+    }
+    
+}
 
 #endif
