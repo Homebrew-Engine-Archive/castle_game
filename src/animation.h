@@ -74,7 +74,7 @@ namespace {
         for(const SpriteGroup &group : groups) {
             for(size_t index = 0; index < group.size; ++index) {
                 for(const Direction &dir : group.dirs) {
-                    manager->AddSprite(group.collectionName, skip, group.name, dir, index);
+                    resourceManager->AddSprite(group.collectionName, skip, group.name, dir, index);
                     ++skip;
                 }
             }

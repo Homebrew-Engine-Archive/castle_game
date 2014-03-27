@@ -8,9 +8,9 @@ class Surface;
 namespace TGX
 {
 
-    const size_t TileBytes = 512;
-    const size_t TileWidth = 30;
-    const size_t TileHeight = 16;
+    const int TileBytes = 512;
+    const int TileWidth = 30;
+    const int TileHeight = 16;
 
     // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
     // 1111100000011111

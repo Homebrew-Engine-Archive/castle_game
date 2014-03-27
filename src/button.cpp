@@ -87,9 +87,9 @@ namespace UI
         }
     }
 
-    SDL_Rect Button::GetDrawingRect(int xoff, int yoff)
+    SDL_Rect Button::Rect() const
     {
-        return ShiftRect(mBoundRect, xoff, yoff);
+        return mBoundRect;
     }
-
+    
 } // namespace UI

@@ -4,12 +4,13 @@
 #include <sstream>
 #include <iostream>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/algorithm/clamp.hpp>
 #include <SDL.h>
 
+#include "macrosota.h"
 #include "collection.h"
 #include "filesystem.h"
 #include "geometry.h"
-#include "gm1.h"
 #include "renderer.h"
 #include "engine.h"
 
@@ -84,34 +85,31 @@ namespace
 namespace UI
 {
 
-    bool RunLoadingScreen(Castle::Engine *engine)
-    {
-        LoadingScreen ls(engine);
-        return ls.Exec();
-    }
-
     LoadingScreen::LoadingScreen(Castle::Engine *engine)
         : mRenderer(engine->GetRenderer())
         , mEngine(engine)
         , mBackground(NULL)
+        , mProgressDone(0)
+        , mProgressMax(1)
+        , mDirty(false)
     {
-        FilePath preloadsPath = GetGMPath("preloads.txt");
+        const FilePath fontsPath = GetGMPath("fonts.txt");
+        for(const FontCollectionInfo &info : GetFontCollectionInfoList(fontsPath)) {
+            ScheduleCacheFont(info);
+        }
+        
+        const FilePath preloadsPath = GetGMPath("preloads.txt");
         for(const std::string &str : GetStringList(preloadsPath)) {
             ScheduleCacheGM1(str);
         }
 
-        FilePath fontsPath = GetGMPath("fonts.txt");
-        for(const FontCollectionInfo &info : GetFontCollectionInfoList(fontsPath)) {
-            ScheduleCacheFont(info);
-        }
-
-        FilePath filepath = GetTGXFilePath("frontend_loading");
-        mBackground = mRenderer->QuerySurface(filepath);
+        const FilePath filepath = GetTGXFilePath("frontend_loading");
+        mBackground = LoadSurface(filepath);
     }
 
     void LoadingScreen::ScheduleCacheGM1(const FilePath &filename)
     {
-        FilePath path = GetGM1FilePath(filename);
+        const FilePath path = GetGM1FilePath(filename);
         auto task = [path, this]() {
             if(!mRenderer->CacheCollection(path)) {
                 std::ostringstream oss;
@@ -139,14 +137,17 @@ namespace UI
         const uint32_t frameRate = 5;
         const uint32_t frameInterval = 1000 / frameRate;
         uint32_t lastFrame = 0;
-        const uint32_t total = mTasks.size();
         uint32_t completed = 0;
+        const uint32_t total = mTasks.size();
+        SetProgressMax(total);
         
         for(const auto &task : mTasks) {
             if(lastFrame + frameInterval < SDL_GetTicks()) {
                 lastFrame = SDL_GetTicks();
-                double done = static_cast<double>(completed) / total;
-                Draw(done);
+                SetProgressDone(completed);
+                Surface frame = mRenderer->BeginFrame();
+                Draw(frame);
+                mRenderer->EndFrame();
             }
 
             mEngine->PollInput();
@@ -160,10 +161,46 @@ namespace UI
         return true;
     }
 
-    void LoadingScreen::Draw(double done)
+    bool LoadingScreen::HandleEvent(const SDL_Event &event)
     {
-        Surface frame = mRenderer->BeginFrame();
+        return false;
+    }
 
+    bool LoadingScreen::IsDirty(int64_t elapsed) const
+    {
+        return (mDirty) && (elapsed > 250 /* ms */);
+    }
+    
+    void LoadingScreen::SetProgressDone(int done)
+    {
+        if(mProgressDone != done) {
+            mProgressDone = done;
+            mDirty = true;
+        }
+    }
+
+    void LoadingScreen::SetProgressMax(int max)
+    {
+        if(max <= 0) {
+            throw std::runtime_error("Bad max");
+        }
+        if(mProgressMax != max) {
+            mProgressMax = max;
+            mDirty = true;
+        }
+    }
+
+    double LoadingScreen::GetCompleteRate() const
+    {
+        double done = static_cast<double>(mProgressDone) / mProgressMax;
+        return boost::algorithm::clamp(done, 0.0f, 1.0f);
+    }
+    
+    void LoadingScreen::Draw(Surface &frame)
+    {
+        mDirty = false;
+        double rate = GetCompleteRate();
+        
         SDL_Rect frameRect = SurfaceBounds(frame);
         SDL_Rect bgRect = SurfaceBounds(mBackground);
 
@@ -176,11 +213,14 @@ namespace UI
         DrawFrame(frame, &barOuterAligned, 0xff000000);
 
         SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
-        SDL_Rect barInner = MakeRect(barOuterPadded.w * done, barOuterPadded.h);
+        SDL_Rect barInner = MakeRect(barOuterPadded.w * rate, barOuterPadded.h);
         SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
         FillFrame(frame, &barInnerAligned, 0xff000000);
-    
-        mRenderer->EndFrame();
     }
 
+    std::unique_ptr<UI::LoadingScreen> CreateLoadingScreen(Castle::Engine *engine)
+    {
+        return std::make_unique<UI::LoadingScreen>(engine);
+    }
+        
 } // namespace UI

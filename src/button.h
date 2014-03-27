@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <functional>
 #include "surface.h"
+#include "widget.h"
 
 namespace UI
 {
@@ -14,7 +15,7 @@ namespace UI
         Pressed
     };
 
-    class Button
+    class Button : public Widget
     {
         SDL_Rect mBoundRect;
         Surface mReleased;
@@ -30,12 +31,11 @@ namespace UI
     
     public:
         Button(const SDL_Rect &rect, Surface released, Surface over, Surface pressed, std::function<void()> handler);
-
-        virtual SDL_Rect GetDrawingRect(int xoff, int yoff);
     
         virtual void Draw(Surface &surface);
         virtual void HandleEvent(const SDL_Event &event);
-    
+
+        virtual SDL_Rect Rect() const;
     };
 
 }

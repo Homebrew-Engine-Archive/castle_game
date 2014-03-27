@@ -21,19 +21,17 @@ namespace UI
         std::string mText;
         std::string mFontName;
         int mFontSize;
-        std::ostream &mSinkStream;
-        std::istream &mLogStream;
         bool mClosed;
 
         bool HandleKey(const SDL_KeyboardEvent &event);
         bool HandleTextInput(const SDL_TextInputEvent &text);
     
     public:
-        DebugConsole(ScreenManager *mgr, Render::Renderer *render, std::ostream &sink, std::istream &log);
-        DebugConsole(const DebugConsole &) = delete;
-        DebugConsole(DebugConsole &&) = default;
-        DebugConsole &operator=(const DebugConsole &) = delete;
-        DebugConsole &operator=(DebugConsole &&) = default;
+        DebugConsole(ScreenManager *mgr, Render::Renderer *render);
+        DebugConsole(DebugConsole const&) = delete;
+        DebugConsole(DebugConsole&&) = default;
+        DebugConsole &operator=(DebugConsole const&) = delete;
+        DebugConsole &operator=(DebugConsole&&) = default;
 
         bool IsClosed() const;
         
@@ -42,14 +40,12 @@ namespace UI
         bool HandleEvent(const SDL_Event &event);
     };
     
-    DebugConsole::DebugConsole(ScreenManager *mgr, Render::Renderer *render, std::ostream &sink, std::istream &log)
+    DebugConsole::DebugConsole(ScreenManager *mgr, Render::Renderer *render)
         : mScreenMgr(mgr)
         , mRenderer(render)
         , mText("")
         , mFontName("font_stronghold_aa")
         , mFontSize(14)
-        , mSinkStream(sink)
-        , mLogStream(log)
         , mClosed(false)
     { }
 
@@ -91,7 +87,6 @@ namespace UI
             mScreenMgr->CloseScreen(this);
             return true;
         case SDLK_RETURN:
-            mSinkStream << mText << std::endl;
             mText = std::string();
             return true;
         case SDLK_BACKSPACE:
@@ -109,9 +104,9 @@ namespace UI
         return true;
     }
 
-    ScreenPtr CreateDebugConsole(ScreenManager *mgr, Render::Renderer *render, std::ostream &sink, std::istream &log)
+    ScreenPtr CreateDebugConsole(ScreenManager *mgr, Render::Renderer *render)
     {
-        return make_unique<DebugConsole>(mgr, render, sink, log);
+        return std::make_unique<DebugConsole>(mgr, render);
     }
 
 } // namespace UI

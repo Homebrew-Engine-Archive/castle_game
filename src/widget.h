@@ -8,12 +8,12 @@ class Surface;
 namespace UI
 {
 
-    struct Widget
+    class Widget
     {
-        virtual bool HandleEvent(const SDL_Event &event) = 0;
+    public:
+        virtual void HandleEvent(const SDL_Event &event) = 0;
         virtual void Draw(Surface &surface) = 0;
-        virtual int Width() const = 0;
-        virtual int Height() const = 0;
+        virtual SDL_Rect Rect() const = 0;
     };
 
 }

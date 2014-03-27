@@ -15,14 +15,23 @@ namespace UI
     public:
         virtual void Draw(Surface &frame) = 0;
 
-        virtual bool IsDirty(int64_t dtime) = 0;
+        /**
+         * \brief Check whether screen should be repainted.
+         */
+        virtual bool IsDirty(int64_t dtime) { return dtime != 0; }
 
         virtual bool IsClosed() { return false; }
 
         /**
          * \brief React on user input.
+         *
+         * Only one screen at time can handle event. If it returns true, then
+         * the rest screens have not any chance to handle this event too.
+         *
+         * It can handle even SDL_QUIT.
+         *
          * \param event
-         * \return True if handled or false otherwise
+         * \return True if event was completely handled or false otherwise
          */
         virtual bool HandleEvent(const SDL_Event &event) = 0;
     };

@@ -384,7 +384,7 @@ namespace Render
     
     std::unique_ptr<Renderer> CreateRenderer(SDL_Renderer *renderer)
     {
-        return make_unique<RendererImpl>(renderer);
+        return std::make_unique<RendererImpl>(renderer);
     }
 
 } // namespace Render

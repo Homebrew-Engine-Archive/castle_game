@@ -11,11 +11,6 @@
 
 namespace UI
 {
-
-    std::unique_ptr<MenuCombat> CreateMenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
-    {
-        return make_unique<MenuCombat>(mgr, render);
-    }
     
     MenuCombat::MenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
         : mScreenMgr(mgr)
@@ -58,4 +53,9 @@ namespace UI
         return false;
     }
 
+    std::unique_ptr<MenuCombat> CreateMenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
+    {
+        return std::make_unique<MenuCombat>(mgr, render);
+    }
+    
 } // namespace UI

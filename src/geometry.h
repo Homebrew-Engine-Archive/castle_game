@@ -3,9 +3,6 @@
 
 #include <SDL.h>
 
-/**
- * The best application, i guess.
- */
 SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);
 SDL_Rect MakeRect(int x, int y, int w, int h);
 SDL_Rect MakeRect(int w, int h);

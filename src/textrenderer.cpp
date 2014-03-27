@@ -299,7 +299,7 @@ namespace Render
 
     std::unique_ptr<TextRenderer> CreateTextRenderer(SDL_Renderer *renderer)
     {
-        return make_unique<TextRendererImpl>(renderer);
+        return std::make_unique<TextRendererImpl>(renderer);
     }
 
 } // namespace Render

@@ -5,6 +5,8 @@
 #include <sstream>
 #include <SDL.h>
 
+#include <boost/current_function.hpp>
+
 #include "rw.h"
 #include "surface.h"
 
@@ -16,7 +18,10 @@ namespace
         uint32_t width;
         uint32_t height;
     };
-    
+
+    /**
+       TGX is just the sequence of tokens.
+    **/
     enum class TokenType : int
     {
         Stream = 0,
@@ -62,16 +67,22 @@ namespace
         hdr.height = SDL_ReadLE32(src);
         return hdr;
     }
-    
+
+    /**
+     * Each token has its length. It is represented by lower 5 bits.
+     * \note There are no 0 length.
+     */
     size_t ExtractTokenLength(const uint8_t &token)
     {
-        // Lower 5 bits represent length in range [1..32]
         return (token & 0x1f) + 1;
     }
 
+    /**
+     * Each token has its type which are of type TokenType.
+     * It is higher 3 bits.
+     */
     TokenType ExtractTokenType(uint8_t token)
     {
-        // Higher 3 bits
         return static_cast<TokenType>(token >> 5);
     }
 
@@ -102,7 +113,7 @@ namespace
     
         Surface surface = SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
         if(surface.Null()) {
-            Fail(__FUNCTION__, SDL_GetError());
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
         return surface;
     }
@@ -115,13 +126,6 @@ namespace
         }
     }
 
-    Surface LoadTGX(SDL_RWops *src, int64_t size, int width, int height, int bpp)
-    {
-        Surface surface = CreateCompatibleSurface(width, height, bpp);
-        TGX::DecodeTGX(src, size, surface);
-        return surface;
-    }
-
 }
 
 namespace TGX
@@ -129,19 +133,21 @@ namespace TGX
 
     Surface LoadStandaloneImage(SDL_RWops *src)
     {
-        Header header = ReadHeader(src);
-        return LoadTGX(src, ReadableBytes(src), header.width, header.height, 16);
+        const Header header = ReadHeader(src);
+        Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
+        TGX::DecodeTGX(src, ReadableBytes(src), surface);
+        return surface;
     }
 
     void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface)
     {
-        SurfaceLocker lock(surface);
-        
-        int bytesPerPixel = surface->format->BytesPerPixel;
-        int widthBytes = surface->w * bytesPerPixel;    
+        const SurfaceLocker lock(surface);
+
+        const int64_t npos = SDL_RWtell(src) + size;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        const int widthBytes = surface->w * bytesPerPixel;    
         uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
     
-        int64_t npos = SDL_RWtell(src) + size;
         while(SDL_RWtell(src) + widthBytes <= npos) {
             SDL_RWread(src, dst, bytesPerPixel, surface->w);
             dst += surface->pitch;
@@ -151,20 +157,20 @@ namespace TGX
     void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface)
     {
         if(size < TileBytes) {
-            Fail(__FUNCTION__, "Inconsistent tile size");
+            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
         }
 
-        SurfaceLocker lock(surface);
+        const SurfaceLocker lock(surface);
 
-        int pitchBytes = surface->pitch;
-        size_t height = TileHeight;
-        size_t width = TileWidth;
+        const int pitchBytes = surface->pitch;
+        const int height = TileHeight;
+        const int width = TileWidth;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
         uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
-        int bytesPerPixel = sizeof(uint16_t);
     
-        for(size_t y = 0; y < height; ++y) {
-            size_t length = GetTilePixelsPerRow(y);
-            size_t offset = (width - length) / 2;
+        for(int y = 0; y < height; ++y) {
+            const int length = GetTilePixelsPerRow(y);
+            const int offset = (width - length) / 2;
             SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
             dst += pitchBytes;
         }
@@ -172,32 +178,31 @@ namespace TGX
 
     void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface)
     {
-        SurfaceLocker lock(surface);
+        const SurfaceLocker lock(surface);
 
-        int bytesPerPixel = surface->format->BytesPerPixel;
-        int bytesPitch = surface->pitch;
-        int bytesDst = bytesPitch * surface->h;
+        const int bytesPitch = surface->pitch;
         uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
-        uint8_t *dstBegin = dst;
-        uint8_t *dstEnd = dstBegin + bytesDst;
         uint8_t *dstNextLine = dst + bytesPitch;
-        int64_t npos = SDL_RWtell(src) + size;
+        const uint8_t *dstBegin = dst;
+        const uint8_t *dstEnd = dstBegin + bytesPitch * surface->h;
+        const int64_t npos = SDL_RWtell(src) + size;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
         bool overrun = false;
         bool overflow = false;
 
         while(SDL_RWtell(src) < npos) {
-            uint8_t token = SDL_ReadU8(src);
-            TokenType type = ExtractTokenType(token);
-            size_t length = ExtractTokenLength(token);
+            const uint8_t token = SDL_ReadU8(src);
+            const TokenType type = ExtractTokenType(token);
+            const size_t length = ExtractTokenLength(token);
     
             switch(type) {
             case TokenType::LineFeed:
                 {
                     if(length != 1) {
-                        Fail(__FUNCTION__, "LineFeed token length should be 1");
+                        Fail(BOOST_CURRENT_FUNCTION, "LineFeed token length should be 1");
                     }
                     if(dst > dstNextLine) {
-                        Fail(__FUNCTION__, "dst is ahead of dstNextLine");
+                        Fail(BOOST_CURRENT_FUNCTION, "dst is ahead of dstNextLine");
                     }
                     dst = dstNextLine;
                     dstNextLine += bytesPitch;
@@ -246,17 +251,17 @@ namespace TGX
 
             default:
                 {
-                    Fail(__FUNCTION__, "Unknown token");
+                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
                 }
                 break;
             }
 
             if(overflow) {
-                Overflow(__FUNCTION__, dst - dstBegin);
+                Overflow(BOOST_CURRENT_FUNCTION, dst - dstBegin);
             }
             
             if(overrun) {
-                Overrun(__FUNCTION__, SDL_RWtell(src));
+                Overrun(BOOST_CURRENT_FUNCTION, SDL_RWtell(src));
             }
         }
     }

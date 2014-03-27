@@ -29,13 +29,13 @@ namespace UI
 
         ScreenPtr PopScreen();
 
-        ScreenPtr CloseScreen(Screen *screen);
+        ScreenPtr CloseScreen(Screen*);
         
-        void SetCurrentScreen(ScreenPtr &&screen);
+        void SetCurrentScreen(ScreenPtr&&);
         
-        bool HandleEvent(const SDL_Event &event);
+        bool HandleEvent(SDL_Event const&);
 
-        void DrawScreen(Surface &frame);
+        void DrawScreen(Surface&);
         
     };
     

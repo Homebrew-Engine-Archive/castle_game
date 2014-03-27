@@ -2,7 +2,6 @@
 #define DEBUG_CONSOLE_H_
 
 #include <iosfwd>
-#include <memory>
 #include "screen.h"
 
 namespace Castle
@@ -19,7 +18,7 @@ namespace UI
 {
     class ScreenManager;
     
-    ScreenPtr CreateDebugConsole(ScreenManager *mgr, Render::Renderer *render, std::ostream &sink, std::istream &log);
+    ScreenPtr CreateDebugConsole(ScreenManager *mgr, Render::Renderer *render);
 }
 
 #endif

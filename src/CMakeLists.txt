@@ -28,6 +28,7 @@ set (SRCS
   textrenderer.cpp
   tgx.cpp
   screenmanager.cpp
+  resourcemanager.cpp
 )
 
 set (TARGET "a.out")

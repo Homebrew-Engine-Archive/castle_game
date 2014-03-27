@@ -5,6 +5,7 @@
 #include <sstream>
 #include <memory>
 #include <SDL.h>
+#include "network.h"
 #include "screen.h"
 #include "screenmanager.h"
 
@@ -20,35 +21,31 @@ namespace Castle
     {
         Render::Renderer *mRenderer;
         double mFpsAverage;
-        std::uint64_t mFrameCounter;
+        uint64_t mFrameCounter;
         bool mClosed;
-        int mFrameRate;
+        int64_t mFrameRate;
         bool mFpsLimited;
         bool mShowConsole;
+        int64_t mPollRate;
         UI::Screen *mConsolePtr;
-        std::stringstream mConsoleInput;
-        std::stringstream mConsoleOutput;
         std::unique_ptr<UI::ScreenManager> mScreenMgr;
+        boost::asio::io_service mIO;
+        int16_t mPort;
+        std::unique_ptr<Network::Server> mServer;
         
-        bool HandleWindowEvent(const SDL_WindowEvent &event);
-        bool HandleKeyboardEvent(const SDL_KeyboardEvent &event);
-        UI::Screen *GetCurrentScreen() const;
+        bool HandleWindowEvent(SDL_WindowEvent const&);
+        bool HandleKeyboardEvent(SDL_KeyboardEvent const&);
         void DrawFrame();
-        bool HandleEvent(const SDL_Event &event);
+        bool HandleEvent(SDL_Event const&);
         void ToggleConsole();
+        bool LoadResources();
     
     public:
-        Engine(Render::Renderer *mRenderer);
-        Engine(const Engine&) = delete;
-        Engine(Engine&&) = default;
-        Engine &operator=(const Engine&) = delete;
-        Engine &operator=(Engine&&) = default;
-        ~Engine() = default;
+        explicit Engine(Render::Renderer*);
+        Engine(Engine const&) = delete;
+        Engine &operator=(Engine const&) = delete;
     
         int Exec();
-        void SetCurrentScreen(UI::ScreenPtr &&screen);
-        void PushScreen(UI::ScreenPtr &&screen);
-        UI::ScreenPtr PopScreen();
         Render::Renderer *GetRenderer();
 
         bool Closed() const;

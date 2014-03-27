@@ -1,11 +1,14 @@
 #include "gm1.h"
+
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <boost/current_function.hpp>
+
 #include "geometry.h"
 #include "rw.h"
 #include "tgx.h"
 #include "surface.h"
-#include <string>
-#include <iostream>
-#include <sstream>
 
 namespace
 {
@@ -68,7 +71,7 @@ namespace
             Entry::AlphaMask());
     
         if(surface.Null()) {
-            Fail(__FUNCTION__, SDL_GetError());
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
 
         SDL_SetColorKey(surface, SDL_TRUE, Entry::ColorKey());
@@ -105,12 +108,12 @@ namespace
         }
     
         if(ReadableBytes(src) < lastByte) {
-            Fail(__FUNCTION__, "Inconsistent size of file");
+            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent size of file");
         }
 
         int64_t origin = SDL_RWtell(src);
         if(origin < 0) {
-            Fail(__FUNCTION__, SDL_GetError());
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
 
         std::vector<SDL_Rect> partition;
@@ -129,7 +132,7 @@ namespace
                 Entry::Load(src, gm1.sizes[i], header, roi);
             }
         } else {
-            Fail(__FUNCTION__, "Unable to allocate surface");
+            Fail(BOOST_CURRENT_FUNCTION, "Unable to allocate surface");
         }
         
         return atlas;
@@ -155,7 +158,7 @@ namespace
                 atlas.push_back(surface);
                 ++successfullLoads;
             } else {
-                Fail(__FUNCTION__, "Unable to allocate surface");
+                Fail(BOOST_CURRENT_FUNCTION, "Unable to allocate surface");
             }
         }
 
@@ -178,7 +181,7 @@ namespace
             TempSeek seekLock(src, origin + offset, RW_SEEK_SET);
             Entry::Load(src, size, header, surface);
         } else {
-            Fail(__FUNCTION__, "Unable to allocate surface");
+            Fail(BOOST_CURRENT_FUNCTION, "Unable to allocate surface");
         }
 
         return surface;
@@ -375,12 +378,12 @@ namespace GM
     Collection::Collection(SDL_RWops *src)
     {
         if(src == NULL) {
-            Fail(__FUNCTION__, "NULL src");
+            Fail(BOOST_CURRENT_FUNCTION, "NULL src");
         }
     
         header = ReadHeader(src);
         if(ReadableBytes(src) < header.dataSize) {
-            Fail(__FUNCTION__, "Premate EOF");
+            Fail(BOOST_CURRENT_FUNCTION, "Premate EOF");
         }
         
         palettes.resize(CollectionPaletteCount);

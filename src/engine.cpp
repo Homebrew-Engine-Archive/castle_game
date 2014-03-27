@@ -1,5 +1,6 @@
 #include "engine.h"
 
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <boost/asio/io_service.hpp>
@@ -25,13 +26,15 @@ namespace Castle
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
-        , mFrameRate(16)
-        , mFpsLimited(true)
+        , mFrameRate(30)
+        , mFpsLimited(false)
         , mShowConsole(false)
+        , mPollRate(66)
         , mConsolePtr(nullptr)
-        , mConsoleInput()
-        , mConsoleOutput()
         , mScreenMgr(new UI::ScreenManager(this))
+        , mIO()
+        , mPort(4500)
+        , mServer(new Network::Server(mIO, mPort))
     { }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -67,7 +70,7 @@ namespace Castle
     {
         mShowConsole = !mShowConsole;
         if(mShowConsole) {
-            UI::ScreenPtr &&consoleScreen = UI::CreateDebugConsole(mScreenMgr.get(), mRenderer, mConsoleInput, mConsoleOutput);
+            UI::ScreenPtr &&consoleScreen = UI::CreateDebugConsole(mScreenMgr.get(), mRenderer);
             mConsolePtr = consoleScreen.get();
             mScreenMgr->PushScreen(std::move(consoleScreen));
         } else {
@@ -81,28 +84,12 @@ namespace Castle
         return mClosed;
     }
     
-    UI::Screen *Engine::GetCurrentScreen() const
-    {
-        return mScreenMgr->GetCurrentScreen();
-    }
-
-    void Engine::SetCurrentScreen(UI::ScreenPtr &&screen)
-    {
-        mScreenMgr->SetCurrentScreen(std::move(screen));
-    }
-
     void Engine::PollInput()
     {
-        if(!mConsoleInput) {
-            std::string line;
-            std::getline(mConsoleInput, line);
-            std::cout << line << std::endl;
-        }
-        
         SDL_Event event;
-        if(GetCurrentScreen() != NULL) {
+        if(mScreenMgr->GetCurrentScreen() != NULL) {
             while(SDL_PollEvent(&event)) {
-                if(!GetCurrentScreen()->HandleEvent(event))
+                if(!mScreenMgr->GetCurrentScreen()->HandleEvent(event))
                     HandleEvent(event);
             }
         } else {
@@ -110,42 +97,32 @@ namespace Castle
                 HandleEvent(event);
         }
     }
-    
+
     int Engine::Exec()
     {
-        if(!UI::RunLoadingScreen(this)) {
-            std::clog << "Loading has been interrupted."
-                      << std::endl;
+        if(!LoadResources())
             return false;
-        }
 
         mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
 
         const int64_t msPerSec = 1000;
-        const int64_t pollRate = 66;
-        const int64_t pollInterval = msPerSec / pollRate;
+        const int64_t frameInterval = msPerSec / mFrameRate;
+        const int64_t pollInterval = msPerSec / mPollRate;
     
         int64_t lastFrame = 0;
         int64_t lastPoll = 0;
         int64_t lastSecond = 0;
         int64_t fpsCounterLastSecond = 0;
     
-        boost::asio::io_service io;
-
-        const short port = 4500;
-        Server server(io, port);
-        server.StartAccept();
-    
+        mServer->StartAccept();
+        
         while(!Closed()) {
-            PollInput();
-            
-            const int64_t frameInterval = msPerSec / mFrameRate;
+            PollInput();            
             const int64_t pollStart = SDL_GetTicks();
             if(lastPoll + pollInterval < pollStart) {
-                io.poll();
+                mIO.poll();
                 lastPoll = pollStart;
             }
-
             const int64_t frameStart = SDL_GetTicks();
             if(lastSecond + msPerSec < frameStart) {
                 double fps = mFrameCounter - fpsCounterLastSecond;
@@ -154,18 +131,15 @@ namespace Castle
                 lastSecond = frameStart;
                 fpsCounterLastSecond = mFrameCounter;
             }
-
             if(lastFrame + frameInterval < frameStart) {
                 DrawFrame();
                 lastFrame = frameStart;
                 ++mFrameCounter;
             }
-
             const int64_t delayStart = SDL_GetTicks();
             if(mFpsLimited) {
-                const int64_t nextTick =
-                    std::min(lastPoll + pollInterval,
-                             lastFrame + frameInterval);
+                const int64_t nextTick = std::min(lastPoll + pollInterval,
+                                                  lastFrame + frameInterval);
                 if(delayStart < nextTick) {
                     SDL_Delay(nextTick - delayStart);
                 }
@@ -177,6 +151,12 @@ namespace Castle
         return 0;
     }
 
+    bool Engine::LoadResources()
+    {
+        auto &&loadingScreen = UI::CreateLoadingScreen(this);
+        return loadingScreen->Exec();
+    }
+    
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer->BeginFrame();
@@ -185,6 +165,7 @@ namespace Castle
     
         SDL_Color color = MakeColor(255, 255, 255, 128);
         mRenderer->SetColor(color);
+        
         mRenderer->SetFont("font_stronghold_aa", 24);
 
         SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);

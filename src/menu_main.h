@@ -28,9 +28,6 @@ namespace UI
         UI::ScreenManager *mScreenMgr;
         Render::Renderer *mRenderer;
         Surface mBackground;
-        std::vector<UI::Button> mButtons;
-
-        Button MakeCombatButton();
     
     public:
         MenuMain(UI::ScreenManager *mgr, Render::Renderer *render);

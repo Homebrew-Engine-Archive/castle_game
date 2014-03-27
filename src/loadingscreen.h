@@ -2,10 +2,11 @@
 #define LOADINGSCREEN_H_
 
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <functional>
 #include "filesystem.h"
 #include "surface.h"
+#include "screen.h"
 
 namespace Castle
 {
@@ -22,28 +23,31 @@ class FontCollectionInfo;
 namespace UI
 {
 
-    class Screen;
-    
-    class LoadingScreen
+    class LoadingScreen : public UI::Screen
     {
         Render::Renderer *mRenderer;
         Castle::Engine *mEngine;
         Surface mBackground;
         std::vector<std::function<void()>> mTasks;
+        int mProgressDone;
+        int mProgressMax;
+        bool mDirty;
 
-        void ScheduleCacheGM1(const FilePath &filename);
-        void ScheduleCacheFont(const FontCollectionInfo &info);
-    
+        void ScheduleCacheGM1(FilePath const&);
+        void ScheduleCacheFont(FontCollectionInfo const&);
+
     public:
-        LoadingScreen(Castle::Engine *engine);
-
-        void SetDonePercentage(double done);
-        
+        LoadingScreen(Castle::Engine*);
+        void SetProgressDone(int done);
+        void SetProgressMax(int max);
+        double GetCompleteRate() const;
+        bool IsDirty(int64_t elapsed) const;
         bool Exec();
-        void Draw(double done);
+        void Draw(Surface &surface);
+        bool HandleEvent(SDL_Event const&);
     };
 
-    bool RunLoadingScreen(Castle::Engine *engine);
+    std::unique_ptr<LoadingScreen> CreateLoadingScreen(Castle::Engine *engine);
     
 }
 

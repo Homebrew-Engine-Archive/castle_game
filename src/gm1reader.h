@@ -20,7 +20,7 @@ namespace GM
         GMReader(GMReader&&) = default;
         GMReader &operator=(GMReader const&) = default;
         GMReader &operator=(GMReader&&) = default;
-        virtual ~GMReader() {};
+        virtual ~GMReader() = default;
         
         bool Open(const FilePath &path);
         

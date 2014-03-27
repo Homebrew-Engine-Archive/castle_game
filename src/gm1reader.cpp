@@ -41,14 +41,45 @@ namespace GM
 
     GMReader::GMReader()
     {
-        auto constZero = []() { return 0; };
+        const auto constZero = []() { return 0; };
         MapHeader(constZero, mHeader);
     }
     
     bool GMReader::Open(const FilePath &path)
     {
+        try {
+            FileBuffer buffer(path, "rb");
+            RWPtr &&src = RWFromFileBuffer(buffer);
+            
+            header = ReadHeader(src.get());
+            if(ReadableBytes(src.get()) < header.dataSize) {
+                Fail(__FILE__ # __LINE__, "Premate EOF");
+            }
         
-        return true;
+            palettes.resize(CollectionPaletteCount);
+            for(Palette &palette : palettes)
+                palette = ReadPalette(src.get());
+
+            uint32_t count = header.imageCount;
+            offsets.resize(count);
+            ReadInt32ArrayLE(src.get(), offsets.data(), offsets.size());
+        
+            sizes.resize(count);
+            ReadInt32ArrayLE(src.get(), sizes.data(), sizes.size());
+
+            headers.resize(count);
+            for(ImageHeader &hdr : headers)
+                hdr = ReadImageHeader(src.get());
+
+            
+            
+            return true;
+        } catch(const std::exception &error) {
+            std::cerr << "Can't open archive: "
+                      << error.what()
+                      << std::endl;
+            return false;
+        }
     }
 
     size_t GMReader::EntryCount() const
