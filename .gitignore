@@ -1,5 +1,5 @@
-src/gm/*
-src/gfx/*
+*.gm1
+*.tgx
 *.out
 *~
 core

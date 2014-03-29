@@ -31,6 +31,6 @@ find_package (Boost 1.47.0 REQUIRED COMPONENTS date_time system)
 
 set (BOOST_LIBS boost_system boost_filesystem boost_date_time)
 
-add_subdirectory (src)
-add_subdirectory (tools/gmviewer)
-add_subdirectory (tools/gfxviewer)
+add_subdirectory (castle)
+add_subdirectory (gmtool)
+add_subdirectory (gfxtool)
