@@ -4,6 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <boost/current_function.hpp>
+
 #include "rw.h"
 #include "sdl_utils.h"
 #include "tgx.h"
@@ -21,10 +23,10 @@ CollectionEntry::CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf
 namespace
 {
 
-    void Fail(const std::string &where)
+    void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
-        oss << where << " failed: " << SDL_GetError();
+        oss << where << " failed: " << what;
         throw std::runtime_error(oss.str());
     }
     
@@ -32,7 +34,7 @@ namespace
     {
         PalettePtr ptr(SDL_AllocPalette(GM1::CollectionPaletteColors));
         if(!ptr) {
-            Fail("SDL_AllocPalette");
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
 
         std::vector<SDL_Color> colors;
@@ -47,7 +49,7 @@ namespace
         }
 
         if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, ptr->ncolors) < 0) {
-            Fail("SDL_SetPaletteColors");
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
     
         return ptr;
@@ -60,8 +62,9 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
         FileBuffer filebuff(filename, "rb");
         RWPtr &&src = RWFromFileBuffer(filebuff);
         
-        if(!src)
-            throw std::runtime_error("file not readable");
+        if(!src) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
+        }
         
         GM1::Collection gm1(src.get());
 
@@ -95,8 +98,9 @@ CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename)
     try {
         FileBuffer filebuff(filename, "rb");
         RWPtr &&src = RWFromFileBuffer(filebuff);
-        if(!src)
-            throw std::runtime_error("file not readable");
+        if(!src) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
+        }
         
         CollectionAtlasPtr ptr(new CollectionAtlas(src.get()));
 
@@ -115,8 +119,9 @@ Surface LoadSurface(const FilePath &filename)
         FileBuffer filebuff(filename, "rb");
         RWPtr &&src = RWFromFileBuffer(filebuff);
         
-        if(!src)
-            throw std::runtime_error("file not readable");
+        if(!src) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
+        }
         
         return TGX::LoadStandaloneImage(src.get());
         
