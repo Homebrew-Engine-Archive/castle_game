@@ -4,15 +4,15 @@
 #include "tgxreader.h"
 #include "gm1.h"
 #include "filesystem.h"
+#include "gm1entryreader.h"
 
 namespace GM
 {
+    class GM1EntryReader;
+}
 
-    class EntryReader
-    {
-    public:
-        virtual void Read(uint8_t const*, size_t size, Surface &surface) = 0;
-    };
+namespace GM
+{
     
     class GM1Reader
     {
@@ -38,7 +38,7 @@ namespace GM
         size_t EntrySize(size_t index) const;
         size_t NumEntries() const;
         size_t NumPalettes() const;
-        std::unique_ptr<TGX::TGXReader> CreateReader() const;
+        std::unique_ptr<GM::GM1EntryReader> CreateEntryReader() const;
     };
 
 }

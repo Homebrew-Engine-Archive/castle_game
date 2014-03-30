@@ -12,8 +12,7 @@ const int DefaultBlueMask = 0;
 const int DefaultAlphaMask = 0;
 
 /**
- * Wrapper for SDL_Surface's pointer designed with intention
- * to count references into SDL_Surface::refcount.
+ * \brief Wrapper for SDL_Surface with reference counting
  */
 class Surface
 {
@@ -35,39 +34,38 @@ public:
     void reset();
 };
 
-// RAII for SDL_LockSurface / SDL_UnlockSurface
+/**
+ * \brief RAII for SDL_LockSurface and SDL_UnlockSurface functions call
+ */
 class SurfaceLocker
 {
     const Surface &object;
     bool locked;
 public:
     SurfaceLocker(const Surface &surface);
-    ~SurfaceLocker();
+    // TODO implement copying surface on copying locker
+    SurfaceLocker(SurfaceLocker const&) = delete;
+    SurfaceLocker &operator=(SurfaceLocker const&) = delete;
+    virtual ~SurfaceLocker();
 };
 
-// RAII for SDL_SetColorKey
-class ColorKeyLocker
-{
-    const Surface &object;
-    bool oldEnabled;
-    uint32_t oldColor;
-public:
-    ColorKeyLocker(const Surface &surface, bool enabled, uint32_t color);
-    ~ColorKeyLocker();
-};
-
-// Wrapper for Region-Of-Interest (exactly like OpenCV ROI on Mat class)
-// Acts like simple surface, but has very special destructor which
-// respect not only the roi-surface, but also referer surface.
-// 
-// It holds reference to original surface `src' until becomes out-of-scope.
-// 
+/**
+ * \brief Region-Of-Interest of surface object
+ *
+ * It is a surface like object which shares some memory with
+ * it's parent surface object. Exactly like OpenCV's Mat class can do ROI.
+ *
+ * \note Deallocation of parent object isn't invalidate such kind of object.
+ *
+ * It holds reference to the parent surface so neither this nor parent
+ * surface doesn't intent deallocation of each other.
+ *
+ */
 class SurfaceROI : public Surface
 {
-    SDL_Surface *mReferer;
+    Surface mReferer;
 public:
     SurfaceROI(const Surface &src, const SDL_Rect *roi);
-    virtual ~SurfaceROI();
 };
 
 typedef std::function<SDL_Color(uint8_t, uint8_t, uint8_t, uint8_t)> PixelMapper;

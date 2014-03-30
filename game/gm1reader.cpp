@@ -101,11 +101,7 @@ namespace GM
         using boost::filesystem::fstream;
         
         fstream fin(path, fstream::binary);
-        size_t fsize = 0;
-        if(fin.seekg(0, fstream::end)) {
-            fsize = fin.tellg();
-            fin.seekg(0);
-        }
+        size_t fsize = fin.rdbuf()->in_avail();
 
         if(fsize < GM::CollectionHeaderBytes) {
             Fail(__FILE__, __LINE__, "Can't read header");
@@ -197,7 +193,7 @@ namespace GM
         return mPalettes.at(index);
     }
 
-    std::unique_ptr<TGX::TGXReader> GM1Reader::CreateReader() const
+    std::unique_ptr<GM::GM1EntryReader> GM1Reader::CreateEntryReader() const
     {
         switch(GetEncoding(mHeader.dataClass)) {
         case GM::Encoding::TGX8:
@@ -205,7 +201,7 @@ namespace GM
         case GM::Encoding::TileObject:
         case GM::Encoding::Bitmap:
         default:
-            return std::unique_ptr<TGX::TGXReader>(nullptr);
+            return std::unique_ptr<GM::GM1EntryReader>(nullptr);
         }
     }
     

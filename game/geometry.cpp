@@ -1,6 +1,8 @@
 #include "geometry.h"
-#include "macrosota.h"
+
 #include <cstdlib>
+
+#include "macrosota.h"
 
 SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {

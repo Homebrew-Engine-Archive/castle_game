@@ -192,23 +192,6 @@ SurfaceLocker::~SurfaceLocker()
     }
 }
 
-ColorKeyLocker::ColorKeyLocker(const Surface &surface, bool enabled, uint32_t color)
-    : object(surface)
-{
-    if(!object.Null()) {
-        oldEnabled =
-            (0 == SDL_GetColorKey(object, &oldColor));
-        SDL_SetColorKey(object, enabled, color);
-    }
-}
-
-ColorKeyLocker::~ColorKeyLocker()
-{
-    if(!object.Null()) {
-        SDL_SetColorKey(object, oldEnabled, oldColor);
-    }
-}
-
 Surface::~Surface()
 {
     SDL_FreeSurface(mSurface);
@@ -321,11 +304,6 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     AddSurfaceRef(mReferer);
 }
 
-SurfaceROI::~SurfaceROI()
-{
-    SDL_FreeSurface(mReferer);
-}
-
 Surface CopySurfaceFormat(const Surface &src, int width, int height)
 {
     if(src.Null())
@@ -392,12 +370,12 @@ void MapSurface(Surface &dst, PixelMapper f)
     case 2:
         MapSurfaceImpl<uint16_t>(dst, f);
         break;
-    case 3:
-        // TODO implement me
-        break;
     case 4:
         MapSurfaceImpl<uint32_t>(dst, f);
         break;
+    case 3:
+        // TODO implement me
+        /* fallthrough */
     default:
         throw std::runtime_error("Unsupported BPP");
     }
@@ -412,12 +390,12 @@ void BlurSurface(Surface &dst, int radius)
     case 2:
         BlurSurfaceImpl<uint16_t>(dst, radius);
         break;
-    case 3:
-        // TODO implement me
-        break;
     case 4:
         BlurSurfaceImpl<uint32_t>(dst, radius);
         break;
+    case 3:
+        // TODO implement me
+        /* fallthrough */
     default:
         throw std::runtime_error("Unsupported BPP");
     }

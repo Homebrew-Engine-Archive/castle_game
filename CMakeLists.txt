@@ -27,10 +27,10 @@ include_directories (${SDL2_INCLUDE_DIRS})
 add_definitions (-DSDL_MAIN_HANDLED)
 
 find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
-find_package (Boost 1.47.0 REQUIRED COMPONENTS date_time system)
+find_package (Boost 1.47.0 REQUIRED COMPONENTS system iostreams)
 
-set (BOOST_LIBS boost_system boost_filesystem boost_date_time)
+set (BOOST_LIBS boost_system boost_filesystem boost_iostreams)
 
-add_subdirectory (castle)
+add_subdirectory (game)
 add_subdirectory (gmtool)
 add_subdirectory (gfxtool)
