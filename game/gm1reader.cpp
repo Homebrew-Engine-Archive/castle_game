@@ -1,6 +1,5 @@
 #include "gm1reader.h"
 
-#include "tgxreader.h"
 #include "filesystem.h"
 
 #include <boost/filesystem/fstream.hpp>
@@ -12,17 +11,17 @@
 namespace
 {
 
-    GM::Encoding GetEncoding(uint32_t dataClass)
+    GM1::Encoding GetEncoding(uint32_t dataClass)
     {
         switch(dataClass) {
-        case 1: return GM::Encoding::TGX16;
-        case 2: return GM::Encoding::TGX8;
-        case 3: return GM::Encoding::TileObject;
-        case 4: return GM::Encoding::Font;
-        case 5: return GM::Encoding::Bitmap;
-        case 6: return GM::Encoding::TGX16;
-        case 7: return GM::Encoding::Bitmap;
-        default: return GM::Encoding::Unknown;
+        case 1: return GM1::Encoding::TGX16;
+        case 2: return GM1::Encoding::TGX8;
+        case 3: return GM1::Encoding::TileObject;
+        case 4: return GM1::Encoding::Font;
+        case 5: return GM1::Encoding::Bitmap;
+        case 6: return GM1::Encoding::TGX16;
+        case 7: return GM1::Encoding::Bitmap;
+        default: return GM1::Encoding::Unknown;
         }
     }
     
@@ -33,9 +32,9 @@ namespace
         throw std::runtime_error(ss.str());
     }
     
-    GM::Header ReadHeader(std::istream &in)
+    GM1::Header ReadHeader(std::istream &in)
     {
-        GM::Header hdr;
+        GM1::Header hdr;
         hdr.u1             = Endian::ReadLittle<uint32_t>(in);
         hdr.u2             = Endian::ReadLittle<uint32_t>(in);
         hdr.u3             = Endian::ReadLittle<uint32_t>(in);
@@ -61,17 +60,17 @@ namespace
         return hdr;
     }
 
-    GM::Palette ReadPalette(std::istream &in)
+    GM1::Palette ReadPalette(std::istream &in)
     {
-        GM::Palette palette;
+        GM1::Palette palette;
         for(uint16_t &entry : palette)
             entry = Endian::ReadLittle<uint16_t>(in);
         return palette;
     }
 
-    GM::ImageHeader ReadImageHeader(std::istream &in)
+    GM1::EntryHeader ReadEntryHeader(std::istream &in)
     {
-        GM::ImageHeader hdr;
+        GM1::EntryHeader hdr;
         hdr.width      = Endian::ReadLittle<uint16_t>(in);
         hdr.height     = Endian::ReadLittle<uint16_t>(in);
         hdr.posX       = Endian::ReadLittle<uint16_t>(in);
@@ -88,22 +87,30 @@ namespace
 
 }
 
-namespace GM
+namespace GM1
 {
 
     GM1Reader::GM1Reader(const FilePath &path)
         : mPath(path)
         , mHeader()
-        , mImageHeaders()
+        , mEntryHeaders()
         , mPalettes()
         , mBuffer()
     {
         using boost::filesystem::fstream;
         
-        fstream fin(path, fstream::binary);
+        if(!boost::filesystem::exists(path)) {
+            Fail(__FILE__, __LINE__, "No such file");
+        }
+        
+        fstream fin(path, fstream::in | fstream::binary);
         size_t fsize = fin.rdbuf()->in_avail();
+        if(fin.fail()) {
+            Fail(__FILE__, __LINE__, "Can't read file");
+        }
 
-        if(fsize < GM::CollectionHeaderBytes) {
+
+        if(fsize < GM1::CollectionHeaderBytes) {
             Fail(__FILE__, __LINE__, "Can't read header");
         }
         
@@ -111,22 +118,26 @@ namespace GM
 
         if(fsize < GetPreambleSize(mHeader)) {
             Fail(__FILE__, __LINE__, "Can't read preamble");
-        }
-        mPalettes.resize(GM::CollectionPaletteCount);
-        for(GM::Palette &palette : mPalettes)
+        } 
+        mPalettes.resize(GM1::CollectionPaletteCount);
+        for(GM1::Palette &palette : mPalettes) {
             palette = ReadPalette(fin);
+        }
 
         mOffsets.resize(mHeader.imageCount);
-        for(uint32_t &offset : mOffsets)
+        for(uint32_t &offset : mOffsets) {
             offset = Endian::ReadLittle<uint32_t>(fin);
+        }
         
         mSizes.resize(mHeader.imageCount);
-        for(uint32_t &size : mSizes)
+        for(uint32_t &size : mSizes) {
             size = Endian::ReadLittle<uint32_t>(fin);
+        }
         
-        mImageHeaders.resize(mHeader.imageCount);
-        for(GM::ImageHeader &hdr : mImageHeaders)
-            hdr = ReadImageHeader(fin);
+        mEntryHeaders.resize(mHeader.imageCount);
+        for(GM1::EntryHeader &hdr : mEntryHeaders) {
+            hdr = ReadEntryHeader(fin);
+        }
 
         if(fsize < mHeader.dataSize) {
             Fail(__FILE__, __LINE__, "Can't read entry data");
@@ -136,15 +147,15 @@ namespace GM
         fin.read(reinterpret_cast<char*>(&mBuffer[0]), mBuffer.size());
     }
 
-    size_t GM1Reader::GetPreambleSize(const GM::Header &header) const
+    size_t GM1Reader::GetPreambleSize(const GM1::Header &header) const
     {
         size_t size = 0;
 
-        /** About 88 bytes on GM::Header **/
-        size += GM::CollectionHeaderBytes;
+        /** About 88 bytes on GM1::Header **/
+        size += GM1::CollectionHeaderBytes;
 
         /** About 10 palettes per file 512 bytes each **/
-        size += GM::CollectionPaletteCount * GM::CollectionPaletteBytes;
+        size += GM1::CollectionPaletteCount * GM1::CollectionPaletteBytes;
 
         /** 32-bit size per entry **/
         size += header.imageCount * sizeof(uint32_t);
@@ -152,8 +163,8 @@ namespace GM
         /** 32-bit offset per entry **/
         size += header.imageCount * sizeof(uint32_t);
         
-        /** Some GM::ImageHeaders of 16 bytes long **/
-        size += header.imageCount * GM::CollectionEntryHeaderBytes;
+        /** Some GM1::EntryHeaders of 16 bytes long **/
+        size += header.imageCount * GM1::CollectionEntryHeaderBytes;
 
         return size;
     }
@@ -165,7 +176,7 @@ namespace GM
 
     size_t GM1Reader::NumPalettes() const
     {
-        return GM::CollectionPaletteCount;
+        return GM1::CollectionPaletteCount;
     }
     
     uint8_t const* GM1Reader::EntryData(size_t index) const
@@ -178,31 +189,19 @@ namespace GM
         return mSizes.at(index);
     }
     
-    GM::Header const& GM1Reader::Header() const
+    GM1::Header const& GM1Reader::Header() const
     {
         return mHeader;
     }
 
-    GM::ImageHeader const& GM1Reader::ImageHeader(size_t index) const
+    GM1::EntryHeader const& GM1Reader::EntryHeader(size_t index) const
     {
-        return mImageHeaders.at(index);
+        return mEntryHeaders.at(index);
     }
 
-    GM::Palette const& GM1Reader::Palette(size_t index) const
+    GM1::Palette const& GM1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
-    }
-
-    std::unique_ptr<GM::GM1EntryReader> GM1Reader::CreateEntryReader() const
-    {
-        switch(GetEncoding(mHeader.dataClass)) {
-        case GM::Encoding::TGX8:
-        case GM::Encoding::TGX16:
-        case GM::Encoding::TileObject:
-        case GM::Encoding::Bitmap:
-        default:
-            return std::unique_ptr<GM::GM1EntryReader>(nullptr);
-        }
     }
     
 }

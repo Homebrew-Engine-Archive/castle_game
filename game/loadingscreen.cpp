@@ -7,7 +7,7 @@
 #include <boost/algorithm/clamp.hpp>
 #include <SDL.h>
 
-#include "macrosota.h"
+#include "make_unique.h"
 #include "collection.h"
 #include "filesystem.h"
 #include "geometry.h"

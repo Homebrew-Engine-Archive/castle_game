@@ -10,7 +10,7 @@
 
 class Surface;
 
-namespace GM
+namespace GM1
 {
 
     typedef uint16_t PaletteEntry;
@@ -68,7 +68,7 @@ namespace GM
      * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
      *
      */
-    struct ImageHeader
+    struct EntryHeader
     {
         uint16_t width;
         uint16_t height;
@@ -129,12 +129,12 @@ namespace GM
         Header header;
         std::vector<Palette> palettes;
         std::vector<uint32_t> offsets, sizes;
-        std::vector<ImageHeader> headers;        
+        std::vector<EntryHeader> headers;        
         Encoding encoding() const;
         size_t size() const;
     };
 
-    void PrintImageHeader(std::ostream &out, const ImageHeader &header);
+    void PrintEntryHeader(std::ostream &out, const EntryHeader &header);
     void PrintHeader(std::ostream &out, const Header &gm1);
     void PrintPalette(std::ostream &out, const Palette &palette);
     void PrintCollection(std::ostream &out, const Collection &collection);
@@ -144,6 +144,6 @@ namespace GM
     SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
     Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index);
 
-} // namespace GM
+} // namespace GM1
 
 #endif

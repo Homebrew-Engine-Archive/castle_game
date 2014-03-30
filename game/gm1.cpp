@@ -12,8 +12,6 @@
 
 namespace
 {
-    
-    using namespace GM;
 
     void Fail(const std::string &where, const std::string &what)
     {
@@ -22,17 +20,17 @@ namespace
         throw std::runtime_error(oss.str());
     }
     
-    Encoding GetEncoding(uint32_t dataClass)
+    GM1::Encoding GetEncoding(uint32_t dataClass)
     {
         switch(dataClass) {
-        case 1: return Encoding::TGX16;
-        case 2: return Encoding::TGX8;
-        case 3: return Encoding::TileObject;
-        case 4: return Encoding::Font;
-        case 5: return Encoding::Bitmap;
-        case 6: return Encoding::TGX16;
-        case 7: return Encoding::Bitmap;
-        default: return Encoding::Unknown;
+        case 1: return GM1::Encoding::TGX16;
+        case 2: return GM1::Encoding::TGX8;
+        case 3: return GM1::Encoding::TileObject;
+        case 4: return GM1::Encoding::Font;
+        case 5: return GM1::Encoding::Bitmap;
+        case 6: return GM1::Encoding::TGX16;
+        case 7: return GM1::Encoding::Bitmap;
+        default: return GM1::Encoding::Unknown;
         }
     }
 
@@ -51,7 +49,7 @@ namespace
     }
 
     template<class Entry>
-    SDL_Rect GetRectOnAtlas(const ImageHeader &header)
+    SDL_Rect GetRectOnAtlas(const GM1::EntryHeader &header)
     {
         return MakeRect(
             header.posX,
@@ -81,12 +79,12 @@ namespace
     }
 
     template<class Entry>
-    SDL_Rect PartitionAtlasImpl(const Collection &gm1, std::vector<SDL_Rect> &rects)
+    SDL_Rect PartitionAtlasImpl(const GM1::Collection &gm1, std::vector<SDL_Rect> &rects)
     {
         rects.reserve(gm1.size());
         SDL_Rect bounds = MakeEmptyRect();
         
-        for(const ImageHeader &header : gm1.headers) {
+        for(const GM1::EntryHeader &header : gm1.headers) {
             SDL_Rect rect = GetRectOnAtlas<Entry>(header);
             SDL_UnionRect(&rect, &bounds, &bounds);
             rects.push_back(rect);
@@ -96,7 +94,7 @@ namespace
     }
 
     template<class Entry>
-    Surface LoadAtlasImpl(SDL_RWops *src, const Collection &gm1)
+    Surface LoadAtlasImpl(SDL_RWops *src, const GM1::Collection &gm1)
     {
         if(src == NULL)
             return Surface();
@@ -127,7 +125,7 @@ namespace
         if(!atlas.Null()) {
             for(size_t i = 0; i < gm1.size(); ++i) {
                 SDL_RWseek(src, origin + gm1.offsets[i], RW_SEEK_SET);
-                ImageHeader header = gm1.headers[i];
+                const GM1::EntryHeader &header = gm1.headers[i];
                 SurfaceROI roi(atlas, &partition[i]);
                 Entry::Load(src, gm1.sizes[i], header, roi);
             }
@@ -139,14 +137,14 @@ namespace
     }
 
     template<class Entry>
-    int LoadEntriesImpl(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas)
+    int LoadEntriesImpl(SDL_RWops *src, const GM1::Collection &gm1, std::vector<Surface> &atlas)
     {
         atlas.reserve(gm1.size());
         int successfullLoads = 0;
         int64_t origin = SDL_RWtell(src);
             
         for(size_t i = 0; i < gm1.size(); ++i) {
-            const ImageHeader &header = gm1.headers.at(i);
+            const GM1::EntryHeader &header = gm1.headers.at(i);
             
             Surface surface = AllocateSurface<Entry>(
                 Entry::Width(header),
@@ -166,12 +164,12 @@ namespace
     }
 
     template<class Entry>
-    Surface LoadEntryImpl(SDL_RWops *src, const Collection &gm1, size_t index)
+    Surface LoadEntryImpl(SDL_RWops *src, const GM1::Collection &gm1, size_t index)
     {
         int64_t origin = SDL_RWtell(src);
         uint32_t size = gm1.sizes.at(index);
         uint32_t offset = gm1.offsets.at(index);
-        const ImageHeader &header = gm1.headers.at(index);
+        const GM1::EntryHeader &header = gm1.headers.at(index);
 
         Surface surface = AllocateSurface<Entry>(
             Entry::Width(header),
@@ -187,9 +185,9 @@ namespace
         return surface;
     }
     
-    Header ReadHeader(SDL_RWops *src)
+    GM1::Header ReadHeader(SDL_RWops *src)
     {
-        Header hdr;
+        GM1::Header hdr;
         hdr.u1             = SDL_ReadLE32(src);
         hdr.u2             = SDL_ReadLE32(src);
         hdr.u3             = SDL_ReadLE32(src);
@@ -215,16 +213,16 @@ namespace
         return hdr;
     }
 
-    Palette ReadPalette(SDL_RWops *src)
+    GM1::Palette ReadPalette(SDL_RWops *src)
     {
-        Palette palette;
-        ReadInt16ArrayLE(src, &palette[0], CollectionPaletteColors);
+        GM1::Palette palette;
+        ReadInt16ArrayLE(src, &palette[0], GM1::CollectionPaletteColors);
         return palette;
     }
 
-    ImageHeader ReadImageHeader(SDL_RWops *src)
+    GM1::EntryHeader ReadEntryHeader(SDL_RWops *src)
     {
-        ImageHeader hdr;
+        GM1::EntryHeader hdr;
         hdr.width      = SDL_ReadLE16(src);
         hdr.height     = SDL_ReadLE16(src);
         hdr.posX       = SDL_ReadLE16(src);
@@ -241,10 +239,10 @@ namespace
 
     struct TGX8
     {
-        static int Width(const ImageHeader &header) {
+        static int Width(const GM1::EntryHeader &header) {
             return header.width;
         }
-        static int Height(const ImageHeader &header) {
+        static int Height(const GM1::EntryHeader &header) {
             return header.height;
         }
         static int Depth() {
@@ -265,17 +263,17 @@ namespace
         static uint32_t ColorKey() {
             return TGX::Transparent8;
         }
-        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const GM1::EntryHeader &, Surface &surface) {
             TGX::DecodeTGX(src, size, surface);
         }
     };
 
     struct TGX16
     {
-        static int Width(const ImageHeader &header) {
+        static int Width(const GM1::EntryHeader &header) {
             return header.width;
         }    
-        static int Height(const ImageHeader &header) {
+        static int Height(const GM1::EntryHeader &header) {
             return header.height;
         }    
         static int Depth() {
@@ -296,17 +294,17 @@ namespace
         static uint32_t ColorKey() {
             return TGX::Transparent16;
         }    
-        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const GM1::EntryHeader &, Surface &surface) {
             TGX::DecodeTGX(src, size, surface);
         }
     };
 
     struct TileObject
     {
-        static int Width(const ImageHeader &) {
+        static int Width(const GM1::EntryHeader &) {
             return TGX::TileWidth;
         }    
-        static int Height(const ImageHeader &header) {
+        static int Height(const GM1::EntryHeader &header) {
             return TGX::TileHeight + header.tileY;
         }    
         static int Depth() {
@@ -327,7 +325,7 @@ namespace
         static uint32_t ColorKey() {
             return TGX::Transparent16;
         }
-        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &header, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const GM1::EntryHeader &header, Surface &surface) {
             SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TGX::TileHeight);
             SurfaceROI tile(surface, &tilerect);
             TGX::DecodeTile(src, TGX::TileBytes, tile);
@@ -340,10 +338,10 @@ namespace
 
     struct Bitmap
     {
-        static int Width(const ImageHeader &header) {
+        static int Width(const GM1::EntryHeader &header) {
             return header.width;
         }    
-        static int Height(const ImageHeader &header) {
+        static int Height(const GM1::EntryHeader &header) {
             // Nobody knows why
             return header.height - 7;
         }    
@@ -365,14 +363,14 @@ namespace
         static uint32_t ColorKey() {
             return TGX::Transparent16;
         }    
-        static void Load(SDL_RWops *src, int64_t size, const ImageHeader &, Surface &surface) {
+        static void Load(SDL_RWops *src, int64_t size, const GM1::EntryHeader &, Surface &surface) {
             TGX::DecodeUncompressed(src, size, surface);
         }
     };
 
 }
 
-namespace GM
+namespace GM1
 {
 
     Collection::Collection(SDL_RWops *src)
@@ -398,8 +396,8 @@ namespace GM
         ReadInt32ArrayLE(src, sizes.data(), sizes.size());
 
         headers.resize(count);
-        for(ImageHeader &hdr : headers)
-            hdr = ReadImageHeader(src);
+        for(GM1::EntryHeader &hdr : headers)
+            hdr = ReadEntryHeader(src);
     }
 
     Encoding Collection::encoding() const
@@ -484,7 +482,7 @@ namespace GM
         }
     }
 
-    void PrintImageHeader(std::ostream &out, const ImageHeader &header)
+    void PrintEntryHeader(std::ostream &out, const EntryHeader &header)
     {
         using namespace std;
         out << "Width: "            << static_cast<int>(header.width) << endl
@@ -562,19 +560,19 @@ namespace GM
     
         for(size_t i = 0; i < gm1.headers.size(); ++i) {
             out << "Image Header " << i << endl;
-            PrintImageHeader(out, gm1.headers[i]);
+            PrintEntryHeader(out, gm1.headers[i]);
         }
     
         int64_t origin =
-            // unaligned sizeof(GM::Header)
+            // unaligned sizeof(GM1::Header)
             CollectionHeaderBytes
-            // unaligned sizeof(GM::ImageHeader) * n
+            // unaligned sizeof(GM1::EntryHeader) * n
             + CollectionEntryHeaderBytes * gm1.size()
-            // unaligned sizeof(GM::Palette) * m
+            // unaligned sizeof(GM1::Palette) * m
             + CollectionPaletteColors * CollectionPaletteCount * sizeof(uint16_t)
             + sizeof(uint32_t) * gm1.size()
             + sizeof(uint32_t) * gm1.size();
         out << "Data entry point at " << dec << origin << endl;
     }
 
-} // namespace GM
+} // namespace GM1

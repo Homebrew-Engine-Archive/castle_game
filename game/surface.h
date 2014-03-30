@@ -72,6 +72,8 @@ typedef std::function<SDL_Color(uint8_t, uint8_t, uint8_t, uint8_t)> PixelMapper
 
 void MapSurface(Surface &dst, PixelMapper);
 
+void CopyPixels(const Surface &src, Surface &dst);
+
 bool HasPalette(const Surface &surface);
 
 Surface CopySurfaceFormat(const Surface &src, int width, int height);

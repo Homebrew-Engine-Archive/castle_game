@@ -171,7 +171,7 @@ namespace Render
 
 namespace Render
 {
-    void LoadFonts(Render::GraphicsManager &manager)
+    void LoadFonts(Render::GraphicsManager&)
     {
         
     }

@@ -10,10 +10,10 @@
 
 CollectionAtlas::CollectionAtlas(SDL_RWops *src)
     : gm1(src)
-    , map(GM::LoadAtlas(src, gm1))
+    , map(GM1::LoadAtlas(src, gm1))
 { }
 
-CollectionEntry::CollectionEntry(const GM::ImageHeader &hdr_, const Surface &sf_)
+CollectionEntry::CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf_)
     : header(hdr_)
     , surface(sf_)
 { }
@@ -28,9 +28,9 @@ namespace
         throw std::runtime_error(oss.str());
     }
     
-    PalettePtr ConvertPaletteToSDLPalette(const GM::Palette &palette)
+    PalettePtr ConvertPaletteToSDLPalette(const GM1::Palette &palette)
     {
-        PalettePtr ptr(SDL_AllocPalette(GM::CollectionPaletteColors));
+        PalettePtr ptr(SDL_AllocPalette(GM1::CollectionPaletteColors));
         if(!ptr) {
             Fail("SDL_AllocPalette");
         }
@@ -63,20 +63,20 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
         if(!src)
             throw std::runtime_error("file not readable");
         
-        GM::Collection gm1(src.get());
+        GM1::Collection gm1(src.get());
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = gm1.header;
-        for(const GM::Palette &palette : gm1.palettes) {
+        for(const GM1::Palette &palette : gm1.palettes) {
             ptr->palettes.push_back(
                 std::move(
                     ConvertPaletteToSDLPalette(palette)));
         }
         
         std::vector<Surface> atlas;
-        GM::LoadEntries(src.get(), gm1, atlas);
+        GM1::LoadEntries(src.get(), gm1, atlas);
         for(size_t n = 0; n < gm1.size(); ++n) {
-            GM::ImageHeader header = gm1.headers[n];
+            GM1::EntryHeader header = gm1.headers[n];
             Surface &surface = atlas[n];
             ptr->entries.emplace_back(header, surface);
         }

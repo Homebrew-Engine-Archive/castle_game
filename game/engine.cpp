@@ -14,7 +14,7 @@
 #include "menu_combat.h"
 #include "menu_main.h"
 #include "loadingscreen.h"
-#include "macrosota.h"
+#include "make_unique.h"
 #include "network.h"
 #include "debugconsole.h"
 #include "screen.h"

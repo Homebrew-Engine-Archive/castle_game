@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-#include "macrosota.h"
+#include "make_unique.h"
 
 SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {

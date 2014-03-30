@@ -12,7 +12,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include "geometry.h"
-#include "macrosota.h"
+#include "make_unique.h"
 
 namespace
 {
@@ -345,6 +345,11 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)
     SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
     SDL_SetRenderDrawColor(render.get(), r, g, b, a);
     SDL_RenderFillRect(render.get(), dstrect);
+}
+
+void CopyPixels(const Surface &src, Surface &dst)
+{
+    // TODO implement me
 }
 
 SDL_Rect SurfaceBounds(const Surface &src)
