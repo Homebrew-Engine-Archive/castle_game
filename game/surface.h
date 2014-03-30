@@ -39,8 +39,8 @@ public:
  */
 class SurfaceLocker
 {
-    const Surface &object;
-    bool locked;
+    const Surface &mObject;
+    bool mLocked;
 public:
     SurfaceLocker(const Surface &surface);
     // TODO implement copying surface on copying locker

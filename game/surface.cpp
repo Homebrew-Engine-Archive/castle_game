@@ -174,21 +174,21 @@ namespace
 }
 
 SurfaceLocker::SurfaceLocker(const Surface &surface)
-    : object(surface)
-    , locked(false)
+    : mObject(surface)
+    , mLocked(false)
 {
-    if(!object.Null()) {
-        if(SDL_MUSTLOCK(object)) {
-            if(0 == SDL_LockSurface(object))
-                locked = true;
+    if(!mObject.Null()) {
+        if(SDL_MUSTLOCK(mObject)) {
+            if(0 == SDL_LockSurface(mObject))
+                mLocked = true;
         }
     }
 }
 
 SurfaceLocker::~SurfaceLocker()
 {
-    if(locked && !object.Null()) {
-        SDL_UnlockSurface(object);
+    if(mLocked && !mObject.Null()) {
+        SDL_UnlockSurface(mObject);
     }
 }
 
