@@ -6,10 +6,12 @@
 #include <boost/iostreams/stream.hpp>
 #include <SDL.h>
 
+#include "geometry.h"
 #include "make_unique.h"
 #include "gm1reader.h"
 #include "gm1.h"
 #include "tgx.h"
+#include "surface.h"
 
 namespace
 {
@@ -34,43 +36,10 @@ namespace
         default: return GM1::Encoding::Unknown;
         }
     }
-
-    template<class EntryClass>
-    Surface CreateCompatibleSurface(const GM1::EntryHeader &header)
-    {
-        EntryClass format;
-
-        int width = format.Width(header);
-        int height = format.Height(header);
-        
-        Surface surface = SDL_CreateRGBSurface(
-            0, width, height, format.Depth(),
-            format.RedMask(),
-            format.GreenMask(),
-            format.BlueMask(),
-            format.AlphaMask());
-        
-        if(surface.Null()) {
-            Fail(__FILE__, __LINE__, SDL_GetError());
-        }
-        
-        SDL_SetColorKey(surface, SDL_TRUE, format.ColorKey());
-        SDL_FillRect(surface, NULL, format.ColorKey());
-
-        return surface;
-    }
     
-    class TGX8
+    class TGX8 : public GM1::GM1EntryReader
     {
     public:
-        int Width(const EntryHeader &header) const {
-            return header.width;
-        }
-        
-        int Height(const EntryHeader &header) const {
-            return header.height;
-        }
-        
         int Depth() const {
             return 8;
         }
@@ -94,54 +63,18 @@ namespace
         uint32_t ColorKey() const {
             return TGX::Transparent8;
         }
-        
-        void Read(GM1::GM1Reader &reader, size_t index, Surface &surface) const {
-            
-        }
+
+    protected:
+        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
-    class TGX16
+    class TGX16 : public GM1::GM1EntryReader
     {
-    public:
-        int Width(const GM1::EntryHeader &header) const {
-            return header.width;
-        }
-        
-        int Height(const GM1::EntryHeader &header) const {
-            return header.height;
-        }
-        
-        int Depth() const {
-            return 16;
-        }
-        
-        uint32_t RedMask() const {
-            return TGX::RedMask16;
-        }
-        
-        uint32_t GreenMask() const {
-            return TGX::GreenMask16;
-        }
-        
-        uint32_t BlueMask() const {
-            return TGX::BlueMask16;
-        }
-        
-        uint32_t AlphaMask() const {
-            return TGX::AlphaMask16;
-        }
-        
-        uint32_t ColorKey() const {
-            return TGX::Transparent16;
-        }
-        
-        void Read(GM1::GM1Reader &reader, size_t index, Surface &surface) const {
-            
-        }
-        
+    protected:
+        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
-    class TileObject
+    class TileObject : public GM1::GM1EntryReader
     {
     public:
         int Width(GM1::EntryHeader const&) const {
@@ -152,92 +85,151 @@ namespace
             return TGX::TileHeight + header.tileY;
         }
         
-        int Depth() const {
-            return 16;
-        }
-        
-        uint32_t RedMask() const {
-            return TGX::RedMask16;
-        }
-        
-        uint32_t GreenMask() const {
-            return TGX::GreenMask16;
-        }
-        
-        uint32_t BlueMask() const {
-            return TGX::BlueMask16;
-        }
-        
-        uint32_t AlphaMask() const {
-            return TGX::AlphaMask16;
-        }
-        
-        uint32_t ColorKey() const {
-            return TGX::Transparent16;
-        }
-        
-        void Read(GM1::GM1Reader &reader, size_t index, Surface &surface) const {
-            
-        }
+    protected:
+        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
-    class Bitmap
+    class Bitmap : public GM1::GM1EntryReader
     {
     public:
-        int Width(const GM1::EntryHeader &header) const {
-            return header.width;
-        }
-        
         int Height(const GM1::EntryHeader &header) const {
             // Nobody knows why
             return header.height - 7;
         }
         
-        int Depth() const {
-            return 16;
-        }
-        
-        uint32_t RedMask() const {
-            return TGX::RedMask16;
-        }
-        
-        uint32_t GreenMask() const {
-            return TGX::GreenMask16;
-        }
-        
-        uint32_t BlueMask() const {
-            return TGX::BlueMask16;
-        }
-        
-        uint32_t AlphaMask() const {
-            return TGX::AlphaMask16;
-        }
-        
-        uint32_t ColorKey() const {
-            return TGX::Transparent16;
-        }
-        
-        void Read(GM1::GM1Reader &reader, size_t index, Surface &surface) const {
-            
-        }
+    protected:
+        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
+
+    void TGX8::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    {
+        TGX::DecodeTGX(in, numBytes, surface);
+    }
+
+    void TGX16::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    {
+        TGX::DecodeTGX(in, numBytes, surface);
+    }
+
+    void Bitmap::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    {
+        TGX::DecodeBitmap(in, numBytes, surface);
+    }
+
+    void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
+    {
+        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TGX::TileHeight);
+        SurfaceROI tile(surface, &tilerect);
+        TGX::DecodeTile(in, TGX::TileBytes, tile);
+
+        SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
+        SurfaceROI box(surface, &boxrect);
+        TGX::DecodeTGX(in, numBytes - TGX::TileBytes, box);
+    }
     
 }
 
 namespace GM1
 {
-    
-    template<class EntryClass>
-    Surface ReadSurface(GM1::GM1Reader &reader, size_t index)
+
+    Surface GM1EntryReader::CreateSurface(const GM1::EntryHeader &header) const
     {
-        Surface surface = CreateCompatibleSurface<EntryClass>(reader.EntryHeaders(index));
-        EntryClass::Read(reader, index, surface);
+        int width = Width(header);
+        int height = Height(header);
+        
+        Surface surface = SDL_CreateRGBSurface(
+            0, width, height, Depth(),
+            RedMask(),
+            GreenMask(),
+            BlueMask(),
+            AlphaMask());
+        
+        if(surface.Null()) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+        
+        SDL_SetColorKey(surface, SDL_TRUE, ColorKey());
+        SDL_FillRect(surface, NULL, ColorKey());
+
+        return surface;
+    }
+
+    Surface GM1EntryReader::Load(GM1::GM1Reader &reader, size_t index) const
+    {
+        GM1::EntryHeader header = reader.EntryHeader(index);
+        
+        Surface surface = CreateSurface(header);
+
+        const char *data = reader.EntryData(index);
+        size_t size = reader.EntrySize(index);
+        
+        boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
+        ReadSurface(in, size, header, surface);
+        
         return surface;
     }
     
-    Surface GM1EntryReader::ReadSurface(size_t index) const
+    int GM1EntryReader::Width(const GM1::EntryHeader &header) const
     {
-
-
+        return header.width;
     }
+
+    int GM1EntryReader::Height(const GM1::EntryHeader &header) const
+    {
+        return header.height;
+    }
+
+    int GM1EntryReader::Depth() const
+    {
+        return 16;
+    }
+
+    uint32_t GM1EntryReader::RedMask() const
+    {
+        return TGX::RedMask16;
+    }
+
+    uint32_t GM1EntryReader::GreenMask() const
+    {
+        return TGX::GreenMask16;
+    }
+
+    uint32_t GM1EntryReader::BlueMask() const
+    {
+        return TGX::BlueMask16;
+    }
+
+    uint32_t GM1EntryReader::AlphaMask() const
+    {
+        return TGX::AlphaMask16;
+    }
+    
+    uint32_t GM1EntryReader::ColorKey() const
+    {
+        return TGX::Transparent16;
+    }
+    
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::GM1Reader &reader)
+    {
+        switch(GetEncoding(reader.Header().dataClass)) {
+        case GM1::Encoding::Font:
+            /* fallthrough */
+        case GM1::Encoding::TGX16:
+            return std::unique_ptr<GM1EntryReader>(new TGX16);
+                
+        case GM1::Encoding::Bitmap:
+            return std::unique_ptr<GM1EntryReader>(new Bitmap);
+        
+        case GM1::Encoding::TGX8:
+            return std::unique_ptr<GM1EntryReader>(new TGX8);
+            
+        case GM1::Encoding::TileObject:
+            return std::unique_ptr<GM1EntryReader>(new TileObject);
+            
+        case GM1::Encoding::Unknown:
+        default:
+            throw std::runtime_error("Unknown encoding");
+        }
+    }
+    
 }

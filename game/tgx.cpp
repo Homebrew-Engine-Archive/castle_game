@@ -7,6 +7,7 @@
 
 #include <boost/current_function.hpp>
 
+#include "endianness.h"
 #include "surface.h"
 
 namespace
@@ -73,6 +74,14 @@ namespace
         Header hdr;
         hdr.width = SDL_ReadLE32(src);
         hdr.height = SDL_ReadLE32(src);
+        return hdr;
+    }
+
+    Header ReadHeader(std::istream &in)
+    {
+        Header hdr;
+        hdr.width = Endian::ReadLittle<uint32_t>(in);
+        hdr.height = Endian::ReadLittle<uint32_t>(in);
         return hdr;
     }
 
@@ -183,7 +192,7 @@ namespace TGX
             dst += pitchBytes;
         }
     }
-
+    
     void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface)
     {
         const SurfaceLocker lock(surface);
@@ -274,4 +283,64 @@ namespace TGX
         }
     }
 
-} // namespace tgx
+} // namespace TGX
+
+
+namespace TGX
+{
+
+    void DecodeTile(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        if(numBytes < TileBytes) {
+            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
+        }
+
+        const SurfaceLocker lock(surface);
+
+        const int pitchBytes = surface->pitch;
+        const int height = TileHeight;
+        const int width = TileWidth;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        char *dst = reinterpret_cast<char *>(surface->pixels);
+    
+        for(int y = 0; y < height; ++y) {
+            const int length = GetTilePixelsPerRow(y);
+            const int offset = (width - length) / 2;
+            in.read(dst + offset * bytesPerPixel, bytesPerPixel * length);
+            dst += pitchBytes;
+        }
+    }
+
+    void DecodeBitmap(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        const SurfaceLocker lock(surface);
+
+        int64_t npos = numBytes;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        const int rowBytes = surface->w * bytesPerPixel;    
+        char *dst = reinterpret_cast<char *>(surface->pixels);
+    
+        while(npos >= rowBytes) {
+            in.read(dst, rowBytes);
+            dst += surface->pitch;
+            npos -= rowBytes;
+        }
+    }
+
+    void DecodeTGX(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        std::vector<char> buff(numBytes);
+        in.read(&buff[0], numBytes);
+        RWPtr rw(SDL_RWFromConstMem(&buff[0], numBytes));
+        DecodeTGX(rw.get(), numBytes, surface);
+    }
+
+    Surface LoadStandaloneImage(std::istream &in)
+    {
+        const Header header = ReadHeader(in);
+        Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
+        TGX::DecodeTGX(in, in.rdbuf()->in_avail(), surface);
+        return surface;
+    }
+    
+}

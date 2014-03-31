@@ -4,16 +4,13 @@
 #include <sstream>
 #include <stdexcept>
 
+
 #include <boost/current_function.hpp>
 
+#include "gm1reader.h"
 #include "rw.h"
 #include "sdl_utils.h"
 #include "tgx.h"
-
-CollectionAtlas::CollectionAtlas(SDL_RWops *src)
-    : gm1(src)
-    , map(GM1::LoadAtlas(src, gm1))
-{ }
 
 CollectionEntry::CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf_)
     : header(hdr_)
@@ -93,26 +90,6 @@ CollectionDataPtr LoadCollectionData(const FilePath &filename)
     }
 }
 
-CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename)
-{
-    try {
-        FileBuffer filebuff(filename, "rb");
-        RWPtr &&src = RWFromFileBuffer(filebuff);
-        if(!src) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
-        }
-        
-        CollectionAtlasPtr ptr(new CollectionAtlas(src.get()));
-
-        return ptr;
-    } catch(const std::exception &e) {
-        std::ostringstream oss;
-        oss << "In LoadCollectionAtlas [with filename = " << filename << ']' << std::endl;
-        oss << e.what() << std::endl;
-        throw std::runtime_error(oss.str());
-    }
-}
-
 Surface LoadSurface(const FilePath &filename)
 {
     try {
@@ -131,32 +108,4 @@ Surface LoadSurface(const FilePath &filename)
         oss << e.what() << std::endl;
         throw std::runtime_error(oss.str());
     }
-}
-
-namespace
-{
-
-    template<class T>
-    std::ostream &operator<<(std::ostream &out, const std::vector<T> &xs)
-    {
-        out << '[';
-        for(const T &x : xs) {
-            out << ' ' << x;
-        }
-        out << ']';
-        return out;
-    }
-    
-}
-
-std::ostream &operator<<(std::ostream &out, const FontCollectionInfo &info)
-{
-    out << '['
-        << info.filename << "; "
-        << info.name << "; "
-        << info.sizes << "; "
-        << info.alphabet;
-    
-    out << ']';
-    return out;
 }

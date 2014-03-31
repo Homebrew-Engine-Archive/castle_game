@@ -59,13 +59,12 @@ namespace GM1
      * This header should be read from the source file before
      * read original image.
      *
-     * NOTE:
-     * If collection is TileObject encoded, then `tileY' represents
+     * \note If collection is TileObject encoded, then `tileY' represents
      * an offset from the top pixel of box to the bottom.
      * 
-     * If collection is Font encoded, then `tileY' represents
+     * \note If collection is Font encoded, then `tileY' represents
      * a y-bearing font metric.
-     * see: http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
+     * see http://freetype.org/freetype2/docs/glyphs/glyphs-3.html
      *
      */
     struct EntryHeader
@@ -120,11 +119,6 @@ namespace GM1
     struct Collection
     {
         explicit Collection(SDL_RWops *src);
-        Collection(const Collection &) = default;
-        Collection(Collection &&) = default;
-        Collection &operator=(const Collection &) = default;
-        Collection &operator=(Collection &&) = default;
-        ~Collection() = default;
         
         Header header;
         std::vector<Palette> palettes;

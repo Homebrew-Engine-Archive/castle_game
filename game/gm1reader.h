@@ -15,7 +15,7 @@ namespace GM1
         std::vector<GM1::Palette> mPalettes;
         std::vector<uint32_t> mSizes;
         std::vector<uint32_t> mOffsets;
-        std::vector<uint8_t> mBuffer;
+        std::vector<char> mBuffer;
 
         /**
          * \brief Calculates size of "static" part of the archive by its header.
@@ -27,7 +27,7 @@ namespace GM1
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;
         GM1::Header const& Header() const;
-        uint8_t const* EntryData(size_t index) const;
+        char const* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
         size_t NumEntries() const;
         size_t NumPalettes() const;

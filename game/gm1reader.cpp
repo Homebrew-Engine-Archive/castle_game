@@ -179,7 +179,7 @@ namespace GM1
         return GM1::CollectionPaletteCount;
     }
     
-    uint8_t const* GM1Reader::EntryData(size_t index) const
+    char const* GM1Reader::EntryData(size_t index) const
     {
         return &mBuffer.at(mOffsets.at(index));
     }

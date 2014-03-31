@@ -1,32 +1,40 @@
 #ifndef GM1ENTRYREADER_H_
 #define GM1ENTRYREADER_H_
 
+#include <iosfwd>
 #include <memory>
+#include "tgx.h"
 #include "surface.h"
 
 namespace GM1
 {
     class GM1Reader;
+    class EntryHeader;
 }
 
 namespace GM1
 {
-    
+
     class GM1EntryReader
     {
     protected:
-        virtual int Width(const GM1::EntryHeader &header) const { return header.width; }
-        virtual int Height(const GM1::EntryHeader &header) const { return header.height; }
-        virtual int Depth() const { return 16; }
-        virtual uint32_t RedMask() const { return TGX::RedMask16; }
-        virtual uint32_t GreenMask() const { return TGX::GreenMask16; }
-        virtual uint32_t BlueMask() const { return TGX::BlueMask16; }
-        virtual uint32_t AlphaMask() const  { return TGX::AlphaMask16; }
-        virtual uint32_t ColorKey() const { return TGX::Transparent16; }
+        Surface CreateSurface(const GM1::EntryHeader &header) const;
+        virtual void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const = 0;
         
     public:
-        Surface ReadSurface(size_t index) const;
+        virtual int Width(GM1::EntryHeader const&) const;
+        virtual int Height(GM1::EntryHeader const&) const;
+        virtual int Depth() const;
+        virtual uint32_t RedMask() const;
+        virtual uint32_t GreenMask() const;
+        virtual uint32_t BlueMask() const;
+        virtual uint32_t AlphaMask() const;
+        virtual uint32_t ColorKey() const;
+        Surface Load(GM1::GM1Reader &reader, size_t index) const;
+        
     };
+
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::GM1Reader const&);
     
 }
 

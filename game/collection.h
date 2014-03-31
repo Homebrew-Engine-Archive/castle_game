@@ -10,15 +10,6 @@
 #include "gm1.h"
 #include "filesystem.h"
 
-struct CollectionAtlas
-{
-    GM1::Collection gm1;
-    Surface map;
-    CollectionAtlas(SDL_RWops *src);
-};
-
-typedef std::unique_ptr<CollectionAtlas> CollectionAtlasPtr;
-
 struct CollectionEntry
 {
     GM1::EntryHeader header;
@@ -47,10 +38,7 @@ struct FontCollectionInfo
 
 typedef std::unique_ptr<FontCollectionInfo> FontCollectionInfoPtr;
 
-std::ostream &operator<<(std::ostream &out, const FontCollectionInfo &info);
-
 Surface LoadSurface(const FilePath &filename);
 CollectionDataPtr LoadCollectionData(const FilePath &filename);
-CollectionAtlasPtr LoadCollectionAtlas(const FilePath &filename);
 
 #endif

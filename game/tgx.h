@@ -1,6 +1,7 @@
 #ifndef TGX_H_
 #define TGX_H_
 
+#include <iosfwd>
 #include <SDL.h>
 
 class Surface;
@@ -80,6 +81,8 @@ namespace TGX
      */
     void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface);
 
+    void DecodeTGX(std::istream&, size_t numBytes, Surface &surface);
+
     /**
      * \brief Read bitmap from the source file.
      * \param src Source file.
@@ -87,6 +90,8 @@ namespace TGX
      * \param surface Preallocated 16-bit surface.
      */
     void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface);
+
+    void DecodeBitmap(std::istream&, size_t numBytes, Surface &surface);
 
     /**
      * \brief Read tile object from the source file.
@@ -96,6 +101,8 @@ namespace TGX
      */
     void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface);
 
+    void DecodeTile(std::istream&, size_t numBytes, Surface &surface);
+
     /**
      * \brief Read 16-bit .tgx file from source.
      *
@@ -104,6 +111,8 @@ namespace TGX
      * \param src Source file.
      */
     Surface LoadStandaloneImage(SDL_RWops *src);
+
+    Surface LoadStandaloneImage(std::istream&);
 
 } // namespace TGX
 
