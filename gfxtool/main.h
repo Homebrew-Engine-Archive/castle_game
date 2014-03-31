@@ -1,6 +1,8 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include <SDL.h>
+class Surface;
+
+int ShowSurface(const Surface &surface);
 
 #endif

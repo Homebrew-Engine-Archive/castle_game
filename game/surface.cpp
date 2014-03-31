@@ -1,7 +1,7 @@
 #include "surface.h"
 
-#include <cassert>
-#include <SDL.h>
+#include <sstream>
+
 #include <memory>
 #include <algorithm>
 #include <stdexcept>
@@ -9,13 +9,22 @@
 #include <iostream>
 #include <queue>
 #include <cstdint>
-#include <boost/circular_buffer.hpp>
+#include <SDL.h>
+
+#include <boost/current_function.hpp>
 
 #include "geometry.h"
 #include "make_unique.h"
 
 namespace
 {
+
+    void Fail(const std::string &where, const std::string &what)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << what;
+        throw std::runtime_error(oss.str());
+    }
     
     template<class Pixel>
     void TransformBuffer(void *pixels, size_t count, const SDL_PixelFormat *pf, PixelMapper f)
@@ -107,7 +116,7 @@ namespace
         std::vector<int> blues(dst->w, 0);
 
         for(int y = 0; y < dst->h; ++y) {
-            Pixel *scanline = (Pixel *)((uint8_t *)dst->pixels + y * dst->pitch);
+            Pixel *scanline = reinterpret_cast<Pixel*>(reinterpret_cast<char*>(dst->pixels) + y * dst->pitch);
             
             for(int x = 0; x < dst->w; ++x) {
                 uint8_t r, g, b;
@@ -295,8 +304,10 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         + y * src->pitch
         + x * bytesPerPixel;
     
-    mSurface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);    
-    ThrowSDLError(mSurface);
+    mSurface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);
+    if(mSurface == NULL) {
+        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+    }
     
     CopySurfaceColorKey(src, mSurface);
     
@@ -311,7 +322,7 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
     
     Surface dst = CreateSurface(width, height, src->format);
     if(dst.Null()) {
-        throw std::runtime_error(SDL_GetError());
+        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
 
     CopySurfaceColorKey(src, dst);
@@ -321,8 +332,9 @@ Surface CopySurfaceFormat(const Surface &src, int width, int height)
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
 {
-    ThrowSDLError(
-        SDL_BlitSurface(src, srcrect, dst, dstrect));
+    if(SDL_BlitSurface(src, srcrect, dst, dstrect) < 0) {
+        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+    }
 }
 
 void DrawFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)

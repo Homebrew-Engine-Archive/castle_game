@@ -10,6 +10,7 @@ namespace GM1
 {
     class GM1Reader;
     class EntryHeader;
+    class Header;
 }
 
 namespace GM1
@@ -34,7 +35,7 @@ namespace GM1
         
     };
 
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::GM1Reader const&);
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::Header const&);
     
 }
 

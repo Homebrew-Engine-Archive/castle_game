@@ -32,57 +32,54 @@ namespace
         throw std::runtime_error(ss.str());
     }
     
-    GM1::Header ReadHeader(std::istream &in)
+    bool ReadHeader(std::istream &in, GM1::Header &header)
     {
-        GM1::Header hdr;
-        hdr.u1             = Endian::ReadLittle<uint32_t>(in);
-        hdr.u2             = Endian::ReadLittle<uint32_t>(in);
-        hdr.u3             = Endian::ReadLittle<uint32_t>(in);
-        hdr.imageCount     = Endian::ReadLittle<uint32_t>(in);
-        hdr.u4             = Endian::ReadLittle<uint32_t>(in);
-        hdr.dataClass      = Endian::ReadLittle<uint32_t>(in);
-        hdr.u5             = Endian::ReadLittle<uint32_t>(in);
-        hdr.u6             = Endian::ReadLittle<uint32_t>(in);
-        hdr.sizeCategory   = Endian::ReadLittle<uint32_t>(in);
-        hdr.u7             = Endian::ReadLittle<uint32_t>(in);
-        hdr.u8             = Endian::ReadLittle<uint32_t>(in);
-        hdr.u9             = Endian::ReadLittle<uint32_t>(in);
-        hdr.width          = Endian::ReadLittle<uint32_t>(in);
-        hdr.height         = Endian::ReadLittle<uint32_t>(in);
-        hdr.u10            = Endian::ReadLittle<uint32_t>(in);
-        hdr.u11            = Endian::ReadLittle<uint32_t>(in);
-        hdr.u12            = Endian::ReadLittle<uint32_t>(in);
-        hdr.u13            = Endian::ReadLittle<uint32_t>(in);
-        hdr.anchorX        = Endian::ReadLittle<uint32_t>(in);
-        hdr.anchorY        = Endian::ReadLittle<uint32_t>(in);
-        hdr.dataSize       = Endian::ReadLittle<uint32_t>(in);
-        hdr.u14            = Endian::ReadLittle<uint32_t>(in);
-        return hdr;
+        header.u1             = Endian::ReadLittle<uint32_t>(in);
+        header.u2             = Endian::ReadLittle<uint32_t>(in);
+        header.u3             = Endian::ReadLittle<uint32_t>(in);
+        header.imageCount     = Endian::ReadLittle<uint32_t>(in);
+        header.u4             = Endian::ReadLittle<uint32_t>(in);
+        header.dataClass      = Endian::ReadLittle<uint32_t>(in);
+        header.u5             = Endian::ReadLittle<uint32_t>(in);
+        header.u6             = Endian::ReadLittle<uint32_t>(in);
+        header.sizeCategory   = Endian::ReadLittle<uint32_t>(in);
+        header.u7             = Endian::ReadLittle<uint32_t>(in);
+        header.u8             = Endian::ReadLittle<uint32_t>(in);
+        header.u9             = Endian::ReadLittle<uint32_t>(in);
+        header.width          = Endian::ReadLittle<uint32_t>(in);
+        header.height         = Endian::ReadLittle<uint32_t>(in);
+        header.u10            = Endian::ReadLittle<uint32_t>(in);
+        header.u11            = Endian::ReadLittle<uint32_t>(in);
+        header.u12            = Endian::ReadLittle<uint32_t>(in);
+        header.u13            = Endian::ReadLittle<uint32_t>(in);
+        header.anchorX        = Endian::ReadLittle<uint32_t>(in);
+        header.anchorY        = Endian::ReadLittle<uint32_t>(in);
+        header.dataSize       = Endian::ReadLittle<uint32_t>(in);
+        header.u14            = Endian::ReadLittle<uint32_t>(in);
+        return static_cast<bool>(in);
     }
 
-    GM1::Palette ReadPalette(std::istream &in)
+    bool ReadPalette(std::istream &in, GM1::Palette &palette)
     {
-        GM1::Palette palette;
         for(uint16_t &entry : palette)
             entry = Endian::ReadLittle<uint16_t>(in);
-        return palette;
+        return static_cast<bool>(in);
     }
 
-    GM1::EntryHeader ReadEntryHeader(std::istream &in)
+    bool ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
     {
-        GM1::EntryHeader hdr;
-        hdr.width      = Endian::ReadLittle<uint16_t>(in);
-        hdr.height     = Endian::ReadLittle<uint16_t>(in);
-        hdr.posX       = Endian::ReadLittle<uint16_t>(in);
-        hdr.posY       = Endian::ReadLittle<uint16_t>(in);
-        hdr.group      = Endian::ReadLittle<uint8_t>(in);
-        hdr.groupSize  = Endian::ReadLittle<uint8_t>(in);
-        hdr.tileY      = Endian::ReadLittle<uint16_t>(in);
-        hdr.tileOrient = Endian::ReadLittle<uint8_t>(in);
-        hdr.hOffset    = Endian::ReadLittle<uint8_t>(in);
-        hdr.boxWidth   = Endian::ReadLittle<uint8_t>(in);
-        hdr.flags      = Endian::ReadLittle<uint8_t>(in);
-        return hdr;
+        header.width      = Endian::ReadLittle<uint16_t>(in);
+        header.height     = Endian::ReadLittle<uint16_t>(in);
+        header.posX       = Endian::ReadLittle<uint16_t>(in);
+        header.posY       = Endian::ReadLittle<uint16_t>(in);
+        header.group      = Endian::ReadLittle<uint8_t>(in);
+        header.groupSize  = Endian::ReadLittle<uint8_t>(in);
+        header.tileY      = Endian::ReadLittle<uint16_t>(in);
+        header.tileOrient = Endian::ReadLittle<uint8_t>(in);
+        header.hOffset    = Endian::ReadLittle<uint8_t>(in);
+        header.boxWidth   = Endian::ReadLittle<uint8_t>(in);
+        header.flags      = Endian::ReadLittle<uint8_t>(in);
+        return static_cast<bool>(in);
     }
 
 }
@@ -97,54 +94,67 @@ namespace GM1
         , mPalettes()
         , mBuffer()
     {
-        using boost::filesystem::fstream;
+        using boost::filesystem::ifstream;
         
-        if(!boost::filesystem::exists(path)) {
-            Fail(__FILE__, __LINE__, "No such file");
-        }
-        
-        fstream fin(path, fstream::in | fstream::binary);
-        size_t fsize = fin.rdbuf()->in_avail();
-        if(fin.fail()) {
-            Fail(__FILE__, __LINE__, "Can't read file");
+        ifstream fin(path, std::ios_base::binary);
+        if(!fin.is_open()) {
+            Fail(__FILE__, __LINE__, "Unable to open file");
         }
 
-
+        fin.seekg(0, std::ios_base::end);
+        std::streampos fsize = fin.tellg();
+        fin.seekg(0);
+        
         if(fsize < GM1::CollectionHeaderBytes) {
-            Fail(__FILE__, __LINE__, "Can't read header");
+            Fail(__FILE__, __LINE__, "File to small to read header");
         }
         
-        mHeader = ReadHeader(fin);
+        if(!ReadHeader(fin, mHeader)) {
+            Fail(__FILE__, __LINE__, "Unable to read header");
+        }
 
         if(fsize < GetPreambleSize(mHeader)) {
-            Fail(__FILE__, __LINE__, "Can't read preamble");
+            Fail(__FILE__, __LINE__, "File to small to read preamble");
         } 
         mPalettes.resize(GM1::CollectionPaletteCount);
         for(GM1::Palette &palette : mPalettes) {
-            palette = ReadPalette(fin);
+            if(!ReadPalette(fin, palette)) {
+                Fail(__FILE__, __LINE__, "Unable to read palette");
+            }
         }
 
         mOffsets.resize(mHeader.imageCount);
         for(uint32_t &offset : mOffsets) {
             offset = Endian::ReadLittle<uint32_t>(fin);
+            if(!fin) {
+                Fail(__FILE__, __LINE__, "Unable to read offset");
+            }
         }
         
         mSizes.resize(mHeader.imageCount);
         for(uint32_t &size : mSizes) {
             size = Endian::ReadLittle<uint32_t>(fin);
+            if(!fin) {
+                Fail(__FILE__, __LINE__, "Unable to read size");
+            }
         }
         
         mEntryHeaders.resize(mHeader.imageCount);
         for(GM1::EntryHeader &hdr : mEntryHeaders) {
-            hdr = ReadEntryHeader(fin);
+            if(!ReadEntryHeader(fin, hdr)) {
+                Fail(__FILE__, __LINE__, "Unable to read entry header");
+            }
         }
 
         if(fsize < mHeader.dataSize) {
-            Fail(__FILE__, __LINE__, "Can't read entry data");
+            Fail(__FILE__, __LINE__, "File too small to read data");
         }
         
         mBuffer.resize(mHeader.dataSize);
         fin.read(reinterpret_cast<char*>(&mBuffer[0]), mBuffer.size());
+        if(!fin) {
+            Fail(__FILE__, __LINE__, "Unable to read data section");
+        }
     }
 
     size_t GM1Reader::GetPreambleSize(const GM1::Header &header) const
@@ -169,12 +179,12 @@ namespace GM1
         return size;
     }
     
-    size_t GM1Reader::NumEntries() const
+    int GM1Reader::NumEntries() const
     {
         return mHeader.imageCount;
     }
 
-    size_t GM1Reader::NumPalettes() const
+    int GM1Reader::NumPalettes() const
     {
         return GM1::CollectionPaletteCount;
     }

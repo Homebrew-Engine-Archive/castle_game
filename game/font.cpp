@@ -1,16 +1,29 @@
 #include "font.h"
+
+#include <stdexcept>
+#include <sstream>
+
 #include "surface.h"
 #include "gm1.h"
 #include "collection.h"
-#include <stdexcept>
+#include <boost/current_function.hpp>
 
 namespace
 {
 
+    void Fail(const std::string &where, const std::string &what)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << what;
+        throw std::runtime_error(oss.str());
+    }
+    
     Surface DecodeGM1Glyph(const Surface &src)
     {
         Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NoFlags);
-        ThrowSDLError(rgb32);
+        if(rgb32.Null()) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
 
         // Swap green channel with alpha channel, so
         // fully white pixels remain unchanged, but
@@ -39,7 +52,7 @@ namespace
             glyph.yadvance = 0;
             glyph.ybearing = ybearing;
             if(!font.AddGlyph(character, glyph)) {
-                throw std::runtime_error("Unable to add non-printable glyph");
+                Fail(BOOST_CURRENT_FUNCTION, "Unable to add non-printable glyph");
             }
         }
     }
@@ -95,7 +108,7 @@ namespace Render
         std::advance(entry, skip);
         for(int character : alphabet) {
             if(entry >= data.entries.end()) {
-                throw std::runtime_error("Entry index out of bounds");
+                Fail(BOOST_CURRENT_FUNCTION, "Entry index out of bounds");
             }
         
             GlyphData glyph;
@@ -117,7 +130,7 @@ namespace Render
             glyph.ybearing = entry->header.tileY;
 
             if(!font.AddGlyph(character, glyph)) {
-                throw std::runtime_error("Unable to add glyph into font");
+                Fail(BOOST_CURRENT_FUNCTION, "Unable to add glyph into font");
             }
 
             ++entry;

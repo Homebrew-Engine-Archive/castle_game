@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <SDL.h>
+#include <boost/current_function.hpp>
 
 #include "geometry.h"
 #include "text.h"
@@ -140,19 +141,20 @@ namespace Render
             SDL_Texture *tex = mFontData->mTexture.get();
             
             if(SDL_SetTextureColorMod(tex, mColor.r, mColor.g, mColor.b) < 0) {
-                Fail("PutChar", SDL_GetError());
+                Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
             }
 
             if(SDL_SetTextureAlphaMod(tex, mColor.a) < 0) {
-                Fail("PutChar", SDL_GetError());
+                Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
             }
         
             const GlyphData *glyphData = FindGlyphData(character);
             if(glyphData != nullptr) {
                 SDL_Rect srcRect = FindTextureSubrect(character);
                 SDL_Rect dstRect = GetGlyphFaceBox(*glyphData, mCursorX, mCursorY);
-                ThrowSDLError(
-                    SDL_RenderCopy(mRenderer, tex, &srcRect, &dstRect));
+                if(SDL_RenderCopy(mRenderer, tex, &srcRect, &dstRect) < 0) {
+                    Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+                }
                 SDL_Rect advanceBox = GetGlyphAdvanceBox(*glyphData, mCursorX, mCursorY);
                 mCursorX += advanceBox.w;
             }

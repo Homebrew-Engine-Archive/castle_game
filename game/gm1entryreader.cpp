@@ -36,7 +36,13 @@ namespace
         default: return GM1::Encoding::Unknown;
         }
     }
-    
+
+    /**
+     * \brief Reader for animation sprites.
+     *
+     * 8-bit images;
+     * TGX-compressed;
+     */
     class TGX8 : public GM1::GM1EntryReader
     {
     public:
@@ -68,12 +74,29 @@ namespace
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
+    /**
+     * \brief Read for static textures.
+     *
+     * All fonts are such encoded.
+     *
+     * 16-bit images;
+     * TGX-compressed;
+     */
     class TGX16 : public GM1::GM1EntryReader
     {
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
+    /**
+     * \brief Reader for tile textures.
+     *
+     * Every tile is composed of 30x16 tile rhombus texture and
+     * static tgx16 decoration.
+     *
+     * Tiles are decoded by TGX::DecodeTile
+     *
+     */
     class TileObject : public GM1::GM1EntryReader
     {
     public:
@@ -89,6 +112,9 @@ namespace
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
+    /**
+     * \tile Uncompressed images. 
+     */
     class Bitmap : public GM1::GM1EntryReader
     {
     public:
@@ -156,8 +182,8 @@ namespace GM1
 
     Surface GM1EntryReader::Load(GM1::GM1Reader &reader, size_t index) const
     {
-        GM1::EntryHeader header = reader.EntryHeader(index);
-        
+        const GM1::EntryHeader &header = reader.EntryHeader(index);
+
         Surface surface = CreateSurface(header);
 
         const char *data = reader.EntryData(index);
@@ -209,11 +235,10 @@ namespace GM1
         return TGX::Transparent16;
     }
     
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::GM1Reader &reader)
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Header &header)
     {
-        switch(GetEncoding(reader.Header().dataClass)) {
-        case GM1::Encoding::Font:
-            /* fallthrough */
+        switch(GetEncoding(header.dataClass)) {
+        case GM1::Encoding::Font: /* fallthrough */
         case GM1::Encoding::TGX16:
             return std::unique_ptr<GM1EntryReader>(new TGX16);
                 

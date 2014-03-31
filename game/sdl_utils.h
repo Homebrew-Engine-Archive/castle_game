@@ -6,32 +6,6 @@
 #include <memory>
 #include <iosfwd>
 
-namespace
-{
-
-    template<class T, class D>
-    void ThrowSDLError(const std::unique_ptr<T, D> &ptr)
-    {
-        if(!ptr)
-            throw std::runtime_error(SDL_GetError());
-    }
-
-    void ThrowSDLError(const SDL_Surface *surface)
-    {
-        if(surface == NULL) {
-            throw std::runtime_error(SDL_GetError());
-        }
-    }
-
-    void ThrowSDLError(int code)
-    {
-        if(code < 0) {
-            throw std::runtime_error(SDL_GetError());
-        }
-    }
-
-}
-
 struct FreeSurfaceDeleter
 {
     void operator()(SDL_Surface *surface) {

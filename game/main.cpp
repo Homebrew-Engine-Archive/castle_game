@@ -2,11 +2,43 @@
 
 #include <iostream>
 
-#include <SDL.h>
 #include "sdl_utils.h"
 #include "engine.h"
 #include "sdl_init.h"
 #include "renderer.h"
+
+int main()
+{
+    Init::SDLInit init();
+    
+    EnumRenderDrivers(std::clog);
+
+    const int screenwidth = 1024;
+    const int screenheight = 768;
+        
+    WindowPtr sdlWindow = WindowPtr(
+        SDL_CreateWindow(
+            "Stockade",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            screenwidth, screenheight,
+            SDL_WINDOW_OPENGL));
+    if(!sdlWindow) {
+        throw std::runtime_error(SDL_GetError());
+    }
+
+    RendererPtr sdlRenderer = RendererPtr(
+        SDL_CreateRenderer(sdlWindow.get(), -1, 0));
+    if(!sdlRenderer) {
+        throw std::runtime_error(SDL_GetError());
+    }
+
+    GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
+    
+    std::unique_ptr<Render::Renderer> &&renderer = Render::CreateRenderer(sdlRenderer.get());
+    std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
+    return root->Exec();
+}
 
 void EnumRenderDrivers(std::ostream &out)
 {
@@ -42,33 +74,4 @@ void GetAndPrintRendererInfo(std::ostream &out, SDL_Renderer *renderer)
             PrintRendererInfo(out, info);
         }
     }
-}
-
-int main()
-{
-    Init::SDLInit init();
-    
-    EnumRenderDrivers(std::clog);
-
-    const int screenwidth = 1024;
-    const int screenheight = 768;
-        
-    WindowPtr sdlWindow = WindowPtr(
-        SDL_CreateWindow(
-            "Stockade",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            screenwidth, screenheight,
-            SDL_WINDOW_OPENGL));
-    ThrowSDLError(sdlWindow);
-
-    RendererPtr sdlRenderer = RendererPtr(
-        SDL_CreateRenderer(sdlWindow.get(), -1, 0));
-    ThrowSDLError(sdlRenderer);
-
-    GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
-    
-    std::unique_ptr<Render::Renderer> &&renderer = Render::CreateRenderer(sdlRenderer.get());
-    std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
-    return root->Exec();
 }

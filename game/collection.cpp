@@ -4,9 +4,10 @@
 #include <sstream>
 #include <stdexcept>
 
-
+#include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
+#include "gm1entryreader.h"
 #include "gm1reader.h"
 #include "rw.h"
 #include "sdl_utils.h"
@@ -53,58 +54,50 @@ namespace
     }
 }
 
-CollectionDataPtr LoadCollectionData(const FilePath &filename)
+CollectionDataPtr LoadCollectionData(const FilePath &path)
 {
     try {
-        FileBuffer filebuff(filename, "rb");
-        RWPtr &&src = RWFromFileBuffer(filebuff);
-        
-        if(!src) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
-        }
-        
-        GM1::Collection gm1(src.get());
+        GM1::GM1Reader reader(path);
 
         CollectionDataPtr ptr(new CollectionData);
-        ptr->header = gm1.header;
-        for(const GM1::Palette &palette : gm1.palettes) {
+        ptr->header = reader.Header();
+        for(int index = 0; index < reader.NumPalettes(); ++index) {
+            const GM1::Palette &palette = reader.Palette(index);
             ptr->palettes.push_back(
                 std::move(
                     ConvertPaletteToSDLPalette(palette)));
         }
-        
-        std::vector<Surface> atlas;
-        GM1::LoadEntries(src.get(), gm1, atlas);
-        for(size_t n = 0; n < gm1.size(); ++n) {
-            GM1::EntryHeader header = gm1.headers[n];
-            Surface &surface = atlas[n];
-            ptr->entries.emplace_back(header, surface);
+
+        auto entryReader = GM1::CreateEntryReader(reader.Header());
+        for(int index = 0; index < reader.NumEntries(); ++index) {
+            const GM1::EntryHeader &header = reader.EntryHeader(index);
+            Surface entry = entryReader->Load(reader, index);
+            ptr->entries.emplace_back(header, std::move(entry));
         }
         
         return ptr;
     } catch(const std::exception &e) {
         std::ostringstream oss;
-        oss << "In LoadImageCollection [with filename = " << filename << ']' << std::endl;
+        oss << "In LoadImageCollection [with filename = " << path << ']' << std::endl;
         oss << e.what() << std::endl;
         throw std::runtime_error(oss.str());
     }
 }
 
-Surface LoadSurface(const FilePath &filename)
+Surface LoadSurface(const FilePath &path)
 {
+    using namespace boost;
+    
     try {
-        FileBuffer filebuff(filename, "rb");
-        RWPtr &&src = RWFromFileBuffer(filebuff);
-        
-        if(!src) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't read file");
+        filesystem::ifstream fin(path, std::ios_base::binary);
+        if(!fin.is_open()) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't open file");
         }
-        
-        return TGX::LoadStandaloneImage(src.get());
+        return TGX::LoadStandaloneImage(fin);
         
     } catch(const std::exception &e) {
         std::ostringstream oss;
-        oss << "In LoadSurface [with filename = " << filename << ']' << std::endl;
+        oss << "In LoadSurface [with filename = " << path << ']' << std::endl;
         oss << e.what() << std::endl;
         throw std::runtime_error(oss.str());
     }

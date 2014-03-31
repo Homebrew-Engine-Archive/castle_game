@@ -5,6 +5,7 @@
 #include <sstream>
 #include <SDL.h>
 
+#include <boost/iostreams/restrict.hpp>
 #include <boost/current_function.hpp>
 
 #include "endianness.h"
@@ -143,6 +144,14 @@ namespace
         }
     }
 
+    void RepeatPixel(const char *pixel, char *buff, size_t size, size_t count)
+    {
+        for(size_t i = 0; i < count; ++i) {
+            std::copy(pixel, pixel + size, buff);
+            buff += size;
+        }
+    }
+    
 }
 
 namespace TGX
@@ -152,6 +161,7 @@ namespace TGX
     {
         const Header header = ReadHeader(src);
         Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
+
         TGX::DecodeTGX(src, ReadableBytes(src), surface);
         return surface;
     }
@@ -211,7 +221,7 @@ namespace TGX
             const uint8_t token = SDL_ReadU8(src);
             const TokenType type = ExtractTokenType(token);
             const size_t length = ExtractTokenLength(token);
-    
+
             switch(type) {
             case TokenType::LineFeed:
                 {
@@ -315,32 +325,115 @@ namespace TGX
     {
         const SurfaceLocker lock(surface);
 
-        int64_t npos = numBytes;
         const int bytesPerPixel = surface->format->BytesPerPixel;
-        const int rowBytes = surface->w * bytesPerPixel;    
+        const size_t rowBytes = surface->w * bytesPerPixel;    
         char *dst = reinterpret_cast<char *>(surface->pixels);
     
-        while(npos >= rowBytes) {
+        while(numBytes >= rowBytes) {
             in.read(dst, rowBytes);
             dst += surface->pitch;
-            npos -= rowBytes;
+            numBytes -= rowBytes;
         }
-    }
-
-    void DecodeTGX(std::istream &in, size_t numBytes, Surface &surface)
-    {
-        std::vector<char> buff(numBytes);
-        in.read(&buff[0], numBytes);
-        RWPtr rw(SDL_RWFromConstMem(&buff[0], numBytes));
-        DecodeTGX(rw.get(), numBytes, surface);
     }
 
     Surface LoadStandaloneImage(std::istream &in)
     {
         const Header header = ReadHeader(in);
         Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
-        TGX::DecodeTGX(in, in.rdbuf()->in_avail(), surface);
+
+        std::streampos origin = in.tellg();
+        in.seekg(0, std::ios_base::end);
+        std::streampos fsize = in.tellg();
+        in.seekg(origin);
+        
+        TGX::DecodeTGX(in, fsize - origin, surface);
         return surface;
+    }
+
+    void DecodeTGX(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        const SurfaceLocker lock(surface);
+        
+        std::streampos npos = numBytes + in.tellg();
+        const int bytesPitch = surface->pitch;
+        char *dst = reinterpret_cast<char *>(surface->pixels);
+        char *dstNextLine = dst + bytesPitch;
+        const char *dstBegin = dst;
+        const char *dstEnd = dstBegin + bytesPitch * surface->h;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        bool overflow = false;
+        
+        while(in.tellg() < npos) {
+            const uint8_t token = Endian::ReadLittle<uint8_t>(in);
+            const TokenType type = ExtractTokenType(token);
+            const size_t length = ExtractTokenLength(token);
+            
+            switch(type) {
+            case TokenType::LineFeed:
+                {
+                    if(length != 1) {
+                        Fail(BOOST_CURRENT_FUNCTION, "LineFeed token length should be 1");
+                    }
+                    if(dst > dstNextLine) {
+                        Fail(BOOST_CURRENT_FUNCTION, "Destination pointer is ahead of next line pointer");
+                    }
+                    // TODO may it should be checked for overflow too?
+                    dst = dstNextLine;
+                    dstNextLine += bytesPitch;
+                }
+                break;
+            
+            case TokenType::Transparent:
+                {
+                    if(dst + length * bytesPerPixel <= dstEnd) {
+                        dst += length * bytesPerPixel;
+                    } else {
+                        overflow = true;
+                    }
+                }
+                break;
+            
+            case TokenType::Stream:
+                {
+                    if(dst + length * bytesPerPixel <= dstEnd) {
+                        if(in.read(dst, bytesPerPixel * length)) {
+                            dst += length * bytesPerPixel;
+                        }
+                    } else {
+                        overflow = true;
+                    }
+                }
+                break;
+
+            case TokenType::Repeat:
+                {
+                    if(dst + length * bytesPerPixel <= dstEnd) {
+                        // Read single pixel N times
+                        if(in.read(dst, bytesPerPixel)) {
+                            RepeatPixel(dst, dst, bytesPerPixel, length);
+                            dst += length * bytesPerPixel;
+                        }
+                    } else {
+                        overflow = true;
+                    }
+                }
+                break;
+
+            default:
+                {
+                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
+                }
+                break;
+            }
+            
+            if(overflow) {
+                Overflow(BOOST_CURRENT_FUNCTION, dst - dstBegin);
+            }
+
+            if(in.bad()) {
+                Overrun(BOOST_CURRENT_FUNCTION, in.tellg());
+            }
+        }
     }
     
 }
