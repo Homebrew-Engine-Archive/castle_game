@@ -2,7 +2,6 @@
 #define TGX_H_
 
 #include <iosfwd>
-#include <SDL.h>
 
 class Surface;
 
@@ -24,8 +23,6 @@ namespace TGX
     
     // Palette's first entry
     const uint8_t Transparent8 = 0;
-
-    const uint32_t PixelFormat_TGX  = SDL_PIXELFORMAT_ARGB1555;
     
     // Five bits for the RED alert under the uporin
     // Five for the GREEN tea in its pointless being

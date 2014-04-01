@@ -3,11 +3,6 @@
 
 #include <iosfwd>
 #include <array>
-#include <vector>
-#include <stdexcept>
-#include <SDL.h>
-
-class Surface;
 
 namespace GM1
 {

@@ -18,7 +18,7 @@ namespace
         throw std::runtime_error(ss.str());
     }
     
-    bool ReadHeader(std::istream &in, GM1::Header &header)
+    std::istream& ReadHeader(std::istream &in, GM1::Header &header)
     {
         header.u1             = Endian::ReadLittle<uint32_t>(in);
         header.u2             = Endian::ReadLittle<uint32_t>(in);
@@ -42,17 +42,17 @@ namespace
         header.anchorY        = Endian::ReadLittle<uint32_t>(in);
         header.dataSize       = Endian::ReadLittle<uint32_t>(in);
         header.u14            = Endian::ReadLittle<uint32_t>(in);
-        return static_cast<bool>(in);
+        return in;
     }
 
-    bool ReadPalette(std::istream &in, GM1::Palette &palette)
+    std::istream& ReadPalette(std::istream &in, GM1::Palette &palette)
     {
         for(uint16_t &entry : palette)
             entry = Endian::ReadLittle<uint16_t>(in);
-        return static_cast<bool>(in);
+        return in;
     }
 
-    bool ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
+    std::istream& ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
     {
         header.width      = Endian::ReadLittle<uint16_t>(in);
         header.height     = Endian::ReadLittle<uint16_t>(in);
@@ -65,7 +65,7 @@ namespace
         header.hOffset    = Endian::ReadLittle<uint8_t>(in);
         header.boxWidth   = Endian::ReadLittle<uint8_t>(in);
         header.flags      = Endian::ReadLittle<uint8_t>(in);
-        return static_cast<bool>(in);
+        return in;
     }
 
 }
@@ -137,7 +137,7 @@ namespace GM1
         }
         
         mBuffer.resize(mHeader.dataSize);
-        fin.read(reinterpret_cast<char*>(&mBuffer[0]), mBuffer.size());
+        fin.read(&mBuffer[0], mBuffer.size());
         if(!fin) {
             Fail(__FILE__, __LINE__, "Unable to read data section");
         }

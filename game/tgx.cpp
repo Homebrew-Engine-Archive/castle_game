@@ -118,14 +118,6 @@ namespace
         return surface;
     }
     
-    void RepeatPixel(const uint8_t *pixel, uint8_t *buff, size_t size, size_t count)
-    {
-        for(size_t i = 0; i < count; ++i) {
-            std::copy(pixel, pixel + size, buff);
-            buff += size;
-        }
-    }
-
     void RepeatPixel(const char *pixel, char *buff, size_t size, size_t count)
     {
         for(size_t i = 0; i < count; ++i) {
