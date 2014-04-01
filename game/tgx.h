@@ -78,44 +78,11 @@ namespace TGX
         return GetChannel(color, AlphaMask16, AlphaShift16);
     }
 
-    /**
-     * \brief Read image from the source file.
-     * \param src Source file.
-     * \param size Image size in bytes.
-     * \param surface Preallocated 8 or 16-bit surface for image to store.
-     */
-    void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface);
-
     void DecodeTGX(std::istream&, size_t numBytes, Surface &surface);
-
-    /**
-     * \brief Read bitmap from the source file.
-     * \param src Source file.
-     * \param size Bytes to read.
-     * \param surface Preallocated 16-bit surface.
-     */
-    void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface);
 
     void DecodeBitmap(std::istream&, size_t numBytes, Surface &surface);
 
-    /**
-     * \brief Read tile object from the source file.
-     * \param src Source file.
-     * \param size Bytes to read.
-     * \param surface Preallocated 16-bit surface.
-     */
-    void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface);
-
     void DecodeTile(std::istream&, size_t numBytes, Surface &surface);
-
-    /**
-     * \brief Read 16-bit .tgx file from source.
-     *
-     * Read compressed tgx16 image and TGX::Header.
-     *
-     * \param src Source file.
-     */
-    Surface LoadStandaloneImage(SDL_RWops *src);
 
     Surface LoadStandaloneImage(std::istream&);
 

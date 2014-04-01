@@ -30,16 +30,7 @@ namespace
         Repeat = 2,
         LineFeed = 4
     };
-    
-    int64_t ReadableBytes(SDL_RWops *src)
-    {
-        int64_t size = SDL_RWsize(src);
-        int64_t pos = SDL_RWtell(src);
-        return ((size < 0) || (pos < 0) || (size < pos))
-            ? 0
-            : size - pos;
-    }
-    
+        
     void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
@@ -70,20 +61,11 @@ namespace
         return PerRow[row];
     }
 
-    Header ReadHeader(SDL_RWops *src)
+    std::istream& ReadHeader(std::istream &in, Header &header)
     {
-        Header hdr;
-        hdr.width = SDL_ReadLE32(src);
-        hdr.height = SDL_ReadLE32(src);
-        return hdr;
-    }
-
-    Header ReadHeader(std::istream &in)
-    {
-        Header hdr;
-        hdr.width = Endian::ReadLittle<uint32_t>(in);
-        hdr.height = Endian::ReadLittle<uint32_t>(in);
-        return hdr;
+        header.width = Endian::ReadLittle<uint32_t>(in);
+        header.height = Endian::ReadLittle<uint32_t>(in);
+        return in;
     }
 
     /**
@@ -157,148 +139,6 @@ namespace
 namespace TGX
 {
 
-    Surface LoadStandaloneImage(SDL_RWops *src)
-    {
-        const Header header = ReadHeader(src);
-        Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
-
-        TGX::DecodeTGX(src, ReadableBytes(src), surface);
-        return surface;
-    }
-
-    void DecodeUncompressed(SDL_RWops *src, int64_t size, Surface &surface)
-    {
-        const SurfaceLocker lock(surface);
-
-        const int64_t npos = SDL_RWtell(src) + size;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        const int widthBytes = surface->w * bytesPerPixel;    
-        uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
-    
-        while(SDL_RWtell(src) + widthBytes <= npos) {
-            SDL_RWread(src, dst, bytesPerPixel, surface->w);
-            dst += surface->pitch;
-        }
-    }
-
-    void DecodeTile(SDL_RWops *src, int64_t size, Surface &surface)
-    {
-        if(size < TileBytes) {
-            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
-        }
-
-        const SurfaceLocker lock(surface);
-
-        const int pitchBytes = surface->pitch;
-        const int height = TileHeight;
-        const int width = TileWidth;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
-    
-        for(int y = 0; y < height; ++y) {
-            const int length = GetTilePixelsPerRow(y);
-            const int offset = (width - length) / 2;
-            SDL_RWread(src, dst + offset * bytesPerPixel, bytesPerPixel, length);
-            dst += pitchBytes;
-        }
-    }
-    
-    void DecodeTGX(SDL_RWops *src, int64_t size, Surface &surface)
-    {
-        const SurfaceLocker lock(surface);
-
-        const int bytesPitch = surface->pitch;
-        uint8_t *dst = reinterpret_cast<uint8_t*>(surface->pixels);
-        uint8_t *dstNextLine = dst + bytesPitch;
-        const uint8_t *dstBegin = dst;
-        const uint8_t *dstEnd = dstBegin + bytesPitch * surface->h;
-        const int64_t npos = SDL_RWtell(src) + size;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        bool overrun = false;
-        bool overflow = false;
-
-        while(SDL_RWtell(src) < npos) {
-            const uint8_t token = SDL_ReadU8(src);
-            const TokenType type = ExtractTokenType(token);
-            const size_t length = ExtractTokenLength(token);
-
-            switch(type) {
-            case TokenType::LineFeed:
-                {
-                    if(length != 1) {
-                        Fail(BOOST_CURRENT_FUNCTION, "LineFeed token length should be 1");
-                    }
-                    if(dst > dstNextLine) {
-                        Fail(BOOST_CURRENT_FUNCTION, "dst is ahead of dstNextLine");
-                    }
-                    dst = dstNextLine;
-                    dstNextLine += bytesPitch;
-                }
-                break;
-            
-            case TokenType::Transparent:
-                {
-                    if(dst < dstEnd) {
-                        dst += length * bytesPerPixel;
-                    } else {
-                        overflow = true;
-                    }
-                }
-                break;
-            
-            case TokenType::Stream:
-                {
-                    if(dst + length * bytesPerPixel <= dstEnd) {
-                        if(SDL_RWread(src, dst, bytesPerPixel, length) == length) {
-                            dst += length * bytesPerPixel;
-                        } else {
-                            overrun = true;
-                        }
-                    } else {
-                        overflow = true;
-                    }
-                }
-                break;
-
-            case TokenType::Repeat:
-                {
-                    if(dst + length * bytesPerPixel <= dstEnd) {
-                        // Read single pixel `length' times
-                        if(SDL_RWread(src, dst, bytesPerPixel, 1) == 1) {
-                            RepeatPixel(dst, dst, bytesPerPixel, length);
-                            dst += length * bytesPerPixel;
-                        } else {
-                            overrun = true;
-                        }
-                    } else {
-                        overflow = true;
-                    }
-                }
-                break;
-
-            default:
-                {
-                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
-                }
-                break;
-            }
-
-            if(overflow) {
-                Overflow(BOOST_CURRENT_FUNCTION, dst - dstBegin);
-            }
-            
-            if(overrun) {
-                Overrun(BOOST_CURRENT_FUNCTION, SDL_RWtell(src));
-            }
-        }
-    }
-
-} // namespace TGX
-
-
-namespace TGX
-{
-
     void DecodeTile(std::istream &in, size_t numBytes, Surface &surface)
     {
         if(numBytes < TileBytes) {
@@ -338,7 +178,10 @@ namespace TGX
 
     Surface LoadStandaloneImage(std::istream &in)
     {
-        const Header header = ReadHeader(in);
+        Header header;
+        if(!ReadHeader(in, header)) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
+        }
         Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
 
         std::streampos origin = in.tellg();
@@ -436,4 +279,4 @@ namespace TGX
         }
     }
     
-}
+} // namespace TGX

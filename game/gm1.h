@@ -123,18 +123,8 @@ namespace GM1
         Unknown1
     };
 
-    struct Collection
-    {
-        explicit Collection(SDL_RWops *src);
-        
-        Header header;
-        std::vector<Palette> palettes;
-        std::vector<uint32_t> offsets, sizes;
-        std::vector<EntryHeader> headers;        
-        Encoding encoding() const;
-        size_t size() const;
-    };
-
+    std::string GetImageClassName(uint32_t dataClass);
+    
     GM1::Encoding GetEncoding(uint32_t dataClass);
     
     /**
@@ -145,12 +135,6 @@ namespace GM1
     void PrintEntryHeader(std::ostream &out, const EntryHeader &header);
     void PrintHeader(std::ostream &out, const Header &gm1);
     void PrintPalette(std::ostream &out, const Palette &palette);
-    void PrintCollection(std::ostream &out, const Collection &collection);
-
-    int LoadEntries(SDL_RWops *src, const Collection &gm1, std::vector<Surface> &atlas);
-    Surface LoadAtlas(SDL_RWops *src, const Collection &gm1);
-    SDL_Rect PartitionAtlas(const Collection &gm1, std::vector<SDL_Rect> &);
-    Surface LoadEntry(SDL_RWops *src, const Collection &gm1, size_t index);
 
 } // namespace GM1
 
