@@ -16,11 +16,6 @@ namespace GM1
         std::vector<uint32_t> mSizes;
         std::vector<uint32_t> mOffsets;
         std::vector<char> mBuffer;
-
-        /**
-         * \brief Calculates size of "static" part of the archive by its header.
-         */
-        size_t GetPreambleSize(const GM1::Header &header) const;
         
     public:
         GM1Reader(FilePath const&);

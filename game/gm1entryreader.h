@@ -15,7 +15,7 @@ namespace GM1
 
 namespace GM1
 {
-
+    
     class GM1EntryReader
     {
     protected:

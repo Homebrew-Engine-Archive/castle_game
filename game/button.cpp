@@ -1,6 +1,8 @@
 #include "button.h"
 #include "geometry.h"
 
+#include <stdexcept>
+
 namespace UI
 {
 

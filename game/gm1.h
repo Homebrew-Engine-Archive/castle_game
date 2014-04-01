@@ -6,7 +6,6 @@
 #include <vector>
 #include <stdexcept>
 #include <SDL.h>
-#include "sdl_utils.h"
 
 class Surface;
 
@@ -25,6 +24,14 @@ namespace GM1
 
     /**
      * \brief Is included in every collection only once.
+     *
+     * Header has size exactly 88 bytes.
+     *
+     * `imageCount' is a just number of entries in the archive.
+     *
+     * Each entry shall be decoded by GM1::Encoding which
+     * is determined by `dataClass' field (see GetEncoding function).
+     *
      * \note There are many fields have undefined purpose. Each of them prefix with 'u'.
      */
     struct Header
@@ -128,6 +135,13 @@ namespace GM1
         size_t size() const;
     };
 
+    GM1::Encoding GetEncoding(uint32_t dataClass);
+    
+    /**
+     * \brief Calculates size of "static" part of the archive by its header.
+     */
+    size_t GetPreambleSize(GM1::Header const&);
+    
     void PrintEntryHeader(std::ostream &out, const EntryHeader &header);
     void PrintHeader(std::ostream &out, const Header &gm1);
     void PrintPalette(std::ostream &out, const Palette &palette);

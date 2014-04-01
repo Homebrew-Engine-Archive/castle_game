@@ -3,7 +3,6 @@
 
 #include <functional>
 #include <SDL.h>
-#include "sdl_utils.h"
 
 const int NoFlags = 0;
 const int DefaultRedMask = 0;

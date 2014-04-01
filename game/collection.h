@@ -6,9 +6,11 @@
 #include <iosfwd>
 #include <vector>
 #include <memory>
+
 #include "surface.h"
 #include "gm1.h"
 #include "filesystem.h"
+#include "sdl_utils.h"
 
 struct CollectionEntry
 {

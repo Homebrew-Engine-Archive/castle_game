@@ -10,20 +10,6 @@
 
 namespace
 {
-
-    GM1::Encoding GetEncoding(uint32_t dataClass)
-    {
-        switch(dataClass) {
-        case 1: return GM1::Encoding::TGX16;
-        case 2: return GM1::Encoding::TGX8;
-        case 3: return GM1::Encoding::TileObject;
-        case 4: return GM1::Encoding::Font;
-        case 5: return GM1::Encoding::Bitmap;
-        case 6: return GM1::Encoding::TGX16;
-        case 7: return GM1::Encoding::Bitmap;
-        default: return GM1::Encoding::Unknown;
-        }
-    }
     
     void Fail(const std::string &file, int line, const std::string &what)
     {
@@ -155,28 +141,6 @@ namespace GM1
         if(!fin) {
             Fail(__FILE__, __LINE__, "Unable to read data section");
         }
-    }
-
-    size_t GM1Reader::GetPreambleSize(const GM1::Header &header) const
-    {
-        size_t size = 0;
-
-        /** About 88 bytes on GM1::Header **/
-        size += GM1::CollectionHeaderBytes;
-
-        /** About 10 palettes per file 512 bytes each **/
-        size += GM1::CollectionPaletteCount * GM1::CollectionPaletteBytes;
-
-        /** 32-bit size per entry **/
-        size += header.imageCount * sizeof(uint32_t);
-
-        /** 32-bit offset per entry **/
-        size += header.imageCount * sizeof(uint32_t);
-        
-        /** Some GM1::EntryHeaders of 16 bytes long **/
-        size += header.imageCount * GM1::CollectionEntryHeaderBytes;
-
-        return size;
     }
     
     int GM1Reader::NumEntries() const

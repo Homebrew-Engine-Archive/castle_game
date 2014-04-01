@@ -4,8 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <SDL.h>
+#include <stdexcept>
 
-#include <boost/iostreams/restrict.hpp>
 #include <boost/current_function.hpp>
 
 #include "endianness.h"

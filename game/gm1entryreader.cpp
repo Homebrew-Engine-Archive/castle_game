@@ -22,20 +22,6 @@ namespace
         oss << where << " failed: " << what;
         throw std::runtime_error(oss.str());
     }
-    
-    GM1::Encoding GetEncoding(uint32_t dataClass)
-    {
-        switch(dataClass) {
-        case 1: return GM1::Encoding::TGX16;
-        case 2: return GM1::Encoding::TGX8;
-        case 3: return GM1::Encoding::TileObject;
-        case 4: return GM1::Encoding::Font;
-        case 5: return GM1::Encoding::Bitmap;
-        case 6: return GM1::Encoding::TGX16;
-        case 7: return GM1::Encoding::Bitmap;
-        default: return GM1::Encoding::Unknown;
-        }
-    }
 
     /**
      * \brief Reader for animation sprites.

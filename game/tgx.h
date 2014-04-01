@@ -9,6 +9,11 @@ class Surface;
 namespace TGX
 {
 
+    /**
+     * TGX is a compression approach for images. It is
+     * mainly a kind of RLE compression.
+     */
+    
     const size_t TileBytes = 512;
     const size_t TileWidth = 30;
     const size_t TileHeight = 16;
