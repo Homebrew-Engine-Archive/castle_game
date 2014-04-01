@@ -15,18 +15,18 @@ int main(int argc, char *argv[])
     }
 
     std::string file = argv[1];
-    size_t index = std::stoi(argv[2]);
+    int index = std::stoi(argv[2]);
     
-    GM::GM1Reader reader(file);
-    std::ofstream fout("data.bin", std::ofstream::binary);
+    GM1::GM1Reader reader(file);
+    std::ofstream fout("data.out", std::ios_base::binary);
 
     if(reader.NumEntries() <= index)
         throw std::runtime_error("No such index in the file");
     
     const char *data = reinterpret_cast<const char*>(reader.EntryData(index));
 
-    GM::PrintHeader(std::cout, reader.Header());
-    GM::PrintImageHeader(std::cout, reader.ImageHeader(index));
+    GM1::PrintHeader(std::cout, reader.Header());
+    GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
     
     fout.write(data, reader.EntrySize(index));
     

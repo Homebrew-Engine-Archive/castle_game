@@ -11,7 +11,6 @@ set (SHARED
   ../game/surface.cpp
   ../game/sdl_utils.cpp
   ../game/geometry.cpp
-  ../game/rw.cpp
   ../game/tgx.cpp
 )
 

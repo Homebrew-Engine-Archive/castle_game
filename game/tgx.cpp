@@ -200,6 +200,8 @@ namespace TGX
         
         while(in.tellg() < npos) {
             const uint8_t token = Endian::ReadLittle<uint8_t>(in);
+            // TODO check failbit and badbit
+            
             const TokenType type = ExtractTokenType(token);
             const size_t length = ExtractTokenLength(token);
             

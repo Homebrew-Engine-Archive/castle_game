@@ -1,12 +1,11 @@
 #include "gm1reader.h"
 
-#include "filesystem.h"
-
 #include <boost/filesystem/fstream.hpp>
-#include "endianness.h"
-
 #include <sstream>
 #include <functional>
+
+#include "endianness.h"
+#include "filesystem.h"
 
 namespace
 {

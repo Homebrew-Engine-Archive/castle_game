@@ -21,7 +21,6 @@ set (SRCS
   network.cpp
   point.cpp
   renderer.cpp
-  rw.cpp
   sdl_init.cpp
   sdl_utils.cpp
   surface.cpp

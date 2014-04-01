@@ -1,6 +1,7 @@
 #ifndef TGX_H_
 #define TGX_H_
 
+#include <cstdint>
 #include <iosfwd>
 
 class Surface;

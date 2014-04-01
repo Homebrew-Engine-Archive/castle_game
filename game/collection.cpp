@@ -9,7 +9,6 @@
 
 #include "gm1entryreader.h"
 #include "gm1reader.h"
-#include "rw.h"
 #include "sdl_utils.h"
 #include "tgx.h"
 

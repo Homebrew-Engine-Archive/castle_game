@@ -2,7 +2,6 @@
 #define GAMEREACTOR_H_
 
 #include <SDL.h>
-#include "rw.h"
 
 enum class ResourceCategory : uint8_t {
     Food, Material, Weapon, Stock, Other
