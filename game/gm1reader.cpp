@@ -161,6 +161,11 @@ namespace GM1
     {
         return mSizes.at(index);
     }
+
+    size_t GM1Reader::EntryOffset(size_t index) const
+    {
+        return mOffsets.at(index);
+    }
     
     GM1::Header const& GM1Reader::Header() const
     {

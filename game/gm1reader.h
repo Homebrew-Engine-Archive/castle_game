@@ -24,6 +24,7 @@ namespace GM1
         GM1::Header const& Header() const;
         char const* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
+        size_t EntryOffset(size_t index) const;
         int NumEntries() const;
         int NumPalettes() const;
     };
