@@ -2,16 +2,18 @@
 #define MAIN_H_
 
 #include <boost/program_options.hpp>
+#include "modehandler.h"
 
 namespace GMTool
 {
-
+    
     class ToolMain
     {
-        boost::program_options::variables_map vars;
-        int Dump();
-        int Info();
-        int Render();
+        boost::program_options::variables_map mVars;
+        std::vector<std::unique_ptr<ModeHandler>> mHandlers;
+
+        void RegisterModes();
+
     public:
         ToolMain(int argc, const char *argv[]);
         int Exec();

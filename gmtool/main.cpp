@@ -5,6 +5,10 @@
 #include "game/surface.h"
 #include "game/gm1.h"
 
+#include "infomode.h"
+#include "rendermode.h"
+#include "dumpmode.h"
+
 #include <sstream>
 #include <memory>
 #include <SDL.h>
@@ -35,7 +39,8 @@ namespace GMTool
 {
 
     ToolMain::ToolMain(int argc, const char *argv[])
-        : vars()
+        : mVars()
+        , mHandlers()
     {
         bpo::options_description base("Usage: gmtool <command> <archive> <entry> <options...>");
         base.add_options()
@@ -43,25 +48,6 @@ namespace GMTool
             ("verbose", bpo::value<bool>()->implicit_value(false), "Become verbose")
             ;
 
-        bpo::options_description renderOptions("Render mode options");
-        renderOptions.add_options()
-            ("renderer", bpo::value<std::string>()->default_value("tgx"), "tgx, bmp, png, raw")
-            ("palette-index", bpo::value<int>()->default_value(0), "Palette index to use when render 8-bit image")
-            ;
-        
-        bpo::options_description dumpOptions("Dump mode options");
-        dumpOptions.add_options()
-            ("dumpfile", bpo::value<std::string>()->default_value("dump.out"), "Dump filename")
-            ;
-        
-        bpo::options_description infoOptions("Info mode options");
-        infoOptions.add_options()
-            ("without-header", "Hide GM1 header")
-            ("without-entry-header", "Hide entry header")
-            ("without-size", "Hide entry size")
-            ("without-offset", "Hide entry offset")
-            ;
-        
         bpo::options_description hidden;
         hidden.add_options()
             ("command", bpo::value<std::string>(), "dump, render or info")
@@ -76,9 +62,10 @@ namespace GMTool
 
         bpo::options_description visible;
         visible.add(base);
-        visible.add(renderOptions);
-        visible.add(dumpOptions);
-        visible.add(infoOptions);
+        RegisterModes();
+        for(std::unique_ptr<ModeHandler> &ptr : mHandlers) {
+            ptr->RegisterOptions(visible);
+        }
 
         bpo::options_description all;
         all.add(visible);
@@ -89,98 +76,46 @@ namespace GMTool
             .positional(positional)
             .run();
 
-        bpo::store(parsed, vars);
-        bpo::notify(vars);
+        bpo::store(parsed, mVars);
+        bpo::notify(mVars);
 
-        if(vars.count("help") != 0) {
+        if(mVars.count("help") != 0) {
             std::cout << visible << std::endl;
         }
     }
 
+    void ToolMain::RegisterModes()
+    {
+        std::unique_ptr<ModeHandler> dump(new DumpMode);
+        mHandlers.push_back(std::move(dump));
+        
+        std::unique_ptr<ModeHandler> info(new InfoMode);
+        mHandlers.push_back(std::move(info));
+    }
+    
     int ToolMain::Exec()
     {
-        if(vars.count("command") == 0) {
+        if(mVars.count("command") == 0) {
             throw std::runtime_error("You should specify command!");
         }
 
-        if(vars.count("archive") == 0) {
+        if(mVars.count("archive") == 0) {
             throw std::runtime_error("You should specify .gm1 file name!");
         }
 
-        if(vars.count("index") == 0) {
+        if(mVars.count("index") == 0) {
             throw std::runtime_error("You should specify entry index");
         }
 
-        std::string command = vars["command"].as<std::string>();
-        if(command == "dump") {
-            return Dump();
-        } else if(command == "render") {
-            return Render();
-        } else if(command == "info") {
-            return Info();
-        } else {
-            throw std::runtime_error("Unknown command");
-        }
-    }
+        std::string command = mVars["command"].as<std::string>();
 
-    int ToolMain::Dump()
-    {
-        std::string output = vars["output"].as<std::string>();
-        std::string archive = vars["archive"].as<std::string>();
-        int index = vars["index"].as<int>();
-
-        GM1::GM1Reader reader(archive);
-        if(index >= reader.NumEntries()) {
-            throw std::runtime_error("Index out of range");
+        for(std::unique_ptr<ModeHandler> &ptr : mHandlers) {
+            if(ptr->ModeName() == command)
+                return ptr->HandleMode(mVars);
         }
 
-        std::ofstream fout(output, std::ios_base::binary);
-        fout.write(reader.EntryData(index), reader.EntrySize(index));
-
-        if(!fout) {
-            std::ostringstream oss;
-            oss << "Write dump failed (" << errno << ")";
-            throw std::runtime_error(oss.str());
-        }
-        fout.close();
-
-        return 0;
-    }
-
-    int ToolMain::Info()
-    {
-        std::string archive = vars["archive"].as<std::string>();
-        int index = vars["index"].as<int>();
-
-        GM1::GM1Reader reader(archive);
-
-        std::cout << archive << " has " << reader.NumEntries() << " entries" << std::endl;
-        if(index >= reader.NumEntries()) {
-            throw std::runtime_error("Index out of range");
-        }
-        
-        if(vars.count("without-header") == 0) {
-            GM1::PrintHeader(std::cout, reader.Header());
-        }
-
-        if(vars.count("without-entry-header") == 0) {
-            GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
-        }
-
-        if(vars.count("without-size") == 0) {
-            std::cout << "Entry size: " << reader.EntrySize(index) << std::endl;
-        }
-
-        if(vars.count("without-offset") == 0) {
-            std::cout << "Entry offset: " << reader.EntryOffset(index) << std::endl;
-        }
-
-        return 0;
-    }
-
-    int ToolMain::Render()
-    {
-        throw std::runtime_error("Not implemented");
+        // no mode with this name
+        throw std::runtime_error("Unknown command");
     }
     
 }
