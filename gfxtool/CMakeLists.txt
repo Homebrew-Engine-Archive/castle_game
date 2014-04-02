@@ -1,3 +1,5 @@
+project (gfxtool)
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
@@ -12,8 +14,8 @@ set (SHARED
   ../game/sdl_init.cpp
 )
 
-set(TARGET "gfx.out")
+set(TARGET "gfxtool.out")
 
 add_executable (${TARGET} ${SRCS} ${SHARED})
 
-target_link_libraries (${TARGET} ${BOOST_LIBS} ${SDL2_LIBRARIES})
+target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARIES})

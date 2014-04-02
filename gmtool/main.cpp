@@ -6,28 +6,52 @@
 #include "../game/gm1.h"
 
 #include <fstream>
+#include <boost/program_options.hpp>
 
-int main(int argc, char *argv[])
+namespace bpo = boost::program_options;
+
+int main(int argc, const char *argv[])
 {
-    if(argc < 3) {
-        std::cout << "Use string and then integer, luke!" << std::endl;
+    bpo::options_description desc;
+    desc.add_options()
+        ("help", "this message")
+        ("output", bpo::value<std::string>()->default_value("data.out"), "specify output file")
+        ("input", bpo::value<std::string>(), "*.gm1 file")
+        ("index", bpo::value<int>(), "entry index")
+        ("with-gm1-header", "prints gm1 header")
+        ("with-entry-header", "prints entry header");
+
+    bpo::positional_options_description ps;
+    ps.add("input", 1);
+    ps.add("index", 1);
+
+    bpo::variables_map vars;
+    bpo::store(bpo::command_line_parser(argc, argv).options(desc).positional(ps).run(), vars);
+    bpo::notify(vars);
+
+    if(vars.count("help")) {
+        std::cout << desc << std::endl;
         return 0;
     }
 
-    std::string file = argv[1];
-    int index = std::stoi(argv[2]);
+    int index = vars["index"].as<int>();
     
-    GM1::GM1Reader reader(file);
-    std::ofstream fout("data.out", std::ios_base::binary);
+    GM1::GM1Reader reader(vars["input"].as<std::string>());
 
     if(reader.NumEntries() <= index)
         throw std::runtime_error("No such index in the file");
     
-    const char *data = reinterpret_cast<const char*>(reader.EntryData(index));
+    const char *data = reader.EntryData(index);
 
-    GM1::PrintHeader(std::cout, reader.Header());
-    GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
-    
+    if(vars.count("with-gm1-header")) {
+        GM1::PrintHeader(std::cout, reader.Header());
+    }
+
+    if(vars.count("with-entry-header")) {
+        GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
+    }
+
+    std::ofstream fout(vars["output"].as<std::string>(), std::ios_base::binary);
     fout.write(data, reader.EntrySize(index));
     
     return 0;

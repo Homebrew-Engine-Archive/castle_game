@@ -75,6 +75,4 @@ SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
 std::ostream &operator<<(std::ostream &out, const SDL_Point &pt);
 
-void PrintRendererInfo(std::ostream &out, const SDL_RendererInfo &info);
-
 #endif

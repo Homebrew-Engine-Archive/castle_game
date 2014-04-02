@@ -13,7 +13,7 @@ namespace UI
         : mScreenMgr(mgr)
         , mRenderer(render)
     {
-        FilePath filepath = GetTGXFilePath("frontend_main");
+        FilePath filepath = GetTGXFilePath("frontend_main2");
         mBackground = mRenderer->QuerySurface(filepath);
     }
 

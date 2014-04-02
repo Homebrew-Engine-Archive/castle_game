@@ -24,12 +24,17 @@ pkg_search_module (SDL2 REQUIRED sdl2)
 
 include_directories (${SDL2_INCLUDE_DIRS})
 
+## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)
 
-find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
-find_package (Boost 1.47.0 REQUIRED COMPONENTS system iostreams)
+## Version is choosen by fair dice roll (we may support even an older ones)
+## TODO check it
+find_package (Boost 1.46.0 REQUIRED COMPONENTS system iostreams)
 
-set (BOOST_LIBS boost_system boost_filesystem boost_iostreams)
+## Here we are waiting for Boost.Filesystem v3 interface
+find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
+
+set (BOOST_LIBRARIES boost_system boost_filesystem boost_iostreams)
 
 add_subdirectory (game)
 add_subdirectory (gmtool)

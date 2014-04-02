@@ -19,14 +19,14 @@ std::ostream &operator<<(std::ostream &out, const Point &pt)
     return out;
 }
 
-int SqrEuclidianDist(const Point &lhs, const Point &rhs)
+int ManhattanDist(const Point &lhs, const Point &rhs)
 {
     return Sqr(lhs.x - rhs.x) + Sqr(rhs.y - lhs.y);
 }
 
 double EuclidianDist(const Point &lhs, const Point &rhs)
 {
-    return sqrt(SqrEuclidianDist(lhs, rhs));
+    return hypot(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
 Point::Point(int x, int y)

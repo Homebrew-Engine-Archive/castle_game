@@ -1,3 +1,4 @@
+project (gmtool)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
@@ -14,8 +15,12 @@ set (SHARED
   ../game/tgx.cpp
 )
 
-set(TARGET "gm.out")
+set(TARGET "gmtool.out")
 
 add_executable (${TARGET} ${SRCS} ${SHARED})
 
-target_link_libraries (${TARGET} ${BOOST_LIBS} ${SDL2_LIBRARIES})
+find_package (Boost 1.46 REQUIRED COMPONENTS program_options)
+
+set (BOOST_PROGRAM_OPTIONS boost_program_options)
+
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARIES})

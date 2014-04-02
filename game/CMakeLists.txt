@@ -38,4 +38,4 @@ set (TARGET "a.out")
 
 add_executable (${TARGET} ${SRCS})
 
-target_link_libraries (${TARGET} ${BOOST_LIBS} ${SDL2_LIBRARIES})
+target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARIES})

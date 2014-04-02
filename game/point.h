@@ -28,7 +28,7 @@ struct Point
 };
 
 double EuclidianDist(const Point &lhs, const Point &rhs);
-int SqrEuclidianDist(const Point &lhs, const Point &rhs);
+int ManhattanDist(const Point &lhs, const Point &rhs);
 
 std::ostream &operator<<(std::ostream &out, const Point &pt);
 

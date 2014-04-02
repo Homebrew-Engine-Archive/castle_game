@@ -27,7 +27,7 @@ namespace
         throw std::runtime_error(oss.str());
     }
     
-    PalettePtr ConvertPaletteToSDLPalette(const GM1::Palette &palette)
+    PalettePtr GetSDLPalette(const GM1::Palette &palette)
     {
         PalettePtr ptr(SDL_AllocPalette(GM1::CollectionPaletteColors));
         if(!ptr) {
@@ -64,7 +64,7 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
             const GM1::Palette &palette = reader.Palette(index);
             ptr->palettes.push_back(
                 std::move(
-                    ConvertPaletteToSDLPalette(palette)));
+                    GetSDLPalette(palette)));
         }
 
         auto entryReader = GM1::CreateEntryReader(reader.Header());

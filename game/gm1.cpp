@@ -48,7 +48,7 @@ namespace GM1
         default: return Encoding::Unknown;
         }
     }
-    
+
     size_t GetPreambleSize(const GM1::Header &header)
     {
         size_t size = 0;
@@ -74,44 +74,44 @@ namespace GM1
     void PrintEntryHeader(std::ostream &out, const EntryHeader &header)
     {
         using namespace std;
-        out << "Width: "            << static_cast<int>(header.width) << endl
-            << "Height: "           << static_cast<int>(header.height) << endl
-            << "PosX: "             << static_cast<int>(header.posX) << endl
-            << "PosY: "             << static_cast<int>(header.posY) << endl
-            << "Group: "            << static_cast<int>(header.group) << endl
-            << "GroupSize: "        << static_cast<int>(header.groupSize) << endl
-            << "TileY: "            << static_cast<int>(header.tileY) << endl
-            << "TileOrient: "       << static_cast<int>(header.tileOrient) << endl
-            << "Horiz Offset: "     << static_cast<int>(header.hOffset) << endl
-            << "Box Width: "        << static_cast<int>(header.boxWidth) << endl
-            << "Flags: "            << static_cast<int>(header.flags) << endl;
+        out << "Width: "        << static_cast<int>(header.width) << endl
+            << "Height: "       << static_cast<int>(header.height) << endl
+            << "PosX: "         << static_cast<int>(header.posX) << endl
+            << "PosY: "         << static_cast<int>(header.posY) << endl
+            << "Group: "        << static_cast<int>(header.group) << endl
+            << "GroupSize: "    << static_cast<int>(header.groupSize) << endl
+            << "TileY: "        << static_cast<int>(header.tileY) << endl
+            << "TileOrient: "   << static_cast<int>(header.tileOrient) << endl
+            << "Horiz Offset: " << static_cast<int>(header.hOffset) << endl
+            << "Box Width: "    << static_cast<int>(header.boxWidth) << endl
+            << "Flags: "        << static_cast<int>(header.flags) << endl;
     }
 
     void PrintHeader(std::ostream &out, const Header &header)
     {
         using namespace std;
-        out << "u1: "               << header.u1 << endl
-            << "u2: "               << header.u2 << endl
-            << "u3: "               << header.u3 << endl
-            << "imageCount: "       << header.imageCount << endl
-            << "u4: "               << header.u4 << endl
-            << "dataClass: "        << GetImageClassName(header.dataClass) << endl
-            << "u5: "               << header.u5 << endl
-            << "u6: "               << header.u6 << endl
-            << "sizeCategory: "     << header.sizeCategory << endl
-            << "u7: "               << header.u7 << endl
-            << "u8: "               << header.u8 << endl
-            << "u9: "               << header.u9 << endl
-            << "width: "            << header.width << endl
-            << "height: "           << header.height << endl
-            << "u10: "              << header.u10 << endl
-            << "u11: "              << header.u11 << endl
-            << "u12: "              << header.u12 << endl
-            << "u13: "              << header.u13 << endl
-            << "anchorX: "          << header.anchorX << endl
-            << "anchorY: "          << header.anchorY << endl
-            << "dataSize: "         << header.dataSize << endl
-            << "u14: "              << header.u14 << endl;
+        out << "u1: "           << header.u1 << endl
+            << "u2: "           << header.u2 << endl
+            << "u3: "           << header.u3 << endl
+            << "imageCount: "   << header.imageCount << endl
+            << "u4: "           << header.u4 << endl
+            << "dataClass: "    << GetImageClassName(header.dataClass) << endl
+            << "u5: "           << header.u5 << endl
+            << "u6: "           << header.u6 << endl
+            << "sizeCategory: " << header.sizeCategory << endl
+            << "u7: "           << header.u7 << endl
+            << "u8: "           << header.u8 << endl
+            << "u9: "           << header.u9 << endl
+            << "width: "        << header.width << endl
+            << "height: "       << header.height << endl
+            << "u10: "          << header.u10 << endl
+            << "u11: "          << header.u11 << endl
+            << "u12: "          << header.u12 << endl
+            << "u13: "          << header.u13 << endl
+            << "anchorX: "      << header.anchorX << endl
+            << "anchorY: "      << header.anchorY << endl
+            << "dataSize: "     << header.dataSize << endl
+            << "u14: "          << header.u14 << endl;
     }
 
     void PrintPalette(std::ostream &out, const Palette &palette)
