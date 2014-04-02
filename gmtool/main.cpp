@@ -37,21 +37,34 @@ namespace GMTool
     ToolMain::ToolMain(int argc, const char *argv[])
         : vars()
     {
-        bpo::options_description visible("Usage: gmtool <command> <archive> <entry> <options...>");
-        visible.add_options()
+        bpo::options_description base("Usage: gmtool <command> <archive> <entry> <options...>");
+        base.add_options()
             ("help", "Show this text")
-            ("renderer", bpo::value<std::string>()->default_value("tgx"), "Can be tgx or png")
-            ("output,o", bpo::value<std::string>()->default_value("dump.out"), "Dump filename")
+            ("verbose", bpo::value<bool>()->implicit_value(false), "Become verbose")
+            ;
+
+        bpo::options_description renderOptions("Render mode options");
+        renderOptions.add_options()
+            ("renderer", bpo::value<std::string>()->default_value("tgx"), "tgx, bmp, png, raw")
             ("palette-index", bpo::value<int>()->default_value(0), "Palette index to use when render 8-bit image")
+            ;
+        
+        bpo::options_description dumpOptions("Dump mode options");
+        dumpOptions.add_options()
+            ("dumpfile", bpo::value<std::string>()->default_value("dump.out"), "Dump filename")
+            ;
+        
+        bpo::options_description infoOptions("Info mode options");
+        infoOptions.add_options()
             ("without-header", "Hide GM1 header")
             ("without-entry-header", "Hide entry header")
             ("without-size", "Hide entry size")
             ("without-offset", "Hide entry offset")
             ;
-
+        
         bpo::options_description hidden;
         hidden.add_options()
-            ("command", bpo::value<std::string>(), "Can be dump, render or info")
+            ("command", bpo::value<std::string>(), "dump, render or info")
             ("archive", bpo::value<std::string>(), "Source .gm1 archive")
             ("index", bpo::value<int>(), "Entry index in the archive")
             ;
@@ -61,12 +74,18 @@ namespace GMTool
         positional.add("archive", 1);
         positional.add("index", 1);
 
-        bpo::options_description options;
-        options.add(visible);
-        options.add(hidden);
+        bpo::options_description visible;
+        visible.add(base);
+        visible.add(renderOptions);
+        visible.add(dumpOptions);
+        visible.add(infoOptions);
+
+        bpo::options_description all;
+        all.add(visible);
+        all.add(hidden);
 
         auto parsed = bpo::command_line_parser(argc, argv)
-            .options(options)
+            .options(all)
             .positional(positional)
             .run();
 
@@ -74,7 +93,7 @@ namespace GMTool
         bpo::notify(vars);
 
         if(vars.count("help") != 0) {
-            std::cout << options << std::endl;
+            std::cout << visible << std::endl;
         }
     }
 

@@ -4,7 +4,6 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
   main.cpp
-  model.cpp
 )
 
 set (SHARED
