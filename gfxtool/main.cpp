@@ -5,10 +5,10 @@
 #include <iostream>
 #include <SDL.h>
 
-#include "../game/sdl_utils.h"
-#include "../game/sdl_init.h"
-#include "../game/surface.h"
-#include "../game/tgx.h"
+#include "game/sdl_utils.h"
+#include "game/sdl_init.h"
+#include "game/surface.h"
+#include "game/tgx.h"
 
 int main(int argc, char *argv[])
 {

@@ -1,9 +1,9 @@
 #include "main.h"
 
-#include "../game/gm1reader.h"
-#include "../game/sdl_utils.h"
-#include "../game/surface.h"
-#include "../game/gm1.h"
+#include "game/gm1reader.h"
+#include "game/sdl_utils.h"
+#include "game/surface.h"
+#include "game/gm1.h"
 
 #include <fstream>
 #include <boost/program_options.hpp>
@@ -15,16 +15,11 @@ int main(int argc, const char *argv[])
     bpo::options_description desc;
     desc.add_options()
         ("help", "this message")
-        ("output", bpo::value<std::string>()->default_value("data.out"), "specify output file")
-        ("input", bpo::value<std::string>(), "*.gm1 file")
-        ("index", bpo::value<int>(), "entry index")
-        ("with-gm1-header", "prints gm1 header")
-        ("with-entry-header", "prints entry header");
-
+        ("command", "followed execution mode");
+    
     bpo::positional_options_description ps;
-    ps.add("input", 1);
-    ps.add("index", 1);
-
+    ps.add("command", 1);
+    
     bpo::variables_map vars;
     bpo::store(bpo::command_line_parser(argc, argv).options(desc).positional(ps).run(), vars);
     bpo::notify(vars);
@@ -35,8 +30,10 @@ int main(int argc, const char *argv[])
     }
 
     int index = vars["index"].as<int>();
+    std::string archivePath = vars["input"].as<std::string>();
+    std::string dumpPath = vars["output"].as<std::string>();
     
-    GM1::GM1Reader reader(vars["input"].as<std::string>());
+    GM1::GM1Reader reader(archivePath);
 
     if(reader.NumEntries() <= index)
         throw std::runtime_error("No such index in the file");
@@ -51,7 +48,7 @@ int main(int argc, const char *argv[])
         GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
     }
 
-    std::ofstream fout(vars["output"].as<std::string>(), std::ios_base::binary);
+    std::ofstream fout(dumpPath, std::ios_base::binary);
     fout.write(data, reader.EntrySize(index));
     
     return 0;

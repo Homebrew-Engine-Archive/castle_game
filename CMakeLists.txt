@@ -23,6 +23,7 @@ include (FindPkgConfig)
 pkg_search_module (SDL2 REQUIRED sdl2)
 
 include_directories (${SDL2_INCLUDE_DIRS})
+include_directories (${PROJECT_SOURCE_DIR})
 
 ## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)
