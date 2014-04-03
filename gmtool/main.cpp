@@ -111,7 +111,9 @@ namespace GMTool
     int ToolMain::Exec()
     {
         if(mVars.count("command") == 0) {
-            throw std::runtime_error("You should specify command!");
+            std::ostringstream oss;
+            oss << "Please, add one of the command modes: " << ModeLine();
+            throw std::runtime_error(oss.str());
         }
 
         if(mVars.count("archive") == 0) {
