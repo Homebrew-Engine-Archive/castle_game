@@ -42,17 +42,10 @@ namespace GMTool
         : mVars()
         , mHandlers()
     {
-        bpo::options_description base("Usage: gmtool <command> <archive> <entry> <options...>");
+        bpo::options_description base("Usage: gmtool <mode> <archive> <entry> <options...>");
         base.add_options()
             ("help", "Show this text")
             ("verbose", bpo::value<bool>()->implicit_value(false), "Become verbose")
-            ;
-
-        bpo::options_description hidden;
-        hidden.add_options()
-            ("command", bpo::value<std::string>(), "dump, render or info")
-            ("archive", bpo::value<std::string>(), "Source .gm1 archive")
-            ("index", bpo::value<int>(), "Entry index in the archive")
             ;
 
         bpo::positional_options_description positional;
@@ -67,6 +60,13 @@ namespace GMTool
             ptr->RegisterOptions(visible);
         }
 
+        bpo::options_description hidden;
+        hidden.add_options()
+            ("command", bpo::value<std::string>(), ModeLine().c_str())
+            ("archive", bpo::value<std::string>(), "Source .gm1 archive")
+            ("index", bpo::value<int>(), "Entry index in the archive")
+            ;
+        
         bpo::options_description all;
         all.add(visible);
         all.add(hidden);
@@ -92,7 +92,22 @@ namespace GMTool
         std::unique_ptr<ModeHandler> info(new InfoMode);
         mHandlers.push_back(std::move(info));
     }
-    
+
+    std::string ToolMain::ModeLine() const
+    {
+        std::string temp = "";
+        if(mHandlers.size() != 0) {
+            temp = mHandlers[0]->ModeName();
+        } else {
+            temp = "<no modes>";
+        }
+        for(size_t i = 0; i < mHandlers.size(); ++i) {
+            temp += ", ";
+            temp += mHandlers[i]->ModeName();
+        }
+        return temp;
+    }
+        
     int ToolMain::Exec()
     {
         if(mVars.count("command") == 0) {

@@ -12,6 +12,8 @@ namespace GMTool
         boost::program_options::variables_map mVars;
         std::vector<std::unique_ptr<ModeHandler>> mHandlers;
 
+        std::string ModeLine() const;
+        
         void RegisterModes();
 
     public:
