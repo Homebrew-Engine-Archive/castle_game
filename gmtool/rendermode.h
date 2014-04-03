@@ -10,6 +10,14 @@ namespace GMTool
 
     class RenderMode : public ModeHandler
     {
+        
+        std::vector<std::unique_ptr<ModeHandler>> mFormats;
+
+        std::string DefaultFormat() const;
+        std::string SupportedFormats() const;
+        
+        void RegisterFormats();
+
     public:
         void RegisterOptions(boost::program_options::options_description &desc);
         

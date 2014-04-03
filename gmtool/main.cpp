@@ -5,10 +5,12 @@
 #include "game/surface.h"
 #include "game/gm1.h"
 
+#include "strutils.h"
 #include "infomode.h"
 #include "rendermode.h"
 #include "dumpmode.h"
 
+#include <algorithm>
 #include <sstream>
 #include <memory>
 #include <SDL.h>
@@ -86,26 +88,19 @@ namespace GMTool
 
     void ToolMain::RegisterModes()
     {
-        std::unique_ptr<ModeHandler> dump(new DumpMode);
-        mHandlers.push_back(std::move(dump));
-        
-        std::unique_ptr<ModeHandler> info(new InfoMode);
-        mHandlers.push_back(std::move(info));
+        mHandlers.emplace_back(new DumpMode);
+        mHandlers.emplace_back(new InfoMode);
+        mHandlers.emplace_back(new RenderMode);
     }
 
     std::string ToolMain::ModeLine() const
     {
-        std::string temp = "";
-        if(mHandlers.size() != 0) {
-            temp = mHandlers[0]->ModeName();
-        } else {
-            temp = "<no modes>";
+        std::vector<std::string> modes;
+        for(const auto &ptr : mHandlers) {
+            modes.push_back(ptr->ModeName());
         }
-        for(size_t i = 0; i < mHandlers.size(); ++i) {
-            temp += ", ";
-            temp += mHandlers[i]->ModeName();
-        }
-        return temp;
+
+        return StringUtils::JoinStrings(modes.begin(), modes.end(), ", ", "<no modes>");
     }
         
     int ToolMain::Exec()

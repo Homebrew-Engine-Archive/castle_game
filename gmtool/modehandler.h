@@ -1,6 +1,7 @@
 #ifndef MODEHANDLER_H_
 #define MODEHANDLER_H_
 
+#include <vector>
 #include <string>
 #include <boost/program_options.hpp>
 

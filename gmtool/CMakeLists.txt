@@ -7,6 +7,7 @@ set (SRCS
   infomode.cpp
   dumpmode.cpp
   rendermode.cpp
+  tgxrendermode.cpp
 )
 
 set (SHARED
