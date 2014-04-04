@@ -1,6 +1,6 @@
 #include "menu_combat.h"
 
-#include "SDL.h"
+#include <SDL.h>
 #include <memory>
 
 #include "renderer.h"
