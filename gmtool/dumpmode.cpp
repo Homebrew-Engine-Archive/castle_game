@@ -24,7 +24,7 @@ namespace GMTool
     {
         bpo::options_description dumpOptions("Dump mode options");
         dumpOptions.add_options()
-            ("dumpfile", bpo::value<std::string>()->default_value("dump.out"), "Dump filename")
+            ("output", bpo::value<std::string>()->default_value("dump.out"), "File to write output")
             ;
 
         desc.add(dumpOptions);

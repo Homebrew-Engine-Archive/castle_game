@@ -67,7 +67,7 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
                     GetSDLPalette(palette)));
         }
 
-        auto entryReader = GM1::CreateEntryReader(reader.Header());
+        auto entryReader = GM1::CreateEntryReader(reader.Encoding());
         for(int index = 0; index < reader.NumEntries(); ++index) {
             const GM1::EntryHeader &header = reader.EntryHeader(index);
             Surface entry = entryReader->Load(reader, index);
@@ -92,7 +92,7 @@ Surface LoadSurface(const FilePath &path)
         if(!fin.is_open()) {
             Fail(BOOST_CURRENT_FUNCTION, "Can't open file");
         }
-        return TGX::LoadStandaloneImage(fin);
+        return TGX::ReadTGX(fin);
         
     } catch(const std::exception &e) {
         std::ostringstream oss;

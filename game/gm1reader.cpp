@@ -72,15 +72,36 @@ namespace
 namespace GM1
 {
 
-    GM1Reader::GM1Reader(const FilePath &path)
-        : mPath(path)
+    GM1Reader::GM1Reader()
+        : mIsOpened(false)
+        , mPath()
+        , mHeader()
+        , mEntryHeaders()
+        , mPalettes()
+        , mBuffer()
+    { }
+    
+    GM1Reader::GM1Reader(FilePath path)
+        : mIsOpened(false)
+        , mPath()
         , mHeader()
         , mEntryHeaders()
         , mPalettes()
         , mBuffer()
     {
+        Open(std::move(path));
+    }
+
+    bool GM1Reader::IsOpened() const
+    {
+        return mIsOpened;
+    }
+
+    void GM1Reader::Open(FilePath path)
+    {
         using boost::filesystem::ifstream;
-        
+        mIsOpened = false;
+                
         ifstream fin(path, std::ios_base::binary);
         if(!fin.is_open()) {
             Fail(__FILE__, __LINE__, "Unable to open file");
@@ -140,6 +161,18 @@ namespace GM1
         if(!fin) {
             Fail(__FILE__, __LINE__, "Unable to read data section");
         }
+
+        mIsOpened = true;
+    }
+
+    void GM1Reader::Close()
+    {
+        mIsOpened = false;
+    }
+
+    GM1::Encoding GM1Reader::Encoding() const
+    {
+        return GM1::GetEncoding(mHeader.dataClass);
     }
     
     int GM1Reader::NumEntries() const

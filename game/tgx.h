@@ -34,11 +34,12 @@ namespace TGX
     // One bit to rule them all, one bit to find them
     // One bit to bring them all, and in the ARGB bind them
     // In the land of sprites where some shadows was
-    
-    const uint32_t AlphaMask16 = 0x8000;
-    const uint32_t RedMask16 = 0x7c00;
-    const uint32_t GreenMask16 = 0x3e0;
-    const uint32_t BlueMask16 = 0x1f;
+
+    /// \note This masks are not swaped according to endianness
+    const uint32_t AlphaMask16  = 0x00008000;
+    const uint32_t RedMask16    = 0x00007c00;
+    const uint32_t GreenMask16  = 0x000003e0;
+    const uint32_t BlueMask16   = 0x0000001f;
     
     const int AlphaShift16 = 15;
     const int RedShift16 = 11;
@@ -82,8 +83,12 @@ namespace TGX
 
     void DecodeTile(std::istream&, size_t numBytes, Surface &surface);
 
-    Surface LoadStandaloneImage(std::istream&);
+    Surface ReadTGX(std::istream&);
 
+    void WriteEncoded(std::ostream&, int width, int height, char const*, size_t numBytes);
+
+    void WriteSurface(std::ostream&, const Surface &surface);
+    
 } // namespace TGX
 
 #endif

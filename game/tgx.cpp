@@ -168,7 +168,7 @@ namespace TGX
         }
     }
 
-    Surface LoadStandaloneImage(std::istream &in)
+    Surface ReadTGX(std::istream &in)
     {
         Header header;
         if(!ReadHeader(in, header)) {

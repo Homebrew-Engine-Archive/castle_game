@@ -221,9 +221,9 @@ namespace GM1
         return TGX::Transparent16;
     }
     
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Header &header)
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Encoding &encoding)
     {
-        switch(GetEncoding(header.dataClass)) {
+        switch(encoding) {
         case GM1::Encoding::Font: /* fallthrough */
         case GM1::Encoding::TGX16:
             return std::unique_ptr<GM1EntryReader>(new TGX16);

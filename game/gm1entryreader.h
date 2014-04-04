@@ -11,6 +11,7 @@ namespace GM1
     class GM1Reader;
     class EntryHeader;
     class Header;
+    enum class Encoding;
 }
 
 namespace GM1
@@ -35,7 +36,7 @@ namespace GM1
         
     };
 
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::Header const&);
+    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::Encoding const&);
     
 }
 

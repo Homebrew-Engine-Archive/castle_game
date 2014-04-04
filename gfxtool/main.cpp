@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         throw std::runtime_error("Can't open file");
     }
     
-    Surface surface = TGX::LoadStandaloneImage(fin);
+    Surface surface = TGX::ReadTGX(fin);
 
     return ShowSurface(surface);
 }
