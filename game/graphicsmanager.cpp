@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "loadingscreen.h"
-#include "filesystem.h"
-#include "renderer.h"
+#include <game/loadingscreen.h>
+#include <game/filesystem.h>
+#include <game/renderer.h>
 
 namespace Render
 {

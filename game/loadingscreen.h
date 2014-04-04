@@ -4,9 +4,9 @@
 #include <vector>
 #include <iosfwd>
 #include <functional>
-#include "filesystem.h"
-#include "surface.h"
-#include "screen.h"
+#include <game/filesystem.h>
+#include <game/surface.h>
+#include <game/screen.h>
 
 namespace Castle
 {

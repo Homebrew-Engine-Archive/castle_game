@@ -1,12 +1,12 @@
 #include "gamescreen.h"
 
-#include "renderer.h"
-#include "landscape.h"
-#include "geometry.h"
-#include "filesystem.h"
-#include "surface.h"
-#include "collection.h"
-#include "direction.h"
+#include <game/renderer.h>
+#include <game/landscape.h>
+#include <game/geometry.h>
+#include <game/filesystem.h>
+#include <game/surface.h>
+#include <game/collection.h>
+#include <game/direction.h>
 
 namespace UI
 {

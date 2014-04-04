@@ -2,7 +2,7 @@
 #define DEBUG_CONSOLE_H_
 
 #include <iosfwd>
-#include "screen.h"
+#include <game/screen.h>
 
 namespace Castle
 {

@@ -3,11 +3,11 @@
 #include <SDL.h>
 #include <memory>
 
-#include "renderer.h"
-#include "make_unique.h"
-#include "filesystem.h"
-#include "geometry.h"
-#include "screenmanager.h"
+#include <game/renderer.h>
+#include <game/make_unique.h>
+#include <game/filesystem.h>
+#include <game/geometry.h>
+#include <game/screenmanager.h>
 
 namespace UI
 {

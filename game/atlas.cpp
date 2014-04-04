@@ -1,5 +1,5 @@
 #include "atlas.h"
-#include "geometry.h"
+#include <game/geometry.h>
 #include <algorithm>
 #include <iostream>
 

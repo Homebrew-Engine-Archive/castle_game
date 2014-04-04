@@ -4,9 +4,9 @@
 #include <vector>
 #include <memory>
 #include <SDL.h>
-#include "renderer.h"
-#include "screen.h"
-#include "button.h"
+#include <game/renderer.h>
+#include <game/screen.h>
+#include <game/button.h>
 
 namespace Castle
 {

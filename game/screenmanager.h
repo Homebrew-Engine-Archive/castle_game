@@ -1,9 +1,9 @@
 #ifndef SCREENMANAGER_H_
 #define SCREENMANAGER_H_
 
-#include "debugconsole.h"
+#include <game/debugconsole.h>
 #include <vector>
-#include "screen.h"
+#include <game/screen.h>
 
 namespace UI
 {

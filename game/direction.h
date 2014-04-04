@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iosfwd>
-#include "point.h"
+#include <game/point.h>
 
 /**
  * Just regular counter-clockwise directions.

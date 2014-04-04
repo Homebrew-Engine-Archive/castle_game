@@ -7,19 +7,19 @@
 #include <vector>
 #include <SDL.h>
 
-#include "font.h"
-#include "geometry.h"
-#include "screenmanager.h"
-#include "renderer.h"
-#include "menu_combat.h"
-#include "menu_main.h"
-#include "loadingscreen.h"
-#include "make_unique.h"
-#include "network.h"
-#include "debugconsole.h"
-#include "screen.h"
-#include "graphicsmanager.h"
-#include "entityclass.h"
+#include <game/font.h>
+#include <game/geometry.h>
+#include <game/screenmanager.h>
+#include <game/renderer.h>
+#include <game/menu_combat.h>
+#include <game/menu_main.h>
+#include <game/loadingscreen.h>
+#include <game/make_unique.h>
+#include <game/network.h>
+#include <game/debugconsole.h>
+#include <game/screen.h>
+#include <game/graphicsmanager.h>
+#include <game/entityclass.h>
 
 namespace Castle
 {

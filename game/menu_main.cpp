@@ -1,10 +1,10 @@
 #include "menu_main.h"
-#include "menu_combat.h"
-#include "make_unique.h"
-#include "filesystem.h"
-#include "collection.h"
-#include "geometry.h"
-#include "screenmanager.h"
+#include <game/menu_combat.h>
+#include <game/make_unique.h>
+#include <game/filesystem.h>
+#include <game/collection.h>
+#include <game/geometry.h>
+#include <game/screenmanager.h>
 
 namespace UI
 {

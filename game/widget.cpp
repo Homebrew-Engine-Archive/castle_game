@@ -1,5 +1,5 @@
 #include "widget.h"
-#include "graphicsmanager.h"
+#include <game/graphicsmanager.h>
 
 namespace UI
 {

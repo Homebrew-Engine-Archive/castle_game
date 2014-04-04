@@ -2,8 +2,8 @@
 #define SCROLLBAR_H_
 
 #include <memory>
-#include "widget.h"
-#include "button.h"
+#include <game/widget.h>
+#include <game/button.h>
 
 namespace UI
 {

@@ -5,11 +5,11 @@
 #include <vector>
 #include <string>
 
-#include "screenmanager.h"
-#include "geometry.h"
-#include "make_unique.h"
-#include "surface.h"
-#include "renderer.h"
+#include <game/screenmanager.h>
+#include <game/geometry.h>
+#include <game/make_unique.h>
+#include <game/surface.h>
+#include <game/renderer.h>
 
 namespace UI
 {

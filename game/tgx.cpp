@@ -8,8 +8,8 @@
 
 #include <boost/current_function.hpp>
 
-#include "endianness.h"
-#include "surface.h"
+#include <game/endianness.h>
+#include <game/surface.h>
 
 namespace
 {

@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "animation.h"
-#include "graphicsmanager.h"
-#include "direction.h"
+#include <game/animation.h>
+#include <game/graphicsmanager.h>
+#include <game/direction.h>
 
 namespace
 {

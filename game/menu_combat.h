@@ -4,8 +4,8 @@
 #include <SDL.h>
 #include <memory>
 
-#include "screen.h"
-#include "surface.h"
+#include <game/screen.h>
+#include <game/surface.h>
 
 namespace Castle
 {

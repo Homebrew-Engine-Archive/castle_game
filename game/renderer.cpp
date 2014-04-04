@@ -5,12 +5,12 @@
 #include <functional>
 #include <boost/algorithm/clamp.hpp>
 
-#include "make_unique.h"
-#include "text.h"
-#include "textrenderer.h"
-#include "font.h"
-#include "geometry.h"
-#include "collection.h"
+#include <game/make_unique.h>
+#include <game/text.h>
+#include <game/textrenderer.h>
+#include <game/font.h>
+#include <game/geometry.h>
+#include <game/collection.h>
 
 namespace
 {

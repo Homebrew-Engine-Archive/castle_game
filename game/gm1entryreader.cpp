@@ -6,12 +6,12 @@
 #include <boost/iostreams/stream.hpp>
 #include <SDL.h>
 
-#include "geometry.h"
-#include "make_unique.h"
-#include "gm1reader.h"
-#include "gm1.h"
-#include "tgx.h"
-#include "surface.h"
+#include <game/geometry.h>
+#include <game/make_unique.h>
+#include <game/gm1reader.h>
+#include <game/gm1.h>
+#include <game/tgx.h>
+#include <game/surface.h>
 
 namespace
 {

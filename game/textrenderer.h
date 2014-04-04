@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <SDL.h>
-#include "sdl_utils.h"
+#include <game/sdl_utils.h>
 
 class Text;
 

@@ -3,8 +3,8 @@
 
 #include <iosfwd>
 #include <memory>
-#include "tgx.h"
-#include "surface.h"
+#include <game/tgx.h>
+#include <game/surface.h>
 
 namespace GM1
 {

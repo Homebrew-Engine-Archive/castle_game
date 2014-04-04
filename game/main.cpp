@@ -3,10 +3,10 @@
 #include <vector>
 #include <iostream>
 
-#include "sdl_utils.h"
-#include "engine.h"
-#include "sdl_init.h"
-#include "renderer.h"
+#include <game/sdl_utils.h>
+#include <game/engine.h>
+#include <game/sdl_init.h>
+#include <game/renderer.h>
 
 int main()
 {

@@ -1,7 +1,7 @@
 #ifndef TEXTEDIT_H_
 #define TEXTEDIT_H_
 
-#include "widget.h"
+#include <game/widget.h>
 
 namespace Castle
 {

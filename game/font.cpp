@@ -3,9 +3,9 @@
 #include <stdexcept>
 #include <sstream>
 
-#include "surface.h"
-#include "gm1.h"
-#include "collection.h"
+#include <game/surface.h>
+#include <game/gm1.h>
+#include <game/collection.h>
 #include <boost/current_function.hpp>
 
 namespace

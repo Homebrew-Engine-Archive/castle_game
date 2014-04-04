@@ -7,10 +7,10 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
-#include "gm1entryreader.h"
-#include "gm1reader.h"
-#include "sdl_utils.h"
-#include "tgx.h"
+#include <game/gm1entryreader.h>
+#include <game/gm1reader.h>
+#include <game/sdl_utils.h>
+#include <game/tgx.h>
 
 CollectionEntry::CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf_)
     : header(hdr_)

@@ -1,5 +1,5 @@
 #include "button.h"
-#include "geometry.h"
+#include <game/geometry.h>
 
 #include <stdexcept>
 

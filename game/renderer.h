@@ -3,7 +3,7 @@
 
 #include <string>
 #include <SDL.h>
-#include "filesystem.h"
+#include <game/filesystem.h>
 
 enum class AlignH;
 enum class AlignV;

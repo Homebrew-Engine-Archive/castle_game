@@ -1,5 +1,5 @@
 #include "gamemap.h"
-#include "geometry.h"
+#include <game/geometry.h>
 
 GameMap::GameMap()
 {

@@ -1,8 +1,8 @@
 #ifndef GM1READER_H_
 #define GM1READER_H_
 
-#include "gm1.h"
-#include "filesystem.h"
+#include <game/gm1.h>
+#include <game/filesystem.h>
 
 namespace GM1
 {

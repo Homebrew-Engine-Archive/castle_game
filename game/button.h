@@ -3,8 +3,8 @@
 
 #include <SDL.h>
 #include <functional>
-#include "surface.h"
-#include "widget.h"
+#include <game/surface.h>
+#include <game/widget.h>
 
 namespace UI
 {

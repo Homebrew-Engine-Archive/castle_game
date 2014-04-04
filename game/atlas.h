@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <SDL.h>
-#include "surface.h"
+#include <game/surface.h>
 
 namespace Render
 {

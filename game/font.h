@@ -2,8 +2,8 @@
 #define FONT_H_
 
 #include <vector>
-#include "sdl_utils.h"
-#include "surface.h"
+#include <game/sdl_utils.h>
+#include <game/surface.h>
 
 class CollectionData;
 

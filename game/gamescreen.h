@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <SDL.h>
-#include "screen.h"
-#include "gamemap.h"
+#include <game/screen.h>
+#include <game/gamemap.h>
 
 enum class Direction;
 class Surface;

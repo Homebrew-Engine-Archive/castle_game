@@ -5,10 +5,10 @@
 #include <sstream>
 #include <memory>
 #include <SDL.h>
-#include "network.h"
-#include "screen.h"
-#include "screenmanager.h"
-#include "graphicsmanager.h"
+#include <game/network.h>
+#include <game/screen.h>
+#include <game/screenmanager.h>
+#include <game/graphicsmanager.h>
 
 namespace Render
 {

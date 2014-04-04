@@ -2,10 +2,10 @@
 #define ANIMATION_H_
 
 #include <vector>
-#include "direction.h"
-#include "gm1.h"
-#include "surface.h"
-#include "filesystem.h"
+#include <game/direction.h>
+#include <game/gm1.h>
+#include <game/surface.h>
+#include <game/filesystem.h>
 
 enum class AnimationClass : int
 {

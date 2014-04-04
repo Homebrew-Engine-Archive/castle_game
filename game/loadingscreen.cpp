@@ -7,12 +7,12 @@
 #include <boost/algorithm/clamp.hpp>
 #include <SDL.h>
 
-#include "make_unique.h"
-#include "collection.h"
-#include "filesystem.h"
-#include "geometry.h"
-#include "renderer.h"
-#include "engine.h"
+#include <game/make_unique.h>
+#include <game/collection.h>
+#include <game/filesystem.h>
+#include <game/geometry.h>
+#include <game/renderer.h>
+#include <game/engine.h>
 
 namespace
 {

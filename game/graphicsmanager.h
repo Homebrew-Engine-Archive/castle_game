@@ -7,11 +7,11 @@
 #include <cstddef>
 #include <set>
 
-#include "make_unique.h"
-#include "gm1reader.h"
-#include "gm1.h"
-#include "filesystem.h"
-#include "surface.h"
+#include <game/make_unique.h>
+#include <game/gm1reader.h>
+#include <game/gm1.h>
+#include <game/filesystem.h>
+#include <game/surface.h>
 
 namespace UI
 {

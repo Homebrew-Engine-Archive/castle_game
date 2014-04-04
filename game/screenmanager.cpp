@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "debugconsole.h"
-#include "make_unique.h"
+#include <game/debugconsole.h>
+#include <game/make_unique.h>
 
 namespace UI
 {

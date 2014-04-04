@@ -1,7 +1,7 @@
 #ifndef TEXTBOX_H_
 #define TEXTBOX_H_
 
-#include "widget.h"
+#include <game/widget.h>
 #include <SDL.h>
 
 class Surface;

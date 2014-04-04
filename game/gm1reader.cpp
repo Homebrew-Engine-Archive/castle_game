@@ -4,8 +4,8 @@
 #include <sstream>
 #include <functional>
 
-#include "endianness.h"
-#include "filesystem.h"
+#include <game/endianness.h>
+#include <game/filesystem.h>
 
 namespace
 {

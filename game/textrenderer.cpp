@@ -6,11 +6,11 @@
 #include <SDL.h>
 #include <boost/current_function.hpp>
 
-#include "geometry.h"
-#include "text.h"
-#include "atlas.h"
-#include "font.h"
-#include "make_unique.h"
+#include <game/geometry.h>
+#include <game/text.h>
+#include <game/atlas.h>
+#include <game/font.h>
+#include <game/make_unique.h>
 
 namespace
 {

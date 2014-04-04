@@ -13,9 +13,9 @@
 
 #include <boost/current_function.hpp>
 
-#include "sdl_utils.h"
-#include "geometry.h"
-#include "make_unique.h"
+#include <game/sdl_utils.h>
+#include <game/geometry.h>
+#include <game/make_unique.h>
 
 namespace
 {
