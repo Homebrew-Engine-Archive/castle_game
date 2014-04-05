@@ -272,5 +272,18 @@ namespace TGX
             }
         }
     }
+
+    std::ostream& WriteEncoded(std::ostream &out, int width, int height, const char *data, size_t numBytes)
+    {
+        Endian::WriteLittle<uint32_t>(out, width);
+        Endian::WriteLittle<uint32_t>(out, height);
+        return out.write(data, numBytes);
+    }
+
+    std::ostream& WriteSurface(std::ostream &out, const Surface &surface)
+    {
+        
+    }
+
     
 } // namespace TGX

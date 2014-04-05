@@ -59,6 +59,13 @@ namespace Endian
         in.read(reinterpret_cast<char*>(&x), sizeof(T));
         return SwapLittle<T>(x);
     }
+
+    template<class T> std::ostream& WriteLittle(std::ostream &out, T x)
+    {
+        T swapped = SwapLittle<T>(std::move(x));
+        out.write(reinterpret_cast<char*>(&swapped), sizeof(T));
+        return out;
+    }
     
 } // namespace Endian
 

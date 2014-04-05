@@ -35,7 +35,7 @@ namespace TGX
     // One bit to bring them all, and in the ARGB bind them
     // In the land of sprites where some shadows was
 
-    /// \note This masks are not swaped according to endianness
+    /// \note This masks are not swaped neither according to endianness
     const uint32_t AlphaMask16  = 0x00008000;
     const uint32_t RedMask16    = 0x00007c00;
     const uint32_t GreenMask16  = 0x000003e0;
@@ -85,9 +85,9 @@ namespace TGX
 
     Surface ReadTGX(std::istream&);
 
-    void WriteEncoded(std::ostream&, int width, int height, char const*, size_t numBytes);
+    std::ostream& WriteEncoded(std::ostream&, int width, int height, char const*, size_t numBytes);
 
-    void WriteSurface(std::ostream&, const Surface &surface);
+    std::ostream& WriteSurface(std::ostream&, const Surface &surface);
     
 } // namespace TGX
 
