@@ -6,6 +6,8 @@
 #include <sstream>
 #include <boost/current_function.hpp>
 
+#include <game/endianness.h>
+
 namespace
 {
 
@@ -131,4 +133,62 @@ namespace GM1
         out << std::endl;
     }
 
+    SizeCategory ReadSizeCategory(std::istream &in)
+    {
+        return
+            static_cast<SizeCategory>(
+                Endian::ReadLittle<uint32_t>(in));
+    }
+    
+    std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat)
+    {
+        return Endian::WriteLittle<uint32_t>(out, static_cast<uint32_t>(cat));
+    }   
+    
+    SizeCategory GetSizeCategoryByDims(int width, int height)
+    {
+        for(uint32_t n : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
+            SizeCategory cat = static_cast<SizeCategory>(n);
+            auto dims = GetDimsBySizeCategory(cat);
+            if((dims.first == width) && (dims.second == height))
+                return cat;
+        }
+        
+        return SizeCategory::Undefined;
+    }
+    
+    std::pair<int, int> GetDimsBySizeCategory(SizeCategory cat)
+    {
+        switch(cat) {
+        case SizeCategory::Undefined:
+            break;
+        case SizeCategory::Size30x30:
+            return std::make_pair(30, 30);
+        case SizeCategory::Size55x55:
+            return std::make_pair(55, 55);
+        case SizeCategory::Size75x75:
+            return std::make_pair(75, 75);
+        case SizeCategory::Unknown0:
+            break;
+        case SizeCategory::Size100x100:
+            return std::make_pair(100, 100);
+        case SizeCategory::Size11x110:
+            return std::make_pair(11, 110);
+        case SizeCategory::Size130x130:
+            return std::make_pair(130, 130);
+        case SizeCategory::Unknown1:
+            break;
+        case SizeCategory::Size185x185:
+            return std::make_pair(185, 185);
+        case SizeCategory::Size250x250:
+            return std::make_pair(250, 250);
+        case SizeCategory::Size180x180:
+            return std::make_pair(180, 180);
+        default:
+            break;
+        }
+
+        return std::make_pair(0, 0);
+    }
+    
 } // namespace GM1

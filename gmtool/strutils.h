@@ -24,7 +24,7 @@ namespace StringUtils
 
         std::string temp = oss.str();
         if(temp.empty()) {
-            return temp;
+            return empty;
         } else {
             return temp;
         }

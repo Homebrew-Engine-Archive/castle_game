@@ -28,7 +28,7 @@ namespace
     }
     
     template<class Pixel>
-    void TransformBuffer(void *pixels, size_t count, const SDL_PixelFormat *pf, PixelMapper f)
+    void MapBuffer(void *pixels, size_t count, const SDL_PixelFormat *pf, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
     {
         Pixel *first = reinterpret_cast<Pixel *>(pixels);
         Pixel *last = first + count;
@@ -37,14 +37,14 @@ namespace
             uint8_t r, g, b, a;
             SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
         
-            SDL_Color result = f(r, g, b, a);
+            SDL_Color result = func(r, g, b, a);
             *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
             first = std::next(first);
         }
     }
 
     template<class Pixel>
-    void MapSurfaceImpl(Surface &dst, PixelMapper f)
+    void MapSurfaceImpl(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
     {
         if(dst.Null())
             return;
@@ -55,7 +55,7 @@ namespace
         const SDL_PixelFormat *fmt = dst->format;
 
         for(int y = 0; y < dst->h; ++y) {
-            TransformBuffer<Pixel>(pixels, dst->w, fmt, f);
+            MapBuffer<Pixel>(pixels, dst->w, fmt, func);
             std::advance(pixels, dst->pitch);
         }
     }
@@ -245,13 +245,6 @@ void Surface::Assign(SDL_Surface *s)
 {
     // SDL_FreeSurface manages refcount by itself
     // Suddenly.
-    if(mSurface != NULL) {
-        if(mSurface->refcount == 1) {
-            std::clog << "Remove this shitty surface: "
-                      << std::hex << mSurface
-                      << std::endl;
-        }
-    }
     SDL_FreeSurface(mSurface);
     mSurface = s;
 }
@@ -379,17 +372,17 @@ bool HasPalette(const Surface &surface)
         && surface->format->BitsPerPixel == 8;
 }
 
-void MapSurface(Surface &dst, PixelMapper f)
+void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
 {
     switch(dst->format->BytesPerPixel) {
     case 1:
-        MapSurfaceImpl<uint8_t>(dst, f);
+        MapSurfaceImpl<uint8_t>(dst, func);
         break;
     case 2:
-        MapSurfaceImpl<uint16_t>(dst, f);
+        MapSurfaceImpl<uint16_t>(dst, func);
         break;
     case 4:
-        MapSurfaceImpl<uint32_t>(dst, f);
+        MapSurfaceImpl<uint32_t>(dst, func);
         break;
     case 3:
         // TODO implement me

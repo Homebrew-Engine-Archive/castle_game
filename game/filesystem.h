@@ -1,10 +1,9 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
-#include <memory>
 #include <boost/filesystem.hpp>
 
-using FilePath = boost::filesystem::path;
+using FilePath = boost::filesystem::wpath;
 
 FilePath GetFXPath(const FilePath &path = FilePath());
 FilePath GetGFXPath(const FilePath &path = FilePath());

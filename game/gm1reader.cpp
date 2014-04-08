@@ -1,9 +1,13 @@
 #include "gm1reader.h"
 
-#include <boost/filesystem/fstream.hpp>
+#include <cerrno>
+#include <cstring>
+
 #include <sstream>
 #include <functional>
+#include <boost/filesystem/fstream.hpp>
 
+#include <game/gm1entryreader.h>
 #include <game/endianness.h>
 #include <game/filesystem.h>
 
@@ -19,28 +23,28 @@ namespace
     
     std::istream& ReadHeader(std::istream &in, GM1::Header &header)
     {
-        header.u1             = Endian::ReadLittle<uint32_t>(in);
-        header.u2             = Endian::ReadLittle<uint32_t>(in);
-        header.u3             = Endian::ReadLittle<uint32_t>(in);
-        header.imageCount     = Endian::ReadLittle<uint32_t>(in);
-        header.u4             = Endian::ReadLittle<uint32_t>(in);
-        header.dataClass      = Endian::ReadLittle<uint32_t>(in);
-        header.u5             = Endian::ReadLittle<uint32_t>(in);
-        header.u6             = Endian::ReadLittle<uint32_t>(in);
-        header.sizeCategory   = Endian::ReadLittle<uint32_t>(in);
-        header.u7             = Endian::ReadLittle<uint32_t>(in);
-        header.u8             = Endian::ReadLittle<uint32_t>(in);
-        header.u9             = Endian::ReadLittle<uint32_t>(in);
-        header.width          = Endian::ReadLittle<uint32_t>(in);
-        header.height         = Endian::ReadLittle<uint32_t>(in);
-        header.u10            = Endian::ReadLittle<uint32_t>(in);
-        header.u11            = Endian::ReadLittle<uint32_t>(in);
-        header.u12            = Endian::ReadLittle<uint32_t>(in);
-        header.u13            = Endian::ReadLittle<uint32_t>(in);
-        header.anchorX        = Endian::ReadLittle<uint32_t>(in);
-        header.anchorY        = Endian::ReadLittle<uint32_t>(in);
-        header.dataSize       = Endian::ReadLittle<uint32_t>(in);
-        header.u14            = Endian::ReadLittle<uint32_t>(in);
+        header.u1            = Endian::ReadLittle<uint32_t>(in);
+        header.u2            = Endian::ReadLittle<uint32_t>(in);
+        header.u3            = Endian::ReadLittle<uint32_t>(in);
+        header.imageCount    = Endian::ReadLittle<uint32_t>(in);
+        header.u4            = Endian::ReadLittle<uint32_t>(in);
+        header.dataClass     = Endian::ReadLittle<uint32_t>(in);
+        header.u5            = Endian::ReadLittle<uint32_t>(in);
+        header.u6            = Endian::ReadLittle<uint32_t>(in);
+        header.sizeCategory  = Endian::ReadLittle<uint32_t>(in);
+        header.u7            = Endian::ReadLittle<uint32_t>(in);
+        header.u8            = Endian::ReadLittle<uint32_t>(in);
+        header.u9            = Endian::ReadLittle<uint32_t>(in);
+        header.width         = Endian::ReadLittle<uint32_t>(in);
+        header.height        = Endian::ReadLittle<uint32_t>(in);
+        header.u10           = Endian::ReadLittle<uint32_t>(in);
+        header.u11           = Endian::ReadLittle<uint32_t>(in);
+        header.u12           = Endian::ReadLittle<uint32_t>(in);
+        header.u13           = Endian::ReadLittle<uint32_t>(in);
+        header.anchorX       = Endian::ReadLittle<uint32_t>(in);
+        header.anchorY       = Endian::ReadLittle<uint32_t>(in);
+        header.dataSize      = Endian::ReadLittle<uint32_t>(in);
+        header.u14           = Endian::ReadLittle<uint32_t>(in);
         return in;
     }
 
@@ -72,6 +76,8 @@ namespace
 namespace GM1
 {
 
+    GM1Reader::~GM1Reader() = default;
+    
     GM1Reader::GM1Reader()
         : mIsOpened(false)
         , mPath()
@@ -79,6 +85,7 @@ namespace GM1
         , mEntryHeaders()
         , mPalettes()
         , mBuffer()
+        , mEntryReader()
     { }
     
     GM1Reader::GM1Reader(FilePath path)
@@ -88,6 +95,7 @@ namespace GM1
         , mEntryHeaders()
         , mPalettes()
         , mBuffer()
+        , mEntryReader()
     {
         Open(std::move(path));
     }
@@ -99,12 +107,12 @@ namespace GM1
 
     void GM1Reader::Open(FilePath path)
     {
-        using boost::filesystem::ifstream;
         mIsOpened = false;
-                
-        ifstream fin(path, std::ios_base::binary);
+        mPath = std::move(path);
+
+        boost::filesystem::ifstream fin(mPath, std::ios_base::binary);
         if(!fin.is_open()) {
-            Fail(__FILE__, __LINE__, "Unable to open file");
+            Fail(__FILE__, __LINE__, strerror(errno));
         }
 
         fin.seekg(0, std::ios_base::end);
@@ -112,11 +120,11 @@ namespace GM1
         fin.seekg(0);
         
         if(fsize < GM1::CollectionHeaderBytes) {
-            Fail(__FILE__, __LINE__, "File to small to read header");
+            Fail(__FILE__, __LINE__, "File too small to read header");
         }
         
         if(!ReadHeader(fin, mHeader)) {
-            Fail(__FILE__, __LINE__, "Unable to read header");
+            Fail(__FILE__, __LINE__, strerror(errno));
         }
 
         if(fsize < GetPreambleSize(mHeader)) {
@@ -125,7 +133,7 @@ namespace GM1
         mPalettes.resize(GM1::CollectionPaletteCount);
         for(GM1::Palette &palette : mPalettes) {
             if(!ReadPalette(fin, palette)) {
-                Fail(__FILE__, __LINE__, "Unable to read palette");
+                Fail(__FILE__, __LINE__, strerror(errno));
             }
         }
 
@@ -133,7 +141,7 @@ namespace GM1
         for(uint32_t &offset : mOffsets) {
             offset = Endian::ReadLittle<uint32_t>(fin);
             if(!fin) {
-                Fail(__FILE__, __LINE__, "Unable to read offset");
+                Fail(__FILE__, __LINE__, strerror(errno));
             }
         }
         
@@ -141,14 +149,14 @@ namespace GM1
         for(uint32_t &size : mSizes) {
             size = Endian::ReadLittle<uint32_t>(fin);
             if(!fin) {
-                Fail(__FILE__, __LINE__, "Unable to read size");
+                Fail(__FILE__, __LINE__, strerror(errno));
             }
         }
         
         mEntryHeaders.resize(mHeader.imageCount);
         for(GM1::EntryHeader &hdr : mEntryHeaders) {
             if(!ReadEntryHeader(fin, hdr)) {
-                Fail(__FILE__, __LINE__, "Unable to read entry header");
+                Fail(__FILE__, __LINE__, strerror(errno));
             }
         }
 
@@ -159,9 +167,12 @@ namespace GM1
         mBuffer.resize(mHeader.dataSize);
         fin.read(&mBuffer[0], mBuffer.size());
         if(!fin) {
-            Fail(__FILE__, __LINE__, "Unable to read data section");
+            Fail(__FILE__, __LINE__, strerror(errno));
         }
 
+        mEntryReader =
+            std::move(
+                GM1::CreateEntryReader(Encoding()));
         mIsOpened = true;
     }
 
@@ -213,6 +224,16 @@ namespace GM1
     GM1::Palette const& GM1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
+    }
+
+    GM1::GM1EntryReader const* GM1Reader::EntryReader() const
+    {
+        return mEntryReader.get();
+    }
+    
+    Surface GM1Reader::Decode(size_t index)
+    {
+        return mEntryReader->Load(*this, index);
     }
     
 }

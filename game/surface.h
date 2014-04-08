@@ -69,7 +69,7 @@ public:
 
 typedef std::function<SDL_Color(uint8_t, uint8_t, uint8_t, uint8_t)> PixelMapper;
 
-void MapSurface(Surface &dst, PixelMapper);
+void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
 
 void CopyPixels(const Surface &src, Surface &dst);
 
@@ -86,5 +86,19 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 void BlurSurface(Surface &dst, int radius);
 
 SDL_Rect SurfaceBounds(const Surface &src);
+
+/**
+ * \brief Wrapper around reinterpret_cast on surface->pixels
+ */
+inline char* GetPixels(Surface &surface)
+{
+    return reinterpret_cast<char *>(surface->pixels);
+}
+
+inline char const* ConstGetPixels(const Surface &surface)
+{
+    return reinterpret_cast<char const*>(surface->pixels);
+}
+
 
 #endif

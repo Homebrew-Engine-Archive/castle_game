@@ -56,7 +56,8 @@ namespace
 CollectionDataPtr LoadCollectionData(const FilePath &path)
 {
     try {
-        GM1::GM1Reader reader(path);
+        GM1::GM1Reader reader;
+        reader.Open(path);
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = reader.Header();
@@ -67,10 +68,9 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
                     GetSDLPalette(palette)));
         }
 
-        auto entryReader = GM1::CreateEntryReader(reader.Encoding());
         for(int index = 0; index < reader.NumEntries(); ++index) {
             const GM1::EntryHeader &header = reader.EntryHeader(index);
-            Surface entry = entryReader->Load(reader, index);
+            Surface entry = reader.Decode(index);
             ptr->entries.emplace_back(header, std::move(entry));
         }
         

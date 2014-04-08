@@ -3,6 +3,12 @@
 
 #include <game/gm1.h>
 #include <game/filesystem.h>
+#include <game/surface.h>
+
+namespace GM1
+{
+    class GM1EntryReader;
+}
 
 namespace GM1
 {
@@ -17,14 +23,15 @@ namespace GM1
         std::vector<uint32_t> mSizes;
         std::vector<uint32_t> mOffsets;
         std::vector<char> mBuffer;
+        std::unique_ptr<GM1EntryReader> mEntryReader;
         
     public:
         GM1Reader();
-        GM1Reader(FilePath);
+        explicit GM1Reader(FilePath);
         void Open(FilePath);
         bool IsOpened() const;
         void Close();
-        virtual ~GM1Reader() = default;
+        virtual ~GM1Reader();
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;
@@ -35,6 +42,10 @@ namespace GM1
         size_t EntryOffset(size_t index) const;
         int NumEntries() const;
         int NumPalettes() const;
+
+        GM1::GM1EntryReader const* EntryReader() const;
+
+        Surface Decode(size_t index);
     };
 
 }

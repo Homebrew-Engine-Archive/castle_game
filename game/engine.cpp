@@ -9,20 +9,22 @@
 
 #include <game/font.h>
 #include <game/geometry.h>
-#include <game/screenmanager.h>
 #include <game/renderer.h>
 #include <game/menu_combat.h>
 #include <game/menu_main.h>
 #include <game/loadingscreen.h>
 #include <game/make_unique.h>
-#include <game/network.h>
 #include <game/debugconsole.h>
 #include <game/screen.h>
-#include <game/graphicsmanager.h>
 #include <game/entityclass.h>
+#include <game/network.h>
+#include <game/screenmanager.h>
+#include <game/graphicsmanager.h>
 
 namespace Castle
 {
+
+    Engine::~Engine() = default;
     
     Engine::Engine(Render::Renderer *renderer)
         : mRenderer(renderer)

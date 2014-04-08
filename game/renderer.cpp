@@ -309,8 +309,8 @@ namespace Render
         try {
             QueryCollection(filename);
             return true;
-        } catch(const std::exception &e) {
-            std::cerr << "Cache collection failed"
+        } catch(const std::exception &error) {
+            std::cerr << "Cache collection failed: " << error.what()
                       << std::endl;
             return false;
         }
@@ -338,9 +338,8 @@ namespace Render
         
             return true;
         } catch(const std::exception &e) {
-            std::cerr << "Exception in CacheFontCollection: "
-                      << e.what()
-                      << std::endl;
+            std::cerr << "In CacheFontCollection: " << std::endl
+                      << e.what() << std::endl;
             return false;
         }
     }

@@ -1,10 +1,13 @@
 #include "tgx.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
+#include <iterator>
 #include <sstream>
-#include <SDL.h>
 #include <stdexcept>
+
+#include <SDL.h>
 
 #include <boost/current_function.hpp>
 
@@ -30,49 +33,16 @@ namespace
         Repeat = 2,
         LineFeed = 4
     };
-        
-    void Fail(const std::string &where, const std::string &what)
-    {
-        std::ostringstream oss;
-        oss << where << " failed: " << what;
-        throw std::runtime_error(oss.str());
-    }
 
-    void Overrun(const std::string &where, int64_t at)
-    {
-        std::ostringstream oss;
-        oss << "In " << where << " overrun detected at " << at;
-        throw std::runtime_error(oss.str());
-    }
+    typedef uint8_t token_t;
 
-    void Overflow(const std::string &where, ptrdiff_t at)
-    {
-        std::ostringstream oss;
-        oss << "In " << where << " overflow detected at " << at;
-        throw std::runtime_error(oss.str());
-    }
-    
-    // Width of rhombus rows in pixels.
-    inline int GetTilePixelsPerRow(int row)
-    {
-        static const int PerRow[] = {
-            2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2
-        };
-        return PerRow[row];
-    }
-
-    std::istream& ReadHeader(std::istream &in, Header &header)
-    {
-        header.width = Endian::ReadLittle<uint32_t>(in);
-        header.height = Endian::ReadLittle<uint32_t>(in);
-        return in;
-    }
+    const int MaxTokenLength = 32;
 
     /**
      * Each token has its length. It is represented by lower 5 bits.
      * \note There are no 0 length.
      */
-    size_t ExtractTokenLength(const uint8_t &token)
+    constexpr size_t ExtractTokenLength(token_t token)
     {
         return (token & 0x1f) + 1;
     }
@@ -81,11 +51,40 @@ namespace
      * Each token has its type which are of type TokenType.
      * It is higher 3 bits.
      */
-    TokenType ExtractTokenType(uint8_t token)
+    constexpr TokenType ExtractTokenType(token_t token)
     {
         return static_cast<TokenType>(token >> 5);
     }
 
+    /**
+     * Given type and length produce token. Token may be invalid since
+     * its length remains unchecked
+     */
+    constexpr token_t MakeToken(TokenType type, int length)
+    {
+        return ((static_cast<int>(type) & 0x0f) << 5) | ((length - 1) & 0x1f);
+    }
+
+    constexpr token_t MakeStreamToken(int length)
+    {
+        return MakeToken(TokenType::Stream, std::move(length));
+    }
+
+    constexpr token_t MakeRepeatToken(int length)
+    {
+        return MakeToken(TokenType::Repeat, std::move(length));
+    }
+
+    constexpr token_t MakeTransparentToken(int length)
+    {
+        return MakeToken(TokenType::Transparent, std::move(length));
+    }
+
+    constexpr token_t MakeLineFeedToken()
+    {
+        return MakeToken(TokenType::LineFeed, 1);
+    }
+    
     std::string GetTokenTypeName(TokenType type)
     {
         switch(type) {
@@ -96,7 +95,21 @@ namespace
         default: return "Unknown";
         }
     }
-
+        
+    void Fail(const std::string &where, const std::string &what)
+    {
+        std::ostringstream oss;
+        oss << where << " failed: " << what;
+        throw std::runtime_error(oss.str());
+    }
+    
+    std::istream& ReadHeader(std::istream &in, Header &header)
+    {
+        header.width = Endian::ReadLittle<uint32_t>(in);
+        header.height = Endian::ReadLittle<uint32_t>(in);
+        return in;
+    }
+    
     Surface CreateCompatibleSurface(int width, int height, int bpp)
     {
         uint32_t rmask = DefaultRedMask;
@@ -121,51 +134,128 @@ namespace
     void RepeatPixel(const char *pixel, char *buff, size_t size, size_t count)
     {
         for(size_t i = 0; i < count; ++i) {
-            std::copy(pixel, pixel + size, buff);
-            buff += size;
+            std::copy(pixel, pixel + size, buff + size * i);
         }
+    }
+
+    bool PixelsEqual(const char *lhs, const char *rhs, int bytesPerPixel)
+    {
+        return std::equal(lhs, lhs + bytesPerPixel, rhs);
+    }
+
+    int PixelsCount(const char *lhs, const char *rhs, int bytesPerPixel)
+    {
+        return std::distance(lhs, rhs) / bytesPerPixel;
+    }
+
+    bool PixelTransparent(const char *pixels, int bytesPerPixel)
+    {
+        const uint16_t *colors = reinterpret_cast<uint16_t const*>(pixels);
+        return (bytesPerPixel == 2) && (*colors == TGX::Transparent16);
+    }
+    
+    std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
+    {
+        Endian::WriteLittle<uint8_t>(out, MakeStreamToken(numPixels));
+        return out.write(pixels, numPixels * bytesPerPixel);
+    }
+
+    std::ostream& WriteLineFeed(std::ostream &out)
+    {
+        return Endian::WriteLittle<uint8_t>(out, MakeLineFeedToken());
+    }
+
+    std::ostream& WriteTransparentToken(std::ostream &out, int numPixels)
+    {
+        return Endian::WriteLittle<uint8_t>(out, MakeTransparentToken(numPixels));
+    }
+    std::ostream& WriteRepeatToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
+    {
+        // We just ignore endianess since pixels are forced to be LE
+        if(PixelTransparent(pixels, bytesPerPixel)) {
+            return WriteTransparentToken(out, numPixels);
+        }
+        
+        Endian::WriteLittle<uint8_t>(out, MakeRepeatToken(numPixels));
+        return out.write(pixels, bytesPerPixel);
     }
     
 }
 
 namespace TGX
 {
-
-    void DecodeTile(std::istream &in, size_t numBytes, Surface &surface)
-    {
-        if(numBytes < TileBytes) {
-            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
-        }
-
-        const SurfaceLocker lock(surface);
-
-        const int pitchBytes = surface->pitch;
-        const int height = TileHeight;
-        const int width = TileWidth;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        char *dst = reinterpret_cast<char *>(surface->pixels);
     
-        for(int y = 0; y < height; ++y) {
-            const int length = GetTilePixelsPerRow(y);
-            const int offset = (width - length) / 2;
-            in.read(dst + offset * bytesPerPixel, bytesPerPixel * length);
-            dst += pitchBytes;
-        }
+    std::ostream& WriteTGX(std::ostream &out, int width, int height, const char *data, size_t numBytes)
+    {
+        Endian::WriteLittle<uint32_t>(out, width);
+        Endian::WriteLittle<uint32_t>(out, height);
+        return out.write(data, numBytes);
     }
 
-    void DecodeBitmap(std::istream &in, size_t numBytes, Surface &surface)
+    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)
     {
-        const SurfaceLocker lock(surface);
+        const char *end = pixels + width * bytesPerPixel;
+        const char *streamStart = pixels;
+        const char *repeatStart = pixels;
 
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        const size_t rowBytes = surface->w * bytesPerPixel;    
-        char *dst = reinterpret_cast<char *>(surface->pixels);
-    
-        while(numBytes >= rowBytes) {
-            in.read(dst, rowBytes);
-            dst += surface->pitch;
-            numBytes -= rowBytes;
+        while(pixels != end) {
+            assert((pixels - streamStart) <= MaxTokenLength);
+            assert((pixels - repeatStart) <= MaxTokenLength);
+
+            const int numStream = PixelsCount(streamStart, pixels, bytesPerPixel);
+            if(numStream == MaxTokenLength) {
+                if(streamStart != repeatStart) {
+                    const int numStreamBeforeRepeat = PixelsCount(streamStart, repeatStart, bytesPerPixel);
+                    WriteStreamToken(out, streamStart, numStreamBeforeRepeat, bytesPerPixel);
+                    streamStart = repeatStart;
+                } else {
+                    WriteRepeatToken(out, streamStart, numStream, bytesPerPixel);
+                    repeatStart = pixels;
+                    streamStart = pixels;
+                }
+            }
+
+            if(!PixelsEqual(repeatStart, pixels, bytesPerPixel)) {
+                const int numRepeat = PixelsCount(repeatStart, pixels, bytesPerPixel);
+                if(numRepeat >= 2) {
+                    WriteRepeatToken(out, repeatStart, numRepeat, bytesPerPixel);
+                }
+                repeatStart = pixels;
+            }
+
+            pixels += bytesPerPixel;
         }
+
+        const int numStream = PixelsCount(streamStart, pixels, bytesPerPixel);
+        const int numRepeat = PixelsCount(repeatStart, pixels, bytesPerPixel);
+
+        if(numRepeat >= 2) {
+            if(numStream > numRepeat) {
+                const int numStreamBeforeRepeat = PixelsCount(streamStart, repeatStart, bytesPerPixel);
+                WriteStreamToken(out, streamStart, numStreamBeforeRepeat, bytesPerPixel);
+            }
+            WriteRepeatToken(out, repeatStart, numRepeat, bytesPerPixel);
+        } else if(numStream != 0) {
+            WriteStreamToken(out, streamStart, numStream, bytesPerPixel);
+        }
+                
+        return WriteLineFeed(out);
+    }
+    
+    std::ostream& EncodeSurface(std::ostream &out, const Surface &surface)
+    {
+        SurfaceLocker lock(surface);
+        const char *pixelsPtr = ConstGetPixels(surface);
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+
+        for(int row = 0; row < surface->h; ++row) {
+            if(!EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel)) {
+                break;
+            }
+            pixelsPtr += surface->pitch;
+        }
+            
+        return out;
     }
 
     Surface ReadTGX(std::istream &in)
@@ -176,114 +266,115 @@ namespace TGX
         }
         Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
 
-        std::streampos origin = in.tellg();
+        const std::streampos origin = in.tellg();
         in.seekg(0, std::ios_base::end);
-        std::streampos fsize = in.tellg();
+        const std::streampos fsize = in.tellg();
         in.seekg(origin);
         
-        TGX::DecodeTGX(in, fsize - origin, surface);
+        TGX::DecodeSurface(in, fsize - origin, surface);
         return surface;
     }
 
-    void DecodeTGX(std::istream &in, size_t numBytes, Surface &surface)
+    std::istream& DecodeBuffer(std::istream &in, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel)
     {
-        const SurfaceLocker lock(surface);
+        const std::streampos endPos = numBytes + in.tellg();
+        const char *dstEnd = dst + width * bytesPerPixel;
         
-        std::streampos npos = numBytes + in.tellg();
-        const int bytesPitch = surface->pitch;
-        char *dst = reinterpret_cast<char *>(surface->pixels);
-        char *dstNextLine = dst + bytesPitch;
-        const char *dstBegin = dst;
-        const char *dstEnd = dstBegin + bytesPitch * surface->h;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        bool overflow = false;
-        
-        while(in.tellg() < npos) {
-            const uint8_t token = Endian::ReadLittle<uint8_t>(in);
-            // TODO check failbit and badbit
-            
+        while(in.tellg() < endPos) {
+            const token_t token = Endian::ReadLittle<token_t>(in);
+            // \note any io errors are just ignored if token has valid TokenType
+
             const TokenType type = ExtractTokenType(token);
-            const size_t length = ExtractTokenLength(token);
+            const int length = ExtractTokenLength(token);
+            
+            switch(type) {
+            case TokenType::Repeat:
+            case TokenType::Stream:
+            case TokenType::Transparent:
+                {
+                    // \todo what if new dst value is equal to dstEnd? In that case
+                    // we have no space for placing LineFeed. It is certainly an erroneous behavior.
+                    // Should we report it here?
+                    if(dst + length * bytesPerPixel > dstEnd) {
+                        Fail(BOOST_CURRENT_FUNCTION, "Overflow");
+                    }
+                }
+            default:
+                break;
+            }
             
             switch(type) {
             case TokenType::LineFeed:
                 {
                     if(length != 1) {
-                        Fail(BOOST_CURRENT_FUNCTION, "LineFeed token length should be 1");
+                        Fail(BOOST_CURRENT_FUNCTION, "Inconsistent line feed");
                     }
-                    if(dst > dstNextLine) {
-                        Fail(BOOST_CURRENT_FUNCTION, "Destination pointer is ahead of next line pointer");
-                    }
-                    // TODO may it should be checked for overflow too?
-                    dst = dstNextLine;
-                    dstNextLine += bytesPitch;
+                    return in;
                 }
                 break;
-            
-            case TokenType::Transparent:
-                {
-                    if(dst + length * bytesPerPixel <= dstEnd) {
-                        dst += length * bytesPerPixel;
-                    } else {
-                        overflow = true;
-                    }
-                }
-                break;
-            
-            case TokenType::Stream:
-                {
-                    if(dst + length * bytesPerPixel <= dstEnd) {
-                        if(in.read(dst, bytesPerPixel * length)) {
-                            dst += length * bytesPerPixel;
-                        }
-                    } else {
-                        overflow = true;
-                    }
-                }
-                break;
-
+                
             case TokenType::Repeat:
                 {
-                    if(dst + length * bytesPerPixel <= dstEnd) {
-                        // Read single pixel N times
-                        if(in.read(dst, bytesPerPixel)) {
-                            RepeatPixel(dst, dst, bytesPerPixel, length);
-                            dst += length * bytesPerPixel;
-                        }
-                    } else {
-                        overflow = true;
+                    in.read(dst, bytesPerPixel);
+                    for(int n = 0; n < length; ++n) {
+                        std::copy(dst, dst + bytesPerPixel, dst + n * bytesPerPixel);
                     }
                 }
                 break;
-
-            default:
+                
+            case TokenType::Stream:
                 {
-                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
+                    in.read(dst, length * bytesPerPixel);
                 }
                 break;
+                
+            case TokenType::Transparent:
+                break;
+                
+            default:
+                {
+                    if(!in) {
+                        Fail(BOOST_CURRENT_FUNCTION, "Unable to read token");
+                    }
+                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
+                }
+            }
+
+            if(!in) {
+                Fail(BOOST_CURRENT_FUNCTION, "Overrun");
             }
             
-            if(overflow) {
-                Overflow(BOOST_CURRENT_FUNCTION, dst - dstBegin);
-            }
+            dst += length * bytesPerPixel;
+        }
+        
+        return in;
+    }
+    
+    void DecodeSurface(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        const SurfaceLocker lock(surface);
 
-            if(in.bad()) {
-                Overrun(BOOST_CURRENT_FUNCTION, in.tellg());
+        const int width = surface->w;
+        const int height = surface->h;
+        const int bytesPP = surface->format->BytesPerPixel;
+        const int pitch = surface->pitch;
+
+        const std::streampos endPos = numBytes + in.tellg();
+        
+        char *dst = GetPixels(surface);
+
+        for(int row = 0; row < height; ++row) {
+            if((in) && (in.tellg() < endPos)) {
+                size_t bytesLeft = endPos - in.tellg();
+                DecodeBuffer(in, bytesLeft, dst, width, bytesPP);
+                dst += pitch;
             }
         }
-    }
 
-    std::ostream& WriteEncoded(std::ostream &out, int width, int height, const char *data, size_t numBytes)
-    {
-        Endian::WriteLittle<uint32_t>(out, width);
-        Endian::WriteLittle<uint32_t>(out, height);
-        return out.write(data, numBytes);
+        // Make a look that we read all numBytes
+        if(in) {
+            in.seekg(endPos);
+        }
     }
-
-    std::ostream& WriteSurface(std::ostream &out, const Surface &surface)
-    {
-        
-    }
-
     
 } // namespace TGX

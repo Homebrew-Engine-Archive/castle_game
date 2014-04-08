@@ -1,6 +1,7 @@
 #ifndef GM1_H_
 #define GM1_H_
 
+#include <utility>
 #include <iosfwd>
 #include <array>
 
@@ -118,6 +119,23 @@ namespace GM1
         Unknown1
     };
 
+    // For example
+    enum class SizeCategory : uint32_t
+    {
+        Undefined = 0,
+        Size30x30 = 1,
+        Size55x55 = 2,
+        Size75x75 = 3,
+        Unknown0 = 4,
+        Size100x100 = 5,
+        Size11x110 = 6,
+        Size130x130 = 7,
+        Unknown1 = 8,
+        Size185x185 = 9,
+        Size250x250 = 10,
+        Size180x180 = 11
+    };
+    
     std::string GetImageClassName(uint32_t dataClass);
     
     GM1::Encoding GetEncoding(uint32_t dataClass);
@@ -131,6 +149,12 @@ namespace GM1
     void PrintHeader(std::ostream &out, const Header &gm1);
     void PrintPalette(std::ostream &out, const Palette &palette);
 
+    SizeCategory ReadSizeCategory(std::istream &in);
+    std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat);
+    
+    SizeCategory GetSizeCategoryByDims(int width, int height);
+    std::pair<int, int> GetDimsBySizeCategory(SizeCategory);
+    
 } // namespace GM1
 
 #endif

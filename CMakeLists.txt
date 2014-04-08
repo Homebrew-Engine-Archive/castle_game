@@ -17,6 +17,8 @@ cxx_set_flag ("-pedantic" CXX_PEDANTIC_WARNINGS)
 cxx_set_flag ("-Wall" CXX_WALL_WARNINGS)
 cxx_set_flag ("-Wextra" CXX_EXTRA_WARNINGS)
 cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_CODE)
+
+# I have already caught two bugs with unused something. Be aware.
 # cxx_set_flag ("-Wno-unused-parameter" CXX_NO_UNUSED_PARAMETER)
 
 include (FindPkgConfig)

@@ -1,4 +1,5 @@
 #include "sdl_utils.h"
+
 #include <iostream>
 #include <initializer_list>
 

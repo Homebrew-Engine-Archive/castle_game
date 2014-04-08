@@ -1,33 +1,21 @@
 #include "filesystem.h"
 
+#include <memory>
 #include <SDL.h>
-
-namespace
-{
-    
-    FilePath SubPath(const FilePath &root, const FilePath &sub, const FilePath &filename)
-    {
-        FilePath path = root;
-        path /= sub;
-        path += filename;
-        return path;
-    }
-    
-}
 
 FilePath GetFXPath(const FilePath &filename)
 {
-    return SubPath(GetRootPath(), "fx/", filename);
+    return GetRootPath() / "fx" / filename;
 }
 
 FilePath GetGFXPath(const FilePath &filename)
 {
-    return SubPath(GetRootPath(), "gfx/", filename);
+    return GetRootPath() / "gfx" / filename;
 }
 
 FilePath GetGMPath(const FilePath &filename)
 {
-    return SubPath(GetRootPath(), "gm/", filename);
+    return GetRootPath() / "gm" / filename;
 }
 
 FilePath GetGM1FilePath(const FilePath &filename, const FilePath &ext)
@@ -46,16 +34,12 @@ FilePath GetTGXFilePath(const FilePath &filename, const FilePath &ext)
 
 FilePath GetRootPath()
 {
-    static std::unique_ptr<char[]> ptr =
-        std::unique_ptr<char[]>(SDL_GetBasePath());
-
-    return FilePath(ptr.get());
+    static FilePath staticBasePath(SDL_GetBasePath());
+    return staticBasePath;
 }
 
 FilePath GetPrefPath()
 {
-    static std::unique_ptr<char[]> ptr =
-        std::unique_ptr<char[]>(SDL_GetPrefPath("stockade", "stockade"));
-    
-    return FilePath(ptr.get());
+    static FilePath staticPrefPath(SDL_GetPrefPath("castlegame", "castlegame"));
+    return staticPrefPath;
 }

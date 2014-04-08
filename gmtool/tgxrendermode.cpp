@@ -1,14 +1,19 @@
 #include "tgxrendermode.h"
 
-#include "game/tgx.h"
-#include "game/gm1.h"
-#include "game/gm1reader.h"
-#include "game/gm1entryreader.h"
+#include <game/tgx.h>
+#include <game/gm1.h>
+#include <game/gm1reader.h>
+#include <game/gm1entryreader.h>
+#include <game/endianness.h>
+#include <game/surface.h>
 
 #include <fstream>
-#include <boost/program_options.hpp>
 #include <string>
 #include <vector>
+
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/program_options.hpp>
 
 namespace bpo = boost::program_options;
 
@@ -38,14 +43,16 @@ namespace GMTool
         }
 
         // TODO need to convert palette
-
         uint32_t width = reader.Header().width;
         uint32_t height = reader.Header().height;
         
+        const GM1::GM1EntryReader *er = reader.EntryReader();
+        GM1::EntryHeader header = reader.EntryHeader(index);
+
         std::ofstream fout(output, std::ios_base::binary);
-        fout.write(reinterpret_cast<char*>(&width), sizeof(width));
-        fout.write(reinterpret_cast<char*>(&height), sizeof(height));
-        fout.write(reader.EntryData(index), reader.EntrySize(index));
+        //TGX::WriteTGX(fout, er->Width(header), er->Height(header), reader.EntryData(index), reader.EntrySize(index));
+
+
 
         if(!fout) {
             std::ostringstream oss;

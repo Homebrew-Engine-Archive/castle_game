@@ -17,28 +17,7 @@ namespace
         oss << where << " failed: " << what;
         throw std::runtime_error(oss.str());
     }
-    
-    Surface DecodeGM1Glyph(const Surface &src)
-    {
-        Surface rgb32 = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ARGB8888, NoFlags);
-        if(rgb32.Null()) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
-
-        // Swap green channel with alpha channel, so
-        // fully white pixels remain unchanged, but
-        // magenta-colored pixels become alpha-blended
-
-        // This way we are also reaching font-aliasing
-        auto swap_green_alpha = [](uint8_t r, uint8_t g, uint8_t b, uint8_t) {
-            return SDL_Color { r, 255, b, g };
-        };
-    
-        MapSurface(rgb32, swap_green_alpha);
-
-        return rgb32;
-    }
-    
+        
     void AddNonPrintableGlyphs(Surface face, int xadvance, int ybearing, Render::Font &font)
     {
         const int NonPrintableLast = '!';
@@ -119,7 +98,7 @@ namespace Render
                 glyph.hbox = 0;
                 glyph.vbox = 0;
             } else {
-                glyph.face = DecodeGM1Glyph(entry->surface);
+                glyph.face = entry->surface;
                 glyph.hbox = glyph.face->w;
                 glyph.vbox = glyph.face->h;
             }

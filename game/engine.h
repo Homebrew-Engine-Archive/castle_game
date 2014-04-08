@@ -5,13 +5,23 @@
 #include <sstream>
 #include <memory>
 #include <SDL.h>
-#include <game/network.h>
-#include <game/screen.h>
-#include <game/screenmanager.h>
-#include <game/graphicsmanager.h>
+
+#include <boost/asio.hpp>
+
+namespace UI
+{
+    class ScreenManager;
+    class Screen;
+}
+
+namespace Network
+{
+    class Server;
+}
 
 namespace Render
 {
+    class GraphicsManager;
     class Renderer;
 }
 
@@ -46,6 +56,7 @@ namespace Castle
         explicit Engine(Render::Renderer*);
         Engine(Engine const&) = delete;
         Engine &operator=(Engine const&) = delete;
+        virtual ~Engine();
     
         int Exec();
         Render::Renderer *GetRenderer();

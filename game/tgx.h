@@ -13,10 +13,6 @@ namespace TGX
      * TGX is a compression approach for images. It is
      * mainly a kind of RLE compression.
      */
-    
-    const size_t TileBytes = 512;
-    const size_t TileWidth = 30;
-    const size_t TileHeight = 16;
 
     // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
     // 1111100000011111
@@ -74,20 +70,20 @@ namespace TGX
 
     constexpr int GetAlpha(int color)
     {
-        return GetChannel(color, AlphaMask16, AlphaShift16);
+        return color & AlphaMask16;
     }
 
-    void DecodeTGX(std::istream&, size_t numBytes, Surface &surface);
-
-    void DecodeBitmap(std::istream&, size_t numBytes, Surface &surface);
-
-    void DecodeTile(std::istream&, size_t numBytes, Surface &surface);
+    std::istream& DecodeBuffer(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
+    
+    void DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
 
     Surface ReadTGX(std::istream&);
 
-    std::ostream& WriteEncoded(std::ostream&, int width, int height, char const*, size_t numBytes);
+    std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPerPixel);
+    
+    std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
 
-    std::ostream& WriteSurface(std::ostream&, const Surface &surface);
+    std::ostream& WriteTGX(std::ostream&, int width, int height, char const*, size_t numBytes);
     
 } // namespace TGX
 

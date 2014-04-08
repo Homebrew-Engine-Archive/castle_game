@@ -32,7 +32,7 @@ namespace GM1
         virtual uint32_t BlueMask() const;
         virtual uint32_t AlphaMask() const;
         virtual uint32_t ColorKey() const;
-        Surface Load(GM1::GM1Reader &reader, size_t index) const;
+        Surface Load(const GM1::GM1Reader &reader, size_t index) const;
         
     };
 

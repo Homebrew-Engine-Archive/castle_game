@@ -32,6 +32,19 @@ namespace Render
         virtual const CollectionData &QueryCollection(const FilePath &filename) = 0;
         virtual bool CacheCollection(const FilePath &filepath) = 0;
         virtual bool CacheFontCollection(const FontCollectionInfo &info) = 0;
+
+        virtual void LoadIdentity() {}
+        virtual void Translate(int, int) {}
+        virtual void SetAlphaMod(int) {}
+        virtual void SetRedMod(int) {}
+        virtual void SetGreenMod(int) {}
+        virtual void SetBlueMod(int) {}
+        virtual void SetPalette(SDL_Palette const*) {}
+        virtual void ComposeAlpha(char const*, size_t) {}
+
+        virtual void RenderTGXGlyph(char const*, size_t) {}
+        virtual void RenderTGX8(char const*, size_t) {}
+        virtual void RenderTGX16(char const*, size_t) {}
     };
 
     std::unique_ptr<Renderer> CreateRenderer(SDL_Renderer *renderer);

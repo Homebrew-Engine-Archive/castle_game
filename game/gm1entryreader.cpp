@@ -16,6 +16,10 @@
 namespace
 {
 
+    const size_t TileBytes = 512;
+    const size_t TileWidth = 30;
+    const size_t TileHeight = 16;
+    
     void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
@@ -74,6 +78,12 @@ namespace
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
+    class FontReader : public GM1::GM1EntryReader
+    {
+    protected:
+        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+    };
+    
     /**
      * \brief Reader for tile textures.
      *
@@ -87,11 +97,11 @@ namespace
     {
     public:
         int Width(GM1::EntryHeader const&) const {
-            return TGX::TileWidth;
+            return TileWidth;
         }
         
         int Height(const GM1::EntryHeader &header) const {
-            return TGX::TileHeight + header.tileY;
+            return TileHeight + header.tileY;
         }
         
     protected:
@@ -112,31 +122,102 @@ namespace
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
-
+    
     void TGX8::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
     {
-        TGX::DecodeTGX(in, numBytes, surface);
+        TGX::DecodeSurface(in, numBytes, surface);
     }
 
     void TGX16::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
     {
-        TGX::DecodeTGX(in, numBytes, surface);
+        TGX::DecodeSurface(in, numBytes, surface);
     }
 
+    void FontReader::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    {
+        TGX::DecodeSurface(in, numBytes, surface);
+
+        // Originally I found that just color-keying of an image
+        // doesn't work properly. After skipping all fully-transparent
+        // pixels of the image some opaque magenta "halo" still remains.
+        //
+        // In the way to solve it i'd just swapped green channel with alpha
+        // and go clean my hands.
+        // 
+        // TODO is there a better way to do so?
+        surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, NoFlags);
+        if(surface.Null()) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+
+        // Here we just ignore original color information. What we are really
+        // interested in is green channel
+        auto swap_green_alpha = [](uint8_t, uint8_t g, uint8_t, uint8_t) {
+            return SDL_Color { 255, 255, 255, g };
+        };
+    
+        MapSurface(surface, swap_green_alpha);
+    }
+
+    void ReadBitmap(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        const SurfaceLocker lock(surface);
+
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        const size_t rowBytes = surface->w * bytesPerPixel;
+        char *dst = GetPixels(surface);
+    
+        while(numBytes >= rowBytes) {
+            in.read(dst, rowBytes);
+            dst += surface->pitch;
+            numBytes -= rowBytes;
+        }
+    }
+    
     void Bitmap::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
     {
-        TGX::DecodeBitmap(in, numBytes, surface);
+        ReadBitmap(in, numBytes, surface);
+    }
+    
+    // Width of rhombus rows in pixels.
+    // \todo should it be placed in separate header file?
+    inline int GetTilePixelsPerRow(int row)
+    {
+        static const int PerRow[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
+        return PerRow[row];
     }
 
+    void ReadTile(std::istream &in, size_t numBytes, Surface &surface)
+    {
+        if(numBytes < TileBytes) {
+            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
+        }
+
+        const SurfaceLocker lock(surface);
+
+        const int pitch = surface->pitch;
+        const int height = TileHeight;
+        const int width = TileWidth;
+        const int bytesPerPixel = surface->format->BytesPerPixel;
+        char *dst = GetPixels(surface);
+    
+        for(int y = 0; y < height; ++y) {
+            const int length = GetTilePixelsPerRow(y);
+            const int offset = (width - length) / 2;
+            in.read(dst + offset * bytesPerPixel, length * bytesPerPixel);
+            dst += pitch;
+        }
+    }
+    
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TGX::TileHeight);
+        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TileHeight);
         SurfaceROI tile(surface, &tilerect);
-        TGX::DecodeTile(in, TGX::TileBytes, tile);
+        ReadTile(in, TileBytes, tile);
 
         SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceROI box(surface, &boxrect);
-        TGX::DecodeTGX(in, numBytes - TGX::TileBytes, box);
+        TGX::DecodeSurface(in, numBytes - TileBytes, box);
     }
     
 }
@@ -166,7 +247,7 @@ namespace GM1
         return surface;
     }
 
-    Surface GM1EntryReader::Load(GM1::GM1Reader &reader, size_t index) const
+    Surface GM1EntryReader::Load(const GM1::GM1Reader &reader, size_t index) const
     {
         const GM1::EntryHeader &header = reader.EntryHeader(index);
 
@@ -224,7 +305,9 @@ namespace GM1
     std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Encoding &encoding)
     {
         switch(encoding) {
-        case GM1::Encoding::Font: /* fallthrough */
+        case GM1::Encoding::Font:
+            return std::unique_ptr<GM1EntryReader>(new FontReader);
+            
         case GM1::Encoding::TGX16:
             return std::unique_ptr<GM1EntryReader>(new TGX16);
                 
