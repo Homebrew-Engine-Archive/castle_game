@@ -11,7 +11,7 @@
 * Headers should have .h extension.
 * Source files should have .cpp extension.
 * Source and headers both should be all lower case, shouldn't contain spaces and be written idealln without underscores.
-Examples: `longlivethequeen.h' and `longlivethequeen.cpp` or 'long_live_the_queen.h` and 'long_live_the_queen.cpp`
+Examples: `longlivethequeen.h` and `longlivethequeen.cpp` or `long_live_the_queen.h` and `long_live_the_queen.cpp`
 * Header and source both live in the same directory.
 * Explicit variable's type declaration is preferrable to implicit (e.g. auto or decltype).
 * Fully qualified names are preferrable to usings.

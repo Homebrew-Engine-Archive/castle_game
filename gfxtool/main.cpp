@@ -4,6 +4,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 #include <SDL.h>
 
