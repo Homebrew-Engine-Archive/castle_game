@@ -5,21 +5,23 @@
 #include "game/surface.h"
 #include "game/gm1.h"
 
-#include "strutils.h"
-#include "infomode.h"
-#include "rendermode.h"
-#include "dumpmode.h"
+#include <boost/program_options.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <SDL.h>
 
 #include <algorithm>
 #include <sstream>
 #include <memory>
-#include <SDL.h>
 #include <exception>
 #include <stdexcept>
 #include <fstream>
-#include <boost/program_options.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/path.hpp>
+
+#include "strutils.h"
+#include "infomode.h"
+#include "rendermode.h"
+#include "dumpmode.h"
 
 int main(int argc, const char *argv[])
 {

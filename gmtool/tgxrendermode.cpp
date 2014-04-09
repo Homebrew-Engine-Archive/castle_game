@@ -33,26 +33,22 @@ namespace GMTool
     {
         std::string archive = vars["archive"].as<std::string>();
         std::string output = vars["output"].as<std::string>();
-        int index = vars["index"].as<int>();
+        int entryIndex = vars["index"].as<int>();
+        int paletteIndex = vars["palette"].as<int>();
 
         GM1::GM1Reader reader(archive);
         std::cout << archive << " has " << reader.NumEntries() << " entries" << std::endl;
             
-        if(index >= reader.NumEntries()) {
+        if(entryIndex >= reader.NumEntries()) {
             throw std::runtime_error("Index out of range");
         }
-
-        // TODO need to convert palette
-        uint32_t width = reader.Header().width;
-        uint32_t height = reader.Header().height;
         
         const GM1::GM1EntryReader *er = reader.EntryReader();
-        GM1::EntryHeader header = reader.EntryHeader(index);
 
-        std::ofstream fout(output, std::ios_base::binary);
-        //TGX::WriteTGX(fout, er->Width(header), er->Height(header), reader.EntryData(index), reader.EntrySize(index));
+        Surface surface = er->Load(reader, entryIndex);
 
-
+        std::ofstream fout(output, std::ios_base::binary);        
+        TGX::WriteSurface(fout, surface);
 
         if(!fout) {
             std::ostringstream oss;

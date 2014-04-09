@@ -1,14 +1,16 @@
 #include "main.h"
 
+#include <sstream>
 #include <memory>
 #include <fstream>
 #include <iostream>
+
 #include <SDL.h>
 
-#include "game/sdl_utils.h"
-#include "game/sdl_init.h"
-#include "game/surface.h"
-#include "game/tgx.h"
+#include <game/sdl_utils.h>
+#include <game/sdl_init.h>
+#include <game/surface.h>
+#include <game/tgx.h>
 
 int main(int argc, char *argv[])
 {
@@ -23,9 +25,18 @@ int main(int argc, char *argv[])
         throw std::runtime_error("Can't open file");
     }
     
-    Surface surface = TGX::ReadTGX(fin);
+    Surface surf = NULL;
+    TGX::ReadSurfaceHeader(fin, surf);
+    SDL_FillRect(surf, NULL, 0x8000);
 
-    return ShowSurface(surface);
+    std::streampos origin = fin.tellg();
+    fin.seekg(0, std::ios_base::end);
+    std::streampos fsize = fin.tellg();
+    fin.seekg(origin);
+    
+    TGX::DecodeSurface(fin, fsize, surf);
+    
+    return ShowSurface(surf);
 }
 
 int ShowSurface(const Surface &surface)

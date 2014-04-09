@@ -42,7 +42,7 @@ namespace
      * Each token has its length. It is represented by lower 5 bits.
      * \note There are no 0 length.
      */
-    constexpr size_t ExtractTokenLength(token_t token)
+    constexpr int ExtractTokenLength(token_t token)
     {
         return (token & 0x1f) + 1;
     }
@@ -109,6 +109,13 @@ namespace
         header.height = Endian::ReadLittle<uint32_t>(in);
         return in;
     }
+
+    std::ostream& WriteHeader(std::ostream &out, const Header &header)
+    {
+        Endian::WriteLittle<uint32_t>(out, header.width);
+        Endian::WriteLittle<uint32_t>(out, header.height);
+        return out;
+    }
     
     Surface CreateCompatibleSurface(int width, int height, int bpp)
     {
@@ -131,13 +138,6 @@ namespace
         return surface;
     }
     
-    void RepeatPixel(const char *pixel, char *buff, size_t size, size_t count)
-    {
-        for(size_t i = 0; i < count; ++i) {
-            std::copy(pixel, pixel + size, buff + size * i);
-        }
-    }
-
     bool PixelsEqual(const char *lhs, const char *rhs, int bytesPerPixel)
     {
         return std::equal(lhs, lhs + bytesPerPixel, rhs);
@@ -156,28 +156,35 @@ namespace
     
     std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
-        Endian::WriteLittle<uint8_t>(out, MakeStreamToken(numPixels));
-        return out.write(pixels, numPixels * bytesPerPixel);
+        if(numPixels > 0) {
+            Endian::WriteLittle<token_t>(out, MakeStreamToken(numPixels));
+            return out.write(pixels, numPixels * bytesPerPixel);
+        }
+
+        return out;
     }
 
     std::ostream& WriteLineFeed(std::ostream &out)
     {
-        return Endian::WriteLittle<uint8_t>(out, MakeLineFeedToken());
+        return Endian::WriteLittle<token_t>(out, MakeLineFeedToken());
     }
 
     std::ostream& WriteTransparentToken(std::ostream &out, int numPixels)
     {
-        return Endian::WriteLittle<uint8_t>(out, MakeTransparentToken(numPixels));
+        if(numPixels > 0) {
+            return Endian::WriteLittle<token_t>(out, MakeTransparentToken(numPixels));
+        }
+
+        return out;
     }
     std::ostream& WriteRepeatToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
-        // We just ignore endianess since pixels are forced to be LE
-        if(PixelTransparent(pixels, bytesPerPixel)) {
-            return WriteTransparentToken(out, numPixels);
+        if(numPixels > 0) {
+            Endian::WriteLittle<token_t>(out, MakeRepeatToken(numPixels));
+            return out.write(pixels, bytesPerPixel);
         }
-        
-        Endian::WriteLittle<uint8_t>(out, MakeRepeatToken(numPixels));
-        return out.write(pixels, bytesPerPixel);
+
+        return out;
     }
     
 }
@@ -185,72 +192,174 @@ namespace
 namespace TGX
 {
     
-    std::ostream& WriteTGX(std::ostream &out, int width, int height, const char *data, size_t numBytes)
-    {
-        Endian::WriteLittle<uint32_t>(out, width);
-        Endian::WriteLittle<uint32_t>(out, height);
-        return out.write(data, numBytes);
-    }
-
     std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)
     {
         const char *end = pixels + width * bytesPerPixel;
-        const char *streamStart = pixels;
-        const char *repeatStart = pixels;
+        const char *cursor = pixels;
+        const char *mark = pixels;
 
-        while(pixels != end) {
-            assert((pixels - streamStart) <= MaxTokenLength);
-            assert((pixels - repeatStart) <= MaxTokenLength);
+        TokenType state = TokenType::Stream;
+        
+        while(cursor != end) {
+            const int count = PixelsCount(mark, cursor, bytesPerPixel);
 
-            const int numStream = PixelsCount(streamStart, pixels, bytesPerPixel);
-            if(numStream == MaxTokenLength) {
-                if(streamStart != repeatStart) {
-                    const int numStreamBeforeRepeat = PixelsCount(streamStart, repeatStart, bytesPerPixel);
-                    WriteStreamToken(out, streamStart, numStreamBeforeRepeat, bytesPerPixel);
-                    streamStart = repeatStart;
-                } else {
-                    WriteRepeatToken(out, streamStart, numStream, bytesPerPixel);
-                    repeatStart = pixels;
-                    streamStart = pixels;
+            const bool isTransparent = PixelTransparent(cursor, bytesPerPixel);
+            const bool isRepeat = ((cursor != pixels)
+                                   ? PixelsEqual(cursor - bytesPerPixel, cursor, bytesPerPixel)
+                                   : false);
+
+            switch(state) {
+            case TokenType::Stream:
+                {
+                    switch(count) {
+                    case MaxTokenLength:
+                        {
+                            if(isTransparent) {
+                                // <write stream token from streamStart to cursor>
+                                WriteStreamToken(out, mark, count, bytesPerPixel);
+                                mark = cursor;
+                                state = TokenType::Transparent;
+                            } else if(isRepeat) {
+                                // <write stream token from streamStart to cursor - 1>
+                                WriteStreamToken(out, mark, count - 1, bytesPerPixel);
+                                mark = cursor - bytesPerPixel;
+                                state = TokenType::Repeat;
+                            } else {
+                                // <write stream token from streamStart to cursor>
+                                WriteStreamToken(out, mark, count, bytesPerPixel);
+                                mark = cursor;
+                            }
+                        }
+                        break;
+                        
+                    default:
+                        {
+                            if(isTransparent) {
+                                // <write stream token from streamStart to cursor>
+                                WriteStreamToken(out, mark, count, bytesPerPixel);
+                                mark = cursor;
+                                state = TokenType::Transparent;
+                            } else if(isRepeat) {
+                                // <write stream token from streamStart to repeatStart>
+                                const char *streamStart = mark;
+                                const char *streamEnd = cursor - bytesPerPixel;
+                                int streamLength = PixelsCount(streamStart, streamEnd, bytesPerPixel);
+                                WriteStreamToken(out, streamStart, streamLength, bytesPerPixel);
+                                mark = streamEnd;
+                                state = TokenType::Repeat;
+                            }
+                        }
+                        break;
+                    }
                 }
-            }
-
-            if(!PixelsEqual(repeatStart, pixels, bytesPerPixel)) {
-                const int numRepeat = PixelsCount(repeatStart, pixels, bytesPerPixel);
-                if(numRepeat >= 2) {
-                    WriteRepeatToken(out, repeatStart, numRepeat, bytesPerPixel);
-                }
-                repeatStart = pixels;
-            }
-
-            pixels += bytesPerPixel;
-        }
-
-        const int numStream = PixelsCount(streamStart, pixels, bytesPerPixel);
-        const int numRepeat = PixelsCount(repeatStart, pixels, bytesPerPixel);
-
-        if(numRepeat >= 2) {
-            if(numStream > numRepeat) {
-                const int numStreamBeforeRepeat = PixelsCount(streamStart, repeatStart, bytesPerPixel);
-                WriteStreamToken(out, streamStart, numStreamBeforeRepeat, bytesPerPixel);
-            }
-            WriteRepeatToken(out, repeatStart, numRepeat, bytesPerPixel);
-        } else if(numStream != 0) {
-            WriteStreamToken(out, streamStart, numStream, bytesPerPixel);
-        }
+                break;
                 
+            case TokenType::Transparent:
+                {
+                    switch(count) {
+                    case MaxTokenLength:
+                        {
+                            // <write transparent token from transparentStart to cursor>
+                            WriteTransparentToken(out, count);
+                            mark = cursor;
+                            if(isTransparent) {
+                                state = TokenType::Transparent;
+                            } else {
+                                state = TokenType::Stream;
+                            }
+                        }
+                        break;
+
+                    default:
+                        {
+                            if(!isTransparent) {
+                                // <write transparent token from transparentStart to cursor>
+                                WriteTransparentToken(out, count);
+                                mark = cursor;
+                                state = TokenType::Stream;
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
+
+            case TokenType::Repeat:
+                {
+                    switch(count) {
+                    case MaxTokenLength:
+                        {
+                            // <write repeat token from repeatStart to cursor>
+                            WriteRepeatToken(out, mark, count, bytesPerPixel);
+                            mark = cursor;
+                            if(isTransparent) {
+                                state = TokenType::Transparent;
+                            } else {
+                                state = TokenType::Stream;
+                            }
+                        }
+                        break;
+                    
+                    default:
+                        {
+                            if(isTransparent) {
+                                // <write repeat token from repeatStart to cursor>
+                                WriteRepeatToken(out, mark, count, bytesPerPixel);
+                                mark = cursor;
+                                state = TokenType::Transparent;
+                            } else if(!isRepeat) {
+                                // <write repeat token from repeatStart to cursor>
+                                WriteRepeatToken(out, mark, count, bytesPerPixel);
+                                mark = cursor;
+                                state = TokenType::Stream;
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            cursor += bytesPerPixel;
+        }
+
+        int count = PixelsCount(mark, end, bytesPerPixel);
+        if(count > 0) {
+            switch(state) {
+            case TokenType::Stream:
+                WriteStreamToken(out, mark, count, bytesPerPixel);
+                break;
+            
+            case TokenType::Repeat:
+                WriteRepeatToken(out, mark, count, bytesPerPixel);
+                break;
+            
+            case TokenType::Transparent:
+                WriteTransparentToken(out, count);
+                break;
+
+            default:
+                break;
+            }
+        }
+        
         return WriteLineFeed(out);
     }
     
     std::ostream& EncodeSurface(std::ostream &out, const Surface &surface)
     {
-        SurfaceLocker lock(surface);
+        const SurfaceLocker lock(surface);
+        
         const char *pixelsPtr = ConstGetPixels(surface);
         const int bytesPerPixel = surface->format->BytesPerPixel;
 
         for(int row = 0; row < surface->h; ++row) {
-            if(!EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel)) {
-                break;
+            EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel);
+            if(!out) {
+                return out;
             }
             pixelsPtr += surface->pitch;
         }
@@ -258,6 +367,24 @@ namespace TGX
         return out;
     }
 
+    std::ostream& WriteTGX(std::ostream &out, int width, int height, const char *data, size_t numBytes)
+    {
+        Header header;
+        header.width = width;
+        header.height = height;
+        WriteHeader(out, header);
+        return out.write(data, numBytes);
+    }
+    
+    std::ostream& WriteSurface(std::ostream &out, const Surface &surface)
+    {
+        Header header;
+        header.width = surface->w;
+        header.height = surface->h;
+        WriteHeader(out, header);
+        return EncodeSurface(out, surface);
+    }
+    
     Surface ReadTGX(std::istream &in)
     {
         Header header;
@@ -377,4 +504,15 @@ namespace TGX
         }
     }
     
+    std::istream& ReadSurfaceHeader(std::istream &in, Surface &surface)
+    {
+        Header header;
+        if(!ReadHeader(in, header)) {
+            Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
+        }
+        surface = CreateCompatibleSurface(header.width, header.height, 16);
+        return in;
+    }
+    
 } // namespace TGX
+

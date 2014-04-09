@@ -77,13 +77,19 @@ namespace TGX
     
     void DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
 
-    Surface ReadTGX(std::istream&);
+    std::istream& ReadSurfaceHeader(std::istream &, Surface &surface);
 
+    Surface ReadTGX(std::istream&);
+    
     std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPerPixel);
     
     std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
 
     std::ostream& WriteTGX(std::ostream&, int width, int height, char const*, size_t numBytes);
+
+    std::ostream& WriteSurface(std::ostream&, const Surface &surface);
+
+    std::ostream& WriteSurfaceHeader(std::ostream&, const Surface &surface);
     
 } // namespace TGX
 
