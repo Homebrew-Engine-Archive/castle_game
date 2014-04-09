@@ -191,7 +191,7 @@ namespace
 
 namespace TGX
 {
-    
+
     std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)
     {
         const char *end = pixels + width * bytesPerPixel;
@@ -211,110 +211,73 @@ namespace TGX
             switch(state) {
             case TokenType::Stream:
                 {
-                    switch(count) {
-                    case MaxTokenLength:
-                        {
-                            if(isTransparent) {
-                                // <write stream token from streamStart to cursor>
-                                WriteStreamToken(out, mark, count, bytesPerPixel);
-                                mark = cursor;
-                                state = TokenType::Transparent;
-                            } else if(isRepeat) {
-                                // <write stream token from streamStart to cursor - 1>
-                                WriteStreamToken(out, mark, count - 1, bytesPerPixel);
-                                mark = cursor - bytesPerPixel;
-                                state = TokenType::Repeat;
-                            } else {
-                                // <write stream token from streamStart to cursor>
-                                WriteStreamToken(out, mark, count, bytesPerPixel);
-                                mark = cursor;
-                            }
+                    if(count == MaxTokenLength) {
+                        if(isTransparent) {
+                            WriteStreamToken(out, mark, count, bytesPerPixel);
+                            mark = cursor;
+                            state = TokenType::Transparent;
+                        } else if(isRepeat) {
+                            WriteStreamToken(out, mark, count - 1, bytesPerPixel);
+                            mark = cursor - bytesPerPixel;
+                            state = TokenType::Repeat;
+                        } else {
+                            WriteStreamToken(out, mark, count, bytesPerPixel);
+                            mark = cursor;
                         }
-                        break;
-                        
-                    default:
-                        {
-                            if(isTransparent) {
-                                // <write stream token from streamStart to cursor>
-                                WriteStreamToken(out, mark, count, bytesPerPixel);
-                                mark = cursor;
-                                state = TokenType::Transparent;
-                            } else if(isRepeat) {
-                                // <write stream token from streamStart to repeatStart>
-                                const char *streamStart = mark;
-                                const char *streamEnd = cursor - bytesPerPixel;
-                                int streamLength = PixelsCount(streamStart, streamEnd, bytesPerPixel);
-                                WriteStreamToken(out, streamStart, streamLength, bytesPerPixel);
-                                mark = streamEnd;
-                                state = TokenType::Repeat;
-                            }
+                    } else {
+                        if(isTransparent) {
+                            WriteStreamToken(out, mark, count, bytesPerPixel);
+                            mark = cursor;
+                            state = TokenType::Transparent;
+                        } else if(isRepeat) {
+                            WriteStreamToken(out, mark, count - 1, bytesPerPixel);
+                            mark = cursor - bytesPerPixel;
+                            state = TokenType::Repeat;
                         }
-                        break;
                     }
                 }
                 break;
                 
             case TokenType::Transparent:
                 {
-                    switch(count) {
-                    case MaxTokenLength:
-                        {
-                            // <write transparent token from transparentStart to cursor>
+                    if(count == MaxTokenLength) {
+                        WriteTransparentToken(out, count);
+                        mark = cursor;
+                        if(isTransparent) {
+                            state = TokenType::Transparent;
+                        } else {
+                            state = TokenType::Stream;
+                        }
+                    } else {
+                        if(!isTransparent) {
                             WriteTransparentToken(out, count);
                             mark = cursor;
-                            if(isTransparent) {
-                                state = TokenType::Transparent;
-                            } else {
-                                state = TokenType::Stream;
-                            }
+                            state = TokenType::Stream;
                         }
-                        break;
-
-                    default:
-                        {
-                            if(!isTransparent) {
-                                // <write transparent token from transparentStart to cursor>
-                                WriteTransparentToken(out, count);
-                                mark = cursor;
-                                state = TokenType::Stream;
-                            }
-                        }
-                        break;
                     }
                 }
                 break;
 
             case TokenType::Repeat:
                 {
-                    switch(count) {
-                    case MaxTokenLength:
-                        {
-                            // <write repeat token from repeatStart to cursor>
+                    if(count == MaxTokenLength) {
+                        WriteRepeatToken(out, mark, count, bytesPerPixel);
+                        mark = cursor;
+                        if(isTransparent) {
+                            state = TokenType::Transparent;
+                        } else {
+                            state = TokenType::Stream;
+                        }
+                    } else {
+                        if(isTransparent) {
                             WriteRepeatToken(out, mark, count, bytesPerPixel);
                             mark = cursor;
-                            if(isTransparent) {
-                                state = TokenType::Transparent;
-                            } else {
-                                state = TokenType::Stream;
-                            }
+                            state = TokenType::Transparent;
+                        } else if(!isRepeat) {
+                            WriteRepeatToken(out, mark, count, bytesPerPixel);
+                            mark = cursor;
+                            state = TokenType::Stream;
                         }
-                        break;
-                    
-                    default:
-                        {
-                            if(isTransparent) {
-                                // <write repeat token from repeatStart to cursor>
-                                WriteRepeatToken(out, mark, count, bytesPerPixel);
-                                mark = cursor;
-                                state = TokenType::Transparent;
-                            } else if(!isRepeat) {
-                                // <write repeat token from repeatStart to cursor>
-                                WriteRepeatToken(out, mark, count, bytesPerPixel);
-                                mark = cursor;
-                                state = TokenType::Stream;
-                            }
-                        }
-                        break;
                     }
                 }
                 break;

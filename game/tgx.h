@@ -80,7 +80,17 @@ namespace TGX
     std::istream& ReadSurfaceHeader(std::istream &, Surface &surface);
 
     Surface ReadTGX(std::istream&);
-    
+
+    /**
+     * \brief Main state machine for encoding sequences of pixels.
+     *
+     * \param out           Output stream.
+     * \param pixels        Input buffer.
+     * \param width         Buffer size in pixels.
+     * \param bytesPerPixel Pixel size in bytes.
+     *
+     * \note Input buffer have real size of width * bytesPerPixel
+     */
     std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPerPixel);
     
     std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
