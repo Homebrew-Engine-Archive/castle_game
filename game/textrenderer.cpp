@@ -1,16 +1,19 @@
 #include "textrenderer.h"
 
+#include <stdexcept>
 #include <sstream>
 #include <iostream>
 #include <vector>
+
 #include <SDL.h>
-#include <boost/current_function.hpp>
 
 #include <game/geometry.h>
 #include <game/text.h>
 #include <game/atlas.h>
 #include <game/font.h>
 #include <game/make_unique.h>
+
+#include <boost/current_function.hpp>
 
 namespace
 {

@@ -23,9 +23,6 @@ namespace
         uint32_t height;
     };
 
-    /**
-       TGX is just the sequence of tokens.
-    **/
     enum class TokenType : int
     {
         Stream = 0,
@@ -38,28 +35,16 @@ namespace
 
     const int MaxTokenLength = 32;
 
-    /**
-     * Each token has its length. It is represented by lower 5 bits.
-     * \note There are no 0 length.
-     */
     constexpr int ExtractTokenLength(token_t token)
     {
         return (token & 0x1f) + 1;
     }
 
-    /**
-     * Each token has its type which are of type TokenType.
-     * It is higher 3 bits.
-     */
     constexpr TokenType ExtractTokenType(token_t token)
     {
         return static_cast<TokenType>(token >> 5);
     }
 
-    /**
-     * Given type and length produce token. Token may be invalid since
-     * its length remains unchecked
-     */
     constexpr token_t MakeToken(TokenType type, int length)
     {
         return ((static_cast<int>(type) & 0x0f) << 5) | ((length - 1) & 0x1f);
@@ -192,6 +177,11 @@ namespace
 namespace TGX
 {
 
+    uint32_t GetPixelFormatEnum()
+    {
+        return SDL_MasksToPixelFormatEnum(16, TGX::RedMask16, TGX::GreenMask16, TGX::BlueMask16, TGX::AlphaMask16);
+    }
+    
     std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)
     {
         const char *end = pixels + width * bytesPerPixel;
@@ -440,7 +430,7 @@ namespace TGX
         return in;
     }
     
-    void DecodeSurface(std::istream &in, size_t numBytes, Surface &surface)
+    std::istream& DecodeSurface(std::istream &in, size_t numBytes, Surface &surface)
     {
         const SurfaceLocker lock(surface);
 
@@ -465,6 +455,8 @@ namespace TGX
         if(in) {
             in.seekg(endPos);
         }
+
+        return in;
     }
     
     std::istream& ReadSurfaceHeader(std::istream &in, Surface &surface)

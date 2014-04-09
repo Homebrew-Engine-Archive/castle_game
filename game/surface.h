@@ -1,7 +1,6 @@
 #ifndef SURFACE_H_
 #define SURFACE_H_
 
-#include <functional>
 #include <SDL.h>
 
 const int NoFlags = 0;
@@ -67,11 +66,7 @@ public:
     SurfaceROI(const Surface &src, const SDL_Rect *roi);
 };
 
-typedef std::function<SDL_Color(uint8_t, uint8_t, uint8_t, uint8_t)> PixelMapper;
-
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
-
-void CopyPixels(const Surface &src, Surface &dst);
 
 bool HasPalette(const Surface &surface);
 

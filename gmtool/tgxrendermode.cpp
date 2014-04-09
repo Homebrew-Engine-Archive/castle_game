@@ -40,14 +40,19 @@ namespace GMTool
         std::cout << archive << " has " << reader.NumEntries() << " entries" << std::endl;
             
         if(entryIndex >= reader.NumEntries()) {
-            throw std::runtime_error("Index out of range");
+            throw std::runtime_error("Entry index out of range");
         }
-        
-        const GM1::GM1EntryReader *er = reader.EntryReader();
 
+        if(paletteIndex >= reader.NumPalettes()) {
+            throw std::runtime_error("Palette index out of range");
+        }
+
+        GM1::Palette palette = reader.Palette(paletteIndex);
+
+        const GM1::GM1EntryReader *er = reader.EntryReader();
         Surface surface = er->Load(reader, entryIndex);
 
-        std::ofstream fout(output, std::ios_base::binary);        
+        std::ofstream fout(output, std::ios_base::binary);
         TGX::WriteSurface(fout, surface);
 
         if(!fout) {

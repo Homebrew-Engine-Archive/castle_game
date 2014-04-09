@@ -4,18 +4,52 @@
 #include <cstdint>
 #include <iosfwd>
 
+/**
+ * TGX is a RLE-like compression algorithm.
+ *
+ * The data are splitted up into triples
+ *
+ *          <type> <length> <data>
+ *
+ * where type has size of 3 bits
+ *       length has size of 5 bits
+ *       and data has size up to <length> pixels
+ *
+ * Each pixel in data has fixed size either 16 or 8 bits (see gm1)
+ *
+ * \note type and length are combined in a single byte (obvious, isn't it?)
+ *
+ * \note length has value in range [1..32] (not in [0..31])
+ *
+ * Type represents how the data are stored.
+ * It might be either just pixels (value 0)
+ *                 or translucent pixels (value 1)
+ *                 or repeated pixel (value 2)
+ *                 or newline token (value 4)
+ *
+ * Type 0 token followed by just array of pixels.
+ * Type 1 token has no followed data. It's transparent color
+ *        are defined above this notice.  
+ * Type 2 token has single pixel which are copied many times.
+ * Type 4 token always has length 1 but no data,
+ *        it ends up each line of image.
+ *
+ * Type is represented by TokenType enumeration
+ * which are defined in cpp.
+ *
+ */
+
 class Surface;
 
 namespace TGX
 {
-
+    
     /**
-     * TGX is a compression approach for images. It is
-     * mainly a kind of RLE compression.
+     * Magenta color as 16 bit transparency.
+     * Actually there are no need in the value of such color.
+     * \note It is not 1 11111 00000 11111 (0x7C1F)
+     *            it's 1 11110 00000 11111
      */
-
-    // Magenta for 16 bit transparency (not 7c1f as i thought earlier)
-    // 1111100000011111
     const uint16_t Transparent16 = 0xF81F;
     
     // Palette's first entry
@@ -36,46 +70,12 @@ namespace TGX
     const uint32_t RedMask16    = 0x00007c00;
     const uint32_t GreenMask16  = 0x000003e0;
     const uint32_t BlueMask16   = 0x0000001f;
+
+    uint32_t GetPixelFormatEnum();
     
-    const int AlphaShift16 = 15;
-    const int RedShift16 = 11;
-    const int GreenShift16 = 5;
-    const int BlueShift16 = 0;
-    
-    /**
-     * \brief Extracts RGB color channel by mask and shift.
-     * \param mask Sequential bitmask.
-     * \param shift Lower color bit index.
-     * \return Value from 0 to 255
-     */
-    constexpr int GetChannel(uint16_t color, int mask, int shift)
-    {
-        return ((color & mask) >> shift) * 255 / ((0xffff & mask) >> shift);
-    }
-
-    constexpr int GetRed(int color)
-    {
-        return GetChannel(color, RedMask16, RedShift16);
-    }
-
-    constexpr int GetGreen(int color)
-    {
-        return GetChannel(color, GreenMask16, GreenShift16);
-    }
-
-    constexpr int GetBlue(int color)
-    {
-        return GetChannel(color, BlueMask16, BlueShift16);
-    }
-
-    constexpr int GetAlpha(int color)
-    {
-        return color & AlphaMask16;
-    }
-
     std::istream& DecodeBuffer(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     
-    void DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
+    std::istream& DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
 
     std::istream& ReadSurfaceHeader(std::istream &, Surface &surface);
 

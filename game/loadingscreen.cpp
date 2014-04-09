@@ -210,7 +210,7 @@ namespace UI
         SDL_Rect bgRect = SurfaceBounds(mBackground);
 
         SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-        SDL_BlitSurface(mBackground, NULL, frame, &bgAligned);
+        BlitSurface(mBackground, NULL, frame, &bgAligned);
     
         SDL_Rect barOuter = MakeRect(300, 25);
         SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);

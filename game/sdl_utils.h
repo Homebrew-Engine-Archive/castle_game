@@ -1,21 +1,10 @@
 #ifndef SDL_UTILS_H_
 #define SDL_UTILS_H_
 
-#include <SDL.h>
-#include <stdexcept>
-#include <memory>
 #include <iosfwd>
+#include <memory>
 
-struct FreeSurfaceDeleter
-{
-    void operator()(SDL_Surface *surface) {
-        if(surface != NULL) {
-            SDL_FreeSurface(surface);
-        }
-    }
-};
-
-typedef std::unique_ptr<SDL_Surface, FreeSurfaceDeleter> SurfacePtr;
+#include <SDL.h>
 
 struct DestroyRendererDeleter
 {
@@ -40,16 +29,6 @@ struct DestroyTextureDeleter
 
 typedef std::unique_ptr<SDL_Texture, DestroyTextureDeleter> TexturePtr;
 
-struct FreePaletteDeleter
-{
-    void operator()(SDL_Palette *palette) const {
-        if(palette != NULL)
-            SDL_FreePalette(palette);
-    }
-};
-
-typedef std::unique_ptr<SDL_Palette, FreePaletteDeleter> PalettePtr;
-
 struct RWCloseDeleter
 {
     void operator()(SDL_RWops *src) const {
@@ -69,6 +48,28 @@ struct DestroyWindowDeleter
 };
 
 typedef std::unique_ptr<SDL_Window, DestroyWindowDeleter> WindowPtr;
+
+struct FreeFormatDeleter
+{
+    void operator()(SDL_PixelFormat *format) const {
+        if(format != NULL) {
+            SDL_FreeFormat(format);
+        }
+    }
+};
+
+typedef std::unique_ptr<SDL_PixelFormat, FreeFormatDeleter> PixelFormatPtr;
+
+struct FreePaletteDeleter
+{
+    void operator()(SDL_Palette *palette) const {
+        if(palette != NULL) {
+            SDL_FreePalette(palette);
+        }
+    }
+};
+
+typedef std::unique_ptr<SDL_Palette, FreePaletteDeleter> PalettePtr;
 
 SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 
