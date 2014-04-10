@@ -32,6 +32,7 @@ set (SRCS
   entityclass.cpp
   gm1reader.cpp
   gm1entryreader.cpp
+  gm1palette.cpp
 )
 
 set (TARGET "a.out")

@@ -24,14 +24,17 @@ namespace GM1
         virtual void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const = 0;
         
     public:
-        virtual int Width(GM1::EntryHeader const&) const;
-        virtual int Height(GM1::EntryHeader const&) const;
-        virtual int Depth() const;
-        virtual uint32_t RedMask() const;
-        virtual uint32_t GreenMask() const;
-        virtual uint32_t BlueMask() const;
-        virtual uint32_t AlphaMask() const;
-        virtual uint32_t ColorKey() const;
+        constexpr int Width(GM1::EntryHeader const&);
+        constexpr virtual int Height(GM1::EntryHeader const&);
+        constexpr virtual int Depth();
+        constexpr virtual uint32_t RedMask();
+        constexpr virtual uint32_t GreenMask();
+        constexpr virtual uint32_t BlueMask();
+        constexpr virtual uint32_t AlphaMask();
+        constexpr virtual uint32_t ColorKey();
+
+        virtual bool Palettized() const;
+        
         Surface Load(const GM1::GM1Reader &reader, size_t index) const;
         
     };

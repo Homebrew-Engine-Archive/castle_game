@@ -36,27 +36,27 @@ namespace
     class TGX8 : public GM1::GM1EntryReader
     {
     public:
-        int Depth() const {
+        constexpr int Depth() {
             return 8;
         }
         
-        uint32_t RedMask() const {
+        constexpr uint32_t RedMask() {
             return DefaultRedMask;
         }
         
-        uint32_t GreenMask() const {
+        constexpr uint32_t GreenMask() {
             return DefaultGreenMask;
         }
         
-        uint32_t BlueMask() const {
+        constexpr uint32_t BlueMask() {
             return DefaultBlueMask;
         }
         
-        uint32_t AlphaMask() const {
+        constexpr uint32_t AlphaMask() {
             return DefaultAlphaMask;
         }
         
-        uint32_t ColorKey() const {
+        constexpr uint32_t ColorKey() {
             return TGX::Transparent8;
         }
 
@@ -96,11 +96,11 @@ namespace
     class TileObject : public GM1::GM1EntryReader
     {
     public:
-        int Width(GM1::EntryHeader const&) const {
+        constexpr int Width(GM1::EntryHeader const&) {
             return TileWidth;
         }
         
-        int Height(const GM1::EntryHeader &header) const {
+        constexpr int Height(const GM1::EntryHeader &header) {
             return TileHeight + header.tileY;
         }
         
@@ -114,7 +114,7 @@ namespace
     class Bitmap : public GM1::GM1EntryReader
     {
     public:
-        int Height(const GM1::EntryHeader &header) const {
+        constexpr int Height(const GM1::EntryHeader &header) {
             // Nobody knows why
             return header.height - 7;
         }
@@ -262,44 +262,49 @@ namespace GM1
         return surface;
     }
     
-    int GM1EntryReader::Width(const GM1::EntryHeader &header) const
+    constexpr int GM1EntryReader::Width(const GM1::EntryHeader &header)
     {
         return header.width;
     }
 
-    int GM1EntryReader::Height(const GM1::EntryHeader &header) const
+    constexpr int GM1EntryReader::Height(const GM1::EntryHeader &header)
     {
         return header.height;
     }
 
-    int GM1EntryReader::Depth() const
+    constexpr int GM1EntryReader::Depth()
     {
         return 16;
     }
 
-    uint32_t GM1EntryReader::RedMask() const
+    constexpr uint32_t GM1EntryReader::RedMask()
     {
         return TGX::RedMask16;
     }
 
-    uint32_t GM1EntryReader::GreenMask() const
+    constexpr uint32_t GM1EntryReader::GreenMask()
     {
         return TGX::GreenMask16;
     }
 
-    uint32_t GM1EntryReader::BlueMask() const
+    constexpr uint32_t GM1EntryReader::BlueMask()
     {
         return TGX::BlueMask16;
     }
 
-    uint32_t GM1EntryReader::AlphaMask() const
+    constexpr uint32_t GM1EntryReader::AlphaMask()
     {
         return TGX::AlphaMask16;
     }
     
-    uint32_t GM1EntryReader::ColorKey() const
+    constexpr uint32_t GM1EntryReader::ColorKey()
     {
         return TGX::Transparent16;
+    }
+
+    bool GM1EntryReader::Palettized() const
+    {
+        return Depth() == 8;
     }
     
     std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Encoding &encoding)

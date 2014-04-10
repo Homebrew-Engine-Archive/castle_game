@@ -6,6 +6,7 @@
 #include <sstream>
 #include <boost/current_function.hpp>
 
+#include <game/gm1palette.h>
 #include <game/endianness.h>
 
 namespace
@@ -114,23 +115,6 @@ namespace GM1
             << "anchorY: "      << header.anchorY << endl
             << "dataSize: "     << header.dataSize << endl
             << "u14: "          << header.u14 << endl;
-    }
-
-    void PrintPalette(std::ostream &out, const Palette &palette)
-    {
-        int column = 0;
-
-        out << std::hex;
-        for(auto color : palette) {
-            column++;
-            
-            if(column % 16 == 0)
-                out << std::endl;
-            
-            out << color << ' ';
-        }
-
-        out << std::endl;
     }
 
     SizeCategory ReadSizeCategory(std::istream &in)

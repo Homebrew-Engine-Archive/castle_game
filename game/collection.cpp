@@ -7,6 +7,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
+#include <game/gm1palette.h>
 #include <game/gm1entryreader.h>
 #include <game/gm1reader.h>
 #include <game/sdl_utils.h>
@@ -27,40 +28,8 @@ namespace
         throw std::runtime_error(oss.str());
     }
 
-    SDL_PixelFormat const* GetPixelFormat()
-    {
-        static PixelFormatPtr ptr(SDL_AllocFormat(TGX::GetPixelFormatEnum()));
-        return ptr.get();
-    }
-    
-    PalettePtr GetSDLPalette(const GM1::Palette &palette)
-    {
-        PalettePtr ptr(SDL_AllocPalette(GM1::CollectionPaletteColors));
-        if(!ptr) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
-                
-        std::vector<SDL_Color> colors;
-        colors.reserve(ptr->ncolors);
-        for(auto color : palette) {
-            uint8_t red = 0;
-            uint8_t green = 0;
-            uint8_t blue = 0;
-            uint8_t alpha = 0;
-            SDL_GetRGBA(color, GetPixelFormat(), &red, &green, &blue, &alpha);
-            
-            colors.push_back(
-                MakeColor(red, green, blue, alpha));
-        }
-
-        if(SDL_SetPaletteColors(ptr.get(), &colors[0], 0, ptr->ncolors) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
-    
-        return ptr;
-    }
 }
-
+    
 CollectionDataPtr LoadCollectionData(const FilePath &path)
 {
     try {
@@ -73,7 +42,7 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
             const GM1::Palette &palette = reader.Palette(index);
             ptr->palettes.push_back(
                 std::move(
-                    GetSDLPalette(palette)));
+                    GM1::CreateSDLPalette(palette)));
         }
 
         for(int index = 0; index < reader.NumEntries(); ++index) {

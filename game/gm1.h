@@ -7,16 +7,9 @@
 
 namespace GM1
 {
-
-    typedef uint16_t PaletteEntry;
     
-    const size_t CollectionPaletteCount = 10;
-    const size_t CollectionPaletteColors = 256;
-    const size_t CollectionPaletteBytes = CollectionPaletteColors * sizeof(PaletteEntry);
     const size_t CollectionEntryHeaderBytes = 16;
     const size_t CollectionHeaderBytes = 88;
-    const size_t PaletteTransparentIndex = 0;
-    const size_t PaletteShadowIndex = 1;
 
     /**
      * \brief Is included in every collection only once.
@@ -103,22 +96,6 @@ namespace GM1
     //     None
     // };
 
-    typedef std::array<PaletteEntry, CollectionPaletteColors> Palette;
-
-    enum class PaletteSet : size_t
-    {
-        Unknown0,
-        Blue,
-        Red,
-        Orange,
-        Yellow,
-        Purple,
-        Black,
-        Cyan,
-        Green,
-        Unknown1
-    };
-
     // For example
     enum class SizeCategory : uint32_t
     {
@@ -147,7 +124,6 @@ namespace GM1
     
     void PrintEntryHeader(std::ostream &out, const EntryHeader &header);
     void PrintHeader(std::ostream &out, const Header &gm1);
-    void PrintPalette(std::ostream &out, const Palette &palette);
 
     SizeCategory ReadSizeCategory(std::istream &in);
     std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat);

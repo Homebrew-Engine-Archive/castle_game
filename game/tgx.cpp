@@ -179,7 +179,7 @@ namespace TGX
 
     uint32_t GetPixelFormatEnum()
     {
-        return SDL_MasksToPixelFormatEnum(16, TGX::RedMask16, TGX::GreenMask16, TGX::BlueMask16, TGX::AlphaMask16);
+        return SDL_PIXELFORMAT_ARGB1555;
     }
     
     std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)

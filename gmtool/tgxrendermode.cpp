@@ -4,6 +4,7 @@
 #include <game/gm1.h>
 #include <game/gm1reader.h>
 #include <game/gm1entryreader.h>
+#include <game/gm1palette.h>
 #include <game/endianness.h>
 #include <game/surface.h>
 
@@ -47,10 +48,28 @@ namespace GMTool
             throw std::runtime_error("Palette index out of range");
         }
 
-        GM1::Palette palette = reader.Palette(paletteIndex);
+        const GM1::GM1EntryReader *entryReader = reader.EntryReader();
+        Surface surface = entryReader->Load(reader, entryIndex);
 
-        const GM1::GM1EntryReader *er = reader.EntryReader();
-        Surface surface = er->Load(reader, entryIndex);
+        if(entryReader->Palettized()) {
+            PixelFormatPtr &&format = GM1::GetPaletteFormat();
+            PalettePtr &&palette = GM1::CreateSDLPalette(
+                reader.Palette(paletteIndex));
+            if(SDL_SetSurfacePalette(surface, palette.get()) < 0) {
+                std::ostringstream oss;
+                oss << "In " << __FILE__ << " at " << __LINE__ << ": ";
+                oss << SDL_GetError();
+                throw std::runtime_error(oss.str());
+            }
+            Surface converted = SDL_ConvertSurface(surface, format.get(), NoFlags);
+            if(converted.Null()) {
+                std::ostringstream oss;
+                oss << "In " << __FILE__ << " at " << __LINE__ << ": ";
+                oss << SDL_GetError();
+                throw std::runtime_error(oss.str());
+            }
+            surface = converted;
+        }
 
         std::ofstream fout(output, std::ios_base::binary);
         TGX::WriteSurface(fout, surface);

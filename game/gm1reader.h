@@ -1,6 +1,7 @@
 #ifndef GM1READER_H_
 #define GM1READER_H_
 
+#include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/filesystem.h>
 #include <game/surface.h>
