@@ -6,30 +6,44 @@
 #include <game/filesystem.h>
 #include <game/surface.h>
 
+#include <boost/filesystem/fstream.hpp>
+
 namespace GM1
 {
     class GM1EntryReader;
 }
 
 namespace GM1
-{
-    
+{    
     class GM1Reader
     {
         bool mIsOpened;
         FilePath mPath;
+        uint32_t mFlags;
+        std::streampos mDataOffset;
+        mutable boost::filesystem::ifstream mStream;
         GM1::Header mHeader;
         std::vector<GM1::EntryHeader> mEntryHeaders;
         std::vector<GM1::Palette> mPalettes;
         std::vector<uint32_t> mSizes;
         std::vector<uint32_t> mOffsets;
         std::vector<char> mBuffer;
+        mutable std::vector<std::vector<char>> mEntries;
         std::unique_ptr<GM1EntryReader> mEntryReader;
         
     public:
+
+        enum Flags
+        {
+            NoFlags = 0,
+            Cached = 1,
+            CheckSizeCategory = 2
+        };
+
         GM1Reader();
-        explicit GM1Reader(FilePath);
-        void Open(FilePath);
+        explicit GM1Reader(FilePath, Flags = NoFlags);
+        void SetBuffering(bool on);
+        void Open(FilePath, Flags);
         bool IsOpened() const;
         void Close();
         virtual ~GM1Reader();
@@ -48,7 +62,6 @@ namespace GM1
 
         Surface Decode(size_t index);
     };
-
 }
 
 #endif

@@ -16,6 +16,9 @@ namespace GM1
 
 namespace GM1
 {
+    const size_t TileBytes = 512;
+    const size_t TileWidth = 30;
+    const size_t TileHeight = 16;
     
     class GM1EntryReader
     {

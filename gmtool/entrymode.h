@@ -1,21 +1,23 @@
-#ifndef INFOMODE_H_
-#define INFOMODE_H_
+#ifndef ENTRYMODE_H_
+#define ENTRYMODE_H_
 
-#include "modehandler.h"
-#include <boost/program_options.hpp>
+#include "mode.h"
+
+#include <boost/filesystem/path.hpp>
 
 namespace GMTool
 {
-
-    class InfoMode : public ModeHandler
+    class EntryMode : public Mode
     {
+        boost::filesystem::path mInputFile;
+        int mEntryIndex;
+        bool mBinary;
     public:
-        virtual void RegisterOptions(boost::program_options::options_description &options);
-        
-        virtual std::string ModeName() const;
-        virtual int HandleMode(const boost::program_options::variables_map &vars);
+        void GetOptions(boost::program_options::options_description&);
+        void GetPositionalOptions(boost::program_options::positional_options_description&);
+        int Exec(const ModeConfig &config);
     };
-    
 }
 
-#endif
+#endif  // ENTRYMODE_H_
+ 

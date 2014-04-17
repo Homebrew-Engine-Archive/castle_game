@@ -16,7 +16,6 @@
 
 namespace
 {
-    
     struct Header
     {
         uint32_t width;

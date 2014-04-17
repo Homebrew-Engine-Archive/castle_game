@@ -38,10 +38,10 @@ namespace GM1
         int column = 0;
         out << std::hex;
         for(auto color : palette) {
-            column++;
+            out << color << ' ';
+            ++column;
             if(column % 16 == 0)
                 out << std::endl;
-            out << color << ' ';
         }
         return out;
     }

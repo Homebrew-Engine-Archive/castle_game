@@ -1,63 +1,51 @@
-#include "infomode.h"
-#include "game/gm1.h"
-#include "game/gm1reader.h"
+#include "entrymode.h"
+
+#include <game/gm1.h>
+#include <game/gm1reader.h>
 
 #include <iostream>
-#include <string>
 #include <stdexcept>
-#include <exception>
 
-namespace bpo = boost::program_options;
+namespace po = boost::program_options;
 
 namespace GMTool
 {
-
-    std::string InfoMode::ModeName() const
+    void EntryMode::GetOptions(po::options_description &opts)
     {
-        return "info";
-    }
-    
-    void InfoMode::RegisterOptions(bpo::options_description &desc)
-    {
-        bpo::options_description infoOptions("Info mode options");
-        infoOptions.add_options()
-            ("without-header", "Hide GM1 header")
-            ("without-entry-header", "Hide entry header")
-            ("without-size", "Hide entry size")
-            ("without-offset", "Hide entry offset")
+        po::options_description mode("Entry mode");
+        mode.add_options()
+            ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
+            ("index", po::value(&mEntryIndex)->required(), "Set entry index")
+            ("binary", po::bool_switch(&mBinary), "Dump entry in binary")
             ;
-        desc.add(infoOptions);
+        opts.add(mode);
+    }
+
+    void EntryMode::GetPositionalOptions(po::positional_options_description &unnamed)
+    {
+        unnamed.add("file", 1);
+        unnamed.add("index", 1);
     }
     
-    int InfoMode::HandleMode(const bpo::variables_map &vars)
+    int EntryMode::Exec(const ModeConfig &cfg)
     {
-        std::string archive = vars["archive"].as<std::string>();
-        int index = vars["index"].as<int>();
+        cfg.verbose << "Reading file " << mInputFile << std::endl;
+        GM1::GM1Reader reader(mInputFile);
+        cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
+        
+        if(mEntryIndex < 0 || mEntryIndex >= reader.NumEntries()) {
+            throw std::logic_error("Entry index is out of range");
+        }
 
-        GM1::GM1Reader reader(archive);
-
-        std::cout << archive << " has " << reader.NumEntries() << " entries" << std::endl;
-        if(index >= reader.NumEntries()) {
-            throw std::runtime_error("Index out of range");
+        const GM1::EntryHeader &header = reader.EntryHeader(mEntryIndex);
+        if(!mBinary) {
+            cfg.verbose << "Printing entry as text..." << std::endl;
+            GM1::PrintEntryHeader(cfg.stdout, header);
+        } else {
+            cfg.verbose << "Printing entry as binary..." << std::endl;
+            cfg.stdout.write(reinterpret_cast<char const*>(&header), GM1::CollectionEntryHeaderBytes);
         }
         
-        if(vars.count("without-header") == 0) {
-            GM1::PrintHeader(std::cout, reader.Header());
-        }
-
-        if(vars.count("without-entry-header") == 0) {
-            GM1::PrintEntryHeader(std::cout, reader.EntryHeader(index));
-        }
-
-        if(vars.count("without-size") == 0) {
-            std::cout << "Entry size: " << reader.EntrySize(index) << std::endl;
-        }
-
-        if(vars.count("without-offset") == 0) {
-            std::cout << "Entry offset: " << reader.EntryOffset(index) << std::endl;
-        }
-
-        return 0;
+        return EXIT_SUCCESS;
     }
-    
 }

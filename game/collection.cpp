@@ -34,7 +34,7 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
 {
     try {
         GM1::GM1Reader reader;
-        reader.Open(path);
+        reader.Open(path, GM1::GM1Reader::Cached);
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = reader.Header();

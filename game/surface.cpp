@@ -262,6 +262,11 @@ Surface::operator SDL_Surface *() const
     return mSurface;
 }
 
+bool Surface::operator!() const
+{
+    return Null();
+}
+
 void Surface::reset()
 {
     Assign(NULL);

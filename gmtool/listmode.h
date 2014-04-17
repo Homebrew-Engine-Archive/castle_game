@@ -1,24 +1,26 @@
-#ifndef DUMPMODE_H_
-#define DUMPMODE_H_
+#ifndef LISTMODE_H_
+#define LISTMODE_H_
 
 #include "mode.h"
-#include <string>
+
+#include <iosfwd>
+
+#include <game/gm1reader.h>
 
 #include <boost/filesystem/path.hpp>
 
 namespace GMTool
 {
-    class DumpMode : public Mode
+    void ShowEntryList(std::ostream &out, const GM1::GM1Reader &reader);
+
+    class ListMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        int mEntryIndex;
-        bool mTileOnly;
-        bool mBoxOnly;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);
-        int Exec(const ModeConfig &config);
+        int Exec(const ModeConfig &cfg);
     };
 }
 
-#endif
+#endif // LISTMODE_H_

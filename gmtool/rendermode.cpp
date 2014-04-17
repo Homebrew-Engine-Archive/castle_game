@@ -1,74 +1,43 @@
 #include "rendermode.h"
 
-#include "game/gm1.h"
-#include "game/gm1reader.h"
+#include <game/gm1.h>
+#include <game/gm1reader.h>
 
-#include "tgxrendermode.h"
-#include "strutils.h"
+#include <SDL2/SDL_image.h>
 
-#include <memory>
-#include <boost/program_options.hpp>
-#include <string>
+#include "colorvalidator.h"
 
-namespace bpo = boost::program_options;
+namespace po = boost::program_options;
 
 namespace GMTool
 {
-
-    std::string RenderMode::ModeName() const
+    void RenderMode::GetOptions(po::options_description &opts)
     {
-        return "render";
-    }
-    
-    void RenderMode::RegisterOptions(bpo::options_description &desc)
-    {
-        RegisterFormats();
-        for(const auto &ptr : mFormats) {
-            ptr->RegisterOptions(desc);
-        }
-        
-        bpo::options_description renderOptions("Render mode options");
-        renderOptions.add_options()
-            ("format", bpo::value<std::string>()->default_value(DefaultFormat().c_str()), SupportedFormats().c_str())
-            ("palette", bpo::value<int>()->default_value(0), "Palette index to use when render 8-bit image")
+        po::options_description mode("Render mode");
+        mode.add_options()
+            ("file", po::value(&mInputFile)->required(), "Set GM1 filename")
+            ("index", po::value(&mEntryIndex)->required(), "Set entry index")
+            ("format", po::value(&mFormat)->required(), "Set rendering format")
+            ("tile-only", po::bool_switch(&mTileOnly), "Not render box texture")
+            ("box-only", po::bool_switch(&mBoxOnly), "Not render tile texture")
+            ("transparent-color", po::value(&mTransparentColor), "Background color")
+            ("palette", po::value(&mPaletteIndex), "Set palette index for 8-bit entries")
             ;
-
-        desc.add(renderOptions);
-    }
-
-    std::string RenderMode::SupportedFormats() const
-    {
-        std::vector<std::string> formats;
-        for(const auto &ptr : mFormats) {
-            formats.push_back(ptr->ModeName());
-        }
-        return StringUtils::JoinStrings(formats.begin(), formats.end(), ", ", "<no formats>");
-    }
-
-    std::string RenderMode::DefaultFormat() const
-    {
-        if(mFormats.empty()) {
-            // TODO maybe throw an exception?
-            return std::string("<no format>");
-        }
-        return mFormats.front()->ModeName();
+        opts.add(mode);
     }
     
-    void RenderMode::RegisterFormats()
+    void RenderMode::GetPositionalOptions(po::positional_options_description &unnamed)
     {
-        mFormats.emplace_back(new TGXRenderMode);
+        unnamed.add("file", 1);
+    }
+
+    void RenderMode::PrintUsage(std::ostream &out)
+    {
+        out << "Allowed formats are:" << std::endl;
     }
     
-    int RenderMode::HandleMode(const bpo::variables_map &vars)
+    int RenderMode::Exec(const ModeConfig &cfg)
     {
-        std::string format = vars["format"].as<std::string>();
-        for(std::unique_ptr<ModeHandler> &ptr : mFormats) {
-            if(ptr->ModeName() == format) {
-                return ptr->HandleMode(vars);
-            }
-        }
-        
-        throw std::runtime_error("Unknown format");
+        return EXIT_SUCCESS;
     }
-    
 }

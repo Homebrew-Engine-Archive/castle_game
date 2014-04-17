@@ -1,19 +1,16 @@
-#ifndef DUMPMODE_H_
-#define DUMPMODE_H_
+#ifndef HEADERMODE_H_
+#define HEADERMODE_H_
 
 #include "mode.h"
-#include <string>
 
-#include <boost/filesystem/path.hpp>
+#include <iostream>
 
 namespace GMTool
 {
-    class DumpMode : public Mode
+    class HeaderMode : public Mode
     {
-        boost::filesystem::path mInputFile;
-        int mEntryIndex;
-        bool mTileOnly;
-        bool mBoxOnly;
+        std::string mInputFile;
+        bool mBinary;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);
@@ -21,4 +18,4 @@ namespace GMTool
     };
 }
 
-#endif
+#endif // HEADERMODE_H_

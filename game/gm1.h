@@ -49,6 +49,8 @@ namespace GM1
         uint32_t u14;
     };
 
+    const size_t NumHeaderFields = 22;
+    
     /**
      * \brief Every image in the collection describes by this.
      *
@@ -78,6 +80,8 @@ namespace GM1
         uint8_t flags;
     };
 
+    const size_t NumEntryHeaderFields = 11;
+    
     enum class Encoding : int
     {
         TGX16,
@@ -89,12 +93,12 @@ namespace GM1
     };
 
     // TODO Look how this thing really works (if it does).
-    // enum class TileAlignment : uint8_t {
-    //     Left,
-    //     Right,
-    //     Center,
-    //     None
-    // };
+    enum class TileAlignment : uint8_t {
+        Left,
+        Right,
+        Center,
+        None
+    };
 
     // For example
     enum class SizeCategory : uint32_t
@@ -114,6 +118,8 @@ namespace GM1
     };
     
     std::string GetImageClassName(uint32_t dataClass);
+
+    std::string GetEncodingName(Encoding encoding);
     
     GM1::Encoding GetEncoding(uint32_t dataClass);
     
@@ -122,11 +128,13 @@ namespace GM1
      */
     size_t GetPreambleSize(GM1::Header const&);
     
-    void PrintEntryHeader(std::ostream &out, const EntryHeader &header);
-    void PrintHeader(std::ostream &out, const Header &gm1);
+    std::ostream& PrintEntryHeader(std::ostream &out, const EntryHeader &header);
+    std::ostream& PrintHeader(std::ostream &out, const Header &gm1);
 
     SizeCategory ReadSizeCategory(std::istream &in);
     std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat);
+
+    std::string GetSizeCategoryName(SizeCategory cat);
     
     SizeCategory GetSizeCategoryByDims(int width, int height);
     std::pair<int, int> GetDimsBySizeCategory(SizeCategory);

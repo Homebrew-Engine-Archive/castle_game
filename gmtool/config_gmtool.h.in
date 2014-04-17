@@ -1,0 +1,9 @@
+#ifndef CONFIG_GMTOOL_H_
+#define CONFIG_GMTOOL_H_
+
+#define GMTOOL_MAJOR 0
+#define GMTOOL_MINOR 1
+
+#define HAVE_SDL2_IMAGE_PNG ${HAVE_SDL2_IMAGE_PNG}
+
+#endif  // CONFIG_GMTOOL_H_

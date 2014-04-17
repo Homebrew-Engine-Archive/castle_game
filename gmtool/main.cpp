@@ -1,135 +1,206 @@
 #include "main.h"
 
-#include "game/gm1reader.h"
-#include "game/sdl_utils.h"
-#include "game/surface.h"
-#include "game/gm1.h"
-
-#include <boost/program_options.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/path.hpp>
-
-#include <SDL.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include <algorithm>
 #include <sstream>
-#include <memory>
-#include <exception>
 #include <stdexcept>
-#include <fstream>
 
-#include "strutils.h"
-#include "infomode.h"
-#include "rendermode.h"
+#include <boost/program_options.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <game/gm1reader.h>
+#include <game/sdl_utils.h>
+#include <game/surface.h>
+#include <game/gm1.h>
+
+#include "config_gmtool.h"
+
+#include "headermode.h"
+#include "palettemode.h"
+#include "listmode.h"
+#include "entrymode.h"
 #include "dumpmode.h"
+#include "packmode.h"
+#include "unpackmode.h"
+#include "rendermode.h"
 
 int main(int argc, const char *argv[])
 {
-    try {
-        GMTool::ToolMain tool(argc, argv);
-        return tool.Exec();
-    } catch(const std::exception &error) {
+     try {
+        GMTool::ToolMain tool;
+        return tool.Exec(argc, argv);
+     } catch(const std::exception &error) {
         std::cerr << error.what() << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     } catch(...) {
         std::cerr << "Unknown exception" << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 }
 
-namespace bpo = boost::program_options;
+namespace GMTool
+{
+    struct Command
+    {
+        std::string name;
+        std::string description;
+        /** Mode::Ptr is shared because I wish to copy **/
+        Mode::Ptr mode;
+    };
+
+    void ShowCommandList(std::ostream &out, const std::vector<Command> &commands)
+    {
+        out << "Allowed commands: " << std::endl;
+
+        int maxLength = 0;
+        for(const Command &command : commands) {
+            maxLength = std::max<int>(maxLength, command.name.length());
+        }
+
+        for(const Command &command : commands) {
+            out.width(3 /** ?? **/);
+            out << ' ';
+            out.width(maxLength + 3 /** ???? **/);
+            out << std::left << command.name;
+            out << command.description;
+            out << std::endl;
+        }
+    }
+
+    void ShowVersion(std::ostream &out)
+    {
+        out << GMTOOL_MAJOR << '.' << GMTOOL_MINOR << std::endl;
+    }
+
+    void ShowUsage(std::ostream &out)
+    {
+        out << "Usage: ./gmtool <command> <options...>" << std::endl;
+        out << "Type `./gmtool --help <command>` to get precise help message" << std::endl;
+        out << std::endl;
+    }
+}
+
+namespace po = boost::program_options;
 
 namespace GMTool
 {
-
-    ToolMain::ToolMain(int argc, const char *argv[])
-        : mVars()
-        , mHandlers()
+    std::vector<Command> ToolMain::GetCommands()
     {
-        bpo::options_description base("Usage: gmtool <mode> <archive> <entry> <options...>");
-        base.add_options()
-            ("help", "Show this text")
-            ("verbose", bpo::value<bool>()->implicit_value(false), "Become verbose")
-            ;
-
-        bpo::positional_options_description positional;
-        positional.add("command", 1);
-        positional.add("archive", 1);
-        positional.add("index", 1);
-
-        bpo::options_description visible;
-        visible.add(base);
-        RegisterModes();
-        for(std::unique_ptr<ModeHandler> &ptr : mHandlers) {
-            ptr->RegisterOptions(visible);
-        }
-
-        bpo::options_description hidden;
-        hidden.add_options()
-            ("command", bpo::value<std::string>(), ModeLine().c_str())
-            ("archive", bpo::value<std::string>(), "Source .gm1 archive")
-            ("index", bpo::value<int>(), "Entry index in the archive")
-            ;
-        
-        bpo::options_description all;
-        all.add(visible);
-        all.add(hidden);
-
-        auto parsed = bpo::command_line_parser(argc, argv)
-            .options(all)
-            .positional(positional)
-            .run();
-
-        bpo::store(parsed, mVars);
-        bpo::notify(mVars);
-
-        if(mVars.count("help") != 0) {
-            std::cout << visible << std::endl;
-        }
-    }
-
-    void ToolMain::RegisterModes()
-    {
-        mHandlers.emplace_back(new DumpMode);
-        mHandlers.emplace_back(new InfoMode);
-        mHandlers.emplace_back(new RenderMode);
-    }
-
-    std::string ToolMain::ModeLine() const
-    {
-        std::vector<std::string> modes;
-        for(const auto &ptr : mHandlers) {
-            modes.push_back(ptr->ModeName());
-        }
-
-        return StringUtils::JoinStrings(modes.begin(), modes.end(), ", ", "<no modes>");
-    }
-        
-    int ToolMain::Exec()
-    {
-        if(mVars.count("command") == 0) {
-            std::ostringstream oss;
-            oss << "Please, add one of the command modes: " << ModeLine();
-            throw std::runtime_error(oss.str());
-        }
-
-        if(mVars.count("archive") == 0) {
-            throw std::runtime_error("You should specify .gm1 file name!");
-        }
-
-        if(mVars.count("index") == 0) {
-            throw std::runtime_error("You should specify entry index");
-        }
-
-        std::string command = mVars["command"].as<std::string>();
-
-        for(std::unique_ptr<ModeHandler> &ptr : mHandlers) {
-            if(ptr->ModeName() == command)
-                return ptr->HandleMode(mVars);
-        }
-
-        // no mode with this name
-        throw std::runtime_error("Unknown command");
+        return std::vector<Command> {
+            {"header",  "Show GM1 header",                     Mode::Ptr(new HeaderMode)},
+            {"palette", "Show GM1 palettes",                   Mode::Ptr(new PaletteMode)},
+            {"entry",   "Show header of GM1 entries",          Mode::Ptr(new EntryMode)},
+            {"list",    "List entries of GM1 collection",      Mode::Ptr(new ListMode)},
+            {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
+            {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
+            {"unpack",  "Unpack GM1 collection",               Mode::Ptr(NULL)},
+            {"pack",    "Pack directory into GM1",             Mode::Ptr(NULL)},
+            {"check",   "Check for errors in unpacked GM1",    Mode::Ptr(NULL)},
+            {"init",    "Create empty unpacked GM1 directory", Mode::Ptr(NULL)}
+        };
     }
     
+    int ToolMain::Exec(int argc, const char *argv[])
+    {
+        std::vector<Command> commands = GetCommands();
+        
+        bool helpRequested = false;
+        bool versionRequested = false;
+        bool allowVerbose = false;
+        bool noUnusedBytes = false;
+        std::string modeName;
+        
+        po::options_description visible("Allowed options");
+        visible.add_options()
+            ("help,h", po::bool_switch(&helpRequested), "produce help message")
+            ("version", po::bool_switch(&versionRequested), "show version")
+            ("verbose,v", po::bool_switch(&allowVerbose), "allow verbose messages")
+            ("no-unused-bytes", po::bool_switch(&noUnusedBytes), "report any unused bytes in file")
+            ;
+
+        std::vector<std::string> extras;
+        po::options_description overall;
+        overall.add(visible);
+        overall.add_options()
+            ("mode", po::value(&modeName))
+            ("extras", po::value(&extras))
+            ;
+
+        po::positional_options_description unnamed;
+        unnamed.add("mode", 1);
+
+        /** for passing into children parsers **/
+        unnamed.add("extras", -1);
+
+        po::parsed_options parsed = po::command_line_parser(argc, argv)
+            .options(overall)
+            .positional(unnamed)
+            .allow_unregistered()
+            .run();
+
+        std::vector<std::string> unparsed = po::collect_unrecognized(parsed.options, po::exclude_positional);
+            
+        po::variables_map vars;
+        po::store(parsed, vars);
+        po::notify(vars);
+
+        /** parse "optional" positional options is tricky **/
+        std::copy(extras.begin(), extras.end(), std::back_inserter(unparsed));
+
+        if(versionRequested) {
+            ShowVersion(std::cout);
+            return EXIT_SUCCESS;
+        }
+        
+        if(modeName.empty()) {
+            if(helpRequested) {
+                ShowUsage(std::cout);
+                std::cout << visible << std::endl;
+                ShowCommandList(std::cout, commands);
+                return EXIT_SUCCESS;
+            }
+            throw std::logic_error("Command required but missing");
+        }
+
+        /** Dummy stream for disallowed verbose messages **/
+        std::ostringstream logging;
+        std::ostream &verbose = (allowVerbose ? std::clog : logging);
+        ModeConfig config {helpRequested, versionRequested, allowVerbose, verbose, std::cout};
+        
+        for(const Command &lookup : commands) {
+            if(lookup.name == modeName) {
+                return RunCommand(unparsed, lookup, config);
+            }
+        }
+
+        throw std::logic_error("No command with such name");
+    }
+
+    int ToolMain::RunCommand(const std::vector<std::string> &args, const Command &command, const ModeConfig &cfg)
+    {
+        po::options_description opts;
+        command.mode->GetOptions(opts);
+
+        if(cfg.helpRequested) {
+            std::cout << opts << std::endl;
+            command.mode->PrintUsage(std::cout);
+            return EXIT_SUCCESS;
+        }
+        
+        po::positional_options_description unnamed;
+        command.mode->GetPositionalOptions(unnamed);
+
+        po::parsed_options parsed = po::command_line_parser(args)
+            .options(opts)
+            .positional(unnamed)
+            .run();
+
+        po::variables_map vars;
+        po::store(parsed, vars);
+        po::notify(vars);
+
+        return command.mode->Exec(cfg);
+    }
 }

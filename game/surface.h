@@ -25,6 +25,7 @@ public:
     virtual ~Surface();
     bool Null() const;
     operator SDL_Surface *() const;
+    bool operator!() const;
     Surface &operator=(SDL_Surface *s);
     Surface &operator=(const Surface &that);
     bool operator==(const Surface &that);

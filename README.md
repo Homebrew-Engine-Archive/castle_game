@@ -22,19 +22,19 @@ There are some true \m/ names:
 * Use C++-style casts, or even better don't use it at all.
 * Use annonymous namespaces for your static methods, types and constants.
 * Use scoped resource management (smart pointers, lockers).
-* Feel free to throw exceptions until you got an arrow in your knee.
+* Feel free of throwing exceptions until you got an arrow in your knee.
 * Your exceptions should be base of std::exception.
 * Keep in mind "The Rule of Three"
 
 1.3. Formatting rules
 ---------------------
 * Use K&R with 4 spaces instead of tabs.
-* CamelCase for class and function names.
+* CamelCase for classes and functions.
 * mixedCase for variables.
-* Optional: c_style_case_t for type aliases.
-* The Long Lines are eligible, but be afraid of complicated function and type composition. Better use `auto` instead or just wrap line around.
-* You may place `&`, `&&` and `*` either near type or identifier both.
-* You may place `const` any side, but prefer following notations:
+* underscores_style_t for type aliases.
+* The long lines are eligible, but be aware of complicated function and type composition. Better use `auto` instead or just wrap line around.
+* You may place `&`, `&&` and `*` near both type or name.
+* You may place `const` any side of type you wish, but prefer the following notations:
 ```
 ReturnType const* FunctionName(const Argument &argumentWithName)
 {

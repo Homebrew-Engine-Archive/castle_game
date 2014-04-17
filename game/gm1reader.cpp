@@ -2,10 +2,11 @@
 
 #include <cerrno>
 #include <cstring>
-
 #include <sstream>
 #include <functional>
+
 #include <boost/filesystem/fstream.hpp>
+#include <boost/current_function.hpp>
 
 #include <game/gm1entryreader.h>
 #include <game/endianness.h>
@@ -14,10 +15,10 @@
 namespace
 {
     
-    void Fail(const std::string &file, int line, const std::string &what)
+    void Fail(const std::string &where, const std::string &what)
     {
         std::stringstream ss;
-        ss << "In " << file << " at " << line << ": " << what;
+        ss << "In " << where << " error: " << what;
         throw std::runtime_error(ss.str());
     }
     
@@ -79,25 +80,23 @@ namespace GM1
     GM1Reader::~GM1Reader() = default;
     
     GM1Reader::GM1Reader()
-        : mIsOpened(false)
-        , mPath()
-        , mHeader()
-        , mEntryHeaders()
-        , mPalettes()
-        , mBuffer()
-        , mEntryReader()
+        : GM1Reader {FilePath(), NoFlags}
     { }
     
-    GM1Reader::GM1Reader(FilePath path)
+    GM1Reader::GM1Reader(FilePath path, Flags flags)
         : mIsOpened(false)
         , mPath()
+        , mFlags()
+        , mDataOffset(0)
+        , mStream()
         , mHeader()
         , mEntryHeaders()
         , mPalettes()
         , mBuffer()
+        , mEntries()
         , mEntryReader()
     {
-        Open(std::move(path));
+        Open(std::move(path), flags);
     }
 
     bool GM1Reader::IsOpened() const
@@ -105,74 +104,82 @@ namespace GM1
         return mIsOpened;
     }
 
-    void GM1Reader::Open(FilePath path)
+    void GM1Reader::Open(FilePath path, Flags flags)
     {
+        mFlags = flags;
         mIsOpened = false;
         mPath = std::move(path);
 
-        boost::filesystem::ifstream fin(mPath, std::ios_base::binary);
-        if(!fin.is_open()) {
-            Fail(__FILE__, __LINE__, strerror(errno));
+        mStream.open(mPath, std::ios_base::binary);
+        if(!mStream.is_open()) {
+            Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
         }
 
-        fin.seekg(0, std::ios_base::end);
-        std::streampos fsize = fin.tellg();
-        fin.seekg(0);
+        mStream.seekg(0, std::ios_base::end);
+        std::streampos fsize = mStream.tellg();
+        mStream.seekg(0);
         
         if(fsize < GM1::CollectionHeaderBytes) {
-            Fail(__FILE__, __LINE__, "File too small to read header");
+            Fail(BOOST_CURRENT_FUNCTION, "File too small to read header");
         }
         
-        if(!ReadHeader(fin, mHeader)) {
-            Fail(__FILE__, __LINE__, strerror(errno));
+        if(!ReadHeader(mStream, mHeader)) {
+            Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
         }
 
         if(fsize < GetPreambleSize(mHeader)) {
-            Fail(__FILE__, __LINE__, "File to small to read preamble");
+            Fail(BOOST_CURRENT_FUNCTION, "File to small to read preamble");
         } 
         mPalettes.resize(GM1::CollectionPaletteCount);
         for(GM1::Palette &palette : mPalettes) {
-            if(!ReadPalette(fin, palette)) {
-                Fail(__FILE__, __LINE__, strerror(errno));
+            if(!ReadPalette(mStream, palette)) {
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
             }
         }
 
         mOffsets.resize(mHeader.imageCount);
         for(uint32_t &offset : mOffsets) {
-            offset = Endian::ReadLittle<uint32_t>(fin);
-            if(!fin) {
-                Fail(__FILE__, __LINE__, strerror(errno));
+            offset = Endian::ReadLittle<uint32_t>(mStream);
+            if(!mStream) {
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
             }
         }
         
         mSizes.resize(mHeader.imageCount);
         for(uint32_t &size : mSizes) {
-            size = Endian::ReadLittle<uint32_t>(fin);
-            if(!fin) {
-                Fail(__FILE__, __LINE__, strerror(errno));
+            size = Endian::ReadLittle<uint32_t>(mStream);
+            if(!mStream) {
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
             }
         }
         
         mEntryHeaders.resize(mHeader.imageCount);
         for(GM1::EntryHeader &hdr : mEntryHeaders) {
-            if(!ReadEntryHeader(fin, hdr)) {
-                Fail(__FILE__, __LINE__, strerror(errno));
+            if(!ReadEntryHeader(mStream, hdr)) {
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
             }
         }
 
         if(fsize < mHeader.dataSize) {
-            Fail(__FILE__, __LINE__, "File too small to read data");
+            Fail(BOOST_CURRENT_FUNCTION, "File too small to read data");
         }
-        
-        mBuffer.resize(mHeader.dataSize);
-        fin.read(&mBuffer[0], mBuffer.size());
-        if(!fin) {
-            Fail(__FILE__, __LINE__, strerror(errno));
+
+        mDataOffset = mStream.tellg();
+        if(mFlags & Cached) {
+            mBuffer.resize(mHeader.dataSize);
+            mStream.read(&mBuffer[0], mBuffer.size());
+            if(!mStream) {
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+            }
+            mStream.close();
+        } else {
+            mEntries.resize(mHeader.imageCount);
         }
 
         mEntryReader =
             std::move(
                 GM1::CreateEntryReader(Encoding()));
+        
         mIsOpened = true;
     }
 
@@ -198,7 +205,23 @@ namespace GM1
     
     char const* GM1Reader::EntryData(size_t index) const
     {
-        return &mBuffer.at(mOffsets.at(index));
+        if(mFlags & Cached) {
+            return mBuffer.data() + mOffsets.at(index);
+        } else {
+            std::vector<char> &entryData = mEntries.at(index);
+            uint32_t entrySize = mSizes.at(index);
+            uint32_t entryOffset = mOffsets.at(index);
+            if((entrySize > 0) && (entryData.empty())) {
+                mStream.seekg(entryOffset + mDataOffset);
+                entryData.resize(entrySize);
+                mStream.read(&entryData[0], entrySize);
+                if(!mStream) {
+                    Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                }
+            }
+            // TODO what if it would have length about 0?
+            return entryData.data();
+        }
     }
 
     size_t GM1Reader::EntrySize(size_t index) const

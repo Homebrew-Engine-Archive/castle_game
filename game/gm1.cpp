@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+
 #include <boost/current_function.hpp>
 
 #include <game/gm1palette.h>
@@ -11,19 +12,16 @@
 
 namespace
 {
-
     void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
         oss << where << " failed: " << what;
         throw std::runtime_error(oss.str());
     }
-
 }
 
 namespace GM1
 {
-
     std::string GetImageClassName(uint32_t dataClass)
     {
         switch(dataClass) {
@@ -52,6 +50,18 @@ namespace GM1
         }
     }
 
+    std::string GetEncodingName(GM1::Encoding encoding)
+    {
+        switch(encoding) {
+        case GM1::Encoding::TGX16: return "TGX16";
+        case GM1::Encoding::TGX8: return "TGX8";
+        case GM1::Encoding::TileObject: return "TileObject";
+        case GM1::Encoding::Font: return "Font";
+        case GM1::Encoding::Bitmap: return "Bitmap";
+        default: return "Unknown";
+        }
+    }
+    
     size_t GetPreambleSize(const GM1::Header &header)
     {
         size_t size = 0;
@@ -74,49 +84,63 @@ namespace GM1
         return size;
     }
 
-    void PrintEntryHeader(std::ostream &out, const EntryHeader &header)
+    std::ostream& PrintEntryHeader(std::ostream &out, const EntryHeader &header)
     {
         using namespace std;
-        out << "Width: "        << static_cast<int>(header.width) << endl
-            << "Height: "       << static_cast<int>(header.height) << endl
-            << "PosX: "         << static_cast<int>(header.posX) << endl
-            << "PosY: "         << static_cast<int>(header.posY) << endl
-            << "Group: "        << static_cast<int>(header.group) << endl
-            << "GroupSize: "    << static_cast<int>(header.groupSize) << endl
-            << "TileY: "        << static_cast<int>(header.tileY) << endl
-            << "TileOrient: "   << static_cast<int>(header.tileOrient) << endl
-            << "Horiz Offset: " << static_cast<int>(header.hOffset) << endl
-            << "Box Width: "    << static_cast<int>(header.boxWidth) << endl
-            << "Flags: "        << static_cast<int>(header.flags) << endl;
+        out << "Width = "         << static_cast<int>(header.width) << endl
+            << "Height = "        << static_cast<int>(header.height) << endl
+            << "PosX = "          << static_cast<int>(header.posX) << endl
+            << "PosY = "          << static_cast<int>(header.posY) << endl
+            << "Group = "         << static_cast<int>(header.group) << endl
+            << "GroupSize = "     << static_cast<int>(header.groupSize) << endl
+            << "TileY = "         << static_cast<int>(header.tileY) << endl
+            << "TileOrient = "    << static_cast<int>(header.tileOrient) << endl
+            << "HorizOffset = "  << static_cast<int>(header.hOffset) << endl
+            << "BoxWidth = "     << static_cast<int>(header.boxWidth) << endl
+            << "Flags = "         << static_cast<int>(header.flags) << endl;
+        return out;
     }
 
-    void PrintHeader(std::ostream &out, const Header &header)
+    std::ostream& PrintHeader(std::ostream &out, const Header &header)
     {
         using namespace std;
-        out << "u1: "           << header.u1 << endl
-            << "u2: "           << header.u2 << endl
-            << "u3: "           << header.u3 << endl
-            << "imageCount: "   << header.imageCount << endl
-            << "u4: "           << header.u4 << endl
-            << "dataClass: "    << GetImageClassName(header.dataClass) << endl
-            << "u5: "           << header.u5 << endl
-            << "u6: "           << header.u6 << endl
-            << "sizeCategory: " << header.sizeCategory << endl
-            << "u7: "           << header.u7 << endl
-            << "u8: "           << header.u8 << endl
-            << "u9: "           << header.u9 << endl
-            << "width: "        << header.width << endl
-            << "height: "       << header.height << endl
-            << "u10: "          << header.u10 << endl
-            << "u11: "          << header.u11 << endl
-            << "u12: "          << header.u12 << endl
-            << "u13: "          << header.u13 << endl
-            << "anchorX: "      << header.anchorX << endl
-            << "anchorY: "      << header.anchorY << endl
-            << "dataSize: "     << header.dataSize << endl
-            << "u14: "          << header.u14 << endl;
+        out << "Unknown1 = "     << header.u1 << endl
+            << "Unknown2 = "     << header.u2 << endl
+            << "Unknown3 = "     << header.u3 << endl
+            << "ImageCount= "   << header.imageCount << endl
+            << "Unknown4 = "     << header.u4 << endl
+            << "DataClass = "    << GetImageClassName(header.dataClass) << endl
+            << "Unknown5 = "     << header.u5 << endl
+            << "Unknown6 = "     << header.u6 << endl
+            << "SizeCategory = " << header.sizeCategory << endl
+            << "Unknown7 = "     << header.u7 << endl
+            << "Unknown8 = "     << header.u8 << endl
+            << "Unknown9 = "     << header.u9 << endl
+            << "Width = "         << header.width << endl
+            << "Height = "        << header.height << endl
+            << "Unknown10 = "    << header.u10 << endl
+            << "Unknown11 = "    << header.u11 << endl
+            << "Unknown12 = "    << header.u12 << endl
+            << "Unknown13 = "    << header.u13 << endl
+            << "AnchorX = "      << header.anchorX << endl
+            << "AnchorY = "      << header.anchorY << endl
+            << "DataSize = "     << header.dataSize << endl
+            << "Unknown14 = "    << header.u14 << endl;
+        return out;
     }
 
+    std::string GetSizeCategoryName(SizeCategory cat)
+    {
+        std::ostringstream oss;
+        std::pair<int, int> dims = GetDimsBySizeCategory(cat);
+        if((dims.first > 0) && (dims.second > 0)) {
+            oss << dims.first << 'x' << dims.second;
+            return oss.str();
+        } else {
+            return std::string("Undefined");
+        }
+    }
+    
     SizeCategory ReadSizeCategory(std::istream &in)
     {
         return

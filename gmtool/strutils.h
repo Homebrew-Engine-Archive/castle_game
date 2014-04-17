@@ -8,7 +8,7 @@ namespace StringUtils
 {
 
     template<class ForwardIterator>
-    std::string JoinStrings(ForwardIterator begin, ForwardIterator end, std::string sep, std::string empty = std::string())
+    std::string JoinStrings(ForwardIterator begin, ForwardIterator end, std::string sep, std::string lastSep = std::string(), std::string empty = std::string())
     {
         std::ostringstream oss;
 
@@ -18,8 +18,13 @@ namespace StringUtils
         }
 
         while(begin != end) {
-            oss << sep << *begin;
+            typename ForwardIterator::value_type value = *begin;
             ++begin;
+            if(lastSep.empty() || (begin != end)) {
+                oss << sep << value;
+            } else {
+                oss << lastSep << value;
+            }
         }
 
         std::string temp = oss.str();

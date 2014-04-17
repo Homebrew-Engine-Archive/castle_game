@@ -14,12 +14,7 @@
 #include <game/surface.h>
 
 namespace
-{
-
-    const size_t TileBytes = 512;
-    const size_t TileWidth = 30;
-    const size_t TileHeight = 16;
-    
+{    
     void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
@@ -97,11 +92,11 @@ namespace
     {
     public:
         constexpr int Width(GM1::EntryHeader const&) {
-            return TileWidth;
+            return GM1::TileWidth;
         }
         
         constexpr int Height(const GM1::EntryHeader &header) {
-            return TileHeight + header.tileY;
+            return GM1::TileHeight + header.tileY;
         }
         
     protected:
@@ -189,15 +184,15 @@ namespace
 
     void ReadTile(std::istream &in, size_t numBytes, Surface &surface)
     {
-        if(numBytes < TileBytes) {
+        if(numBytes < GM1::TileBytes) {
             Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
         }
 
         const SurfaceLocker lock(surface);
 
         const int pitch = surface->pitch;
-        const int height = TileHeight;
-        const int width = TileWidth;
+        const int height = GM1::TileHeight;
+        const int width = GM1::TileWidth;
         const int bytesPerPixel = surface->format->BytesPerPixel;
         char *dst = GetPixels(surface);
     
@@ -211,13 +206,13 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), TileHeight);
+        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), GM1::TileHeight);
         SurfaceROI tile(surface, &tilerect);
-        ReadTile(in, TileBytes, tile);
+        ReadTile(in, GM1::TileBytes, tile);
 
         SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceROI box(surface, &boxrect);
-        TGX::DecodeSurface(in, numBytes - TileBytes, box);
+        TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box);
     }
     
 }
