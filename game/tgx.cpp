@@ -318,15 +318,6 @@ namespace TGX
             
         return out;
     }
-
-    // std::ostream& WriteTGX(std::ostream &out, int width, int height, const char *data, size_t numBytes)
-    // {
-    //     Header header;
-    //     header.width = width;
-    //     header.height = height;
-    //     WriteHeader(out, header);
-    //     return out.write(data, numBytes);
-    // }
     
     std::ostream& WriteTGX(std::ostream &out, const Surface &surface)
     {
