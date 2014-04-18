@@ -3,13 +3,14 @@
 
 #include "mode.h"
 
+#include <boost/filesystem/path.hpp>
 #include <iostream>
 
 namespace GMTool
 {
     class HeaderMode : public Mode
     {
-        std::string mInputFile;
+        boost::filesystem::path mInputFile;
         bool mBinary;
     public:
         void GetOptions(boost::program_options::options_description&);

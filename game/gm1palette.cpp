@@ -24,7 +24,7 @@ namespace
 namespace GM1
 {
 
-    PixelFormatPtr GetPaletteFormat()
+    PixelFormatPtr PaletteFormat()
     {
         PixelFormatPtr ptr(SDL_AllocFormat(TGX::GetPixelFormatEnum()));
         if(!ptr) {
@@ -48,7 +48,7 @@ namespace GM1
     
     PalettePtr CreateSDLPalette(const GM1::Palette &palette)
     {
-        PixelFormatPtr &&format = GetPaletteFormat();
+        PixelFormatPtr &&format = GM1::PaletteFormat();
         std::vector<SDL_Color> colors;
         colors.reserve(GM1::CollectionPaletteColors);
         for(PaletteEntry entry : palette) {

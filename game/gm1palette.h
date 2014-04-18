@@ -34,7 +34,7 @@ namespace GM1
         Unknown1
     };
 
-    PixelFormatPtr GetPaletteFormat();
+    PixelFormatPtr PaletteFormat();
     
     PalettePtr CreateSDLPalette(Palette const&);
 

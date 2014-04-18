@@ -8,12 +8,19 @@ set (SRCS
   entrymode.cpp
   dumpmode.cpp
   rendermode.cpp
-  colorvalidator.cpp
+  hexcolor.cpp
   headermode.cpp
   palettemode.cpp
   listmode.cpp
   packmode.cpp
   unpackmode.cpp
+  rw.cpp
+  renderer.cpp
+)
+
+set (RENDERERS
+  renderers/bitmap.cpp
+  renderers/tgxrenderer.cpp
 )
 
 set (SHARED
@@ -58,13 +65,15 @@ int main() {
 
 if (HAVE_SDL2_IMAGE_PNG)
   message (STATUS "PNG support was found in SDL2_image")
-  #add_definitions (-DHAVE_SDL2_IMAGE_PNG)
+  set (RENDERERS "${RENDERERS};renderers/pngrenderer.cpp")
+else ()
+  set (HAVE_SDL2_IMAGE_PNG 0)
 endif ()
 
 configure_file (
   ${CMAKE_CURRENT_SOURCE_DIR}/config_${PROJECT_NAME}.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config_${PROJECT_NAME}.h)
 
-add_executable (${TARGET} ${SRCS} ${SHARED})
+add_executable (${TARGET} ${SRCS} ${SHARED} ${RENDERERS})
 
 target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})

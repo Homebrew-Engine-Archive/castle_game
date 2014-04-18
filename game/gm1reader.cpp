@@ -249,9 +249,9 @@ namespace GM1
         return mPalettes.at(index);
     }
 
-    GM1::GM1EntryReader const* GM1Reader::EntryReader() const
+    GM1::GM1EntryReader const& GM1Reader::EntryReader() const
     {
-        return mEntryReader.get();
+        return *mEntryReader;
     }
     
     Surface GM1Reader::Decode(size_t index)

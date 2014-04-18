@@ -19,6 +19,12 @@ namespace GM1
     const size_t TileBytes = 512;
     const size_t TileWidth = 30;
     const size_t TileHeight = 16;
+
+    class EntryRenderer
+    {
+    public:
+        Surface Render(std::istream &in, size_t numBytes, GM1::EntryHeader const&);
+    };
     
     class GM1EntryReader
     {
@@ -41,7 +47,7 @@ namespace GM1
         Surface Load(const GM1::GM1Reader &reader, size_t index) const;
         
     };
-
+    
     std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::Encoding const&);
     
 }

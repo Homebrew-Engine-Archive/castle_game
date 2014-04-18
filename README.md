@@ -19,9 +19,9 @@ There are some true \m/ names:
 * Header and source both live in the same directory.
 * Explicit variable's type specification is preferrable (e.g. auto or decltype).
 * Explicit namespace specification is preferrable.
-* Use C++-style casts, or even better don't use it at all.
+* Use C++-style casts.
 * Use annonymous namespaces for your static methods, types and constants.
-* Use scoped resource management (smart pointers, lockers).
+* Use RAII.
 * Feel free of throwing exceptions until you got an arrow in your knee.
 * Your exceptions should be base of std::exception.
 * Keep in mind "The Rule of Three"

@@ -58,7 +58,7 @@ namespace GM1
         int NumEntries() const;
         int NumPalettes() const;
 
-        GM1::GM1EntryReader const* EntryReader() const;
+        GM1::GM1EntryReader const& EntryReader() const;
 
         Surface Decode(size_t index);
     };

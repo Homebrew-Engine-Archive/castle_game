@@ -95,9 +95,11 @@ namespace TGX
     
     std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
 
-    std::ostream& WriteTGX(std::ostream&, int width, int height, char const*, size_t numBytes);
+    std::ostream& WriteTGX(std::ostream&, const Surface &surface);
+    
+    //std::ostream& WriteTGX(std::ostream&, int width, int height, char const*, size_t numBytes);
 
-    std::ostream& WriteSurface(std::ostream&, const Surface &surface);
+    //std::ostream& WriteSurface(std::ostream&, const Surface &surface);
 
     std::ostream& WriteSurfaceHeader(std::ostream&, const Surface &surface);
     

@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "config_gmtool.h"
+
 #include <cstdlib>
 #include <cstdint>
 
@@ -14,8 +16,6 @@
 #include <game/sdl_utils.h>
 #include <game/surface.h>
 #include <game/gm1.h>
-
-#include "config_gmtool.h"
 
 #include "headermode.h"
 #include "palettemode.h"
@@ -46,7 +46,7 @@ namespace GMTool
     {
         std::string name;
         std::string description;
-        /** Mode::Ptr is shared because I wish to copy **/
+        /** shared ptr to avoid slicing **/
         Mode::Ptr mode;
     };
 
@@ -97,7 +97,6 @@ namespace GMTool
             {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
             {"unpack",  "Unpack GM1 collection",               Mode::Ptr(NULL)},
             {"pack",    "Pack directory into GM1",             Mode::Ptr(NULL)},
-            {"check",   "Check for errors in unpacked GM1",    Mode::Ptr(NULL)},
             {"init",    "Create empty unpacked GM1 directory", Mode::Ptr(NULL)}
         };
     }
