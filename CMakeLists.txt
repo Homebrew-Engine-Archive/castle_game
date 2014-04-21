@@ -1,6 +1,53 @@
 project(stockade)
 cmake_minimum_required(VERSION 2.6)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+# C++ compiler flags #
+######################
+
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include (CheckCXXCompilerFlag)
@@ -21,11 +68,41 @@ cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_CODE)
 # I have already caught two bugs with unused something. Be aware.
 # cxx_set_flag ("-Wno-unused-parameter" CXX_NO_UNUSED_PARAMETER)
 
-include (FindPkgConfig)
-pkg_search_module (SDL2 REQUIRED sdl2)
 
-include_directories (${SDL2_INCLUDE_DIRS})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################
+# Include section #
+###################
+
 include_directories (${PROJECT_SOURCE_DIR})
+
+include (FindPkgConfig)
+
+pkg_search_module (SDL2 REQUIRED sdl2)
+include_directories (${SDL2_INCLUDE_DIRS})
+
+pkg_search_module (SDL2_TTF REQUIRED SDL2_ttf)
+include_directories (${SDL2_TTF_INCLUDE_DIRS})
 
 ## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)
