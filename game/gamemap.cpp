@@ -1,5 +1,6 @@
 #include "gamemap.h"
-#include <game/geometry.h>
+
+#include <game/sdl_utils.h>
 
 GameMap::GameMap()
 {

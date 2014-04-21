@@ -12,7 +12,6 @@ set (SRCS
   gamemap.cpp
   gamereactor.cpp
   gamescreen.cpp
-  geometry.cpp
   gm1.cpp
   loadingscreen.cpp
   main.cpp

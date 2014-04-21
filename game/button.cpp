@@ -1,5 +1,6 @@
 #include "button.h"
-#include <game/geometry.h>
+
+#include <game/sdl_utils.h>
 
 #include <stdexcept>
 

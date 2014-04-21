@@ -36,7 +36,7 @@ int main()
 
     GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
     
-    std::unique_ptr<Render::Renderer> &&renderer = Render::CreateRenderer(sdlRenderer.get());
+    std::unique_ptr<Render::Renderer> renderer(new Render::Renderer(sdlRenderer.get()));
     std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
     return root->Exec();
 }

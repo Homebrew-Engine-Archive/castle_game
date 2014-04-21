@@ -10,7 +10,7 @@
 #include <game/make_unique.h>
 #include <game/collection.h>
 #include <game/filesystem.h>
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/renderer.h>
 #include <game/engine.h>
 

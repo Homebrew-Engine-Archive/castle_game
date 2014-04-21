@@ -31,7 +31,6 @@ set (SHARED
   ../game/gm1palette.cpp
   ../game/surface.cpp
   ../game/sdl_utils.cpp
-  ../game/geometry.cpp
   ../game/tgx.cpp
 )
 

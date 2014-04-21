@@ -9,14 +9,11 @@
 #include <game/text.h>
 #include <game/textrenderer.h>
 #include <game/font.h>
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/collection.h>
 
 namespace
-{
-    
-    typedef std::function<void()> TextBatch;
-    
+{    
     const int MinOutputWidth = 320;
     const int MinOutputHeight = 240;
     
@@ -38,47 +35,14 @@ namespace
 
 namespace Render
 {
-
-    class RendererImpl final : public Renderer
-    {   
-        SDL_Renderer *mRenderer;
-        std::unique_ptr<TextRenderer> mTextRenderer;
-        int mBufferWidth;
-        int mBufferHeight;
-        uint32_t mFbFormat;
-        TexturePtr mBuffTexture;
-        Surface mBuffSurface;
-        std::vector<TextBatch> mTextOverlay;
-        std::map<FilePath, Surface> mGFXCache;
-        std::map<FilePath, CollectionDataPtr> mGMCache;
-
-        bool ReallocationRequired(int width, int heigth);
-        bool CreateFrameTexture(int width, int height);
-        bool CreateFrameSurface(void *pixels, int width, int height, int pitch);
-
-      public:
-        RendererImpl(SDL_Renderer *renderer);
-        RendererImpl(const RendererImpl &) = delete;
-        RendererImpl(RendererImpl &&) = default;
-        RendererImpl &operator=(const RendererImpl &) = delete;
-        RendererImpl &operator=(RendererImpl &&) = default;
-        ~RendererImpl() = default;
-
-        Surface BeginFrame();
-        void EndFrame();
-        SDL_Rect GetOutputSize() const;
-        void AdjustBufferSize(int width, int height);
-        void RenderTextLine(const std::string &text, const SDL_Point &rect);
-        void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv);
-        void SetFont(const std::string &fontname, int size);
-        void SetColor(const SDL_Color &color);
-        Surface QuerySurface(const FilePath &filename);
-        const CollectionData &QueryCollection(const FilePath &filename);
-        bool CacheCollection(const FilePath &filepath);
-        bool CacheFontCollection(const FontCollectionInfo &info);
-    };
-
-    RendererImpl::RendererImpl(SDL_Renderer *renderer)
+    Renderer::Renderer() = delete;
+    Renderer::Renderer(const Renderer &) = delete;
+    Renderer::Renderer(Renderer &&) = default;
+    Renderer& Renderer::operator=(const Renderer &) = delete;
+    Renderer& Renderer::operator=(Renderer &&) = default;
+    Renderer::~Renderer() = default;
+    
+    Renderer::Renderer(SDL_Renderer *renderer)
         : mRenderer(renderer)
         , mTextRenderer(std::move(CreateTextRenderer(renderer)))
         , mBufferWidth(0)
@@ -97,7 +61,7 @@ namespace Render
         std::clog << "GetOutputSize(): " << rect << std::endl;
     }
 
-    bool RendererImpl::CreateFrameTexture(int width, int height)
+    bool Renderer::CreateFrameTexture(int width, int height)
     {
         // NOTE
         // Width and height wan't be checked for min and max constraints.
@@ -136,7 +100,7 @@ namespace Render
         return true;
     }
 
-    bool RendererImpl::CreateFrameSurface(void *pixels, int width, int height, int pitch)
+    bool Renderer::CreateFrameSurface(void *pixels, int width, int height, int pitch)
     {
         int bpp;
         uint32_t rmask;
@@ -164,12 +128,12 @@ namespace Render
         return true;
     }
 
-    bool RendererImpl::ReallocationRequired(int width, int height)
+    bool Renderer::ReallocationRequired(int width, int height)
     {
         return (width != mBufferWidth) || (height != mBufferHeight);
     }
     
-    Surface RendererImpl::BeginFrame()
+    Surface Renderer::BeginFrame()
     {
         if(!mTextOverlay.empty()) {
             std::clog << "Discard text overlay which has "
@@ -211,7 +175,7 @@ namespace Render
         return mBuffSurface;
     }
 
-    void RendererImpl::EndFrame()
+    void Renderer::EndFrame()
     {
         if(!mBuffSurface.Null()) {
             SDL_RenderClear(mRenderer);
@@ -239,7 +203,7 @@ namespace Render
         SDL_RenderPresent(mRenderer);
     }
 
-    SDL_Rect RendererImpl::GetOutputSize() const
+    SDL_Rect Renderer::GetOutputSize() const
     {
         int width;
         int height;
@@ -251,7 +215,7 @@ namespace Render
         return MakeRect(width, height);
     }
 
-    void RendererImpl::AdjustBufferSize(int width, int height)
+    void Renderer::AdjustBufferSize(int width, int height)
     {
         if(!mBuffSurface.Null()) {
             throw std::runtime_error("AdjustBufferSize called with active frame.");
@@ -271,7 +235,7 @@ namespace Render
         }
     }
 
-    Surface RendererImpl::QuerySurface(const FilePath &filename)
+    Surface Renderer::QuerySurface(const FilePath &filename)
     {
         auto cached = mGFXCache.find(filename);
         if(cached != mGFXCache.end()) {
@@ -283,7 +247,7 @@ namespace Render
         }
     }
 
-    const CollectionData &RendererImpl::QueryCollection(const FilePath &filename)
+    const CollectionData &Renderer::QueryCollection(const FilePath &filename)
     {
         auto searchResult = mGMCache.find(filename);
         if(searchResult != mGMCache.end()) {
@@ -304,7 +268,7 @@ namespace Render
         }
     }
 
-    bool RendererImpl::CacheCollection(const FilePath &filename)
+    bool Renderer::CacheCollection(const FilePath &filename)
     {
         try {
             QueryCollection(filename);
@@ -316,7 +280,7 @@ namespace Render
         }
     }
 
-    bool RendererImpl::CacheFontCollection(const FontCollectionInfo &info)
+    bool Renderer::CacheFontCollection(const FontCollectionInfo &info)
     {
         try {
             CollectionDataPtr data =
@@ -344,7 +308,7 @@ namespace Render
         }
     }
 
-    void RendererImpl::SetFont(const std::string &fontname, int size)
+    void Renderer::SetFont(const std::string &fontname, int size)
     {
         auto changeFont = [fontname, size, this]() {
             mTextRenderer->SetFont(fontname, size);
@@ -352,7 +316,7 @@ namespace Render
         mTextOverlay.push_back(changeFont);
     }
 
-    void RendererImpl::SetColor(const SDL_Color &color)
+    void Renderer::SetColor(const SDL_Color &color)
     {
         auto changeColor = [color, this]() {
             mTextRenderer->SetColor(color);
@@ -360,7 +324,7 @@ namespace Render
         mTextOverlay.push_back(changeColor);
     }
 
-    void RendererImpl::RenderTextLine(const std::string &text, const SDL_Point &point)
+    void Renderer::RenderTextLine(const std::string &text, const SDL_Point &point)
     {
         auto drawText = [text, point, this]() {
             SDL_Rect textRect = mTextRenderer->CalculateTextRect(text);
@@ -374,15 +338,10 @@ namespace Render
         mTextOverlay.push_back(drawText);
     }
 
-    void RendererImpl::RenderTextBox(const std::string &text, const SDL_Rect &rect,
+    void Renderer::RenderTextBox(const std::string &text, const SDL_Rect &rect,
                                      AlignH alignh, AlignV alignv)
     {
         RenderTextLine(text, TopLeft(rect));
-    }
-    
-    std::unique_ptr<Renderer> CreateRenderer(SDL_Renderer *renderer)
-    {
-        return std::make_unique<RendererImpl>(renderer);
     }
 
 } // namespace Render

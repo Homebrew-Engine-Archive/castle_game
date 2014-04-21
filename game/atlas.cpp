@@ -1,10 +1,10 @@
 #include "atlas.h"
 
-#include <game/geometry.h>
-
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+
+#include <game/sdl_utils.h>
 
 namespace
 {

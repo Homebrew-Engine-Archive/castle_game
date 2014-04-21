@@ -7,7 +7,7 @@
 
 #include <SDL.h>
 
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/text.h>
 #include <game/atlas.h>
 #include <game/font.h>

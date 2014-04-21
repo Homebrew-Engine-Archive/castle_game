@@ -8,7 +8,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <SDL.h>
 
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/make_unique.h>
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>

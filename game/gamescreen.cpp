@@ -2,7 +2,7 @@
 
 #include <game/renderer.h>
 #include <game/landscape.h>
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/filesystem.h>
 #include <game/surface.h>
 #include <game/collection.h>

@@ -9,7 +9,6 @@
 
 #include <game/gamescreen.h>
 #include <game/font.h>
-#include <game/geometry.h>
 #include <game/renderer.h>
 #include <game/menu_combat.h>
 #include <game/menu_main.h>

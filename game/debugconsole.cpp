@@ -6,7 +6,7 @@
 #include <string>
 
 #include <game/screenmanager.h>
-#include <game/geometry.h>
+#include <game/sdl_utils.h>
 #include <game/make_unique.h>
 #include <game/surface.h>
 #include <game/renderer.h>
