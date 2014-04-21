@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include <cstring>
+
 #include <sstream>
 #include <memory>
 #include <fstream>
@@ -23,12 +25,12 @@ int main(int argc, char *argv[])
 
     std::ifstream fin(name, std::ios_base::binary);
     if(!fin.is_open()) {
-        throw std::runtime_error("Can't open file");
+        throw std::runtime_error(strerror(errno));
     }
     
-    Surface surf = NULL;
+    Surface surf;
     TGX::ReadSurfaceHeader(fin, surf);
-    SDL_FillRect(surf, NULL, 0x8000);
+    //SDL_FillRect(surf, NULL, 0);
 
     std::streampos origin = fin.tellg();
     fin.seekg(0, std::ios_base::end);

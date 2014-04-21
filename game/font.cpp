@@ -93,7 +93,7 @@ namespace Render
             GlyphData glyph;
         
             // Copy original surface and convert to argb32
-            if(entry->surface.Null()) {
+            if(!entry->surface) {
                 glyph.face = Surface();
                 glyph.hbox = 0;
                 glyph.vbox = 0;

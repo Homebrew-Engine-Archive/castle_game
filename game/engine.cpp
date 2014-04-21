@@ -7,6 +7,7 @@
 #include <vector>
 #include <SDL.h>
 
+#include <game/gamescreen.h>
 #include <game/font.h>
 #include <game/geometry.h>
 #include <game/renderer.h>
@@ -31,7 +32,7 @@ namespace Castle
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
-        , mFrameRate(30)
+        , mFrameRate(50)
         , mFpsLimited(false)
         , mShowConsole(false)
         , mPollRate(66)
@@ -110,7 +111,10 @@ namespace Castle
             std::cerr << "Loading has been interrupted." << std::endl;
             return 0;
         }
-        mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
+        //mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
+        mScreenMgr->PushScreen(
+            UI::ScreenPtr(
+                new UI::GameScreen(mScreenMgr.get(), mRenderer)));
 
         const int64_t msPerSec = 1000;
         const int64_t frameInterval = msPerSec / mFrameRate;
@@ -160,13 +164,6 @@ namespace Castle
     bool Engine::LoadGraphics()
     {
         std::unique_ptr<UI::LoadingScreen> &&loadingScreen = UI::CreateLoadingScreen(this);
-
-        // Entities::LoadGraphics(*mGraphicsMgr);
-        // Render::LoadFonts(*mGraphicsMgr);
-        // UI::LoadGraphics(*mGraphicsMgr);
-        
-        // mGraphicsMgr->LoadAll(loadingScreen.get());
-
         return loadingScreen->Exec();
     }
     
@@ -179,8 +176,8 @@ namespace Castle
         SDL_Color color = MakeColor(255, 255, 255, 128);
         mRenderer->SetColor(color);
         
-        mRenderer->SetFont("font_stronghold_aa", 24);
-
+        mRenderer->SetFont("font_stronghold_aa", 24);        
+        
         SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);
     
         std::ostringstream oss;

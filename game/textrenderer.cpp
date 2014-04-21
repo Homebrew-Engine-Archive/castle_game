@@ -245,6 +245,7 @@ namespace Render
         newFontData.mTexture =
             std::move(
                 CreateFontAtlas(font, newFontData.mPartition));
+        
         if(!newFontData.mTexture) {
             std::cerr << "Failed to create font atlas" << std::endl;
             return false;

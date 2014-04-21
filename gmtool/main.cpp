@@ -56,16 +56,20 @@ namespace GMTool
 
         int maxLength = 0;
         for(const Command &command : commands) {
-            maxLength = std::max<int>(maxLength, command.name.length());
+            if(command.mode) {
+                maxLength = std::max<int>(maxLength, command.name.length());
+            }
         }
 
         for(const Command &command : commands) {
-            out.width(3 /** ?? **/);
-            out << ' ';
-            out.width(maxLength + 3 /** ???? **/);
-            out << std::left << command.name;
-            out << command.description;
-            out << std::endl;
+            if(command.mode) {
+                out.width(3 /** ?? **/);
+                out << ' ';
+                out.width(maxLength + 3 /** ???? **/);
+                out << std::left << command.name;
+                out << command.description;
+                out << std::endl;
+            }
         }
     }
 
@@ -152,7 +156,7 @@ namespace GMTool
             ShowVersion(std::cout);
             return EXIT_SUCCESS;
         }
-        
+
         if(modeName.empty()) {
             if(helpRequested) {
                 ShowUsage(std::cout);

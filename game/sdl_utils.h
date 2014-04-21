@@ -72,8 +72,16 @@ struct FreePaletteDeleter
 typedef std::unique_ptr<SDL_Palette, FreePaletteDeleter> PalettePtr;
 
 SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
+SDL_Color GetPixelColor(uint32_t pixel, int format);
+uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
+void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);
 
-std::ostream &operator<<(std::ostream &out, const SDL_Rect &rect);
-std::ostream &operator<<(std::ostream &out, const SDL_Point &pt);
+bool operator==(const SDL_Color &left, const SDL_Color &right);
+bool operator!=(const SDL_Color &left, const SDL_Color &right);
+
+std::ostream& operator<<(std::ostream &out, const SDL_Color &color);
+std::ostream& operator<<(std::ostream &out, const SDL_Rect &rect);
+std::ostream& operator<<(std::ostream &out, const SDL_Point &pt);
+std::istream& operator>>(std::istream &in, SDL_Color &color);
 
 #endif

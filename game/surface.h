@@ -71,7 +71,10 @@ void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t)
 
 bool HasPalette(const Surface &surface);
 
-Surface CopySurfaceFormat(const Surface &src, int width, int height);
+Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
+Surface CreateSurface(int width, int height, int format);
+
+void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 
@@ -82,6 +85,8 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 void BlurSurface(Surface &dst, int radius);
 
 SDL_Rect SurfaceBounds(const Surface &src);
+
+uint32_t GetPixel(const char *buffer, const SDL_PixelFormat *format);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels
@@ -95,6 +100,5 @@ inline char const* ConstGetPixels(const Surface &surface)
 {
     return reinterpret_cast<char const*>(surface->pixels);
 }
-
 
 #endif

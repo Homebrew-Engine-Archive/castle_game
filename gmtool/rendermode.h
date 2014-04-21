@@ -21,16 +21,16 @@ namespace GMTool
         boost::filesystem::path mInputFile;
         boost::filesystem::path mOutputFile;
         std::string mFormat;
-        bool mRenderAll;
         int mEntryIndex;
         int mPaletteIndex;
-        HexColor mTransparentColor;
+        SDL_Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
 
-        boost::filesystem::path GetOutputName(int index);
+        SDL_Color DefaultTransparent() const;
         
         void SetupFormat(Surface &surface, const PixelFormatPtr &format);
         void SetupPalette(Surface &surface, const GM1::Palette &palette);
+        void SetupTransparentColor(Surface &surface, const SDL_Color &color);
         
     public:
         RenderMode();

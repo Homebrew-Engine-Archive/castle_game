@@ -19,36 +19,33 @@ namespace GM1
     const size_t TileBytes = 512;
     const size_t TileWidth = 30;
     const size_t TileHeight = 16;
-
-    class EntryRenderer
-    {
-    public:
-        Surface Render(std::istream &in, size_t numBytes, GM1::EntryHeader const&);
-    };
-    
+        
     class GM1EntryReader
     {
+        SDL_Color mTransparentColor;
+        
     protected:
-        Surface CreateSurface(const GM1::EntryHeader &header) const;
+        virtual Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
         virtual void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const = 0;
         
     public:
-        constexpr int Width(GM1::EntryHeader const&);
-        constexpr virtual int Height(GM1::EntryHeader const&);
-        constexpr virtual int Depth();
-        constexpr virtual uint32_t RedMask();
-        constexpr virtual uint32_t GreenMask();
-        constexpr virtual uint32_t BlueMask();
-        constexpr virtual uint32_t AlphaMask();
-        constexpr virtual uint32_t ColorKey();
+        GM1EntryReader();
 
+        void Transparent(SDL_Color color);
+        SDL_Color Transparent() const;
+        
+        virtual int Width(GM1::EntryHeader const&) const;
+        virtual int Height(GM1::EntryHeader const&) const;
+        virtual uint32_t GetColorKey() const;
+        virtual int CompatiblePixelFormat() const;
         virtual bool Palettized() const;
-        
+
         Surface Load(const GM1::GM1Reader &reader, size_t index) const;
-        
+
+        typedef std::unique_ptr<GM1EntryReader> Ptr;
     };
     
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(GM1::Encoding const&);
+    GM1EntryReader::Ptr CreateEntryReader(GM1::Encoding const&);
     
 }
 

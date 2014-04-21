@@ -85,7 +85,7 @@ namespace GM1
     
     GM1Reader::GM1Reader(FilePath path, Flags flags)
         : mIsOpened(false)
-        , mPath()
+        , mPath(path)
         , mFlags()
         , mDataOffset(0)
         , mStream()
@@ -96,7 +96,9 @@ namespace GM1
         , mEntries()
         , mEntryReader()
     {
-        Open(std::move(path), flags);
+        if(!mPath.empty()) {
+            Open(mPath, flags);
+        }
     }
 
     bool GM1Reader::IsOpened() const
@@ -249,14 +251,8 @@ namespace GM1
         return mPalettes.at(index);
     }
 
-    GM1::GM1EntryReader const& GM1Reader::EntryReader() const
+    GM1::GM1EntryReader& GM1Reader::EntryReader()
     {
         return *mEntryReader;
-    }
-    
-    Surface GM1Reader::Decode(size_t index)
-    {
-        return mEntryReader->Load(*this, index);
-    }
-    
+    }    
 }

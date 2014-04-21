@@ -26,7 +26,7 @@ namespace GM1
 
     PixelFormatPtr PaletteFormat()
     {
-        PixelFormatPtr ptr(SDL_AllocFormat(TGX::GetPixelFormatEnum()));
+        PixelFormatPtr ptr(SDL_AllocFormat(TGX::PixelFormatEnum));
         if(!ptr) {
             Fail(__FILE__, __LINE__, SDL_GetError());
         }

@@ -1,7 +1,10 @@
 #include "atlas.h"
+
 #include <game/geometry.h>
+
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 namespace
 {
@@ -89,8 +92,9 @@ namespace Render
 
     Surface BuildAtlas(const std::vector<Surface> &surfaces, const std::vector<SDL_Rect> &partition)
     {
-        if(surfaces.empty())
+        if(surfaces.empty()) {
             return Surface();
+        }
 
         int boundWidth = 0;
         int boundHeight = 0;
@@ -99,28 +103,26 @@ namespace Render
             boundHeight = std::max(rect.y + rect.h, boundHeight);
         }
 
-        Surface ref;
+        Surface reference;
         for(const Surface &surface : surfaces) {
-            if(!surface.Null())
-                ref = surface;
+            if(!surface.Null()) {
+                reference = surface;
+            }
         }
 
-        if(ref.Null())
-            return Surface();
-
-        Surface atlas = CopySurfaceFormat(ref, boundWidth, boundHeight);
-        if(atlas.Null()) {
-            std::cerr << "BuildAtlas failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return Surface();
+        Surface atlas = CreateSurface(boundWidth, boundHeight, reference->format);
+        if(!atlas) {
+            throw std::runtime_error("Cannot allocate atlas surface");
         }
+
+        CopyColorKey(reference, atlas);
 
         for(size_t i = 0; i < surfaces.size(); ++i) {
             SDL_Rect bounds = partition.at(i);
             Surface surface = surfaces.at(i);
-            if(!surface.Null())
+            if(!surface.Null()) {
                 BlitSurface(surface, NULL, atlas, &bounds);
+            }
         }
     
         return atlas;

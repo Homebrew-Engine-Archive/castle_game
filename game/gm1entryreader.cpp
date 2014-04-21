@@ -1,5 +1,7 @@
 #include "gm1entryreader.h"
 
+#include <cassert>
+
 #include <sstream>
 #include <boost/current_function.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -9,6 +11,7 @@
 #include <game/geometry.h>
 #include <game/make_unique.h>
 #include <game/gm1reader.h>
+#include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/tgx.h>
 #include <game/surface.h>
@@ -31,30 +34,10 @@ namespace
     class TGX8 : public GM1::GM1EntryReader
     {
     public:
-        constexpr int Depth() {
-            return 8;
+        int CompatiblePixelFormat() const {
+            return SDL_PIXELFORMAT_INDEX8;
         }
         
-        constexpr uint32_t RedMask() {
-            return DefaultRedMask;
-        }
-        
-        constexpr uint32_t GreenMask() {
-            return DefaultGreenMask;
-        }
-        
-        constexpr uint32_t BlueMask() {
-            return DefaultBlueMask;
-        }
-        
-        constexpr uint32_t AlphaMask() {
-            return DefaultAlphaMask;
-        }
-        
-        constexpr uint32_t ColorKey() {
-            return TGX::Transparent8;
-        }
-
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
@@ -91,14 +74,14 @@ namespace
     class TileObject : public GM1::GM1EntryReader
     {
     public:
-        constexpr int Width(GM1::EntryHeader const&) {
+        int Width(GM1::EntryHeader const&) const {
             return GM1::TileWidth;
         }
         
-        constexpr int Height(const GM1::EntryHeader &header) {
+        int Height(const GM1::EntryHeader &header) const {
             return GM1::TileHeight + header.tileY;
         }
-        
+
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
@@ -109,7 +92,7 @@ namespace
     class Bitmap : public GM1::GM1EntryReader
     {
     public:
-        constexpr int Height(const GM1::EntryHeader &header) {
+        int Height(const GM1::EntryHeader &header) const {
             // Nobody knows why
             return header.height - 7;
         }
@@ -140,26 +123,32 @@ namespace
         // and go clean my hands.
         // 
         // TODO is there a better way to do so?
-        surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, NoFlags);
-        if(surface.Null()) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
+        // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, NoFlags);
+        // if(!tmp) {
+        //     Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        // }
+
+        // uint32_t colorkey = GetColorKey();
+        // if(SDL_SetColorKey(tmp, SDL_TRUE, colorkey) < 0) {
+        //     Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        // }
 
         // Here we just ignore original color information. What we are really
         // interested in is green channel
-        auto swap_green_alpha = [](uint8_t, uint8_t g, uint8_t, uint8_t) {
-            return SDL_Color { 255, 255, 255, g };
-        };
+        // auto swap_green_alpha = [](uint8_t r, uint8_t g, uint8_t b, uint8_t) {
+        //     return SDL_Color { r, 255, b, g };
+        // };
     
-        MapSurface(surface, swap_green_alpha);
+        // MapSurface(tmp, swap_green_alpha);
+
+        // surface = tmp;
     }
 
     void ReadBitmap(std::istream &in, size_t numBytes, Surface &surface)
     {
         const SurfaceLocker lock(surface);
 
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        const size_t rowBytes = surface->w * bytesPerPixel;
+        const size_t rowBytes = surface->w * surface->format->BytesPerPixel;
         char *dst = GetPixels(surface);
     
         while(numBytes >= rowBytes) {
@@ -182,12 +171,8 @@ namespace
         return PerRow[row];
     }
 
-    void ReadTile(std::istream &in, size_t numBytes, Surface &surface)
+    void ReadTile(std::istream &in, Surface &surface)
     {
-        if(numBytes < GM1::TileBytes) {
-            Fail(BOOST_CURRENT_FUNCTION, "Inconsistent tile size");
-        }
-
         const SurfaceLocker lock(surface);
 
         const int pitch = surface->pitch;
@@ -206,38 +191,41 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), GM1::TileHeight);
+        const SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), GM1::TileHeight);
         SurfaceROI tile(surface, &tilerect);
-        ReadTile(in, GM1::TileBytes, tile);
+        ReadTile(in, tile);
 
-        SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
+        const SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceROI box(surface, &boxrect);
         TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box);
     }
-    
 }
 
 namespace GM1
 {
-
-    Surface GM1EntryReader::CreateSurface(const GM1::EntryHeader &header) const
+    GM1EntryReader::GM1EntryReader()
     {
-        int width = Width(header);
-        int height = Height(header);
+        mTransparentColor = MakeColor(255, 0, 255, 0);
+    }
+    
+    Surface GM1EntryReader::CreateCompatibleSurface(const GM1::EntryHeader &header) const
+    {
+        const int width = Width(header);
+        const int height = Height(header);
         
-        Surface surface = SDL_CreateRGBSurface(
-            0, width, height, Depth(),
-            RedMask(),
-            GreenMask(),
-            BlueMask(),
-            AlphaMask());
-        
-        if(surface.Null()) {
+        Surface surface = CreateSurface(width, height, CompatiblePixelFormat());
+        if(!surface) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
-        
-        SDL_SetColorKey(surface, SDL_TRUE, ColorKey());
-        SDL_FillRect(surface, NULL, ColorKey());
+
+        uint32_t colorkey = GetColorKey();
+        if(SDL_FillRect(surface, NULL, colorkey) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+       
+        if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
 
         return surface;
     }
@@ -246,10 +234,10 @@ namespace GM1
     {
         const GM1::EntryHeader &header = reader.EntryHeader(index);
 
-        Surface surface = CreateSurface(header);
+        Surface surface = CreateCompatibleSurface(header);
 
         const char *data = reader.EntryData(index);
-        size_t size = reader.EntrySize(index);
+        const size_t size = reader.EntrySize(index);
         
         boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
         ReadSurface(in, size, header, surface);
@@ -257,68 +245,66 @@ namespace GM1
         return surface;
     }
     
-    constexpr int GM1EntryReader::Width(const GM1::EntryHeader &header)
+    int GM1EntryReader::Width(const GM1::EntryHeader &header) const
     {
         return header.width;
     }
 
-    constexpr int GM1EntryReader::Height(const GM1::EntryHeader &header)
+    int GM1EntryReader::Height(const GM1::EntryHeader &header) const
     {
         return header.height;
     }
 
-    constexpr int GM1EntryReader::Depth()
+    int GM1EntryReader::CompatiblePixelFormat() const
     {
-        return 16;
-    }
-
-    constexpr uint32_t GM1EntryReader::RedMask()
-    {
-        return TGX::RedMask16;
-    }
-
-    constexpr uint32_t GM1EntryReader::GreenMask()
-    {
-        return TGX::GreenMask16;
-    }
-
-    constexpr uint32_t GM1EntryReader::BlueMask()
-    {
-        return TGX::BlueMask16;
-    }
-
-    constexpr uint32_t GM1EntryReader::AlphaMask()
-    {
-        return TGX::AlphaMask16;
+        return TGX::PixelFormatEnum;
     }
     
-    constexpr uint32_t GM1EntryReader::ColorKey()
+    uint32_t GM1EntryReader::GetColorKey() const
     {
-        return TGX::Transparent16;
+        const uint8_t red = mTransparentColor.r;
+        const uint8_t green = mTransparentColor.g;
+        const uint8_t blue = mTransparentColor.b;
+        const uint8_t alpha = mTransparentColor.a;
+
+        const PixelFormatPtr fmt(SDL_AllocFormat(CompatiblePixelFormat()));
+        const uint32_t color = SDL_MapRGBA(fmt.get(), red, green, blue, alpha);
+        
+        return color;
     }
 
     bool GM1EntryReader::Palettized() const
     {
-        return Depth() == 8;
+        return SDL_ISPIXELFORMAT_INDEXED(CompatiblePixelFormat());
+    }
+
+    SDL_Color GM1EntryReader::Transparent() const
+    {
+        return mTransparentColor;
+    }
+
+    void GM1EntryReader::Transparent(SDL_Color color)
+    {
+        mTransparentColor = color;
     }
     
-    std::unique_ptr<GM1EntryReader> CreateEntryReader(const GM1::Encoding &encoding)
+    GM1EntryReader::Ptr CreateEntryReader(const GM1::Encoding &encoding)
     {
         switch(encoding) {
         case GM1::Encoding::Font:
-            return std::unique_ptr<GM1EntryReader>(new FontReader);
+            return GM1EntryReader::Ptr(new FontReader);
             
         case GM1::Encoding::TGX16:
-            return std::unique_ptr<GM1EntryReader>(new TGX16);
+            return GM1EntryReader::Ptr(new TGX16);
                 
         case GM1::Encoding::Bitmap:
-            return std::unique_ptr<GM1EntryReader>(new Bitmap);
+            return GM1EntryReader::Ptr(new Bitmap);
         
         case GM1::Encoding::TGX8:
-            return std::unique_ptr<GM1EntryReader>(new TGX8);
+            return GM1EntryReader::Ptr(new TGX8);
             
         case GM1::Encoding::TileObject:
-            return std::unique_ptr<GM1EntryReader>(new TileObject);
+            return GM1EntryReader::Ptr(new TileObject);
             
         case GM1::Encoding::Unknown:
         default:

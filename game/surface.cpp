@@ -25,47 +25,25 @@ namespace
         throw std::runtime_error(oss.str());
     }
     
-    template<class Pixel>
-    void MapBuffer(void *pixels, size_t count, const SDL_PixelFormat *pf, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
+    void MapBuffer(char *data, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
     {
-        Pixel *first = reinterpret_cast<Pixel *>(pixels);
-        Pixel *last = first + count;
+        const char *end = data + size * format->BytesPerPixel;
         
-        while(first != last) {
+        while(data != end) {
+            uint32_t pixel = GetPackedPixel(data, format->BytesPerPixel);
+
             uint8_t r, g, b, a;
-            SDL_GetRGBA(*first, pf, &r, &g, &b, &a);
+            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
         
             SDL_Color result = func(r, g, b, a);
-            *first = SDL_MapRGBA(pf, result.r, result.g, result.b, result.a);
-            first = std::next(first);
-        }
-    }
 
-    template<class Pixel>
-    void MapSurfaceImpl(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
-    {
-        if(dst.Null())
-            return;
-    
-        SurfaceLocker lock(dst);
-
-        uint8_t *pixels = reinterpret_cast<uint8_t *>(dst->pixels);
-        const SDL_PixelFormat *fmt = dst->format;
-
-        for(int y = 0; y < dst->h; ++y) {
-            MapBuffer<Pixel>(pixels, dst->w, fmt, func);
-            std::advance(pixels, dst->pitch);
+            pixel = SDL_MapRGBA(format, result.r, result.g, result.b, result.a);
+            SetPackedPixel(data, pixel, format->BytesPerPixel);
+            
+            data += format->BytesPerPixel;
         }
     }
     
-    void CopySurfaceColorKey(SDL_Surface *src, SDL_Surface *dst)
-    {
-        uint32_t colorkey;
-        bool enabled = (0 == SDL_GetColorKey(src, &colorkey));
-
-        SDL_SetColorKey(dst, enabled, colorkey);
-    }
-
     void AddSurfaceRef(SDL_Surface *surface)
     {
         if(surface != NULL) {
@@ -90,21 +68,6 @@ namespace
         int bpp = format->BitsPerPixel;
 
         return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
-    }
-
-    SDL_Surface *CreateSurface(int width, int height, const SDL_PixelFormat *format)
-    {
-        if(format == NULL) {
-            throw std::invalid_argument("CreateSurface: passed NULL format");
-        }
-
-        uint32_t rmask = format->Rmask;
-        uint32_t gmask = format->Gmask;
-        uint32_t bmask = format->Bmask;
-        uint32_t amask = format->Amask;
-        int bpp = format->BitsPerPixel;
-
-        return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
     }
 
     template<class Pixel>
@@ -278,10 +241,10 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
     if(src.Null())
         return;
     
-    uint32_t x;
-    uint32_t y;
-    uint32_t width;
-    uint32_t height;
+    uint32_t x = 0;
+    uint32_t y = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
 
     if(roi != NULL) {
         x = roi->x;
@@ -306,25 +269,59 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
     
-    CopySurfaceColorKey(src, mSurface);
+    CopyColorKey(src, mSurface);
     
     mReferer = src;
     AddSurfaceRef(mReferer);
 }
 
-Surface CopySurfaceFormat(const Surface &src, int width, int height)
+void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
 {
-    if(src.Null())
-        return Surface();
-    
-    Surface dst = CreateSurface(width, height, src->format);
-    if(dst.Null()) {
-        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+    uint32_t colorkey = 0;
+    if(SDL_GetColorKey(src, &colorkey) == 0) {
+        if(SDL_SetColorKey(dst, SDL_TRUE, colorkey) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+    }
+}
+
+uint32_t GetPixel(const char *buffer, const SDL_PixelFormat *format)
+{
+    uint32_t color = 0;
+    for(int i = 0; i < format->BytesPerPixel; ++i) {
+        color = (color << 8) | buffer[i];
+    }
+    return color;
+}
+
+Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
+{
+    if(format == NULL) {
+        throw std::invalid_argument("CreateSurface: passed NULL format");
     }
 
-    CopySurfaceColorKey(src, dst);
+    uint32_t rmask = format->Rmask;
+    uint32_t gmask = format->Gmask;
+    uint32_t bmask = format->Bmask;
+    uint32_t amask = format->Amask;
+    int bpp = format->BitsPerPixel;
 
-    return dst;
+    return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
+}
+
+Surface CreateSurface(int width, int height, int format)
+{
+    uint32_t rmask = 0;
+    uint32_t gmask = 0;
+    uint32_t bmask = 0;
+    uint32_t amask = 0;
+    int bpp = 0;
+
+    if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
+        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+    }
+    
+    return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
@@ -372,21 +369,18 @@ bool HasPalette(const Surface &surface)
 
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
 {
-    switch(dst->format->BytesPerPixel) {
-    case 1:
-        MapSurfaceImpl<uint8_t>(dst, func);
-        break;
-    case 2:
-        MapSurfaceImpl<uint16_t>(dst, func);
-        break;
-    case 4:
-        MapSurfaceImpl<uint32_t>(dst, func);
-        break;
-    case 3:
-        // TODO implement me
-        /* fallthrough */
-    default:
-        throw std::runtime_error("Unsupported BPP");
+    if(!dst) {
+        return;
+    }
+    
+    const SurfaceLocker lock(dst);
+
+    char *data = GetPixels(dst);
+    const SDL_PixelFormat *fmt = dst->format;
+
+    for(int y = 0; y < dst->h; ++y) {
+        MapBuffer(data, dst->w, fmt, func);
+        data += dst->pitch;
     }
 }
 

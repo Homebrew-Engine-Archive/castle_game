@@ -2,12 +2,15 @@
 #define ENDIANNESS_H_
 
 #include <type_traits>
-#include <iosfwd>
+#include <iostream>
+
 #include <SDL_endian.h>
 
 namespace Endian
 {
 
+    template<class T> T SwapBig(T x);
+    
     template<class T> T SwapLittle(T x)
     {
         static_assert(std::is_integral<T>::value, "Swap little not specialized for this type");
@@ -23,6 +26,11 @@ namespace Endian
         return SDL_SwapLE32(x);
     }
 
+    template<> inline uint32_t SwapBig(uint32_t x)
+    {
+        return SDL_SwapBE32(x);
+    }
+    
     template<> inline uint16_t SwapLittle(uint16_t x)
     {
         return SDL_SwapLE16(x);

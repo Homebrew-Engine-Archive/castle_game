@@ -38,16 +38,18 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
 
         CollectionDataPtr ptr(new CollectionData);
         ptr->header = reader.Header();
-        for(int index = 0; index < reader.NumPalettes(); ++index) {
-            const GM1::Palette &palette = reader.Palette(index);
+        
+        for(int i = 0; i < reader.NumPalettes(); ++i) {
             ptr->palettes.push_back(
                 std::move(
-                    GM1::CreateSDLPalette(palette)));
+                    GM1::CreateSDLPalette(
+                        reader.Palette(i))));
         }
 
-        for(int index = 0; index < reader.NumEntries(); ++index) {
-            const GM1::EntryHeader &header = reader.EntryHeader(index);
-            Surface entry = reader.Decode(index);
+        GM1::GM1EntryReader &entryReader = reader.EntryReader();
+        for(int i = 0; i < reader.NumEntries(); ++i) {
+            Surface entry = entryReader.Load(reader, i);
+            const GM1::EntryHeader &header = reader.EntryHeader(i);
             ptr->entries.emplace_back(header, std::move(entry));
         }
         

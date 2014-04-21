@@ -53,12 +53,10 @@ check_cxx_source_runs ("
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 int main() {
-    IMG_Init(IMG_INIT_PNG);
     unsigned char magic[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     SDL_RWops *src = SDL_RWFromConstMem(magic, sizeof(magic));
     int result = IMG_isPNG(src);
     SDL_RWclose(src);
-    IMG_Quit();
     return(result != 1);
 }
 " HAVE_SDL2_IMAGE_PNG)

@@ -1,7 +1,9 @@
 #include "tgx.h"
 
-#include <algorithm>
 #include <cassert>
+#include <cstring>
+
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -11,6 +13,7 @@
 
 #include <boost/current_function.hpp>
 
+#include <game/sdl_utils.h>
 #include <game/endianness.h>
 #include <game/surface.h>
 
@@ -101,24 +104,13 @@ namespace
         return out;
     }
     
-    Surface CreateCompatibleSurface(int width, int height, int bpp)
+    Surface CreateCompatibleSurface(int width, int height)
     {
-        uint32_t rmask = DefaultRedMask;
-        uint32_t gmask = DefaultGreenMask;
-        uint32_t bmask = DefaultBlueMask;
-        uint32_t amask = DefaultAlphaMask;
-        
-        if(bpp == 16) {
-            rmask = TGX::RedMask16;
-            gmask = TGX::GreenMask16;
-            bmask = TGX::BlueMask16;
-            amask = TGX::AlphaMask16;
-        }
-    
-        Surface surface = SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
-        if(surface.Null()) {
+        Surface surface = CreateSurface(width, height, TGX::PixelFormatEnum);
+        if(!surface) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
+
         return surface;
     }
     
@@ -132,10 +124,9 @@ namespace
         return std::distance(lhs, rhs) / bytesPerPixel;
     }
 
-    bool PixelTransparent(const char *pixels, int bytesPerPixel)
+    bool PixelTransparent(const char *pixels, uint32_t colorKey, int bytesPerPixel)
     {
-        const uint16_t *colors = reinterpret_cast<uint16_t const*>(pixels);
-        return (bytesPerPixel == 2) && (*colors == TGX::Transparent16);
+        return GetPackedPixel(pixels, bytesPerPixel) == colorKey;
     }
     
     std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
@@ -170,18 +161,12 @@ namespace
 
         return out;
     }
-    
 }
 
 namespace TGX
 {
-
-    uint32_t GetPixelFormatEnum()
-    {
-        return SDL_PIXELFORMAT_ARGB1555;
-    }
     
-    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel)
+    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel, uint32_t colorKey)
     {
         const char *end = pixels + width * bytesPerPixel;
         const char *cursor = pixels;
@@ -192,7 +177,7 @@ namespace TGX
         while(cursor != end) {
             const int count = PixelsCount(mark, cursor, bytesPerPixel);
 
-            const bool isTransparent = PixelTransparent(cursor, bytesPerPixel);
+            const bool isTransparent = PixelTransparent(cursor, colorKey, bytesPerPixel);
             const bool isRepeat = ((cursor != pixels)
                                    ? PixelsEqual(cursor - bytesPerPixel, cursor, bytesPerPixel)
                                    : false);
@@ -303,13 +288,23 @@ namespace TGX
     
     std::ostream& EncodeSurface(std::ostream &out, const Surface &surface)
     {
+        assert(!surface.Null());
+        assert(surface->format != NULL);
+        assert(!out.fail());
+        assert(!out.bad());
+
         const SurfaceLocker lock(surface);
         
         const char *pixelsPtr = ConstGetPixels(surface);
         const int bytesPerPixel = surface->format->BytesPerPixel;
 
+        uint32_t colorKey = 0;
+        if(SDL_GetColorKey(surface, &colorKey) < 0) {
+            std::cerr << "No color key in surface" << std::endl;
+        }
+
         for(int row = 0; row < surface->h; ++row) {
-            EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel);
+            EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel, colorKey);
             if(!out) {
                 return out;
             }
@@ -334,7 +329,7 @@ namespace TGX
         if(!ReadHeader(in, header)) {
             Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
         }
-        Surface surface = CreateCompatibleSurface(header.width, header.height, 16);
+        Surface surface = CreateCompatibleSurface(header.width, header.height);
 
         const std::streampos origin = in.tellg();
         in.seekg(0, std::ios_base::end);
@@ -411,7 +406,7 @@ namespace TGX
             }
 
             if(!in) {
-                Fail(BOOST_CURRENT_FUNCTION, "Overrun");
+                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
             }
             
             dst += length * bytesPerPixel;
@@ -455,9 +450,8 @@ namespace TGX
         if(!ReadHeader(in, header)) {
             Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
         }
-        surface = CreateCompatibleSurface(header.width, header.height, 16);
+        surface = CreateCompatibleSurface(header.width, header.height);
         return in;
     }
     
-} // namespace TGX
-
+} // namespace TGX 
