@@ -20,7 +20,6 @@ set (SRCS
   network.cpp
   point.cpp
   renderer.cpp
-  sdl_init.cpp
   sdl_utils.cpp
   surface.cpp
   textrenderer.cpp
@@ -32,6 +31,7 @@ set (SRCS
   gm1reader.cpp
   gm1entryreader.cpp
   gm1palette.cpp
+  gameexception.cpp
 )
 
 set (TARGET "a.out")

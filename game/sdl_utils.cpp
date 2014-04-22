@@ -6,6 +6,19 @@
 #include <iostream>
 #include <initializer_list>
 
+SDLInitializer::SDLInitializer()
+{
+    SDL_SetMainReady();
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        throw std::runtime_error(SDL_GetError());
+    }
+}
+
+SDLInitializer::~SDLInitializer()
+{
+    SDL_Quit();
+}
+
 SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     return SDL_Color { r, g, b, a };

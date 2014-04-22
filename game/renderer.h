@@ -36,11 +36,11 @@ namespace Render
         
         SDL_Renderer *mRenderer;
         std::unique_ptr<TextRenderer> mTextRenderer;
-        int mBufferWidth;
-        int mBufferHeight;
-        uint32_t mFbFormat;
-        TexturePtr mBuffTexture;
-        Surface mBuffSurface;
+        int mScreenWidth;
+        int mScreenHeight;
+        int mScreenFormat;
+        TexturePtr mScreenTexture;
+        Surface mScreenSurface;
         std::vector<TextBatch> mTextOverlay;
         std::map<FilePath, Surface> mGFXCache;
         std::map<FilePath, CollectionDataPtr> mGMCache;
@@ -57,10 +57,11 @@ namespace Render
         Renderer &operator=(const Renderer &);
         Renderer &operator=(Renderer &&);
         virtual ~Renderer();
-
+        
         Surface BeginFrame();
         void EndFrame();
         SDL_Rect GetOutputSize() const;
+        void SetWindowSize(int width, int height);
         void AdjustBufferSize(int width, int height);
         void RenderTextLine(const std::string &text, const SDL_Point &rect);
         void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv);

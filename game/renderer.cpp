@@ -3,8 +3,11 @@
 #include <map>
 #include <vector>
 #include <functional>
+
+#include <boost/current_function.hpp>
 #include <boost/algorithm/clamp.hpp>
 
+#include <game/gameexception.h>
 #include <game/make_unique.h>
 #include <game/text.h>
 #include <game/textrenderer.h>
@@ -45,18 +48,18 @@ namespace Render
     Renderer::Renderer(SDL_Renderer *renderer)
         : mRenderer(renderer)
         , mTextRenderer(std::move(CreateTextRenderer(renderer)))
-        , mBufferWidth(0)
-        , mBufferHeight(0)
-        , mFbFormat(0)
-        , mBuffTexture(nullptr)
-        , mBuffSurface(nullptr)
+        , mScreenWidth(0)
+        , mScreenHeight(0)
+        , mScreenFormat(0)
+        , mScreenTexture(nullptr)
+        , mScreenSurface(nullptr)
         , mTextOverlay()
         , mGFXCache()
         , mGMCache()
     {
         SDL_Rect rect = GetOutputSize();
-        mBufferWidth = rect.w;
-        mBufferHeight = rect.h;
+        mScreenWidth = rect.w;
+        mScreenHeight = rect.h;
 
         std::clog << "GetOutputSize(): " << rect << std::endl;
     }
@@ -72,29 +75,26 @@ namespace Render
             return false;
         }
     
-        if((mBuffTexture) && (width == mBufferWidth) && (height == mBufferHeight)) {
+        if((mScreenTexture) && (width == mScreenWidth) && (height == mScreenHeight)) {
             std::cerr << "Size of texture matches. Skip allocation."
                       << std::endl;
             return true;
         }
     
-        mBufferWidth = width;
-        mBufferHeight = height;
-        mFbFormat = SDL_PIXELFORMAT_ARGB8888;
-        mBuffTexture =
+        mScreenWidth = width;
+        mScreenHeight = height;
+        mScreenFormat = SDL_PIXELFORMAT_ARGB8888;
+        mScreenTexture =
             TexturePtr(
                 SDL_CreateTexture(
                     mRenderer,
-                    mFbFormat,
+                    mScreenFormat,
                     SDL_TEXTUREACCESS_STREAMING,
-                    mBufferWidth,
-                    mBufferHeight));
+                    mScreenWidth,
+                    mScreenHeight));
 
-        if(!mBuffTexture) {
-            std::cerr << "SDL_CreateTexture failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return false;
+        if(!mScreenTexture) {
+            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
     
         return true;
@@ -102,35 +102,18 @@ namespace Render
 
     bool Renderer::CreateFrameSurface(void *pixels, int width, int height, int pitch)
     {
-        int bpp;
-        uint32_t rmask;
-        uint32_t gmask;
-        uint32_t bmask;
-        uint32_t amask;
-        if(!SDL_PixelFormatEnumToMasks(mFbFormat, &bpp, &rmask, &gmask, &bmask, &amask)) {
-            std::cerr << "SDL_PixelFormatEnumToMasks failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return false;
+        Surface surface = CreateSurfaceFrom(pixels, width, height, pitch, mScreenFormat);
+        if(!surface) {
+            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
-        Surface surface = SDL_CreateRGBSurfaceFrom(
-            pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
-        if(surface.Null()) {
-            std::cerr << "SDL_CreateRGBSurfaceFrom failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return false;
-        }
-
-        mBuffSurface = surface;
-    
+        mScreenSurface = surface;
         return true;
     }
 
     bool Renderer::ReallocationRequired(int width, int height)
     {
-        return (width != mBufferWidth) || (height != mBufferHeight);
+        return (width != mScreenWidth) || (height != mScreenHeight);
     }
     
     Surface Renderer::BeginFrame()
@@ -142,51 +125,51 @@ namespace Render
             mTextOverlay.clear();
         }
 
-        if(!mBuffSurface.Null()) {
+        if(!mScreenSurface.Null()) {
             std::cerr << "Previously allocated surface is not null"
                       << std::endl;
-            mBuffSurface.reset();
+            mScreenSurface.reset();
         }
     
-        if(!mBuffTexture) {
-            if(!CreateFrameTexture(mBufferWidth, mBufferHeight)) {
+        if(!mScreenTexture) {
+            if(!CreateFrameTexture(mScreenWidth, mScreenHeight)) {
                 std::cerr << "Can't allocate frame texture"
                           << std::endl;
                 return Surface();
             }
         }
     
-        int nativePitch;
-        void *nativePixels;
-        if(SDL_LockTexture(mBuffTexture.get(), NULL, &nativePixels, &nativePitch)) {
+        int nativePitch = 0;
+        void *nativePixels = nullptr;
+        if(SDL_LockTexture(mScreenTexture.get(), nullptr, &nativePixels, &nativePitch)) {
             std::cerr << "SDL_LockTexture failed: "
                       << SDL_GetError()
                       << std::endl;
             return Surface();
         }
         
-        if(!CreateFrameSurface(nativePixels, mBufferWidth, mBufferHeight, nativePitch)) {
+        if(!CreateFrameSurface(nativePixels, mScreenWidth, mScreenHeight, nativePitch)) {
             std::cerr << "Can't allocate framebuffer"
                       << std::endl;
-            SDL_UnlockTexture(mBuffTexture.get());
+            SDL_UnlockTexture(mScreenTexture.get());
             return Surface();
         }
 
-        return mBuffSurface;
+        return mScreenSurface;
     }
 
     void Renderer::EndFrame()
     {
-        if(!mBuffSurface.Null()) {
+        if(!mScreenSurface.Null()) {
             SDL_RenderClear(mRenderer);
 
             /// \note Pixel are not deallocated only surface
-            mBuffSurface.reset();
+            mScreenSurface.reset();
         
-            SDL_UnlockTexture(mBuffTexture.get());
+            SDL_UnlockTexture(mScreenTexture.get());
 
-            SDL_Rect textureRect = MakeRect(mBufferWidth, mBufferHeight);
-            if(SDL_RenderCopy(mRenderer, mBuffTexture.get(), &textureRect, &textureRect)) {
+            const SDL_Rect textureRect = MakeRect(mScreenWidth, mScreenHeight);
+            if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
                 std::cerr << "SDL_RenderCopy failed: "
                           << SDL_GetError()
                           << std::endl;
@@ -205,8 +188,8 @@ namespace Render
 
     SDL_Rect Renderer::GetOutputSize() const
     {
-        int width;
-        int height;
+        int width = 0;
+        int height = 0;
         if(SDL_GetRendererOutputSize(mRenderer, &width, &height)) {
             std::cerr << "SDL_GetRendererOutputSize failed: "
                       << SDL_GetError()
@@ -215,9 +198,13 @@ namespace Render
         return MakeRect(width, height);
     }
 
+    void Renderer::SetWindowSize(int, int)
+    {
+    }
+    
     void Renderer::AdjustBufferSize(int width, int height)
     {
-        if(!mBuffSurface.Null()) {
+        if(!mScreenSurface.Null()) {
             throw std::runtime_error("AdjustBufferSize called with active frame.");
         }
 

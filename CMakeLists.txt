@@ -1,49 +1,6 @@
 project(stockade)
 cmake_minimum_required(VERSION 2.6)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ######################
 # C++ compiler flags #
 ######################
@@ -67,28 +24,6 @@ cxx_set_flag ("-Wunreachable-code" CXX_UNREACHABLE_CODE)
 
 # I have already caught two bugs with unused something. Be aware.
 # cxx_set_flag ("-Wno-unused-parameter" CXX_NO_UNUSED_PARAMETER)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ###################
 # Include section #
@@ -119,3 +54,4 @@ set (BOOST_LIBRARIES boost_system boost_filesystem boost_iostreams)
 add_subdirectory (game)
 add_subdirectory (gmtool)
 add_subdirectory (gfxtool)
+add_subdirectory (shaders)

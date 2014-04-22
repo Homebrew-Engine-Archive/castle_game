@@ -10,7 +10,6 @@ set (SHARED
   ../game/tgx.cpp
   ../game/surface.cpp
   ../game/sdl_utils.cpp
-  ../game/sdl_init.cpp
 )
 
 set(TARGET "gfxtool.out")

@@ -11,7 +11,6 @@
 #include <SDL.h>
 
 #include <game/sdl_utils.h>
-#include <game/sdl_init.h>
 #include <game/surface.h>
 #include <game/tgx.h>
 
@@ -44,7 +43,7 @@ int main(int argc, char *argv[])
 
 int ShowSurface(const Surface &surface)
 {
-    Init::SDLInit initializer();
+    SDLInitializer init();
 
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;

@@ -3,14 +3,14 @@
 #include <vector>
 #include <iostream>
 
+#include <game/gameexception.h>
 #include <game/sdl_utils.h>
 #include <game/engine.h>
-#include <game/sdl_init.h>
 #include <game/renderer.h>
 
 int main()
 {
-    Init::SDLInit init();
+    SDLInitializer init();
     
     EnumRenderDrivers(std::clog);
 
@@ -38,7 +38,20 @@ int main()
     
     std::unique_ptr<Render::Renderer> renderer(new Render::Renderer(sdlRenderer.get()));
     std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
-    return root->Exec();
+
+    try {
+        return root->Exec();
+    } catch(const GameException &error) {
+        std::cerr << "GameException:" << std::endl;
+        std::cerr << "reason = " << error.reason << std::endl;
+        std::cerr << "where = " << error.where << std::endl;
+        std::cerr << "file = " << error.file << std::endl;
+        std::cerr << "line = " << error.line << std::endl;
+    } catch(const std::exception &error) {
+        std::cerr << "std::exception: " << error.what() << std::endl;
+    } catch(...) {
+        std::cerr << "Abort after unknown exception" << std::endl;
+    }
 }
 
 void EnumRenderDrivers(std::ostream &out)

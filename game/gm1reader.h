@@ -4,7 +4,6 @@
 #include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/filesystem.h>
-#include <game/surface.h>
 
 #include <boost/filesystem/fstream.hpp>
 

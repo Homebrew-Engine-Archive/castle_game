@@ -64,7 +64,7 @@ class SurfaceROI : public Surface
 {
     Surface mReferer;
 public:
-    SurfaceROI(const Surface &src, const SDL_Rect *roi);
+    SurfaceROI(Surface &src, const SDL_Rect *roi);
 };
 
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
@@ -73,6 +73,9 @@ bool HasPalette(const Surface &surface);
 
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
 Surface CreateSurface(int width, int height, int format);
+
+Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format);
+Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format);
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
@@ -85,8 +88,6 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 void BlurSurface(Surface &dst, int radius);
 
 SDL_Rect SurfaceBounds(const Surface &src);
-
-uint32_t GetPixel(const char *buffer, const SDL_PixelFormat *format);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels

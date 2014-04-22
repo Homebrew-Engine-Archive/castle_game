@@ -165,8 +165,60 @@ namespace
 
 namespace TGX
 {
+
+    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPP, uint32_t colorKey)
+    {
+        const char *end = pixels + width * bytesPP;
+
+        while(pixels != end) {
+            /** Grab all transparent pixels **/
+            {
+                const char *mark = pixels;
+                while((pixels != end) &&
+                      (PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
+                    pixels += bytesPP;
+                }
+                WriteTransparentToken(out, PixelsCount(mark, pixels, bytesPP));
+            }
+
+            /** Grab two or more repeating pixels **/
+            {
+                const char *mark = pixels;
+                while((pixels != end) && 
+                      (!PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      (PixelsEqual(pixels, mark, bytesPP)) && 
+                      (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
+                    pixels += bytesPP;
+                }
+                if(PixelsCount(mark, pixels, bytesPP) == 1) {
+                    pixels -= bytesPP;
+                }
+                
+                WriteRepeatToken(out, mark, PixelsCount(mark, pixels, bytesPP), bytesPP);
+            }
+
+            /** Grab all the rest **/
+            {
+                const char *mark = pixels;
+                while((pixels != end) && 
+                      (!PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      ((pixels == mark) || (!PixelsEqual(pixels, pixels - bytesPP, bytesPP))) &&
+                      (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
+                    pixels += bytesPP;
+                }
+                if((pixels != mark) && (PixelsEqual(pixels, pixels - bytesPP, bytesPP))) {
+                    pixels -= bytesPP;
+                }
+
+                WriteStreamToken(out, mark, PixelsCount(mark, pixels, bytesPP), bytesPP);
+            }
+        }
+        
+        return WriteLineFeed(out);
+    }
     
-    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPerPixel, uint32_t colorKey)
+    std::ostream& EncodeBuffer1(std::ostream &out, const char *pixels, int width, int bytesPerPixel, uint32_t colorKey)
     {
         const char *end = pixels + width * bytesPerPixel;
         const char *cursor = pixels;

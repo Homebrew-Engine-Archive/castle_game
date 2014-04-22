@@ -45,28 +45,9 @@ namespace
     
     void AddSurfaceRef(SDL_Surface *surface)
     {
-        if(surface != NULL) {
+        if(surface != nullptr) {
             ++surface->refcount;
         }
-    }
-
-    SDL_Surface *CreateSurfaceFrom(void *pixels, int width, int height, int pitch,
-                                   const SDL_PixelFormat *format)
-    {
-        if(pixels == NULL) {
-            throw std::invalid_argument("CreateSurfaceFrom: passed NULL pixels");
-        }
-        if(format == NULL) {
-            throw std::invalid_argument("CreateSurfaceFrom: passed NULL format");
-        }
-        
-        uint32_t rmask = format->Rmask;
-        uint32_t gmask = format->Gmask;
-        uint32_t bmask = format->Bmask;
-        uint32_t amask = format->Amask;
-        int bpp = format->BitsPerPixel;
-
-        return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
     }
 
     template<class Pixel>
@@ -168,7 +149,7 @@ Surface::~Surface()
 }
 
 Surface::Surface()
-    : mSurface(NULL)
+    : mSurface(nullptr)
 {
 }
 
@@ -211,7 +192,7 @@ void Surface::Assign(SDL_Surface *s)
 
 bool Surface::Null() const
 {
-    return (mSurface == NULL);
+    return (mSurface == nullptr);
 }
 
 SDL_Surface *Surface::operator->() const
@@ -231,21 +212,21 @@ bool Surface::operator!() const
 
 void Surface::reset()
 {
-    Assign(NULL);
+    Assign(nullptr);
 }
 
-SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
-    : mReferer(NULL)
+SurfaceROI::SurfaceROI(Surface &src, const SDL_Rect *roi)
 {
-    if(src.Null())
+    if(!src) {
         return;
+    }
     
-    uint32_t x = 0;
-    uint32_t y = 0;
-    uint32_t width = 0;
-    uint32_t height = 0;
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
 
-    if(roi != NULL) {
+    if(roi != nullptr) {
         x = roi->x;
         y = roi->y;
         width = roi->w;
@@ -257,21 +238,23 @@ SurfaceROI::SurfaceROI(const Surface &src, const SDL_Rect *roi)
         height = src->h;
     }    
 
-    uint32_t bytesPerPixel = src->format->BytesPerPixel;
+    const int bytesPerPixel = src->format->BytesPerPixel;
     
-    uint8_t *pixels = reinterpret_cast<uint8_t*>(src->pixels)
+    char *pixels = GetPixels(src)
         + y * src->pitch
         + x * bytesPerPixel;
     
-    mSurface = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);
-    if(mSurface == NULL) {
+    Surface tmp = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);
+    if(!tmp) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
     
-    CopyColorKey(src, mSurface);
+    CopyColorKey(src, tmp);
+
+    mSurface = tmp;
+    AddSurfaceRef(mSurface);
     
     mReferer = src;
-    AddSurfaceRef(mReferer);
 }
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
@@ -284,19 +267,10 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
     }
 }
 
-uint32_t GetPixel(const char *buffer, const SDL_PixelFormat *format)
-{
-    uint32_t color = 0;
-    for(int i = 0; i < format->BytesPerPixel; ++i) {
-        color = (color << 8) | buffer[i];
-    }
-    return color;
-}
-
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
 {
-    if(format == NULL) {
-        throw std::invalid_argument("CreateSurface: passed NULL format");
+    if(format == nullptr) {
+        throw std::invalid_argument("CreateSurface: passed nullptr format");
     }
 
     uint32_t rmask = format->Rmask;
@@ -321,6 +295,50 @@ Surface CreateSurface(int width, int height, int format)
     }
     
     return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
+}
+
+Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format)
+{
+    if(pixels == nullptr) {
+        std::ostringstream oss;
+        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr pixels";
+        throw std::invalid_argument(oss.str());
+    }
+    
+    if(format == nullptr) {
+        std::ostringstream oss;
+        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr format";
+        throw std::invalid_argument(oss.str());
+    }
+        
+    uint32_t rmask = format->Rmask;
+    uint32_t gmask = format->Gmask;
+    uint32_t bmask = format->Bmask;
+    uint32_t amask = format->Amask;
+    int bpp = format->BitsPerPixel;
+
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+}
+
+Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format)
+{
+    if(pixels == nullptr) {
+        std::ostringstream oss;
+        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr pixels";
+        throw std::invalid_argument(oss.str());
+    }
+        
+    uint32_t rmask = 0;
+    uint32_t gmask = 0;
+    uint32_t bmask = 0;
+    uint32_t amask = 0;
+    int bpp = 0;
+
+    if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
+        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+    }
+
+    return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
 }
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
@@ -362,7 +380,7 @@ SDL_Rect SurfaceBounds(const Surface &src)
 bool HasPalette(const Surface &surface)
 {
     return !surface.Null()
-        && surface->format != NULL
+        && surface->format != nullptr
         && surface->format->BitsPerPixel == 8;
 }
 

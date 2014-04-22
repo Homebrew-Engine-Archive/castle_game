@@ -6,6 +6,12 @@
 
 #include <SDL.h>
 
+struct SDLInitializer final
+{
+    SDLInitializer();
+    ~SDLInitializer();
+};
+
 struct DestroyRendererDeleter
 {
     void operator()(SDL_Renderer *renderer) const {
@@ -14,7 +20,6 @@ struct DestroyRendererDeleter
         }
     }
 };
-
 
 typedef std::unique_ptr<SDL_Renderer, DestroyRendererDeleter> RendererPtr;
 

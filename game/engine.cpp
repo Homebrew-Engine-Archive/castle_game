@@ -50,7 +50,7 @@ namespace Castle
             {
                 int width = window.data1;
                 int height = window.data2;
-                mRenderer->AdjustBufferSize(width, height);
+                mRenderer->SetWindowSize(width, height);
             }
             return true;
         default:

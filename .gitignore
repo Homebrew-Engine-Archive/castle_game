@@ -1,6 +1,7 @@
 *.gm1
 *.tgx
 *.out
+*.ttf
 *~
 core
 Makefile
