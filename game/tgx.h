@@ -79,11 +79,12 @@ namespace TGX
      * \param out           Output stream.
      * \param pixels        Input buffer.
      * \param width         Buffer size in pixels.
-     * \param bytesPerPixel Pixel size in bytes.
+     * \param bytesPP       Number of bytes per pixel.
+     * \param colorKey      Pixel which we would treat as transparent.
      *
      * \note Input buffer have real size of width * bytesPerPixel
      */
-    std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPerPixel, uint32_t colorKey);
+    std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     
     std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
 
