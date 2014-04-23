@@ -13,6 +13,7 @@ namespace GMTool
         mode.add_options()
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
             ("binary", po::bool_switch(&mBinary), "Print header in binary format")
+            ("count", po::bool_switch(&mCountRequested), "Print entries count")
             ;
         opts.add(mode);
     }
@@ -29,6 +30,13 @@ namespace GMTool
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
 
         const GM1::Header &header = reader.Header();
+
+        if(mCountRequested) {
+            cfg.verbose << "Print entries length only" << std::endl;
+            cfg.stdout << reader.NumEntries() << std::endl;
+            return EXIT_SUCCESS;
+        }
+        
         if(!mBinary) {
             cfg.verbose << "Printing header in text format" << std::endl;
             GM1::PrintHeader(cfg.stdout, header);

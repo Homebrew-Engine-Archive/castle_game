@@ -15,8 +15,9 @@ namespace GMTool
         po::options_description mode("Palette mode");
         mode.add_options()
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
-            ("palette", po::value(&mPaletteIndex)->required(), "Set palette index")
+            ("palette", po::value(&mPaletteIndex), "Set palette index")
             ("binary", po::bool_switch(&mBinary), "Dump palette in binary")
+            ("count", po::bool_switch(&mCountRequested), "Print palettes count")
             ;
         opts.add(mode);
     }
@@ -32,7 +33,13 @@ namespace GMTool
         GM1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         cfg.verbose << "Collection has " << reader.NumPalettes() << " palettes" << std::endl;
-       
+
+        if(mCountRequested) {
+            cfg.verbose << "Print palettes count only" << std::endl;
+            cfg.stdout << reader.NumPalettes() << std::endl;
+            return EXIT_SUCCESS;
+        }
+        
         if(mPaletteIndex < 0 || mPaletteIndex >= reader.NumPalettes()) {
             throw std::logic_error("Palette index is out of range");
         }

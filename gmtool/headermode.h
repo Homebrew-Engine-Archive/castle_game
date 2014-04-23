@@ -11,7 +11,8 @@ namespace GMTool
     class HeaderMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        bool mBinary;
+        bool mBinary = false;
+        bool mCountRequested = false;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);
