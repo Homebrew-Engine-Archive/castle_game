@@ -166,7 +166,7 @@ namespace
 namespace TGX
 {
 
-    std::ostream& EncodeBuffer(std::ostream &out, const char *pixels, int width, int bytesPP, uint32_t colorKey)
+    std::ostream& EncodeLine(std::ostream &out, const char *pixels, int width, int bytesPP, uint32_t colorKey)
     {
         const char *end = pixels + width * bytesPP;
 
@@ -236,7 +236,7 @@ namespace TGX
         }
 
         for(int row = 0; row < surface->h; ++row) {
-            EncodeBuffer(out, pixelsPtr, surface->w, bytesPerPixel, colorKey);
+            EncodeLine(out, pixelsPtr, surface->w, bytesPerPixel, colorKey);
             if(!out) {
                 return out;
             }
@@ -272,7 +272,7 @@ namespace TGX
         return surface;
     }
 
-    std::istream& DecodeBuffer(std::istream &in, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel)
+    std::istream& DecodeLine(std::istream &in, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel)
     {
         const std::streampos endPos = numBytes + in.tellg();
         const char *dstEnd = dst + width * bytesPerPixel;
@@ -280,6 +280,7 @@ namespace TGX
         while(in.tellg() < endPos) {
             const token_t token = Endian::ReadLittle<token_t>(in);
             // \note any io errors are just ignored if token has valid TokenType
+            // we handle them latter anyway
 
             const TokenType type = ExtractTokenType(token);
             const int length = ExtractTokenLength(token);
@@ -363,7 +364,7 @@ namespace TGX
         for(int row = 0; row < height; ++row) {
             if((in) && (in.tellg() < endPos)) {
                 size_t bytesLeft = endPos - in.tellg();
-                DecodeBuffer(in, bytesLeft, dst, width, bytesPP);
+                DecodeLine(in, bytesLeft, dst, width, bytesPP);
                 dst += pitch;
             }
         }

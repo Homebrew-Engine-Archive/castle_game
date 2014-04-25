@@ -21,10 +21,11 @@ namespace GMTool
         boost::filesystem::path mInputFile;
         boost::filesystem::path mOutputFile;
         std::string mFormat;
-        int mEntryIndex;
-        int mPaletteIndex;
+        int mEntryIndex = 0;
+        int mPaletteIndex = 0;
         SDL_Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
+        bool mApproxSize = false;
 
         SDL_Color DefaultTransparent() const;
         

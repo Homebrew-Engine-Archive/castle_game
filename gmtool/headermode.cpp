@@ -14,6 +14,7 @@ namespace GMTool
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
             ("binary", po::bool_switch(&mBinary), "Print header in binary format")
             ("count", po::bool_switch(&mCountRequested), "Print entries count")
+            ("encoding", po::bool_switch(&mEncodingRequested), "Print encoding name")
             ;
         opts.add(mode);
     }
@@ -31,6 +32,12 @@ namespace GMTool
 
         const GM1::Header &header = reader.Header();
 
+        if(mEncodingRequested) {
+            cfg.verbose << "Print collections's encoding" << std::endl;
+            cfg.stdout << GM1::GetEncodingName(reader.Encoding()) << std::endl;
+            return EXIT_SUCCESS;
+        }
+        
         if(mCountRequested) {
             cfg.verbose << "Print entries length only" << std::endl;
             cfg.stdout << reader.NumEntries() << std::endl;

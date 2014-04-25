@@ -11,19 +11,16 @@
 
 namespace
 {
-
     void Fail(const std::string &where, int line, const std::string &what)
     {
         std::ostringstream oss;
         oss << "In " << where << " at " << line << " fail: " << what;
         throw std::runtime_error(oss.str());
     }
-    
 }
 
 namespace GM1
 {
-
     PixelFormatPtr PaletteFormat()
     {
         PixelFormatPtr ptr(SDL_AllocFormat(TGX::PixelFormatEnum));

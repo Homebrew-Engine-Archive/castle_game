@@ -30,11 +30,12 @@ namespace GMTool
         po::options_description mode("Render mode");
         mode.add_options()
             ("file", po::value(&mInputFile)->required(), "Set GM1 filename")
-            ("output,o", po::value(&mOutputFile)->required(), "Set output image filename")
             ("index,i", po::value(&mEntryIndex)->required(), "Set entry index")
+            ("output,o", po::value(&mOutputFile), "Set output image filename")
             ("format,f", po::value(&mFormat)->default_value(mFormats.front().name), "Set rendering format")
             ("palette,p", po::value(&mPaletteIndex), "Set palette index for 8-bit entries")
             ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()), "Set background color in ARGB format")
+            ("approximate-size", po::bool_switch(&mApproxSize), "Prints size of resulting image in bytes")
             ;
         opts.add(mode);
     }
@@ -116,9 +117,23 @@ namespace GMTool
         
         Surface entry = entryReader.Load(reader, mEntryIndex);
 
-        boost::filesystem::ofstream fout(mOutputFile, std::ios_base::binary | std::ios_base::out);
-        if(!fout) {
-            throw std::runtime_error(strerror(errno));
+        std::ostream *out = nullptr;
+
+        std::ostringstream dummy;
+        if(mApproxSize) {
+            out = &dummy;
+        }
+
+        boost::filesystem::ofstream fout;
+        if(!mApproxSize) {
+            if(mOutputFile.empty()) {
+                throw std::logic_error("You should specify --output option");
+            }
+            fout.open(mOutputFile, std::ios_base::binary | std::ios_base::out);
+            if(!fout) {
+                throw std::runtime_error(strerror(errno));
+            }
+            out = &fout;
         }
         
         cfg.verbose << "Setting up palette" << std::endl;
@@ -130,13 +145,21 @@ namespace GMTool
         cfg.verbose << "Setting up transparency" << std::endl;
         SetupTransparentColor(entry, mTransparentColor);
 
+        const RenderFormat *result = nullptr;
         for(const RenderFormat &format : mFormats) {
-            if(format.name == mFormat) {
-                format.renderer->RenderToStream(fout, entry);
-                return EXIT_SUCCESS;
-            }
+            if(format.name == mFormat)
+                result = &format;
         }
 
-        throw std::logic_error("No mode with such name");
+        if(result == nullptr) {
+            throw std::logic_error("No format with such name");
+        }
+
+        result->renderer->RenderToStream(*out, entry);
+        if(mApproxSize) {
+            out->seekp(0, std::ios_base::end);
+            cfg.stdout << out->tellp() << std::endl;
+        }
+        return EXIT_SUCCESS;
     }
 }

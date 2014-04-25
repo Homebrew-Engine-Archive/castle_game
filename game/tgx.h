@@ -45,27 +45,25 @@ class Surface;
 
 namespace TGX
 {
-    
     /**
      * Magenta color as 16 bit transparency.
      * Actually there are no need in the value of such color.
      * \note It is 11111000 00011111 (0xF81F)
      *         not 11111100 00011111 (0x7C1F)
+     *
+     * Maybe it is RGB565?
+     *
+     * const uint16_t Transparent16 = 0xF81F;
+     *
+     * const uint32_t AlphaMask16  = 0x00008000;
+     * const uint32_t RedMask16    = 0x00007c00;
+     * const uint32_t GreenMask16  = 0x000003e0;
+     * const uint32_t BlueMask16   = 0x0000001f;
      */
-    // const uint16_t Transparent16 = 0xF81F;
-    
-    // Palette's first entry
-    // const uint8_t Transparent8 = 0;
-    
-    /// \note This masks are not swaped neither according to endianness
-    // const uint32_t AlphaMask16  = 0x00008000;
-    // const uint32_t RedMask16    = 0x00007c00;
-    // const uint32_t GreenMask16  = 0x000003e0;
-    // const uint32_t BlueMask16   = 0x0000001f;
 
     const uint32_t PixelFormatEnum = SDL_PIXELFORMAT_RGB555;
     
-    std::istream& DecodeBuffer(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
+    std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     
     std::istream& DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
 
@@ -74,7 +72,7 @@ namespace TGX
     Surface ReadTGX(std::istream&);
 
     /**
-     * \brief Main state machine for encoding sequences of pixels.
+     * \brief Low level TGX-encoding function.
      *
      * \param out           Output stream.
      * \param pixels        Input buffer.
@@ -84,13 +82,13 @@ namespace TGX
      *
      * \note Input buffer have real size of width * bytesPerPixel
      */
-    std::ostream& EncodeBuffer(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
+    std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     
     std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
 
-    std::ostream& WriteTGX(std::ostream&, const Surface &surface);
-
     std::ostream& WriteSurfaceHeader(std::ostream&, const Surface &surface);
+
+    std::ostream& WriteTGX(std::ostream&, const Surface &surface);
     
 } // namespace TGX
 

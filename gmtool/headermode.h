@@ -13,6 +13,7 @@ namespace GMTool
         boost::filesystem::path mInputFile;
         bool mBinary = false;
         bool mCountRequested = false;
+        bool mEncodingRequested = false;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);
