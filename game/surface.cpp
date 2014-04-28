@@ -215,7 +215,7 @@ void Surface::reset()
     Assign(nullptr);
 }
 
-SurfaceROI::SurfaceROI(Surface &src, const SDL_Rect *roi)
+SurfaceView::SurfaceView(Surface &src, const SDL_Rect *roi)
 {
     if(!src) {
         return;
@@ -339,6 +339,12 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
     }
 
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+}
+
+SDL_Rect FindCropRect(const Surface &surface)
+{
+    SDL_Rect rect = SurfaceBounds(surface);    
+    return rect;
 }
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)

@@ -52,7 +52,7 @@ public:
  * \brief Region-Of-Interest of surface object
  *
  * It is a surface like object which shares some memory with
- * it's parent surface object. Exactly like OpenCV's Mat class can do ROI.
+ * it's parent surface object. Exactly like OpenCV's Mat class can do .
  *
  * \note Deallocation of parent object isn't invalidate such kind of object.
  *
@@ -60,11 +60,11 @@ public:
  * surface doesn't intent deallocation of each other.
  *
  */
-class SurfaceROI : public Surface
+class SurfaceView : public Surface
 {
     Surface mReferer;
 public:
-    SurfaceROI(Surface &src, const SDL_Rect *roi);
+    SurfaceView(Surface &src, const SDL_Rect *roi);
 };
 
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
@@ -88,6 +88,8 @@ void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
 void BlurSurface(Surface &dst, int radius);
 
 SDL_Rect SurfaceBounds(const Surface &src);
+
+SDL_Rect FindCropRect(const Surface &src);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels
