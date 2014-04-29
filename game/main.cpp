@@ -11,8 +11,6 @@
 int main()
 {
     SDLInitializer init();
-    
-    EnumRenderDrivers(std::clog);
 
     const int screenwidth = 1024;
     const int screenheight = 768;
@@ -33,8 +31,6 @@ int main()
     if(!sdlRenderer) {
         throw std::runtime_error(SDL_GetError());
     }
-
-    GetAndPrintRendererInfo(std::clog, sdlRenderer.get());
     
     std::unique_ptr<Render::Renderer> renderer(new Render::Renderer(sdlRenderer.get()));
     std::unique_ptr<Castle::Engine> root(new Castle::Engine(renderer.get()));
@@ -42,11 +38,7 @@ int main()
     try {
         return root->Exec();
     } catch(const GameException &error) {
-        std::cerr << "GameException:" << std::endl;
-        std::cerr << "reason = " << error.reason << std::endl;
-        std::cerr << "where = " << error.where << std::endl;
-        std::cerr << "file = " << error.file << std::endl;
-        std::cerr << "line = " << error.line << std::endl;
+        std::cerr << error << std::endl;
     } catch(const std::exception &error) {
         std::cerr << "std::exception: " << error.what() << std::endl;
     } catch(...) {

@@ -47,10 +47,10 @@ namespace UI
         SDL_Rect frameRect = SurfaceBounds(frame);
         SDL_FillRect(frame, &frameRect, 0xff000000);
 
-        FilePath filepath = GetGM1FilePath("body_woodcutter");
+        FilePath filepath = GetGM1FilePath("body_archer");
         const CollectionData &gm1 = mRenderer->QueryCollection(filepath);
     
-        for(size_t n = 0; n < 1000; ++n) {
+        for(size_t n = 0; n < 10000; ++n) {
             size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);
             SDL_Palette *palette = gm1.palettes.at(paletteIndex).get();
             const CollectionEntry &entry =

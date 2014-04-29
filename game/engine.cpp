@@ -3,8 +3,11 @@
 #include <iterator>
 #include <sstream>
 #include <string>
-#include <boost/asio/io_service.hpp>
 #include <vector>
+
+#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+
 #include <SDL.h>
 
 #include <game/gamescreen.h>
@@ -19,7 +22,6 @@
 #include <game/entityclass.h>
 #include <game/network.h>
 #include <game/screenmanager.h>
-#include <game/graphicsmanager.h>
 
 namespace Castle
 {
@@ -40,7 +42,6 @@ namespace Castle
         , mIO()
         , mPort(4500)
         , mServer(new Network::Server(mIO, mPort))
-        , mGraphicsMgr(new Render::GraphicsManager(mRenderer))
     { }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -64,9 +65,6 @@ namespace Castle
         case SDLK_ESCAPE:
             mClosed = true;
             return false;
-        case SDLK_BACKSLASH:
-            ToggleConsole();
-            return true;
         default:
             return true;
         }
@@ -110,6 +108,7 @@ namespace Castle
             std::cerr << "Loading has been interrupted." << std::endl;
             return 0;
         }
+        
         //mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
         mScreenMgr->PushScreen(
             UI::ScreenPtr(
@@ -123,7 +122,7 @@ namespace Castle
         int64_t lastPoll = 0;
         int64_t lastSecond = 0;
         int64_t fpsCounterLastSecond = 0;
-    
+
         mServer->StartAccept();
         
         while(!Closed()) {
@@ -160,9 +159,35 @@ namespace Castle
         return 0;
     }
 
+    bool ProcessEvents()
+    {
+        return true;
+    }
+
+    struct Loader
+    {
+        void Load() { }
+    };
+
+    std::vector<Loader> GetLoaders()
+    {
+        return std::vector<Loader> {};
+    }
+    
     bool Engine::LoadGraphics()
     {
-        std::unique_ptr<UI::LoadingScreen> &&loadingScreen = UI::CreateLoadingScreen(this);
+        std::vector<Loader> loaders = GetLoaders();
+        
+        for(Loader &loader : loaders) {
+            loader.Load();
+            if(!ProcessEvents()) {
+                return false;
+            }
+        }
+
+        return true;
+        
+        std::unique_ptr<UI::LoadingScreen> loadingScreen(new UI::LoadingScreen(this));
         return loadingScreen->Exec();
     }
     

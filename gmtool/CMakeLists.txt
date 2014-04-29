@@ -26,7 +26,6 @@ set (RENDERERS
 set (SHARED
   ../game/gm1.cpp
   ../game/gm1reader.cpp
-  ../game/gm1writer.cpp
   ../game/gm1entryreader.cpp
   ../game/gm1palette.cpp
   ../game/surface.cpp

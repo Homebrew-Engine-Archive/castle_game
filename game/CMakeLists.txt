@@ -9,8 +9,6 @@ set (SRCS
   engine.cpp
   filesystem.cpp
   font.cpp
-  gamemap.cpp
-  gamereactor.cpp
   gamescreen.cpp
   gm1.cpp
   loadingscreen.cpp
@@ -25,8 +23,6 @@ set (SRCS
   textrenderer.cpp
   tgx.cpp
   screenmanager.cpp
-  graphicsmanager.cpp
-  widget.cpp
   entityclass.cpp
   gm1reader.cpp
   gm1entryreader.cpp

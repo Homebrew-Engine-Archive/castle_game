@@ -1,4 +1,5 @@
 #include "menu_main.h"
+
 #include <game/menu_combat.h>
 #include <game/make_unique.h>
 #include <game/filesystem.h>

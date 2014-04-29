@@ -4,7 +4,6 @@
 #include <SDL.h>
 #include <functional>
 #include <game/surface.h>
-#include <game/widget.h>
 
 namespace UI
 {
@@ -15,7 +14,7 @@ namespace UI
         Pressed
     };
 
-    class Button : public Widget
+    class Button
     {
         SDL_Rect mBoundRect;
         Surface mReleased;

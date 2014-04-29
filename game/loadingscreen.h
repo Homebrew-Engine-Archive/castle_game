@@ -47,9 +47,6 @@ namespace UI
         void Draw(Surface &surface);
         bool HandleEvent(SDL_Event const&);
     };
-
-    std::unique_ptr<LoadingScreen> CreateLoadingScreen(Castle::Engine *engine);
-    
 }
 
 #endif

@@ -64,7 +64,7 @@ namespace Render
         std::clog << "GetOutputSize(): " << rect << std::endl;
     }
 
-    bool Renderer::CreateFrameTexture(int width, int height)
+    bool Renderer::CreateScreenTexture(int width, int height)
     {
         // NOTE
         // Width and height wan't be checked for min and max constraints.
@@ -100,7 +100,7 @@ namespace Render
         return true;
     }
 
-    bool Renderer::CreateFrameSurface(void *pixels, int width, int height, int pitch)
+    bool Renderer::CreateScreenSurface(void *pixels, int width, int height, int pitch)
     {
         Surface surface = CreateSurfaceFrom(pixels, width, height, pitch, mScreenFormat);
         if(!surface) {
@@ -132,7 +132,7 @@ namespace Render
         }
     
         if(!mScreenTexture) {
-            if(!CreateFrameTexture(mScreenWidth, mScreenHeight)) {
+            if(!CreateScreenTexture(mScreenWidth, mScreenHeight)) {
                 std::cerr << "Can't allocate frame texture"
                           << std::endl;
                 return Surface();
@@ -148,7 +148,7 @@ namespace Render
             return Surface();
         }
         
-        if(!CreateFrameSurface(nativePixels, mScreenWidth, mScreenHeight, nativePitch)) {
+        if(!CreateScreenSurface(nativePixels, mScreenWidth, mScreenHeight, nativePitch)) {
             std::cerr << "Can't allocate framebuffer"
                       << std::endl;
             SDL_UnlockTexture(mScreenTexture.get());
@@ -218,7 +218,7 @@ namespace Render
             std::clog << "AdjustBufferSize(): " << std::dec
                       << MakeRect(adjustedWidth, adjustedHeight)
                       << std::endl;
-            CreateFrameTexture(adjustedWidth, adjustedHeight);
+            CreateScreenTexture(adjustedWidth, adjustedHeight);
         }
     }
 

@@ -29,7 +29,6 @@ namespace Render
 
 namespace Render
 {
-
     class Renderer
     {
         typedef std::function<void()> TextBatch;
@@ -46,8 +45,8 @@ namespace Render
         std::map<FilePath, CollectionDataPtr> mGMCache;
 
         bool ReallocationRequired(int width, int heigth);
-        bool CreateFrameTexture(int width, int height);
-        bool CreateFrameSurface(void *pixels, int width, int height, int pitch);
+        bool CreateScreenTexture(int width, int height);
+        bool CreateScreenSurface(void *pixels, int width, int height, int pitch);
 
     public:
         Renderer();

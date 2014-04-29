@@ -221,11 +221,5 @@ namespace UI
         SDL_Rect barInner = MakeRect(barOuterPadded.w * rate, barOuterPadded.h);
         SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
         FillFrame(frame, &barInnerAligned, 0xff000000);
-    }
-
-    std::unique_ptr<UI::LoadingScreen> CreateLoadingScreen(Castle::Engine *engine)
-    {
-        return std::make_unique<UI::LoadingScreen>(engine);
-    }
-        
+    }   
 } // namespace UI

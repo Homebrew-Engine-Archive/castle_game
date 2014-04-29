@@ -1,6 +1,9 @@
 #ifndef COLLECTIONS_H_
 #define COLLECTIONS_H_
 
+#include <game/surface.h>
+#include <cstddef>
+
 namespace UI
 {
     class LoadingScreen;

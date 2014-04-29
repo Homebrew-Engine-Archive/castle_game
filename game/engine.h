@@ -21,7 +21,6 @@ namespace Network
 
 namespace Render
 {
-    class GraphicsManager;
     class Renderer;
 }
 
@@ -43,7 +42,6 @@ namespace Castle
         boost::asio::io_service mIO;
         int16_t mPort;
         std::unique_ptr<Network::Server> mServer;
-        std::unique_ptr<Render::GraphicsManager> mGraphicsMgr;
         
         bool HandleWindowEvent(SDL_WindowEvent const&);
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);

@@ -4,7 +4,6 @@
 #include <memory>
 #include <SDL.h>
 #include <game/screen.h>
-#include <game/gamemap.h>
 
 enum class Direction;
 class Surface;
@@ -33,7 +32,6 @@ namespace UI
     {
         UI::ScreenManager *mScreenMgr;
         Render::Renderer *mRenderer;
-        GameMap mMap;
         int mCursorX;
         int mCursorY;
         bool mCursorInvalid;
