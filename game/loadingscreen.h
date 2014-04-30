@@ -13,28 +13,15 @@ namespace Castle
     class Engine;
 }
 
-namespace Render
-{
-    class Renderer;
-}
-
-class FontCollectionInfo;
-
 namespace UI
 {
-
     class LoadingScreen : public UI::Screen
     {
-        Render::Renderer *mRenderer;
         Castle::Engine *mEngine;
         Surface mBackground;
-        std::vector<std::function<void()>> mTasks;
         int mProgressDone;
         int mProgressMax;
         bool mDirty;
-
-        void ScheduleCacheGM1(FilePath const&);
-        void ScheduleCacheFont(FontCollectionInfo const&);
 
     public:
         LoadingScreen(Castle::Engine*);
@@ -49,4 +36,4 @@ namespace UI
     };
 }
 
-#endif
+#endif  // LOADINGSCREEN_H_

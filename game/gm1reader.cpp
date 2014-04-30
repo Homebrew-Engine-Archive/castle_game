@@ -80,10 +80,10 @@ namespace GM1
     GM1Reader::~GM1Reader() = default;
     
     GM1Reader::GM1Reader()
-        : GM1Reader {FilePath(), NoFlags}
+        : GM1Reader {fs::path(), NoFlags}
     { }
     
-    GM1Reader::GM1Reader(FilePath path, Flags flags)
+    GM1Reader::GM1Reader(fs::path path, Flags flags)
         : mIsOpened(false)
         , mPath(path)
         , mFlags()
@@ -106,7 +106,7 @@ namespace GM1
         return mIsOpened;
     }
 
-    void GM1Reader::Open(FilePath path, Flags flags)
+    void GM1Reader::Open(fs::path path, Flags flags)
     {
         mFlags = flags;
         mIsOpened = false;

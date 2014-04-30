@@ -14,7 +14,6 @@ set (SRCS
   listmode.cpp
   packmode.cpp
   unpackmode.cpp
-  rw.cpp
   renderer.cpp
 )
 
@@ -31,6 +30,7 @@ set (SHARED
   ../game/surface.cpp
   ../game/sdl_utils.cpp
   ../game/tgx.cpp
+  ../game/rw.cpp
 )
 
 set(TARGET "gmtool.out")

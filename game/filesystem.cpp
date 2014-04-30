@@ -3,43 +3,59 @@
 #include <memory>
 #include <SDL.h>
 
-FilePath GetFXPath(const FilePath &filename)
+namespace fs
 {
-    return GetRootPath() / "fx" / filename;
-}
 
-FilePath GetGFXPath(const FilePath &filename)
-{
-    return GetRootPath() / "gfx" / filename;
-}
+    path FXPath(const path &suffix)
+    {
+        return RootPath() / "fx" / suffix;
+    }
 
-FilePath GetGMPath(const FilePath &filename)
-{
-    return GetRootPath() / "gm" / filename;
-}
+    path GFXPath(const path &suffix)
+    {
+        return RootPath() / "gfx" / suffix;
+    }
 
-FilePath GetGM1FilePath(const FilePath &filename, const FilePath &ext)
-{
-    FilePath path = GetGMPath(filename);
-    path += ext;
-    return path;
-}
+    path GMPath(const path &suffix)
+    {
+        return RootPath() / "gm" / suffix;
+    }
 
-FilePath GetTGXFilePath(const FilePath &filename, const FilePath &ext)
-{
-    FilePath path = GetGFXPath(filename);
-    path += ext;
-    return path;
-}
+    path FontsPath(const path &suffix)
+    {
+        return RootPath() / "fonts" / suffix;
+    }
 
-FilePath GetRootPath()
-{
-    static FilePath staticBasePath(SDL_GetBasePath());
-    return staticBasePath;
-}
+    path GM1FilePath(const std::string &filename, const std::string &extension)
+    {
+        path p = GMPath(filename);
+        p += extension;
+        return p;
+    }
 
-FilePath GetPrefPath()
-{
-    static FilePath staticPrefPath(SDL_GetPrefPath("castlegame", "castlegame"));
-    return staticPrefPath;
+    path TGXFilePath(const std::string &filename, const std::string &extension)
+    {
+        path p = GFXPath(filename);
+        p += extension;
+        return p;
+    }
+
+    path FontFilePath(const std::string &filename, const std::string &extension)
+    {
+        path p = FontsPath(filename);
+        p += extension;
+        return p;
+    }
+
+    path RootPath()
+    {
+        static path staticBasePath(SDL_GetBasePath());
+        return staticBasePath;
+    }
+
+    path PreferencesPath()
+    {
+        static path staticPrefPath(SDL_GetPrefPath("castlegame", "castlegame"));
+        return staticPrefPath;
+    }
 }

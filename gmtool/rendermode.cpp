@@ -14,7 +14,7 @@
 #include <game/surface.h>
 #include <game/sdl_utils.h>
 
-#include <gmtool/rw.h>
+#include <game/rw.h>
 
 namespace po = boost::program_options;
 

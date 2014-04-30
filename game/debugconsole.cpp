@@ -49,15 +49,8 @@ namespace UI
         , mClosed(false)
     { }
 
-    void DebugConsole::Draw(Surface &frame)
+    void DebugConsole::Draw(Surface&)
     {
-        SDL_Rect bounds = SurfaceBounds(frame);
-        SDL_Rect tophalf = MakeRect(bounds.w, bounds.h / 2);
-        FillFrame(frame, &tophalf, 0x7f000000);
-
-        SDL_Rect textBox = PutIn(MakeRect(tophalf.w, mFontSize), tophalf, 0.0f, 1.0f);
-        mRenderer->SetFont(mFontName, mFontSize);
-        mRenderer->RenderTextLine(mText, TopLeft(textBox));
     }
 
     bool DebugConsole::IsDirty(int64_t elapsed)

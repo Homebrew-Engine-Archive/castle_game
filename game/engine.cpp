@@ -10,8 +10,9 @@
 
 #include <SDL.h>
 
+#include <game/fontmanager.h>
+#include <game/textrenderer.h>
 #include <game/gamescreen.h>
-#include <game/font.h>
 #include <game/renderer.h>
 #include <game/menu_combat.h>
 #include <game/menu_main.h>
@@ -38,6 +39,7 @@ namespace Castle
         , mShowConsole(false)
         , mPollRate(66)
         , mConsolePtr(nullptr)
+        , mFontMgr(new Render::FontManager)
         , mScreenMgr(new UI::ScreenManager)
         , mIO()
         , mPort(4500)
@@ -104,6 +106,8 @@ namespace Castle
 
     int Engine::Exec()
     {
+        LoadFonts();
+        
         if(!LoadGraphics()) {
             std::cerr << "Loading has been interrupted." << std::endl;
             return 0;
@@ -155,7 +159,6 @@ namespace Castle
             }
         }
 
-        std::clog << "Gracefully shutdown" << std::endl;
         return 0;
     }
 
@@ -172,6 +175,14 @@ namespace Castle
     std::vector<Loader> GetLoaders()
     {
         return std::vector<Loader> {};
+    }
+
+    void Engine::LoadFonts()
+    {
+        static int fontsizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
+        for(int fsize : fontsizes) {
+            mFontMgr->LoadFont(Render::FontStronghold, fsize);
+        }
     }
     
     bool Engine::LoadGraphics()
@@ -194,19 +205,18 @@ namespace Castle
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer->BeginFrame();
-
         mScreenMgr->DrawScreen(frame);
-    
-        SDL_Color color = MakeColor(255, 255, 255, 128);
-        mRenderer->SetColor(color);
-        
-        mRenderer->SetFont("font_stronghold_aa", 24);        
-        
-        SDL_Point pos = ShiftPoint(TopLeft(mRenderer->GetOutputSize()), 5, 5);
-    
+
         std::ostringstream oss;
-        oss << "FPS: " << mFpsAverage;
-        mRenderer->RenderTextLine(oss.str(), pos);
+        oss << "(Castle game project) " << "FPS: " << mFpsAverage;
+        std::string text = oss.str();
+
+        Render::TextRenderer textRenderer(frame);
+        textRenderer.SetFont(mFontMgr->FindFont(Render::FontStronghold, 10));
+        SDL_Rect bounds = textRenderer.CalculateTextRect(text);
+        textRenderer.Translate(0, bounds.h);
+        textRenderer.SetColor(MakeColor(255, 255, 255, 127));
+        textRenderer.PutString(text);
 
         mRenderer->EndFrame();
     }

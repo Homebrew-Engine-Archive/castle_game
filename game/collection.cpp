@@ -13,24 +13,7 @@
 #include <game/sdl_utils.h>
 #include <game/tgx.h>
 
-CollectionEntry::CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf_)
-    : header(hdr_)
-    , surface(sf_)
-{ }
-
-namespace
-{
-    
-    void Fail(const std::string &where, const std::string &what)
-    {
-        std::ostringstream oss;
-        oss << where << " failed: " << what;
-        throw std::runtime_error(oss.str());
-    }
-
-}
-    
-CollectionDataPtr LoadCollectionData(const FilePath &path)
+CollectionDataPtr LoadCollectionData(const fs::path &path)
 {
     try {
         GM1::GM1Reader reader;
@@ -48,35 +31,35 @@ CollectionDataPtr LoadCollectionData(const FilePath &path)
 
         GM1::GM1EntryReader &entryReader = reader.EntryReader();
         for(int i = 0; i < reader.NumEntries(); ++i) {
-            Surface entry = entryReader.Load(reader, i);
-            const GM1::EntryHeader &header = reader.EntryHeader(i);
-            ptr->entries.emplace_back(header, std::move(entry));
+            ptr->entries.push_back(
+                CollectionEntry {
+                    reader.EntryHeader(i),
+                    entryReader.Load(reader, i)}
+            );
         }
         
         return ptr;
     } catch(const std::exception &e) {
-        std::ostringstream oss;
-        oss << "In LoadImageCollection [with filename = " << path << ']' << std::endl;
-        oss << e.what() << std::endl;
-        throw std::runtime_error(oss.str());
+        std::cerr << "Error while load " << path << std::endl;
+        throw;
     }
 }
 
-Surface LoadSurface(const FilePath &path)
+Surface LoadSurface(const fs::path &path)
 {
     using namespace boost;
     
     try {
         filesystem::ifstream fin(path, std::ios_base::binary);
         if(!fin.is_open()) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't open file");
+            std::ostringstream oss;
+            oss << "Unable to read " << path << ": " << strerror(errno);
+            throw std::runtime_error(oss.str());
         }
         return TGX::ReadTGX(fin);
         
     } catch(const std::exception &e) {
-        std::ostringstream oss;
-        oss << "In LoadSurface [with filename = " << path << ']' << std::endl;
-        oss << e.what() << std::endl;
-        throw std::runtime_error(oss.str());
+        std::cerr << "Error while load " << path << std::endl;
+        throw;
     }
 }

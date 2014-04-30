@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include <game/animation.h>
 #include <game/direction.h>
 
 namespace

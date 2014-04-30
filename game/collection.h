@@ -16,7 +16,6 @@ struct CollectionEntry
 {
     GM1::EntryHeader header;
     Surface surface;
-    CollectionEntry(const GM1::EntryHeader &hdr_, const Surface &sf_);
 };
 
 typedef std::unique_ptr<CollectionEntry> CollectionEntryPtr;
@@ -32,7 +31,7 @@ typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
 struct FontCollectionInfo
 {
-    FilePath filename;
+    fs::path filename;
     std::string name;
     std::vector<int> sizes;
     std::vector<int> alphabet;
@@ -40,7 +39,7 @@ struct FontCollectionInfo
 
 typedef std::unique_ptr<FontCollectionInfo> FontCollectionInfoPtr;
 
-Surface LoadSurface(const FilePath &filename);
-CollectionDataPtr LoadCollectionData(const FilePath &filename);
+Surface LoadSurface(const fs::path &filename);
+CollectionDataPtr LoadCollectionData(const fs::path &filename);
 
 #endif

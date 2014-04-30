@@ -16,7 +16,7 @@ namespace UI
         : mScreenMgr(mgr)
         , mRenderer(render)
     {
-        FilePath filepath = GetTGXFilePath("frontend_combat");
+        fs::path filepath = fs::TGXFilePath("frontend_combat");
         mBackground = mRenderer->QuerySurface(filepath);
     }
 

@@ -7,10 +7,15 @@ set (SRCS
   debugconsole.cpp
   direction.cpp
   engine.cpp
+  entityclass.cpp
   filesystem.cpp
-  font.cpp
+  fontmanager.cpp
+  gameexception.cpp
   gamescreen.cpp
   gm1.cpp
+  gm1entryreader.cpp
+  gm1palette.cpp
+  gm1reader.cpp
   loadingscreen.cpp
   main.cpp
   menu_combat.cpp
@@ -18,16 +23,12 @@ set (SRCS
   network.cpp
   point.cpp
   renderer.cpp
+  rw.cpp
+  screenmanager.cpp
   sdl_utils.cpp
   surface.cpp
   textrenderer.cpp
   tgx.cpp
-  screenmanager.cpp
-  entityclass.cpp
-  gm1reader.cpp
-  gm1entryreader.cpp
-  gm1palette.cpp
-  gameexception.cpp
 )
 
 set (TARGET "a.out")

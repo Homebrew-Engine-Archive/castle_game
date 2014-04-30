@@ -14,8 +14,8 @@ namespace UI
         : mScreenMgr(mgr)
         , mRenderer(render)
     {
-        FilePath filepath = GetTGXFilePath("frontend_main2");
-        mBackground = mRenderer->QuerySurface(filepath);
+        fs::path backgroundFilePath = fs::TGXFilePath("frontend_main2");
+        mBackground = mRenderer->QuerySurface(backgroundFilePath);
     }
 
     bool MenuMain::HandleEvent(const SDL_Event &event)

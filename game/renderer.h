@@ -14,62 +14,40 @@
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
 
-enum class AlignH;
-enum class AlignV;
-class Text;
-
 class CollectionData;
-class FontCollectionInfo;
 class Surface;
-
-namespace Render
-{
-    class TextRenderer;
-}
 
 namespace Render
 {
     class Renderer
     {
-        typedef std::function<void()> TextBatch;
-        
         SDL_Renderer *mRenderer;
-        std::unique_ptr<TextRenderer> mTextRenderer;
         int mScreenWidth;
         int mScreenHeight;
         int mScreenFormat;
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
-        std::vector<TextBatch> mTextOverlay;
-        std::map<FilePath, Surface> mGFXCache;
-        std::map<FilePath, CollectionDataPtr> mGMCache;
+        std::map<fs::path, Surface> mGFXCache;
+        std::map<fs::path, CollectionDataPtr> mGMCache;
 
         bool ReallocationRequired(int width, int heigth);
         bool CreateScreenTexture(int width, int height);
         bool CreateScreenSurface(void *pixels, int width, int height, int pitch);
 
     public:
-        Renderer();
         Renderer(SDL_Renderer *renderer);
-        Renderer(const Renderer &);
-        Renderer(Renderer &&);
-        Renderer &operator=(const Renderer &);
-        Renderer &operator=(Renderer &&);
-        virtual ~Renderer();
+        Renderer(Renderer const&) = delete;
+        Renderer& operator=(Renderer const&) = delete;
+        virtual ~Renderer() = default;
         
         Surface BeginFrame();
         void EndFrame();
         SDL_Rect GetOutputSize() const;
         void SetWindowSize(int width, int height);
         void AdjustBufferSize(int width, int height);
-        void RenderTextLine(const std::string &text, const SDL_Point &rect);
-        void RenderTextBox(const std::string &text, const SDL_Rect &rect, AlignH alignh, AlignV alignv);
-        void SetFont(const std::string &fontname, int size);
-        void SetColor(const SDL_Color &color);
-        Surface QuerySurface(const FilePath &filename);
-        const CollectionData &QueryCollection(const FilePath &filename);
-        bool CacheCollection(const FilePath &filepath);
-        bool CacheFontCollection(const FontCollectionInfo &info);
+        Surface QuerySurface(const fs::path &filename);
+        const CollectionData &QueryCollection(const fs::path &filename);
+        bool CacheCollection(const fs::path &filepath);
     };
     
 } // namespace Render

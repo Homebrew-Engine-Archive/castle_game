@@ -17,7 +17,7 @@ namespace GM1
     class GM1Reader
     {
         bool mIsOpened;
-        FilePath mPath;
+        fs::path mPath;
         uint32_t mFlags;
         std::streampos mDataOffset;
         mutable boost::filesystem::ifstream mStream;
@@ -40,9 +40,9 @@ namespace GM1
         };
 
         GM1Reader();
-        explicit GM1Reader(FilePath, Flags = NoFlags);
+        explicit GM1Reader(fs::path, Flags = NoFlags);
         void SetBuffering(bool on);
-        void Open(FilePath, Flags);
+        void Open(fs::path, Flags);
         bool IsOpened() const;
         void Close();
         virtual ~GM1Reader();

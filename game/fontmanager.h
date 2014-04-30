@@ -1,18 +1,37 @@
-#ifndef FONT_MANAGER_H_
-#define FONT_MANAGER_H_
+#ifndef FONTMANAGER_H_
+#define FONTMANAGER_H_
+
+#include <game/filesystem.h>
+
+#include <map>
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+
+class FontData;
 
 namespace Render
 {
-
-    class Renderer;
+    const std::string FontStronghold = "DejaVuSans";
     
     class FontManager
     {
-    public:
-        virtual void AddFont(const std::string &filename, font_size_t size) = 0;
-        virtual void ParseCollection(const CollectionData &data, const FontCollectionInfo &info) = 0;
-    };
+        std::vector<FontData> mFontTable;
 
+        FontData* GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs);
+        FontData* LookupFontName(const std::string &name, int fsize);
+        
+    public:
+        FontManager();
+        FontManager(FontManager const&) = delete;
+        FontManager& operator=(FontManager const&) = delete;
+        FontManager& operator=(FontManager&&);
+        FontManager(FontManager&&);
+        virtual ~FontManager();
+        
+        virtual void LoadFont(const std::string &name, int fsize);
+        virtual TTF_Font* FindFont(const std::string &name, int fsize);
+    };
 }
 
-#endif
+#endif  // FONTMANAGER_H_

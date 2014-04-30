@@ -13,6 +13,7 @@ namespace general
     {
         in.seekg(off, way);
     }
+    
     template<> void Seek(std::ostream &out, std::streamoff off, std::ios_base::seekdir way)
     {
         out.seekp(off, way);
@@ -22,6 +23,7 @@ namespace general
     {
         return static_cast<int64_t>(in.tellg());
     }
+    
     template<> int64_t Tell(std::ostream &out)
     {
         return static_cast<int64_t>(out.tellp());
@@ -31,6 +33,7 @@ namespace general
     {
         in.read(data, size);
     }
+    
     template<> void Read(std::ostream &out, char*, std::streamsize)
     {
         perror("Read from write-only stream");

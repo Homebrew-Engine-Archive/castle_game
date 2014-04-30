@@ -21,6 +21,7 @@ namespace Network
 
 namespace Render
 {
+    class FontManager;
     class Renderer;
 }
 
@@ -38,6 +39,7 @@ namespace Castle
         bool mShowConsole;
         int64_t mPollRate;
         UI::Screen *mConsolePtr;
+        std::unique_ptr<Render::FontManager> mFontMgr;
         std::unique_ptr<UI::ScreenManager> mScreenMgr;
         boost::asio::io_service mIO;
         int16_t mPort;
@@ -49,6 +51,7 @@ namespace Castle
         bool HandleEvent(SDL_Event const&);
         void ToggleConsole();
         bool LoadGraphics();
+        void LoadFonts();
     
     public:
         explicit Engine(Render::Renderer*);

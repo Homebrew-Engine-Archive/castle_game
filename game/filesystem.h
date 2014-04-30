@@ -2,17 +2,23 @@
 #define FILESYSTEM_H_
 
 #include <boost/filesystem.hpp>
+#include <string>
 
-using FilePath = boost::filesystem::wpath;
+namespace fs
+{
+    using path = boost::filesystem::wpath;
 
-FilePath GetFXPath(const FilePath &path = FilePath());
-FilePath GetGFXPath(const FilePath &path = FilePath());
-FilePath GetGMPath(const FilePath &path = FilePath());
+    path FXPath(const path &suffix = path());
+    path GFXPath(const path &suffix = path());
+    path GMPath(const path &suffix = path());
+    path FontsPath(const path &suffix = path());
 
-FilePath GetGM1FilePath(const FilePath &path, const FilePath &ext = ".gm1");
-FilePath GetTGXFilePath(const FilePath &path, const FilePath &ext = ".tgx");
+    path GM1FilePath(const std::string &fileName, const std::string &extension = ".gm1");
+    path TGXFilePath(const std::string &fileName, const std::string &extension = ".tgx");
+    path FontFilePath(const std::string &fileName, const std::string &extension = ".ttf");
 
-FilePath GetRootPath();
-FilePath GetPrefPath();
+    path RootPath();
+    path PreferencesPath();
+}
 
 #endif
