@@ -19,7 +19,6 @@ namespace Render
 
 namespace UI
 {
-
     class ScreenManager;
     
     class MenuCombat : public Screen
@@ -37,9 +36,6 @@ namespace UI
 
         bool IsDirty(int64_t elapsed);
     };
-
-
-    std::unique_ptr<MenuCombat> CreateMenuCombat(UI::ScreenManager *mgr, Render::Renderer *render);
 }
 
 #endif

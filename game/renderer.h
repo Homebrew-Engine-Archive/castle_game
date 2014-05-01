@@ -41,7 +41,10 @@ namespace Render
         Renderer(SDL_Renderer *renderer);
         Renderer(Renderer const&) = delete;
         Renderer& operator=(Renderer const&) = delete;
-        virtual ~Renderer() = default;
+        
+        std::vector<uint32_t> AvailablePixelFormats() const;
+
+        bool ValidTextureSize(int width, int height) const;
         
         Surface BeginFrame();
         void EndFrame();
@@ -51,7 +54,7 @@ namespace Render
         Surface QuerySurface(const fs::path &filename);
         CollectionData const& QueryCollection(const fs::path &filename);
         bool CacheCollection(const fs::path &filepath);
-
+        
         void EnableClearScreen(bool on);
     };
     

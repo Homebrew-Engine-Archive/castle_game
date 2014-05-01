@@ -59,6 +59,7 @@ namespace UI
         GameScreen &operator=(const GameScreen &that) = delete;
         ~GameScreen();
     
+        void DrawTestScene(Surface &frame);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
 

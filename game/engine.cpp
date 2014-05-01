@@ -108,7 +108,10 @@ namespace Castle
     {
         LoadFonts();
                 
-        //mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
+        // mScreenMgr->PushScreen(
+        //     ScreenPtr(
+        //         new UI::MenuMain(mScreenMgr.get(), mRenderer)));
+        
         mScreenMgr->PushScreen(
             UI::ScreenPtr(
                 new UI::GameScreen(mScreenMgr.get(), mRenderer)));

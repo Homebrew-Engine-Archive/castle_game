@@ -29,16 +29,6 @@ struct CollectionData
 
 typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
-struct FontCollectionInfo
-{
-    fs::path filename;
-    std::string name;
-    std::vector<int> sizes;
-    std::vector<int> alphabet;
-};
-
-typedef std::unique_ptr<FontCollectionInfo> FontCollectionInfoPtr;
-
 Surface LoadSurface(const fs::path &filename);
 CollectionDataPtr LoadCollectionData(const fs::path &filename);
 

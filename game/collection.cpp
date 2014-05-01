@@ -7,6 +7,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
+#include <game/make_unique.h>
 #include <game/gm1palette.h>
 #include <game/gm1entryreader.h>
 #include <game/gm1reader.h>
@@ -16,25 +17,25 @@
 CollectionDataPtr LoadCollectionData(const fs::path &path)
 {
     try {
-        GM1::GM1Reader reader;
-        reader.Open(path, GM1::GM1Reader::Cached);
+        GM1::GM1Reader gm1;
+        gm1.Open(path, GM1::GM1Reader::Cached);
 
         CollectionDataPtr ptr(new CollectionData);
-        ptr->header = reader.Header();
+        ptr->header = gm1.Header();
         
-        for(int i = 0; i < reader.NumPalettes(); ++i) {
+        for(int i = 0; i < gm1.NumPalettes(); ++i) {
             ptr->palettes.push_back(
                 std::move(
                     GM1::CreateSDLPalette(
-                        reader.Palette(i))));
+                        gm1.Palette(i))));
         }
 
-        GM1::GM1EntryReader &entryReader = reader.EntryReader();
-        for(int i = 0; i < reader.NumEntries(); ++i) {
+        GM1::GM1EntryReader &reader = gm1.EntryReader();
+        for(int i = 0; i < gm1.NumEntries(); ++i) {
             ptr->entries.push_back(
                 CollectionEntry {
-                    reader.EntryHeader(i),
-                    entryReader.Load(reader, i)}
+                    gm1.EntryHeader(i),
+                    reader.Load(gm1, i)}
             );
         }
         

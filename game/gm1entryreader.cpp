@@ -227,6 +227,10 @@ namespace GM1
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
 
+        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+
         return surface;
     }
 

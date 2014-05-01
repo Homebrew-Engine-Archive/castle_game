@@ -38,6 +38,4 @@ enum class TreeClass : int {
     Shrub
 };
 
-
-
 #endif

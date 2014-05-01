@@ -39,7 +39,9 @@ namespace UI
 
     void MenuMain::GoCombat()
     {
-        mScreenMgr->PushScreen(UI::CreateMenuCombat(mScreenMgr, mRenderer));
+        mScreenMgr->PushScreen(
+            ScreenPtr(
+                new UI::MenuCombat(mScreenMgr, mRenderer)));
     }
 
     void MenuMain::GoEconomics()
@@ -50,19 +52,10 @@ namespace UI
     {
     }
 
-    void MenuMain::GoLoadGame()
-    {
+    void MenuMain::GoLoadGame()    {
     }
 
     void MenuMain::GoExit()
     {
-    }
-
-
-    std::unique_ptr<MenuMain> CreateMenuMain(UI::ScreenManager *mgr, Render::Renderer *render)
-    {
-        return std::make_unique<MenuMain>(mgr, render);
-    }
-
-    
+    }    
 } // namespace UI

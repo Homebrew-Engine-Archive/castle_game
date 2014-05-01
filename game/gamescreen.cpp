@@ -1,5 +1,7 @@
 #include "gamescreen.h"
 
+#include <cmath>
+
 #include <game/renderer.h>
 #include <game/landscape.h>
 #include <game/sdl_utils.h>
@@ -10,16 +12,6 @@
 
 namespace UI
 {
-
-    enum class BuildingCategory : int {
-        Castle,
-        Industry,
-        Farming,
-        Weaponary,
-        Civil,
-        Production
-    };
-
     GameScreen::GameScreen(UI::ScreenManager *mgr, Render::Renderer *render)
         : mScreenMgr(mgr)
         , mRenderer(render)
@@ -44,31 +36,39 @@ namespace UI
     {
     }
 
-    void GameScreen::Draw(Surface &frame)
+    void GameScreen::DrawTestScene(Surface &frame)
     {
         SDL_Rect frameRect = SurfaceBounds(frame);
-        SDL_FillRect(frame, &frameRect, 0xff000000);
         
-        fs::path bodyLord = fs::GM1FilePath("body_lady");
+        fs::path bodyLord = fs::GM1FilePath("body_lord");
         const CollectionData &gm1 = mRenderer->QueryCollection(bodyLord);
 
-    
-        for(size_t n = 0; n < 1000; ++n) {
-            size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);
-            SDL_Palette *palette = gm1.palettes.at(paletteIndex).get();
-            const CollectionEntry &entry =
-                gm1.entries[rand() % gm1.header.imageCount];
-            Surface surface = entry.surface;
-            SDL_SetSurfacePalette(surface, palette);
-            SDL_Rect whither = MakeRect(
-                rand() % (frameRect.w - surface->w),
-                rand() % (frameRect.h - surface->h),
-                surface->w,
-                surface->h);
-            BlitSurface(surface, NULL, frame, &whither);
+        int side = sqrt(gm1.header.imageCount);
+        
+        int x = 0;
+        int y = 0;
+        
+        SDL_Palette *palette = gm1.palettes.at(3).get();
+        for(const CollectionEntry &entry : gm1.entries) {
+            Surface face = entry.surface;
+            SDL_SetSurfacePalette(face, palette);
+
+            x += frameRect.w / side;
+            if(x + face->w > frameRect.w) {
+                x = 0;
+                y += frameRect.h / side;
+            }
+
+            SDL_Rect whither = MakeRect(x, y, face->w, face->h);
+            SDL_BlitSurface(face, NULL, frame, &whither);
         }
     }
 
+    void GameScreen::Draw(Surface &frame)
+    {
+        mGameMap.Draw(frame, mViewportX, mViewportY, mViewportOrient, mViewportRadius);
+    }
+    
     bool GameScreen::HandleEvent(const SDL_Event &event)
     {
         switch(event.type) {

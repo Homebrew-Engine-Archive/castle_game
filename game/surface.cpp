@@ -302,7 +302,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const 
 {
     if(pixels == nullptr) {
         std::ostringstream oss;
-        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr pixels";
+        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr ";
         throw std::invalid_argument(oss.str());
     }
     
@@ -344,7 +344,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 
 SDL_Rect FindCropRect(const Surface &surface)
 {
-    SDL_Rect rect = SurfaceBounds(surface);    
+    SDL_Rect rect = SurfaceBounds(surface);
     return rect;
 }
 
