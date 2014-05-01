@@ -27,7 +27,6 @@ namespace Render
 
 namespace Castle
 {
-
     class Engine
     {
         Render::Renderer *mRenderer;
@@ -50,7 +49,6 @@ namespace Castle
         void DrawFrame();
         bool HandleEvent(SDL_Event const&);
         void ToggleConsole();
-        bool LoadGraphics();
         void LoadFonts();
     
     public:
@@ -60,12 +58,10 @@ namespace Castle
         virtual ~Engine();
     
         int Exec();
-        Render::Renderer *GetRenderer();
 
         bool Closed() const;
         void PollInput();
     };
-    
 }
 
-#endif
+#endif  // ENGINE_H_

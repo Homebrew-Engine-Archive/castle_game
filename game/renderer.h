@@ -13,6 +13,7 @@
 #include <game/surface.h>
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
+#include <game/texturelocker.h>
 
 class CollectionData;
 class Surface;
@@ -25,14 +26,16 @@ namespace Render
         int mScreenWidth;
         int mScreenHeight;
         int mScreenFormat;
+        bool mScreenClear;
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
+        std::unique_ptr<TextureLocker> mLock;
         std::map<fs::path, Surface> mGFXCache;
         std::map<fs::path, CollectionDataPtr> mGMCache;
 
         bool ReallocationRequired(int width, int heigth);
-        bool CreateScreenTexture(int width, int height);
-        bool CreateScreenSurface(void *pixels, int width, int height, int pitch);
+        void CreateScreenTexture(int width, int height);
+        void CreateScreenSurface(void *pixels, int pitch);
 
     public:
         Renderer(SDL_Renderer *renderer);
@@ -46,8 +49,10 @@ namespace Render
         void SetWindowSize(int width, int height);
         void AdjustBufferSize(int width, int height);
         Surface QuerySurface(const fs::path &filename);
-        const CollectionData &QueryCollection(const fs::path &filename);
+        CollectionData const& QueryCollection(const fs::path &filename);
         bool CacheCollection(const fs::path &filepath);
+
+        void EnableClearScreen(bool on);
     };
     
 } // namespace Render

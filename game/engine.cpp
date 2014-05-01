@@ -10,6 +10,7 @@
 
 #include <SDL.h>
 
+#include <game/make_unique.h>
 #include <game/fontmanager.h>
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
@@ -17,7 +18,6 @@
 #include <game/menu_combat.h>
 #include <game/menu_main.h>
 #include <game/loadingscreen.h>
-#include <game/make_unique.h>
 #include <game/debugconsole.h>
 #include <game/screen.h>
 #include <game/entityclass.h>
@@ -107,12 +107,7 @@ namespace Castle
     int Engine::Exec()
     {
         LoadFonts();
-        
-        if(!LoadGraphics()) {
-            std::cerr << "Loading has been interrupted." << std::endl;
-            return 0;
-        }
-        
+                
         //mScreenMgr->PushScreen(UI::CreateMenuMain(mScreenMgr.get(), mRenderer));
         mScreenMgr->PushScreen(
             UI::ScreenPtr(
@@ -162,46 +157,17 @@ namespace Castle
         return 0;
     }
 
-    bool ProcessEvents()
-    {
-        return true;
-    }
-
-    struct Loader
-    {
-        void Load() { }
-    };
-
-    std::vector<Loader> GetLoaders()
-    {
-        return std::vector<Loader> {};
-    }
-
     void Engine::LoadFonts()
     {
-        static int fontsizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
-        for(int fsize : fontsizes) {
-            mFontMgr->LoadFont(Render::FontStronghold, fsize);
-        }
-    }
-    
-    bool Engine::LoadGraphics()
-    {
-        std::vector<Loader> loaders = GetLoaders();
-        
-        for(Loader &loader : loaders) {
-            loader.Load();
-            if(!ProcessEvents()) {
-                return false;
+        static int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
+        static std::string families[] = {Render::FontStronghold};
+        for(std::string family : families) {
+            for(int fsize : sizes) {
+                mFontMgr->LoadFont(family, fsize);
             }
         }
-
-        return true;
-        
-        std::unique_ptr<UI::LoadingScreen> loadingScreen(new UI::LoadingScreen(this));
-        return loadingScreen->Exec();
     }
-    
+        
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer->BeginFrame();
@@ -212,9 +178,9 @@ namespace Castle
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontMgr->FindFont(Render::FontStronghold, 10));
-        SDL_Rect bounds = textRenderer.CalculateTextRect(text);
-        textRenderer.Translate(0, bounds.h);
+        textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
+        textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
+        textRenderer.Translate(0, 20);
         textRenderer.SetColor(MakeColor(255, 255, 255, 127));
         textRenderer.PutString(text);
 
@@ -235,10 +201,4 @@ namespace Castle
             return true;
         }
     }
-
-    Render::Renderer *Engine::GetRenderer()
-    {
-        return mRenderer;
-    }
-
 }

@@ -9,7 +9,6 @@
 
 #include <game/gameexception.h>
 #include <game/make_unique.h>
-#include <game/textrenderer.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
 
@@ -41,6 +40,7 @@ namespace Render
         , mScreenWidth(0)
         , mScreenHeight(0)
         , mScreenFormat(0)
+        , mScreenClear(true)
         , mScreenTexture(nullptr)
         , mScreenSurface(nullptr)
         , mGFXCache()
@@ -49,55 +49,41 @@ namespace Render
         SDL_Rect rect = GetOutputSize();
         mScreenWidth = rect.w;
         mScreenHeight = rect.h;
-
-        std::clog << "GetOutputSize(): " << rect << std::endl;
     }
 
-    bool Renderer::CreateScreenTexture(int width, int height)
+    void Renderer::CreateScreenTexture(int width, int height)
     {
-        // NOTE
-        // Width and height wan't be checked for min and max constraints.
-        // It's assumed that they already being checked.
         if((width == 0) || (height == 0)) {
-            std::cerr << "Size is zero. Abort allocation."
-                      << std::endl;
-            return false;
+            return;
         }
     
         if((mScreenTexture) && (width == mScreenWidth) && (height == mScreenHeight)) {
-            std::cerr << "Size of texture matches. Skip allocation."
-                      << std::endl;
-            return true;
+            return;
         }
     
         mScreenWidth = width;
         mScreenHeight = height;
         mScreenFormat = SDL_PIXELFORMAT_ARGB8888;
-        mScreenTexture =
-            TexturePtr(
-                SDL_CreateTexture(
-                    mRenderer,
-                    mScreenFormat,
-                    SDL_TEXTUREACCESS_STREAMING,
-                    mScreenWidth,
-                    mScreenHeight));
+        mScreenTexture.reset(
+            SDL_CreateTexture(
+                mRenderer,
+                mScreenFormat,
+                SDL_TEXTUREACCESS_STREAMING,
+                mScreenWidth,
+                mScreenHeight));
 
         if(!mScreenTexture) {
             throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
-    
-        return true;
     }
 
-    bool Renderer::CreateScreenSurface(void *pixels, int width, int height, int pitch)
+    void Renderer::CreateScreenSurface(void *pixels, int pitch)
     {
-        Surface surface = CreateSurfaceFrom(pixels, width, height, pitch, mScreenFormat);
+        Surface surface = CreateSurfaceFrom(pixels, mScreenWidth, mScreenHeight, pitch, mScreenFormat);
         if(!surface) {
             throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
-
         mScreenSurface = surface;
-        return true;
     }
 
     bool Renderer::ReallocationRequired(int width, int height)
@@ -108,53 +94,31 @@ namespace Render
     Surface Renderer::BeginFrame()
     {
         if(!mScreenSurface.Null()) {
-            std::cerr << "Previously allocated surface is not null"
-                      << std::endl;
             mScreenSurface.reset();
         }
     
         if(!mScreenTexture) {
-            if(!CreateScreenTexture(mScreenWidth, mScreenHeight)) {
-                std::cerr << "Can't allocate frame texture"
-                          << std::endl;
-                return Surface();
-            }
-        }
-    
-        int nativePitch = 0;
-        void *nativePixels = nullptr;
-        if(SDL_LockTexture(mScreenTexture.get(), nullptr, &nativePixels, &nativePitch)) {
-            std::cerr << "SDL_LockTexture failed: "
-                      << SDL_GetError()
-                      << std::endl;
-            return Surface();
+            CreateScreenTexture(mScreenWidth, mScreenHeight);
         }
         
-        if(!CreateScreenSurface(nativePixels, mScreenWidth, mScreenHeight, nativePitch)) {
-            std::cerr << "Can't allocate framebuffer"
-                      << std::endl;
-            SDL_UnlockTexture(mScreenTexture.get());
-            return Surface();
-        }
-
+        mLock.reset(new TextureLocker(mScreenTexture.get()));
+        CreateScreenSurface(mLock->Pixels(), mLock->Pitch());
         return mScreenSurface;
     }
 
     void Renderer::EndFrame()
     {
         if(!mScreenSurface.Null()) {
-            SDL_RenderClear(mRenderer);
+            if(mScreenClear) {
+                SDL_RenderClear(mRenderer);
+            }
 
-            /// \note Pixel are not deallocated only surface
-            mScreenSurface.reset();
-        
-            SDL_UnlockTexture(mScreenTexture.get());
+            mScreenSurface.reset(nullptr);
+            mLock.reset(nullptr);
 
             const SDL_Rect textureRect = MakeRect(mScreenWidth, mScreenHeight);
             if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
-                std::cerr << "SDL_RenderCopy failed: "
-                          << SDL_GetError()
-                          << std::endl;
+                throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
         }
     
@@ -163,14 +127,12 @@ namespace Render
 
     SDL_Rect Renderer::GetOutputSize() const
     {
-        int width = 0;
-        int height = 0;
-        if(SDL_GetRendererOutputSize(mRenderer, &width, &height)) {
-            std::cerr << "SDL_GetRendererOutputSize failed: "
-                      << SDL_GetError()
-                      << std::endl;
+        SDL_Rect outputSize { 0, 0, 0, 0 };
+        if(SDL_GetRendererOutputSize(mRenderer, &outputSize.w, &outputSize.h) < 0) {
+            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
-        return MakeRect(width, height);
+        
+        return outputSize;
     }
 
     void Renderer::SetWindowSize(int width, int height)
@@ -191,9 +153,6 @@ namespace Render
         // NOTE
         // This is the only place we limit width and height
         if(ReallocationRequired(adjustedWidth, adjustedHeight)) {
-            std::clog << "AdjustBufferSize(): " << std::dec
-                      << MakeRect(adjustedWidth, adjustedHeight)
-                      << std::endl;
             CreateScreenTexture(adjustedWidth, adjustedHeight);
         }
     }
@@ -203,11 +162,11 @@ namespace Render
         auto cached = mGFXCache.find(filename);
         if(cached != mGFXCache.end()) {
             return cached->second;
-        } else {
-            Surface loaded = LoadSurface(filename);
-            mGFXCache.insert({filename, loaded});
-            return loaded;
         }
+        
+        Surface loaded = LoadSurface(filename);
+        mGFXCache.insert({filename, loaded});
+        return loaded;
     }
 
     CollectionData const& Renderer::QueryCollection(const fs::path &filename)
@@ -215,20 +174,19 @@ namespace Render
         auto searchResult = mGMCache.find(filename);
         if(searchResult != mGMCache.end()) {
             return *searchResult->second;
-        } else {
-            CollectionDataPtr ptr =
-                std::move(
-                    LoadCollectionData(filename));
-
-            if(!ptr)
-                throw std::runtime_error("Unable to load collection");
-        
-            const CollectionData &data = *ptr;
-            mGMCache.insert(
-                std::make_pair(filename, std::move(ptr)));
-
-            return data;
         }
+        
+        CollectionDataPtr &&ptr = LoadCollectionData(filename);
+
+        if(!ptr) {
+            throw std::runtime_error("Unable to load collection");
+        }
+        
+        const CollectionData &data = *ptr;
+        mGMCache.insert(
+            std::make_pair(filename, std::move(ptr)));
+
+        return data;
     }
 
     bool Renderer::CacheCollection(const fs::path &filename)
@@ -241,5 +199,10 @@ namespace Render
                       << std::endl;
             return false;
         }
+    }
+
+    void Renderer::EnableClearScreen(bool on)
+    {
+        mScreenClear = on;
     }
 } // namespace Render

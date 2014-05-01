@@ -87,19 +87,19 @@ namespace Render
         fontData.name = name;
         fontData.fsize = fsize;
 
-        // TODO windows sucks so much with utf8
+        // TODO windows sucks with utf8 so much
         // see http://stackoverflow.com/questions/11352641/boostfilesystempath-and-fopen
 
         // NOTE There is a bug with SDL_OpenFontRW
         // see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
 
-        // The desired solutions is as follows
+        // The desired solution is as follows
         //
         // boost::filesystem::ifstream fin(fontData.fontPath);
         // RWPtr rw(SDL_RWFromInputStream(fin));
         // TTF_Font *font = TTF_OpenFontRW(rw.get(), SDL_FALSE, fsize);
         //
-        // ... but it get a crash
+        // ... but it gets a crash
         
         TTF_Font *font = TTF_OpenFont(fontData.fontPath.string().c_str(), fsize);
 
@@ -111,7 +111,7 @@ namespace Render
         mFontTable.emplace_back(std::move(fontData));
     }
     
-    TTF_Font* FontManager::FindFont(const std::string &name, int fsize)
+    TTF_Font* FontManager::Font(const std::string &name, int fsize)
     {
         const FontData *fd = LookupFontName(name, fsize);
         if(fd != nullptr) {

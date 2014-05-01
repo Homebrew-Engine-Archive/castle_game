@@ -210,9 +210,10 @@ bool Surface::operator!() const
     return Null();
 }
 
-void Surface::reset()
+void Surface::reset(SDL_Surface *surface)
 {
-    Assign(nullptr);
+    AddSurfaceRef(surface);
+    Assign(surface);
 }
 
 SurfaceView::SurfaceView(Surface &src, const SDL_Rect *roi)

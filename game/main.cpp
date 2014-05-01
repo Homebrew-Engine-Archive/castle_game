@@ -40,6 +40,7 @@ int main()
 
         std::unique_ptr<Render::Renderer> renderer;
         renderer.reset(new Render::Renderer(sdlRenderer.get()));
+        renderer->EnableClearScreen(false);
 
         std::unique_ptr<Castle::Engine> engine;
         engine.reset(new Castle::Engine(renderer.get()));

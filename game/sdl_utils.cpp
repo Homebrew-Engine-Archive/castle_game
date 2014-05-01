@@ -183,6 +183,11 @@ SDL_Rect PadIn(const SDL_Rect &src, int pad)
     return src;
 }
 
+SDL_Rect MakeRect(const SDL_Point &p, int w, int h)
+{
+    return SDL_Rect {p.x, p.y, w, h};
+}
+
 SDL_Rect MakeRect(int x, int y, int w, int h)
 {
     return SDL_Rect {x, y, w, h};

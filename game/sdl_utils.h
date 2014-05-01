@@ -80,6 +80,7 @@ SDL_Rect MakeRect(int x, int y, int w, int h);
 SDL_Rect MakeRect(int w, int h);
 SDL_Rect MakeRect(const SDL_Point &p1, const SDL_Point &p2);
 SDL_Rect MakeRect(const SDL_Point &p);
+SDL_Rect MakeRect(const SDL_Point &p, int w, int h);
 SDL_Rect MakeEmptyRect();
 SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 SDL_Point MakePoint(int x, int y);

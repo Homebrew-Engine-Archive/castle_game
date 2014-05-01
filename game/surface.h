@@ -30,7 +30,7 @@ public:
     Surface &operator=(const Surface &that);
     bool operator==(const Surface &that);
     SDL_Surface *operator->() const;
-    void reset();
+    void reset(SDL_Surface *surface = nullptr);
 };
 
 /**

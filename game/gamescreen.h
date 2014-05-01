@@ -4,6 +4,7 @@
 #include <memory>
 #include <SDL.h>
 #include <game/screen.h>
+#include <game/gamemap.h>
 
 enum class Direction;
 class Surface;
@@ -21,6 +22,11 @@ namespace Castle
 namespace Render
 {
     class Renderer;
+}
+
+namespace Castle
+{
+    class GameMap;
 }
 
 namespace UI
@@ -45,6 +51,7 @@ namespace UI
         bool mHiddenUI;
         CursorMode mCursorMode;
         bool mClosed;
+        Castle::GameMap mGameMap;
     
     public:
         GameScreen(UI::ScreenManager *mgr, Render::Renderer *render);

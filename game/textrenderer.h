@@ -12,14 +12,22 @@
 
 namespace Render
 {
+    enum class CursorMode : int {
+        TopLeft,
+        BaseLine,
+        BottomLeft
+    };
+    
     class TextRenderer
     {
         Surface &mSurface;
         SDL_Color mColor {0, 0, 0, 0};
         int mCursorX = 0;
         int mCursorY = 0;
+        CursorMode mCursorMode = CursorMode::BaseLine;
         TTF_Font *mCurrentFont = nullptr;
 
+        SDL_Point GetTopLeftBoxPoint() const;
         void PutRenderedString(Surface &text);
 
     public:
@@ -30,10 +38,12 @@ namespace Render
         virtual void PutChar(int character);
         virtual void PutString(const std::string &str);
         virtual void PutString(const std::u16string &str);
+
         
         void SetFont(TTF_Font *font);
         TTF_Font* GetFont();
         void SetColor(const SDL_Color &color);
+        void SetCursorMode(CursorMode mode);
         void LoadIdentity();
         void Translate(int dx, int dy);
         

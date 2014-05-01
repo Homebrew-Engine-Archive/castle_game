@@ -35,6 +35,8 @@ namespace UI
         , mZoomedOut(false)
         , mHiddenUI(false)
         , mCursorMode(CursorMode::Normal)
+        , mClosed(false)
+        , mGameMap(80, 80)
     {
     }
 
@@ -46,9 +48,10 @@ namespace UI
     {
         SDL_Rect frameRect = SurfaceBounds(frame);
         SDL_FillRect(frame, &frameRect, 0xff000000);
-
-        fs::path bodyLord = fs::GM1FilePath("body_lord");
+        
+        fs::path bodyLord = fs::GM1FilePath("body_lady");
         const CollectionData &gm1 = mRenderer->QueryCollection(bodyLord);
+
     
         for(size_t n = 0; n < 1000; ++n) {
             size_t paletteIndex = 1 + rand() % (gm1.palettes.size() - 2);

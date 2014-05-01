@@ -30,7 +30,7 @@ namespace Render
         virtual ~FontManager();
         
         virtual void LoadFont(const std::string &name, int fsize);
-        virtual TTF_Font* FindFont(const std::string &name, int fsize);
+        virtual TTF_Font* Font(const std::string &name, int fsize);
     };
 }
 

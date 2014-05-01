@@ -12,6 +12,7 @@ set (SRCS
   fontmanager.cpp
   gameexception.cpp
   gamescreen.cpp
+  gamemap.cpp
   gm1.cpp
   gm1entryreader.cpp
   gm1palette.cpp
@@ -28,6 +29,7 @@ set (SRCS
   sdl_utils.cpp
   surface.cpp
   textrenderer.cpp
+  texturelocker.cpp
   tgx.cpp
 )
 

@@ -11,7 +11,6 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/renderer.h>
-#include <game/engine.h>
 
 namespace UI
 {
@@ -38,19 +37,36 @@ namespace UI
 
     bool LoadingScreen::IsDirty(int64_t elapsed) const
     {
-        return true;
+        return mDirty;
+    }
+
+    void LoadingScreen::IncreaseDone(int delta)
+    {
+        mProgressDone += delta;
     }
     
     void LoadingScreen::SetProgressDone(int done)
     {
+        if(done != mProgressDone) {
+            mDirty = true;
+        }
+        mProgressDone = done;
     }
 
     void LoadingScreen::SetProgressMax(int max)
     {
+        if(max != mProgressMax) {
+            mDirty = true;
+        }
+        mProgressMax = max;
     }
 
-    void LoadingScreen::SetProgressLabel(std::string const& text)
+    void LoadingScreen::SetProgressLabel(const std::string &text)
     {
+        if(mStage != text) {
+            mDirty = true;
+        }
+        mStage = text;
     }
     
     double LoadingScreen::GetCompleteRate() const

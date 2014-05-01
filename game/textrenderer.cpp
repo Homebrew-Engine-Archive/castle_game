@@ -42,6 +42,24 @@ namespace Render
 
     }    
 
+    SDL_Point TextRenderer::GetTopLeftBoxPoint() const
+    {
+        SDL_Point cursor { 0, 0 };
+        switch(mCursorMode) {
+        case CursorMode::BaseLine:
+            cursor = MakePoint(mCursorX, mCursorY - TTF_FontAscent(mCurrentFont));
+            break;
+        case CursorMode::BottomLeft:
+            cursor = MakePoint(mCursorX, mCursorY - TTF_FontHeight(mCurrentFont));
+            break;
+        case CursorMode::TopLeft:
+        default:
+            cursor = MakePoint(mCursorX, mCursorY);
+            break;
+        }
+        return cursor;
+    }
+    
     void TextRenderer::PutRenderedString(Surface &text)
     {
         if(SDL_SetSurfaceAlphaMod(text, mColor.a) < 0) {
@@ -51,10 +69,10 @@ namespace Render
         if(SDL_SetSurfaceColorMod(text, mColor.r, mColor.g, mColor.b) < 0) {
             throw std::runtime_error(SDL_GetError());
         }
-        
-        int ascent = TTF_FontAscent(mCurrentFont);
-        SDL_Rect dst = MakeRect(mCursorX, mCursorY - ascent, text->w, text->h);
-        SDL_BlitSurface(text, NULL, mSurface, &dst);
+
+        SDL_Rect dstRect = MakeRect(GetTopLeftBoxPoint(), text->w, text->h);
+                
+        SDL_BlitSurface(text, NULL, mSurface, &dstRect);
         Translate(text->w, 0);
     }
     
@@ -73,7 +91,7 @@ namespace Render
     
     SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
     {
-        SDL_Rect size = MakeRect(mCursorX, mCursorY, 0, 0);
+        SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
         
         if(TTF_SizeText(mCurrentFont, str.c_str(), &size.w, &size.h) < 0) {
             throw std::runtime_error(TTF_GetError());
@@ -83,7 +101,7 @@ namespace Render
 
     SDL_Rect TextRenderer::CalculateTextRect(const std::u16string &str) const
     {
-        SDL_Rect size = MakeRect(mCursorX, mCursorY, 0, 0);
+        SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
 
         std::basic_string<Uint16> uint16Str = ToUint16String(str);
         
@@ -110,6 +128,11 @@ namespace Render
         mColor = color;
     }
 
+    void TextRenderer::SetCursorMode(CursorMode mode)
+    {
+        mCursorMode = mode;
+    }
+    
     void TextRenderer::SetFont(TTF_Font *font)
     {
         mCurrentFont = font;
