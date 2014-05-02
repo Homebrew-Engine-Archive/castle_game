@@ -13,7 +13,6 @@
 #include <game/surface.h>
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
-#include <game/texturelocker.h>
 
 class CollectionData;
 class Surface;
@@ -29,13 +28,12 @@ namespace Render
         bool mScreenClear;
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
-        std::unique_ptr<TextureLocker> mLock;
         std::map<fs::path, Surface> mGFXCache;
         std::map<fs::path, CollectionDataPtr> mGMCache;
 
         bool ReallocationRequired(int width, int heigth);
         void CreateScreenTexture(int width, int height);
-        void CreateScreenSurface(void *pixels, int pitch);
+        void CreateScreenSurface(int width, int height);
 
     public:
         Renderer(SDL_Renderer *renderer);
@@ -43,8 +41,6 @@ namespace Render
         Renderer& operator=(Renderer const&) = delete;
         
         std::vector<uint32_t> AvailablePixelFormats() const;
-
-        bool ValidTextureSize(int width, int height) const;
         
         Surface BeginFrame();
         void EndFrame();

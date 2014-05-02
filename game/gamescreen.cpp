@@ -40,15 +40,16 @@ namespace UI
     {
         SDL_Rect frameRect = SurfaceBounds(frame);
         
-        fs::path bodyLord = fs::GM1FilePath("body_lord");
+        fs::path bodyLord = fs::GM1FilePath("body_archer");
         const CollectionData &gm1 = mRenderer->QueryCollection(bodyLord);
 
         int side = sqrt(gm1.header.imageCount);
+                
+        SDL_Palette *palette = gm1.palettes.at(3).get();
         
         int x = 0;
         int y = 0;
-        
-        SDL_Palette *palette = gm1.palettes.at(3).get();
+
         for(const CollectionEntry &entry : gm1.entries) {
             Surface face = entry.surface;
             SDL_SetSurfacePalette(face, palette);
@@ -59,6 +60,10 @@ namespace UI
                 y += frameRect.h / side;
             }
 
+            if(y + face->h > frameRect.h) {
+                y = 0;
+            }
+
             SDL_Rect whither = MakeRect(x, y, face->w, face->h);
             SDL_BlitSurface(face, NULL, frame, &whither);
         }
@@ -66,6 +71,8 @@ namespace UI
 
     void GameScreen::Draw(Surface &frame)
     {
+        DrawTestScene(frame);
+        return;
         mGameMap.Draw(frame, mViewportX, mViewportY, mViewportOrient, mViewportRadius);
     }
     

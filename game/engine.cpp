@@ -184,7 +184,7 @@ namespace Castle
         textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
-        textRenderer.SetColor(MakeColor(255, 255, 255, 127));
+        textRenderer.SetColor(MakeColor(255, 255, 255, 200));
         textRenderer.PutString(text);
 
         mRenderer->EndFrame();

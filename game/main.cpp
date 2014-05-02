@@ -17,7 +17,7 @@ int main()
 
     WindowPtr sdlWindow;
     RendererPtr sdlRenderer;
-
+    
     try {
         SDLInitializer init();
         
@@ -30,14 +30,14 @@ int main()
                 SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
 
         if(!sdlWindow) {
-            throw std::runtime_error(SDL_GetError());
+            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
         sdlRenderer.reset(
             SDL_CreateRenderer(sdlWindow.get(), -1, 0));
         
         if(!sdlRenderer) {
-            throw std::runtime_error(SDL_GetError());
+            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
         std::unique_ptr<Render::Renderer> renderer;
