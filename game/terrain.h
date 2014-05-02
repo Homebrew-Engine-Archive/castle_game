@@ -6,6 +6,7 @@ namespace Castle
     class Terrain
     {
     public:
+        virtual Surface Texture() const;
         virtual 
     };
 }

@@ -40,8 +40,6 @@ namespace Render
         Renderer(Renderer const&) = delete;
         Renderer& operator=(Renderer const&) = delete;
         
-        std::vector<uint32_t> AvailablePixelFormats() const;
-        
         Surface BeginFrame();
         void EndFrame();
         SDL_Rect GetOutputSize() const;

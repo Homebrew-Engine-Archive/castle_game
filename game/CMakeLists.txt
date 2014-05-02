@@ -8,9 +8,9 @@ set (SRCS
   direction.cpp
   engine.cpp
   entityclass.cpp
+  exception.cpp
   filesystem.cpp
   fontmanager.cpp
-  gameexception.cpp
   gamescreen.cpp
   gamemap.cpp
   gm1.cpp

@@ -7,7 +7,7 @@
 #include <boost/current_function.hpp>
 #include <boost/algorithm/clamp.hpp>
 
-#include <game/gameexception.h>
+#include <game/exception.h>
 #include <game/make_unique.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
@@ -67,7 +67,7 @@ namespace Render
 
         // Inconsistent size should be reported by SDL itself
         if(!mScreenTexture) {
-            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
         mScreenWidth = width;
@@ -86,14 +86,14 @@ namespace Render
     
     Surface Renderer::BeginFrame()
     {
-        if(!mScreenSurface) {
-            CreateScreenSurface(mScreenWidth, mScreenHeight);
-        }
-        
         if(!mScreenTexture) {
             CreateScreenTexture(mScreenWidth, mScreenHeight);
         }
 
+        if(!mScreenSurface) {
+            CreateScreenSurface(mScreenWidth, mScreenHeight);
+        }
+        
         if(mScreenClear) {
             SDL_FillRect(mScreenSurface, NULL, 0);
         }
@@ -105,12 +105,12 @@ namespace Render
     {
         if(!mScreenSurface.Null()) {
             if(SDL_UpdateTexture(mScreenTexture.get(), NULL, mScreenSurface->pixels, mScreenSurface->pitch) < 0) {
-                throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
 
             const SDL_Rect textureRect = MakeRect(mScreenWidth, mScreenHeight);
             if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
-                throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Render
     {
         SDL_Rect outputSize { 0, 0, 0, 0 };
         if(SDL_GetRendererOutputSize(mRenderer, &outputSize.w, &outputSize.h) < 0) {
-            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
         
         return outputSize;
@@ -171,7 +171,7 @@ namespace Render
         
             CollectionDataPtr &&ptr = LoadCollectionData(filename);
             if(!ptr) {
-                throw GameException("Unable to load collection", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::Exception("Unable to load collection", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
         
             const CollectionData &data = *ptr;
@@ -194,16 +194,6 @@ namespace Render
             std::cerr << "Cache collection failed: " << error.what() << std::endl;
             throw;
         }
-    }
-
-    std::vector<uint32_t> Renderer::AvailablePixelFormats() const
-    {
-        SDL_RendererInfo info;
-        if(SDL_GetRendererInfo(mRenderer, &info) < 0) {
-            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
-        }
-        
-        return std::vector<uint32_t>(info.texture_formats, info.texture_formats + info.num_texture_formats);
     }
     
     void Renderer::EnableClearScreen(bool on)

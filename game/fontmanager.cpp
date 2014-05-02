@@ -75,7 +75,7 @@ namespace Render
         return result;
     }
     
-    void FontManager::LoadFont(const std::string &name, int fsize)
+    void FontManager::LoadFontFile(const std::string &name, int fsize)
     {
         FontData *nearest = LookupFontName(name, fsize);
         if((nearest != nullptr) && (nearest->name == name) && (nearest->fsize == fsize)) {

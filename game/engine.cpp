@@ -162,11 +162,11 @@ namespace Castle
 
     void Engine::LoadFonts()
     {
-        static int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
-        static std::string families[] = {Render::FontStronghold};
+        int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
+        std::string families[] = {Render::FontStronghold};
         for(std::string family : families) {
             for(int fsize : sizes) {
-                mFontMgr->LoadFont(family, fsize);
+                mFontMgr->LoadFontFile(family, fsize);
             }
         }
     }
@@ -182,6 +182,8 @@ namespace Castle
 
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
+        textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
+        textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
         textRenderer.SetColor(MakeColor(255, 255, 255, 200));

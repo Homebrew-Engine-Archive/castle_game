@@ -1,7 +1,7 @@
 #include "texturelocker.h"
 
 #include <boost/current_function.hpp>
-#include <game/gameexception.h>
+#include <game/exception.h>
 
 namespace Render
 {
@@ -12,7 +12,7 @@ namespace Render
     {
         if(texture != NULL) {
             if(SDL_LockTexture(mTexture, NULL, &mPixels, &mPitch) < 0) {
-                throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
         }
     }

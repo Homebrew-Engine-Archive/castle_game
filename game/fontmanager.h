@@ -29,7 +29,7 @@ namespace Render
         FontManager(FontManager&&);
         virtual ~FontManager();
         
-        virtual void LoadFont(const std::string &name, int fsize);
+        virtual void LoadFontFile(const std::string &name, int fsize);
         virtual TTF_Font* Font(const std::string &name, int fsize);
     };
 }

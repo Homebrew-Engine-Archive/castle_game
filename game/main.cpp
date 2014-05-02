@@ -5,16 +5,26 @@
 #include <vector>
 #include <iostream>
 
-#include <game/gameexception.h>
+#include <game/exception.h>
 #include <game/sdl_utils.h>
 #include <game/engine.h>
 #include <game/renderer.h>
 
 int main()
 {
-    const int screenwidth = 1024;
-    const int screenheight = 768;
+    const int windowWidth = 1024;
+    const int windowHeight = 768;
 
+    const int windowXPos = SDL_WINDOWPOS_UNDEFINED;
+    const int windowYPos = SDL_WINDOWPOS_UNDEFINED;
+
+    const char *windowTitle = "Stockade";
+
+    const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    
+    const int rendererIndex = -1;
+    const int rendererFlags = SDL_RENDERER_ACCELERATED;
+    
     WindowPtr sdlWindow;
     RendererPtr sdlRenderer;
     
@@ -22,22 +32,24 @@ int main()
         SDLInitializer init();
         
         sdlWindow.reset(
-            SDL_CreateWindow(
-                "Stockade",
-                SDL_WINDOWPOS_UNDEFINED,
-                SDL_WINDOWPOS_UNDEFINED,
-                screenwidth, screenheight,
-                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+            SDL_CreateWindow(windowTitle,
+                             windowXPos,
+                             windowYPos,
+                             windowWidth,
+                             windowHeight,
+                             windowFlags));
 
         if(!sdlWindow) {
-            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
         sdlRenderer.reset(
-            SDL_CreateRenderer(sdlWindow.get(), -1, 0));
+            SDL_CreateRenderer(sdlWindow.get(),
+                               rendererIndex,
+                               rendererFlags));
         
         if(!sdlRenderer) {
-            throw SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
         std::unique_ptr<Render::Renderer> renderer;
@@ -50,7 +62,7 @@ int main()
         std::clog << "Shutting down" << std::endl;
         return code;
         
-    } catch(const GameException &error) {
+    } catch(const Castle::Exception &error) {
         std::cerr << error << std::endl;
     } catch(const std::exception &error) {
         std::cerr << "std::exception: " << error.what() << std::endl;

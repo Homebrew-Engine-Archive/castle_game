@@ -9,6 +9,7 @@
 
 #include <boost/current_function.hpp>
 
+#include <game/exception.h>
 #include <game/make_unique.h>
 
 namespace
@@ -35,16 +36,17 @@ namespace Render
         , mColor {0, 0, 0, 0}
         , mCursorX(0)
         , mCursorY(0)
+        , mCursorMode(CursorMode::BaseLine)
+        , mCurrentFont(nullptr)
+        , mClipBox {0, 0, 0, 0}
+        , mFontStyle(FontStyle_Normal)
     { }
-
-    void TextRenderer::PutChar(int character)
-    {
-
-    }    
 
     SDL_Point TextRenderer::GetTopLeftBoxPoint() const
     {
         SDL_Point cursor { 0, 0 };
+        CheckFontIsSet();
+        
         switch(mCursorMode) {
         case CursorMode::BaseLine:
             cursor = MakePoint(mCursorX, mCursorY - TTF_FontAscent(mCurrentFont));
@@ -57,11 +59,14 @@ namespace Render
             cursor = MakePoint(mCursorX, mCursorY);
             break;
         }
+        
         return cursor;
     }
     
     void TextRenderer::PutRenderedString(Surface &text)
     {
+        CheckFontIsSet();
+        
         if(SDL_SetSurfaceAlphaMod(text, mColor.a) < 0) {
             throw std::runtime_error(SDL_GetError());
         }
@@ -78,12 +83,16 @@ namespace Render
     
     void TextRenderer::PutString(const std::string &str)
     {
+        CheckFontIsSet();
+        
         Surface textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), White);
         PutRenderedString(textSurface);
     }
 
     void TextRenderer::PutString(const std::u16string &str)
     {
+        CheckFontIsSet();
+        
         std::basic_string<Uint16> uint16Str = ToUint16String(str);
         Surface textSurface = TTF_RenderUNICODE_Blended(mCurrentFont, uint16Str.c_str(), White);
         PutRenderedString(textSurface);
@@ -91,6 +100,8 @@ namespace Render
     
     SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
     {
+        CheckFontIsSet();
+        
         SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
         
         if(TTF_SizeText(mCurrentFont, str.c_str(), &size.w, &size.h) < 0) {
@@ -101,6 +112,8 @@ namespace Render
 
     SDL_Rect TextRenderer::CalculateTextRect(const std::u16string &str) const
     {
+        CheckFontIsSet();
+        
         SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
 
         std::basic_string<Uint16> uint16Str = ToUint16String(str);
@@ -137,9 +150,26 @@ namespace Render
     {
         mCurrentFont = font;
     }
+
+    void TextRenderer::SetClipBox(const SDL_Rect &clipbox)
+    {
+        mClipBox = clipbox;
+    }
+
+    void TextRenderer::SetFontStyle(int style)
+    {
+        mFontStyle = style;
+    }
     
     TTF_Font* TextRenderer::GetFont()
     {
         return mCurrentFont;
+    }
+
+    void TextRenderer::CheckFontIsSet() const
+    {
+        if(mCurrentFont == nullptr) {
+            throw Castle::Exception("No active font", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+        }
     }
 } // namespace Render
