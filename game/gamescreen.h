@@ -55,9 +55,9 @@ namespace UI
     
     public:
         GameScreen(UI::ScreenManager *mgr, Render::Renderer *render);
-        GameScreen(const GameScreen &that) = delete;
-        GameScreen &operator=(const GameScreen &that) = delete;
-        ~GameScreen();
+        GameScreen(GameScreen const&) = delete;
+        GameScreen &operator=(GameScreen const&) = delete;
+        virtual ~GameScreen();
     
         void DrawTestScene(Surface &frame);
         void Draw(Surface &frame);

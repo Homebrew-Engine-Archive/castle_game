@@ -71,6 +71,8 @@ namespace UI
 
     void GameScreen::Draw(Surface &frame)
     {
+        DrawTestScene(frame);
+        return;
         mGameMap.Draw(frame, mViewportX, mViewportY, mViewportOrient, mViewportRadius);
     }
     

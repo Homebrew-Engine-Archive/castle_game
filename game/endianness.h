@@ -10,7 +10,6 @@ namespace Endian
 {
 
     template<class T> T SwapBig(T x);
-    
     template<class T> T SwapLittle(T x)
     {
         static_assert(std::is_integral<T>::value, "Swap little not specialized for this type");

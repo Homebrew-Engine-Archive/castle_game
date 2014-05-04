@@ -3,4 +3,11 @@
 
 #include <game/screen.h>
 
+namespace UI
+{
+    class MenuEconomics : public Screen
+    {
+    };
+}
+
 #endif

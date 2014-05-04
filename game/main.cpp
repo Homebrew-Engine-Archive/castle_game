@@ -18,7 +18,7 @@ int main()
     const int windowXPos = SDL_WINDOWPOS_UNDEFINED;
     const int windowYPos = SDL_WINDOWPOS_UNDEFINED;
 
-    const char *windowTitle = "Stockade";
+    const char *windowTitle = "Castle game";
 
     const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     
@@ -64,9 +64,10 @@ int main()
         
     } catch(const Castle::Exception &error) {
         std::cerr << error << std::endl;
-    } catch(const std::exception &error) {
-        std::cerr << "std::exception: " << error.what() << std::endl;
-    } catch(...) {
-        std::cerr << "Abort after unknown exception" << std::endl;
     }
+    // } catch(const std::exception &error) {
+    //     std::cerr << "std::exception: " << error.what() << std::endl;
+    // } catch(...) {
+    //     std::cerr << "Abort after unknown exception" << std::endl;
+    // }
 }

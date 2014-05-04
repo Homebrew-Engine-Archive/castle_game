@@ -25,6 +25,7 @@ struct Point
 
     Point &operator+=(const Point &that);
     Point &operator-=(const Point &that);
+
 };
 
 double EuclidianDist(const Point &lhs, const Point &rhs);

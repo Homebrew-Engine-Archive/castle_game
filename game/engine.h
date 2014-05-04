@@ -4,9 +4,12 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <chrono>
 #include <SDL.h>
 
+#include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 
 namespace UI
 {
@@ -27,30 +30,32 @@ namespace Render
 
 namespace Castle
 {
+    class SimulationManager;
+    
     class Engine
     {
         Render::Renderer *mRenderer;
         double mFpsAverage;
-        uint64_t mFrameCounter;
+        int64_t mFrameCounter;
         bool mClosed;
         int64_t mFrameRate;
         bool mFpsLimited;
         bool mShowConsole;
         int64_t mPollRate;
-        UI::Screen *mConsolePtr;
-        std::unique_ptr<Render::FontManager> mFontMgr;
-        std::unique_ptr<UI::ScreenManager> mScreenMgr;
         boost::asio::io_service mIO;
         int16_t mPort;
+        std::unique_ptr<Render::FontManager> mFontMgr;
+        std::unique_ptr<UI::ScreenManager> mScreenMgr;
+        std::unique_ptr<Castle::SimulationManager> mSimulationMgr;
         std::unique_ptr<Network::Server> mServer;
-        
+
         bool HandleWindowEvent(SDL_WindowEvent const&);
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);
-        void DrawFrame();
         bool HandleEvent(SDL_Event const&);
-        void ToggleConsole();
         void LoadFonts();
-    
+        void PollInput();
+        void DrawFrame();        
+
     public:
         explicit Engine(Render::Renderer*);
         Engine(Engine const&) = delete;
@@ -58,9 +63,6 @@ namespace Castle
         virtual ~Engine();
     
         int Exec();
-
-        bool Closed() const;
-        void PollInput();
     };
 }
 

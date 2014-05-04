@@ -3,14 +3,12 @@
 
 #include <array>
 #include <vector>
-#include <SDL.h>
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 namespace Network
 {
-
     class Connection
     {
         std::array<char, 256> mReadBuffer;
@@ -35,7 +33,6 @@ namespace Network
         void StartAccept();
         void AcceptHandler(const boost::system::error_code &e);
     };
-    
 }
 
-#endif
+#endif  // NETWORK_H_

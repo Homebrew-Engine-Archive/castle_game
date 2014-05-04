@@ -7,8 +7,6 @@
 
 namespace Network
 {
-
-
     Connection::Connection(boost::asio::ip::tcp::socket socket)
         : mReadBuffer()
         , mSock(std::move(socket))

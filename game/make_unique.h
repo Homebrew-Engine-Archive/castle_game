@@ -8,7 +8,7 @@ namespace std
 
 #ifndef make_unique
     /** 
-     * \brief C++14's std::make_unique forward defintion :D
+     * \brief C++1y's std::make_unique forward defintion :D
      * \return Pointer to constructed object with given args.
      */
     template<class T, class ...U>

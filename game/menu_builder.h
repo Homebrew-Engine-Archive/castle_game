@@ -3,4 +3,12 @@
 
 #include <game/screen.h>
 
-#endif
+namespace UI
+{
+    class MenuBuilder : public Screen
+    {
+
+    };
+}
+
+#endif  // MENU_BUILDER_H_

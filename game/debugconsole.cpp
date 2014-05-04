@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 
+#include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/sdl_utils.h>
 #include <game/make_unique.h>
@@ -13,38 +14,11 @@
 
 namespace UI
 {
-    class DebugConsole : public Screen
-    {
-    private:
-        ScreenManager *mScreenMgr;
-        Render::Renderer *mRenderer;
-        std::string mText;
-        std::string mFontName;
-        int mFontSize;
-        bool mClosed;
-
-        bool HandleKey(const SDL_KeyboardEvent &event);
-        bool HandleTextInput(const SDL_TextInputEvent &text);
-    
-    public:
-        DebugConsole(ScreenManager *mgr, Render::Renderer *render);
-        DebugConsole(DebugConsole const&) = delete;
-        DebugConsole(DebugConsole&&) = default;
-        DebugConsole &operator=(DebugConsole const&) = delete;
-        DebugConsole &operator=(DebugConsole&&) = default;
-
-        bool IsClosed() const;
-        
-        void Draw(Surface &frame);
-        bool IsDirty(int64_t elapsed);
-        bool HandleEvent(const SDL_Event &event);
-    };
-    
     DebugConsole::DebugConsole(ScreenManager *mgr, Render::Renderer *render)
         : mScreenMgr(mgr)
         , mRenderer(render)
         , mText("")
-        , mFontName("font_stronghold_aa")
+        , mFontName(Render::FontStronghold)
         , mFontSize(14)
         , mClosed(false)
     { }
@@ -95,10 +69,4 @@ namespace UI
         mText += text.text;
         return true;
     }
-
-    ScreenPtr CreateDebugConsole(ScreenManager *mgr, Render::Renderer *render)
-    {
-        return std::make_unique<DebugConsole>(mgr, render);
-    }
-
 } // namespace UI

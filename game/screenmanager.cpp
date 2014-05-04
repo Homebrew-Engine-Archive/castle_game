@@ -2,87 +2,96 @@
 
 #include <stdexcept>
 
+#include <game/exception.h>
 #include <game/debugconsole.h>
 #include <game/make_unique.h>
 
 namespace UI
 {
 
-    ScreenManager::ScreenManager()
-        : mScreenStack()
+    ScreenManager::ScreenManager(Render::Renderer *renderer)
+        : mRenderer(renderer)
+        , mConsole(this, renderer)
+        , mMenuMain(this, renderer)
+        , mGameScreen(this, renderer)
+        , mMenuCombat(this, renderer)
+        , mScreenStack()
     {
     }
 
-    void ScreenManager::PushScreen(ScreenPtr &&screen)
+    void ScreenManager::PushScreen(Screen *screen)
     {
-        mScreenStack.push_back(std::move(screen));
+        mScreenStack.push_back(screen);
     }
 
-    Screen *ScreenManager::GetCurrentScreen()
+    Screen* ScreenManager::TopScreen()
     {
         if(mScreenStack.empty()) {
-            return nullptr;
+            throw Castle::Exception("Ask for top of empty stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
-        return mScreenStack.back().get();
+        return mScreenStack.back();
     }
 
-    ScreenPtr ScreenManager::PopScreen()
+    Screen* ScreenManager::PopScreen()
     {
         if(mScreenStack.empty()) {
-            throw std::runtime_error("Pop screen from empty stack");
+            throw Castle::Exception("Pop top of empty stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
-        ScreenPtr ptr = std::move(mScreenStack.back());
+        Screen *topScreen = TopScreen();
         mScreenStack.pop_back();
-        return std::move(ptr);
+        return topScreen;
     }
-    
-    void ScreenManager::SetCurrentScreen(ScreenPtr &&screen)
+
+    void ScreenManager::CloseScreen(Screen *screen)
     {
-        mScreenStack.clear();
-        mScreenStack.push_back(std::move(screen));
+        mScreenStack.resize(
+            std::remove(mScreenStack.begin(), mScreenStack.end(), screen) - mScreenStack.begin());
     }
-
-    ScreenPtr ScreenManager::CloseScreen(Screen *screen)
-    {
-        ScreenPtr removed;
-
-        size_t index = 0;
-        for(ScreenPtr &ptr : mScreenStack) {
-            if(ptr.get() == screen) {
-                removed = std::move(ptr);
-                break;
-            }
-            ++index;
-        }
-
-        if(index < mScreenStack.size()) {
-            mScreenStack.erase(mScreenStack.begin() + index);
-        }
-        
-        return removed;
-    }
-    
     
     bool ScreenManager::HandleEvent(const SDL_Event &event)
     {
-        Screen *top = GetCurrentScreen();
-        if(top == nullptr)
-            return false;
-
-        return top->HandleEvent(event);
+        return TopScreen()->HandleEvent(event);
     }
 
     void ScreenManager::DrawScreen(Surface &frame)
     {
-        for(UI::ScreenPtr &ptr : mScreenStack) {
+        for(auto &ptr : mScreenStack) {
             if(ptr) {
                 ptr->Draw(frame);
             } else {
-                // NOTE
-                // It's assumed to be impossible
-                throw std::runtime_error("empty screen in screen stack");
+                throw Castle::Exception("Empty screen on stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
             }
         }
+    }
+
+    void ScreenManager::EnterGameScreen()
+    {
+        PushScreen(&mGameScreen);
+    }
+
+    void ScreenManager::EnterMenuMain()
+    {
+        PushScreen(&mMenuMain);
+    }
+
+    void ScreenManager::EnterMenuCombat()
+    {
+        PushScreen(&mMenuCombat);
+    }
+
+    UI::MenuMain& ScreenManager::MenuMain()
+    {
+        return mMenuMain;
+    }
+    
+    UI::GameScreen& ScreenManager::GameScreen()
+    {
+        return mGameScreen;
+    }
+    
+    UI::DebugConsole& ScreenManager::DebugConsole()
+    {
+        return mConsole;
     }
     
 } // namespace UI

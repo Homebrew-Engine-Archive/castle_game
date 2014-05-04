@@ -223,14 +223,14 @@ namespace GM1
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
        
-        if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
+        if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
 
-        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
+        if(SDL_SetSurfaceRLE(surface, SDL_RLEACCEL) < 0) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
-
+        
         return surface;
     }
 

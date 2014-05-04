@@ -1,12 +1,11 @@
 #include "engine.h"
 
+#include <algorithm>
 #include <iterator>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <boost/asio.hpp>
-#include <boost/asio/io_service.hpp>
+#include <thread>
 
 #include <SDL.h>
 
@@ -20,13 +19,12 @@
 #include <game/loadingscreen.h>
 #include <game/debugconsole.h>
 #include <game/screen.h>
-#include <game/entityclass.h>
 #include <game/network.h>
 #include <game/screenmanager.h>
+#include <game/simulationmanager.h>
 
 namespace Castle
 {
-
     Engine::~Engine() = default;
     
     Engine::Engine(Render::Renderer *renderer)
@@ -34,15 +32,15 @@ namespace Castle
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
-        , mFrameRate(50)
+        , mFrameRate(30)
         , mFpsLimited(false)
         , mShowConsole(false)
         , mPollRate(66)
-        , mConsolePtr(nullptr)
-        , mFontMgr(new Render::FontManager)
-        , mScreenMgr(new UI::ScreenManager)
         , mIO()
         , mPort(4500)
+        , mFontMgr(new Render::FontManager)
+        , mScreenMgr(new UI::ScreenManager(mRenderer))
+        , mSimulationMgr(new Castle::SimulationManager)
         , mServer(new Network::Server(mIO, mPort))
     { }
 
@@ -67,129 +65,11 @@ namespace Castle
         case SDLK_ESCAPE:
             mClosed = true;
             return false;
+        case SDLK_BACKSLASH:
+            return true;
         default:
             return true;
         }
-    }
-
-    void Engine::ToggleConsole()
-    {
-        mShowConsole = !mShowConsole;
-        if(mShowConsole) {
-            UI::ScreenPtr &&consoleScreen = UI::CreateDebugConsole(mScreenMgr.get(), mRenderer);
-            mConsolePtr = consoleScreen.get();
-            mScreenMgr->PushScreen(std::move(consoleScreen));
-        } else {
-            mScreenMgr->CloseScreen(mConsolePtr);
-            mConsolePtr = nullptr;
-        }
-    }
-    
-    bool Engine::Closed() const
-    {
-        return mClosed;
-    }
-    
-    void Engine::PollInput()
-    {
-        SDL_Event event;
-        if(mScreenMgr->GetCurrentScreen() != NULL) {
-            while(SDL_PollEvent(&event)) {
-                if(!mScreenMgr->GetCurrentScreen()->HandleEvent(event))
-                    HandleEvent(event);
-            }
-        } else {
-            while(SDL_PollEvent(&event))
-                HandleEvent(event);
-        }
-    }
-
-    int Engine::Exec()
-    {
-        LoadFonts();
-                
-        // mScreenMgr->PushScreen(
-        //     ScreenPtr(
-        //         new UI::MenuMain(mScreenMgr.get(), mRenderer)));
-        
-        mScreenMgr->PushScreen(
-            UI::ScreenPtr(
-                new UI::GameScreen(mScreenMgr.get(), mRenderer)));
-
-        const int64_t msPerSec = 1000;
-        const int64_t frameInterval = msPerSec / mFrameRate;
-        const int64_t pollInterval = msPerSec / mPollRate;
-    
-        int64_t lastFrame = 0;
-        int64_t lastPoll = 0;
-        int64_t lastSecond = 0;
-        int64_t fpsCounterLastSecond = 0;
-
-        mServer->StartAccept();
-        
-        while(!Closed()) {
-            PollInput();            
-            const int64_t pollStart = SDL_GetTicks();
-            if(lastPoll + pollInterval < pollStart) {
-                mIO.poll();
-                lastPoll = pollStart;
-            }
-            const int64_t frameStart = SDL_GetTicks();
-            if(lastSecond + msPerSec < frameStart) {
-                double fps = mFrameCounter - fpsCounterLastSecond;
-                double elapsed = frameStart - lastSecond;
-                mFpsAverage = fps * (msPerSec / elapsed);
-                lastSecond = frameStart;
-                fpsCounterLastSecond = mFrameCounter;
-            }
-            if(lastFrame + frameInterval < frameStart) {
-                DrawFrame();
-                lastFrame = frameStart;
-                ++mFrameCounter;
-            }
-            const int64_t delayStart = SDL_GetTicks();
-            if(mFpsLimited) {
-                const int64_t nextTick = std::min(lastPoll + pollInterval,
-                                                  lastFrame + frameInterval);
-                if(delayStart < nextTick) {
-                    SDL_Delay(nextTick - delayStart);
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    void Engine::LoadFonts()
-    {
-        int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 25, 30, 45};
-        std::string families[] = {Render::FontStronghold};
-        for(std::string family : families) {
-            for(int fsize : sizes) {
-                mFontMgr->LoadFontFile(family, fsize);
-            }
-        }
-    }
-        
-    void Engine::DrawFrame()
-    {
-        Surface frame = mRenderer->BeginFrame();
-        mScreenMgr->DrawScreen(frame);
-
-        std::ostringstream oss;
-        oss << "(Castle game project) " << "FPS: " << mFpsAverage;
-        std::string text = oss.str();
-
-        Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
-        textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
-        textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
-        textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
-        textRenderer.Translate(0, 20);
-        textRenderer.SetColor(MakeColor(255, 255, 255, 200));
-        textRenderer.PutString(text);
-
-        mRenderer->EndFrame();
     }
 
     bool Engine::HandleEvent(const SDL_Event &event)
@@ -205,5 +85,88 @@ namespace Castle
         default:
             return true;
         }
+    }
+    
+    void Engine::LoadFonts()
+    {
+        const int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 30, 45};
+        const std::string fontset = Render::FontStronghold;
+        for(int fsize : sizes) {
+            mFontMgr->LoadFontFile(fontset, fsize);
+        }
+    }
+
+    void Engine::PollInput()
+    {
+        SDL_Event event;
+        while(SDL_PollEvent(&event)) {
+            if(!mScreenMgr->TopScreen()->HandleEvent(event)) {
+                HandleEvent(event);
+            }
+        }
+    }
+    
+    void Engine::DrawFrame()
+    {
+        Surface frame = mRenderer->BeginFrame();
+        mScreenMgr->DrawScreen(frame);
+        
+        std::ostringstream oss;
+        oss << "(Castle game project) " << "FPS: " << mFpsAverage;
+        std::string text = oss.str();
+
+        Render::TextRenderer textRenderer(frame);
+        textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
+        textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
+        textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
+        textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
+        textRenderer.Translate(0, 20);
+        textRenderer.SetColor(MakeColor(255, 255, 255, 200));
+        textRenderer.PutString(text);
+
+        mRenderer->EndFrame();
+    }
+    
+    int Engine::Exec()
+    {
+        using namespace std::chrono;
+
+        LoadFonts();
+        mScreenMgr->EnterGameScreen();
+        mServer->StartAccept();
+        
+        const milliseconds frameInterval = duration_cast<milliseconds>(seconds(1)) / mFrameRate;
+        const milliseconds fpsUpdateInterval = seconds(1);
+
+        steady_clock::time_point prevSimulation = steady_clock::now();
+        steady_clock::time_point prevFrame = steady_clock::now();
+        steady_clock::time_point prevSecond = steady_clock::now();
+
+        while(!mClosed) {
+            PollInput();
+            mIO.poll();
+
+            steady_clock::time_point now = steady_clock::now();
+            
+            if(!mFpsLimited || prevFrame + frameInterval < steady_clock::now()) {
+                mFrameCounter += 1;
+                prevFrame = steady_clock::now();
+                DrawFrame();
+            }
+
+            if(prevSimulation + mSimulationMgr->UpdateInterval() < steady_clock::now()) {
+                prevSimulation = steady_clock::now();
+                mSimulationMgr->Simulate();
+            }
+            
+            if(prevSecond + fpsUpdateInterval < steady_clock::now()) {
+                milliseconds elapsed = duration_cast<milliseconds>(steady_clock::now() - prevSecond);
+                mFpsAverage = float(mFrameCounter) * fpsUpdateInterval.count() / elapsed.count();
+                mFrameCounter = 0;
+                prevSecond = steady_clock::now();
+            }
+        }
+
+        return 0;
     }
 }

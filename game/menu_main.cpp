@@ -39,9 +39,6 @@ namespace UI
 
     void MenuMain::GoCombat()
     {
-        mScreenMgr->PushScreen(
-            ScreenPtr(
-                new UI::MenuCombat(mScreenMgr, mRenderer)));
     }
 
     void MenuMain::GoEconomics()

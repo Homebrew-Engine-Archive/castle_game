@@ -1,13 +1,10 @@
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
-  atlas.cpp
-  button.cpp
   collection.cpp
   debugconsole.cpp
   direction.cpp
   engine.cpp
-  entityclass.cpp
   exception.cpp
   filesystem.cpp
   fontmanager.cpp
@@ -22,14 +19,13 @@ set (SRCS
   menu_combat.cpp
   menu_main.cpp
   network.cpp
-  point.cpp
   renderer.cpp
   rw.cpp
   screenmanager.cpp
+  simulationmanager.cpp
   sdl_utils.cpp
   surface.cpp
   textrenderer.cpp
-  texturelocker.cpp
   tgx.cpp
 )
 
