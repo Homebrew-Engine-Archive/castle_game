@@ -12,69 +12,32 @@ struct SDLInitializer final
     ~SDLInitializer();
 };
 
-struct DestroyRendererDeleter
+template<class T, void (*D)(T*)>
+struct SDLDeleter
 {
-    void operator()(SDL_Renderer *renderer) const {
-        if(renderer != NULL) {
-            SDL_DestroyRenderer(renderer);
-        }
+    void operator()(T *t) const {
+        D(t);
     }
 };
 
-typedef std::unique_ptr<SDL_Renderer, DestroyRendererDeleter> RendererPtr;
+typedef std::unique_ptr<SDL_Renderer, SDLDeleter<SDL_Renderer, SDL_DestroyRenderer>> RendererPtr;
 
-struct DestroyTextureDeleter
-{
-    void operator()(SDL_Texture *texture) const {
-        if(texture != NULL) {
-            SDL_DestroyTexture(texture);
-        }
-    }
-};
-
-typedef std::unique_ptr<SDL_Texture, DestroyTextureDeleter> TexturePtr;
+typedef std::unique_ptr<SDL_Texture, SDLDeleter<SDL_Texture, SDL_DestroyTexture>> TexturePtr;
 
 struct RWCloseDeleter
 {
     void operator()(SDL_RWops *src) const {
-        if(src != NULL)
-            SDL_RWclose(src);
+        SDL_RWclose(src);
     }
 };
 
 typedef std::unique_ptr<SDL_RWops, RWCloseDeleter> RWPtr;
 
-struct DestroyWindowDeleter
-{
-    void operator()(SDL_Window *window) const {
-        if(window != NULL)
-            SDL_DestroyWindow(window);
-    }
-};
+typedef std::unique_ptr<SDL_Window, SDLDeleter<SDL_Window, SDL_DestroyWindow>> WindowPtr;
 
-typedef std::unique_ptr<SDL_Window, DestroyWindowDeleter> WindowPtr;
+typedef std::unique_ptr<SDL_PixelFormat, SDLDeleter<SDL_PixelFormat, SDL_FreeFormat>> PixelFormatPtr;
 
-struct FreeFormatDeleter
-{
-    void operator()(SDL_PixelFormat *format) const {
-        if(format != NULL) {
-            SDL_FreeFormat(format);
-        }
-    }
-};
-
-typedef std::unique_ptr<SDL_PixelFormat, FreeFormatDeleter> PixelFormatPtr;
-
-struct FreePaletteDeleter
-{
-    void operator()(SDL_Palette *palette) const {
-        if(palette != NULL) {
-            SDL_FreePalette(palette);
-        }
-    }
-};
-
-typedef std::unique_ptr<SDL_Palette, FreePaletteDeleter> PalettePtr;
+typedef std::unique_ptr<SDL_Palette, SDLDeleter<SDL_Palette, SDL_FreePalette>> PalettePtr;
 
 SDL_Rect MakeRect(int x, int y, int w, int h);
 SDL_Rect MakeRect(int w, int h);
