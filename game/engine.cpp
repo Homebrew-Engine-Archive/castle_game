@@ -10,7 +10,6 @@
 #include <SDL.h>
 
 #include <game/make_unique.h>
-#include <game/fontmanager.h>
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
@@ -19,9 +18,6 @@
 #include <game/loadingscreen.h>
 #include <game/debugconsole.h>
 #include <game/screen.h>
-#include <game/network.h>
-#include <game/screenmanager.h>
-#include <game/simulationmanager.h>
 
 namespace Castle
 {
@@ -33,15 +29,15 @@ namespace Castle
         , mFrameCounter(0)
         , mClosed(false)
         , mFrameRate(30)
+        , mFpsUpdateRate(2)
         , mFpsLimited(false)
         , mShowConsole(false)
-        , mPollRate(66)
         , mIO()
         , mPort(4500)
-        , mFontMgr(new Render::FontManager)
-        , mScreenMgr(new UI::ScreenManager(mRenderer))
-        , mSimulationMgr(new Castle::SimulationManager)
-        , mServer(new Network::Server(mIO, mPort))
+        , mFontMgr()
+        , mScreenMgr(mRenderer)
+        , mSimulationMgr()
+        , mServer(mIO, mPort)
     { }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -49,8 +45,8 @@ namespace Castle
         switch(window.event) {
         case SDL_WINDOWEVENT_RESIZED:
             {
-                int width = window.data1;
-                int height = window.data2;
+                const int width = window.data1;
+                const int height = window.data2;
                 mRenderer->SetWindowSize(width, height);
             }
             return true;
@@ -92,7 +88,7 @@ namespace Castle
         const int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 30, 45};
         const std::string fontset = Render::FontStronghold;
         for(int fsize : sizes) {
-            mFontMgr->LoadFontFile(fontset, fsize);
+            mFontMgr.LoadFontFile(fontset, fsize);
         }
     }
 
@@ -100,7 +96,7 @@ namespace Castle
     {
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
-            if(!mScreenMgr->TopScreen()->HandleEvent(event)) {
+            if(!mScreenMgr.TopScreen()->HandleEvent(event)) {
                 HandleEvent(event);
             }
         }
@@ -109,14 +105,14 @@ namespace Castle
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer->BeginFrame();
-        mScreenMgr->DrawScreen(frame);
+        mScreenMgr.DrawScreen(frame);
         
         std::ostringstream oss;
         oss << "(Castle game project) " << "FPS: " << mFpsAverage;
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontMgr->Font(Render::FontStronghold, 10));
+        textRenderer.SetFont(mFontMgr.Font(Render::FontStronghold, 10));
         textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
@@ -132,11 +128,12 @@ namespace Castle
         using namespace std::chrono;
 
         LoadFonts();
-        mScreenMgr->EnterGameScreen();
-        mServer->StartAccept();
+        mScreenMgr.EnterGameScreen();
+        mServer.StartAccept();
         
-        const milliseconds frameInterval = duration_cast<milliseconds>(seconds(1)) / mFrameRate;
-        const milliseconds fpsUpdateInterval = seconds(1);
+        const milliseconds oneSecond = seconds(1);
+        const milliseconds frameInterval = oneSecond / mFrameRate;
+        const milliseconds fpsUpdateInterval = oneSecond / mFpsUpdateRate;
 
         steady_clock::time_point prevSimulation = steady_clock::now();
         steady_clock::time_point prevFrame = steady_clock::now();
@@ -145,8 +142,6 @@ namespace Castle
         while(!mClosed) {
             PollInput();
             mIO.poll();
-
-            steady_clock::time_point now = steady_clock::now();
             
             if(!mFpsLimited || prevFrame + frameInterval < steady_clock::now()) {
                 mFrameCounter += 1;
@@ -154,14 +149,14 @@ namespace Castle
                 DrawFrame();
             }
 
-            if(prevSimulation + mSimulationMgr->UpdateInterval() < steady_clock::now()) {
+            if(prevSimulation + mSimulationMgr.UpdateInterval() < steady_clock::now()) {
                 prevSimulation = steady_clock::now();
-                mSimulationMgr->Simulate();
+                mSimulationMgr.Simulate();
             }
             
             if(prevSecond + fpsUpdateInterval < steady_clock::now()) {
                 milliseconds elapsed = duration_cast<milliseconds>(steady_clock::now() - prevSecond);
-                mFpsAverage = float(mFrameCounter) * fpsUpdateInterval.count() / elapsed.count();
+                mFpsAverage = float(mFrameCounter) * oneSecond.count() / elapsed.count();
                 mFrameCounter = 0;
                 prevSecond = steady_clock::now();
             }

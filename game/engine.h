@@ -11,43 +11,29 @@
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 
-namespace UI
-{
-    class ScreenManager;
-    class Screen;
-}
-
-namespace Network
-{
-    class Server;
-}
-
-namespace Render
-{
-    class FontManager;
-    class Renderer;
-}
+#include <game/network.h>
+#include <game/fontmanager.h>
+#include <game/screenmanager.h>
+#include <game/simulationmanager.h>
 
 namespace Castle
 {
-    class SimulationManager;
-    
     class Engine
     {
-        Render::Renderer *mRenderer;
+        class Render::Renderer *mRenderer;
         double mFpsAverage;
         int64_t mFrameCounter;
         bool mClosed;
         int64_t mFrameRate;
+        int64_t mFpsUpdateRate;
         bool mFpsLimited;
         bool mShowConsole;
-        int64_t mPollRate;
         boost::asio::io_service mIO;
         int16_t mPort;
-        std::unique_ptr<Render::FontManager> mFontMgr;
-        std::unique_ptr<UI::ScreenManager> mScreenMgr;
-        std::unique_ptr<Castle::SimulationManager> mSimulationMgr;
-        std::unique_ptr<Network::Server> mServer;
+        Render::FontManager mFontMgr;
+        UI::ScreenManager mScreenMgr;
+        Castle::SimulationManager mSimulationMgr;
+        Network::Server mServer;
 
         bool HandleWindowEvent(SDL_WindowEvent const&);
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);
