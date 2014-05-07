@@ -32,7 +32,7 @@ namespace UI
         std::vector<Screen*> mScreenStack;
         
     public:
-        ScreenManager(Render::Renderer *renderer);
+        ScreenManager(Render::FontManager *fontManager, Render::Renderer *renderer);
 
         void EnterGameScreen();
         void EnterMenuMain();

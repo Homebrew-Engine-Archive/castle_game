@@ -21,21 +21,20 @@
 
 namespace Castle
 {
-    Engine::~Engine() = default;
-    
     Engine::Engine(Render::Renderer *renderer)
         : mRenderer(renderer)
         , mFpsAverage(0.0f)
+        , mFpsAverageMax(mFpsAverage)
         , mFrameCounter(0)
         , mClosed(false)
-        , mFrameRate(30)
-        , mFpsUpdateRate(2)
+        , mFrameUpdateInterval(1)
+        , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
         , mShowConsole(false)
         , mIO()
         , mPort(4500)
         , mFontMgr()
-        , mScreenMgr(mRenderer)
+        , mScreenMgr(&mFontMgr, mRenderer)
         , mSimulationMgr()
         , mServer(mIO, mPort)
     { }
@@ -108,7 +107,12 @@ namespace Castle
         mScreenMgr.DrawScreen(frame);
         
         std::ostringstream oss;
-        oss << "(Castle game project) " << "FPS: " << mFpsAverage;
+        oss << "(Castle game project) " << "FPS: ";
+        oss.width(10);
+        oss << mFpsAverage << ' ';
+        oss << "Max FPS: ";
+        oss.width(10);
+        oss << mFpsAverageMax << ' ';
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
@@ -117,10 +121,21 @@ namespace Castle
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
-        textRenderer.SetColor(MakeColor(255, 255, 255, 200));
+        textRenderer.SetColor(MakeColor(255, 0, 0, 255));
+
+        FillFrame(frame, textRenderer.CalculateTextRect(text), MakeColor(0, 0, 0, 100));
         textRenderer.PutString(text);
 
         mRenderer->EndFrame();
+    }
+
+    void Engine::UpdateFrameCounter(std::chrono::milliseconds elapsed)
+    {
+        const std::chrono::milliseconds oneSecond = std::chrono::seconds(1);
+        const double preciseFrameCounter = mFrameCounter * oneSecond.count();
+        mFpsAverage = preciseFrameCounter / elapsed.count();
+        mFpsAverageMax = std::max(mFpsAverageMax, mFpsAverage);
+        mFrameCounter = 0;
     }
     
     int Engine::Exec()
@@ -131,10 +146,6 @@ namespace Castle
         mScreenMgr.EnterGameScreen();
         mServer.StartAccept();
         
-        const milliseconds oneSecond = seconds(1);
-        const milliseconds frameInterval = oneSecond / mFrameRate;
-        const milliseconds fpsUpdateInterval = oneSecond / mFpsUpdateRate;
-
         steady_clock::time_point prevSimulation = steady_clock::now();
         steady_clock::time_point prevFrame = steady_clock::now();
         steady_clock::time_point prevSecond = steady_clock::now();
@@ -143,7 +154,7 @@ namespace Castle
             PollInput();
             mIO.poll();
             
-            if(!mFpsLimited || prevFrame + frameInterval < steady_clock::now()) {
+            if(!mFpsLimited || prevFrame + mFrameUpdateInterval < steady_clock::now()) {
                 mFrameCounter += 1;
                 prevFrame = steady_clock::now();
                 DrawFrame();
@@ -154,10 +165,9 @@ namespace Castle
                 mSimulationMgr.Simulate();
             }
             
-            if(prevSecond + fpsUpdateInterval < steady_clock::now()) {
-                milliseconds elapsed = duration_cast<milliseconds>(steady_clock::now() - prevSecond);
-                mFpsAverage = float(mFrameCounter) * oneSecond.count() / elapsed.count();
-                mFrameCounter = 0;
+            if(prevSecond + mFpsUpdateInterval < steady_clock::now()) {
+                const milliseconds elapsed = duration_cast<milliseconds>(steady_clock::now() - prevSecond);
+                UpdateFrameCounter(elapsed);
                 prevSecond = steady_clock::now();
             }
         }

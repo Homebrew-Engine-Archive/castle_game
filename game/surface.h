@@ -59,6 +59,8 @@ public:
  * It holds reference to the parent surface so neither this nor parent
  * surface doesn't intent deallocation of each other.
  *
+ * \todo This class is not intended to work together with RLE accel. How we can do that?
+ *
  */
 class SurfaceView : public Surface
 {
@@ -68,8 +70,6 @@ public:
 };
 
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
-
-bool HasPalette(const Surface &surface);
 
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
 Surface CreateSurface(int width, int height, int format);
@@ -81,9 +81,9 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
 
-void DrawFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
+void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color);
 
-void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color);
+void FillFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color);
 
 void BlurSurface(Surface &dst, int radius);
 

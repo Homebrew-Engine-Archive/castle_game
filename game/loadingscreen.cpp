@@ -16,28 +16,17 @@ namespace UI
 {
     LoadingScreen::LoadingScreen(Castle::Engine *engine)
         : mEngine(engine)
-        , mBackground(nullptr)
+        , mBackground(
+            LoadSurface(
+                fs::TGXFilePath("frontend_loading")))
         , mProgressDone(0)
         , mProgressMax(1)
-        , mDirty(false)
     {
-        const fs::path filepath = fs::TGXFilePath("frontend_loading");
-        mBackground = LoadSurface(filepath);
-    }
-    
-    bool LoadingScreen::Exec()
-    {
-        return true;
     }
 
     bool LoadingScreen::HandleEvent(SDL_Event const&)
     {
-        return true;
-    }
-
-    bool LoadingScreen::IsDirty(int64_t elapsed) const
-    {
-        return mDirty;
+        return false;
     }
 
     void LoadingScreen::IncreaseDone(int delta)
@@ -47,25 +36,16 @@ namespace UI
     
     void LoadingScreen::SetProgressDone(int done)
     {
-        if(done != mProgressDone) {
-            mDirty = true;
-        }
         mProgressDone = done;
     }
 
     void LoadingScreen::SetProgressMax(int max)
     {
-        if(max != mProgressMax) {
-            mDirty = true;
-        }
         mProgressMax = max;
     }
 
     void LoadingScreen::SetProgressLabel(const std::string &text)
     {
-        if(mStage != text) {
-            mDirty = true;
-        }
         mStage = text;
     }
     
@@ -77,7 +57,6 @@ namespace UI
     
     void LoadingScreen::Draw(Surface &frame)
     {
-        mDirty = false;
         double rate = GetCompleteRate();
         
         SDL_Rect frameRect = SurfaceBounds(frame);
@@ -88,12 +67,12 @@ namespace UI
     
         SDL_Rect barOuter = MakeRect(300, 25);
         SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-        FillFrame(frame, &barOuterAligned, 0x7f000000);
-        DrawFrame(frame, &barOuterAligned, 0xff000000);
+        FillFrame(frame, barOuterAligned, MakeColor(0, 0, 0, 128));
+        DrawFrame(frame, barOuterAligned, MakeColor(0, 0, 0, 255));
 
         SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
         SDL_Rect barInner = MakeRect(barOuterPadded.w * rate, barOuterPadded.h);
         SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-        FillFrame(frame, &barInnerAligned, 0xff000000);
+        FillFrame(frame, barInnerAligned, MakeColor(0, 0, 0, 255));
     }   
 } // namespace UI

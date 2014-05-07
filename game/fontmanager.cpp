@@ -7,21 +7,12 @@
 #include <game/rw.h>
 #include <game/sdl_utils.h>
 
-struct CloseFontDeleter
-{
-    void operator()(TTF_Font *font) {
-        if(font != nullptr) {
-            TTF_CloseFont(font);
-        }
-    }
-};
-
 struct FontData
 {
     fs::path fontPath;
     std::string name;
     int fsize;
-    std::unique_ptr<TTF_Font, CloseFontDeleter> font;
+    FontPtr font;
 
     FontData() = default;
     FontData(FontData&&) = default;
@@ -39,10 +30,7 @@ namespace Render
         mFontTable.clear();
         TTF_Quit();
     }
-
-    FontManager& FontManager::operator=(FontManager&&) = default;
-    FontManager::FontManager(FontManager&&) = default;
-
+    
     FontData* FontManager::GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs)
     {
         if(lhs == nullptr)
@@ -89,26 +77,25 @@ namespace Render
 
         // TODO windows sucks with utf8 so much
         // see http://stackoverflow.com/questions/11352641/boostfilesystempath-and-fopen
-
-        // NOTE There is a bug with SDL_OpenFontRW
-        // see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
-
+        // so we must not use c_str().
+        
         // The desired solution is as follows
         //
         // boost::filesystem::ifstream fin(fontData.fontPath);
         // RWPtr rw(SDL_RWFromInputStream(fin));
         // TTF_Font *font = TTF_OpenFontRW(rw.get(), SDL_FALSE, fsize);
-        //
-        // ... but it gets a crash
+
+        // ... but it gets a crash due to a bug in SDL_OpenFontRW
+        // see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
         
         TTF_Font *font = TTF_OpenFont(fontData.fontPath.string().c_str(), fsize);
 
-        fontData.font.reset(font);
-        if(!fontData.font) {
+        if(font == NULL) {
             throw std::runtime_error(TTF_GetError());
         }
+        fontData.font.reset(font);
         
-        mFontTable.emplace_back(std::move(fontData));
+        mFontTable.push_back(std::move(fontData));
     }
     
     TTF_Font* FontManager::Font(const std::string &name, int fsize)

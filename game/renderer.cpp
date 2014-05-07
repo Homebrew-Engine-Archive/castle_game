@@ -48,7 +48,7 @@ namespace Render
         SDL_Rect rect = GetOutputSize();
         mScreenWidth = rect.w;
         mScreenHeight = rect.h;
-        mScreenFormat = SDL_PIXELFORMAT_ARGB8888;
+        mScreenFormat = SDL_PIXELFORMAT_RGB555;
     }
 
     void Renderer::CreateScreenTexture(int width, int height)

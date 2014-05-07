@@ -217,17 +217,17 @@ namespace GM1
         if(!surface) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
-
+        
         uint32_t colorkey = GetColorKey();
-        if(SDL_FillRect(surface, NULL, colorkey) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
-       
         if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
+        
+        if(SDL_FillRect(surface, NULL, colorkey) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
 
-        if(SDL_SetSurfaceRLE(surface, SDL_RLEACCEL) < 0) {
+        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
         

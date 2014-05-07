@@ -22,10 +22,11 @@ namespace Castle
     {
         class Render::Renderer *mRenderer;
         double mFpsAverage;
+        double mFpsAverageMax;
         int64_t mFrameCounter;
         bool mClosed;
-        int64_t mFrameRate;
-        int64_t mFpsUpdateRate;
+        std::chrono::milliseconds mFrameUpdateInterval;
+        std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
         bool mShowConsole;
         boost::asio::io_service mIO;
@@ -40,13 +41,13 @@ namespace Castle
         bool HandleEvent(SDL_Event const&);
         void LoadFonts();
         void PollInput();
-        void DrawFrame();        
+        void DrawFrame();
+        void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 
     public:
         explicit Engine(Render::Renderer*);
         Engine(Engine const&) = delete;
-        Engine &operator=(Engine const&) = delete;
-        virtual ~Engine();
+        Engine& operator=(Engine const&) = delete;
     
         int Exec();
     };

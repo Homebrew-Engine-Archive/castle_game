@@ -4,6 +4,7 @@
 #include <iosfwd>
 #include <memory>
 
+#include <SDL_ttf.h>
 #include <SDL.h>
 
 struct SDLInitializer final
@@ -21,8 +22,11 @@ struct SDLDeleter
 };
 
 typedef std::unique_ptr<SDL_Renderer, SDLDeleter<SDL_Renderer, SDL_DestroyRenderer>> RendererPtr;
-
 typedef std::unique_ptr<SDL_Texture, SDLDeleter<SDL_Texture, SDL_DestroyTexture>> TexturePtr;
+typedef std::unique_ptr<SDL_Window, SDLDeleter<SDL_Window, SDL_DestroyWindow>> WindowPtr;
+typedef std::unique_ptr<SDL_PixelFormat, SDLDeleter<SDL_PixelFormat, SDL_FreeFormat>> PixelFormatPtr;
+typedef std::unique_ptr<SDL_Palette, SDLDeleter<SDL_Palette, SDL_FreePalette>> PalettePtr;
+typedef std::unique_ptr<TTF_Font, SDLDeleter<TTF_Font, TTF_CloseFont>> FontPtr;
 
 struct RWCloseDeleter
 {
@@ -32,12 +36,6 @@ struct RWCloseDeleter
 };
 
 typedef std::unique_ptr<SDL_RWops, RWCloseDeleter> RWPtr;
-
-typedef std::unique_ptr<SDL_Window, SDLDeleter<SDL_Window, SDL_DestroyWindow>> WindowPtr;
-
-typedef std::unique_ptr<SDL_PixelFormat, SDLDeleter<SDL_PixelFormat, SDL_FreeFormat>> PixelFormatPtr;
-
-typedef std::unique_ptr<SDL_Palette, SDLDeleter<SDL_Palette, SDL_FreePalette>> PalettePtr;
 
 SDL_Rect MakeRect(int x, int y, int w, int h);
 SDL_Rect MakeRect(int w, int h);
@@ -54,8 +52,9 @@ void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);
 
 SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);
 SDL_Rect PadIn(const SDL_Rect &src, int pad);
+SDL_Rect PadOut(const SDL_Rect &src, int pad);
 SDL_Rect ShiftRect(const SDL_Rect &src, int xshift, int yshift);
-bool IsInRect(const SDL_Rect &rect, int x, int y);
+bool PointInRect(const SDL_Rect &rect, int x, int y);
 SDL_Point TopRight(const SDL_Rect &src);
 SDL_Point BottomLeft(const SDL_Rect &src);
 SDL_Point TopLeft(const SDL_Rect &src);

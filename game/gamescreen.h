@@ -6,6 +6,8 @@
 #include <game/screen.h>
 #include <game/gamemap.h>
 
+class CollectionData;
+
 enum class Direction;
 class Surface;
 
@@ -22,6 +24,7 @@ namespace Castle
 namespace Render
 {
     class Renderer;
+    class FontManager;
 }
 
 namespace Castle
@@ -36,8 +39,9 @@ namespace UI
     
     class GameScreen : public Screen
     {
-        UI::ScreenManager *mScreenMgr;
-        Render::Renderer *mRenderer;
+        UI::ScreenManager &mScreenMgr;
+        Render::FontManager &mFontMgr;
+        Render::Renderer &mRenderer;
         int mCursorX;
         int mCursorY;
         bool mCursorInvalid;
@@ -52,13 +56,15 @@ namespace UI
         CursorMode mCursorMode;
         bool mClosed;
         Castle::GameMap mGameMap;
+        int mSpriteCount;
     
     public:
-        GameScreen(UI::ScreenManager *mgr, Render::Renderer *render);
+        GameScreen(UI::ScreenManager &screenMgr, Render::FontManager &fontMgr, Render::Renderer &render);
         GameScreen(GameScreen const&) = delete;
         GameScreen &operator=(GameScreen const&) = delete;
-        virtual ~GameScreen();
-    
+
+        void DrawUnits(Surface &frame, const CollectionData &gm1);
+        void DrawTerrain(Surface &frame, const CollectionData &gm1);
         void DrawTestScene(Surface &frame);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);

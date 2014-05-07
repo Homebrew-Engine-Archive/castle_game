@@ -26,7 +26,7 @@ namespace
         return targetString;
     }
 
-    static SDL_Color White {255, 255, 255, 255};
+    static const SDL_Color White {255, 255, 255, 255};
 }
 
 namespace Render
@@ -44,9 +44,9 @@ namespace Render
 
     SDL_Point TextRenderer::GetTopLeftBoxPoint() const
     {
-        SDL_Point cursor { 0, 0 };
         CheckFontIsSet();
-        
+        SDL_Point cursor { 0, 0 };
+       
         switch(mCursorMode) {
         case CursorMode::BaseLine:
             cursor = MakePoint(mCursorX, mCursorY - TTF_FontAscent(mCurrentFont));

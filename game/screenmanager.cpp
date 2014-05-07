@@ -9,11 +9,11 @@
 namespace UI
 {
 
-    ScreenManager::ScreenManager(Render::Renderer *renderer)
+    ScreenManager::ScreenManager(Render::FontManager *fontMgr, Render::Renderer *renderer)
         : mRenderer(renderer)
         , mConsole(this, renderer)
         , mMenuMain(this, renderer)
-        , mGameScreen(this, renderer)
+        , mGameScreen(*this, *fontMgr, *renderer)
         , mMenuCombat(this, renderer)
         , mScreenStack()
     {

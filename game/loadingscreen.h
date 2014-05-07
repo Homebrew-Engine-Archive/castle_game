@@ -22,17 +22,14 @@ namespace UI
         int mProgressDone;
         int mProgressMax;
         std::string mStage;
-        bool mDirty;
 
     public:
-        LoadingScreen(Castle::Engine*);
+        explicit LoadingScreen(Castle::Engine*);
         void SetProgressDone(int done);
         void SetProgressMax(int max);
         void IncreaseDone(int delta = 1);
         void SetProgressLabel(std::string const&);
         double GetCompleteRate() const;
-        bool IsDirty(int64_t elapsed) const;
-        bool Exec();
         void Draw(Surface &surface);
         bool HandleEvent(SDL_Event const&);
     };

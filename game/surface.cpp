@@ -24,104 +24,71 @@ namespace
         throw std::runtime_error(oss.str());
     }
     
-    void MapBuffer(char *data, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
-    {
-        const char *end = data + size * format->BytesPerPixel;
-        
-        while(data != end) {
-            uint32_t pixel = GetPackedPixel(data, format->BytesPerPixel);
-
-            uint8_t r, g, b, a;
-            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
-        
-            SDL_Color result = func(r, g, b, a);
-
-            pixel = SDL_MapRGBA(format, result.r, result.g, result.b, result.a);
-            SetPackedPixel(data, pixel, format->BytesPerPixel);
-            
-            data += format->BytesPerPixel;
-        }
-    }
-    
     void AddSurfaceRef(SDL_Surface *surface)
     {
         if(surface != nullptr) {
             ++surface->refcount;
         }
     }
-
-    template<class Pixel>
-    void BlurHorizontal(Surface &dst, int radius)
+    
+    void MapBuffer(char *bytes, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
     {
-        std::vector<int> reds(dst->w, 0);
-        std::vector<int> greens(dst->w, 0);
-        std::vector<int> blues(dst->w, 0);
+        const char *end = bytes + size * format->BytesPerPixel;
+        
+        while(bytes != end) {
+            const uint32_t origPixel = GetPackedPixel(bytes, format->BytesPerPixel);
 
-        for(int y = 0; y < dst->h; ++y) {
-            Pixel *scanline = reinterpret_cast<Pixel*>(reinterpret_cast<char*>(dst->pixels) + y * dst->pitch);
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+            uint8_t a;
+            SDL_GetRGBA(origPixel, format, &r, &g, &b, &a);
+        
+            const SDL_Color result = func(r, g, b, a);
+
+            const uint32_t pixel = SDL_MapRGBA(format, result.r, result.g, result.b, result.a);
+            SetPackedPixel(bytes, pixel, format->BytesPerPixel);
             
-            for(int x = 0; x < dst->w; ++x) {
-                uint8_t r, g, b;
-                SDL_GetRGB(scanline[x], dst->format, &r, &g, &b);
-                if(x != 0) {
-                    reds[x] = reds[x-1] + r;
-                    greens[x] = greens[x-1] + g;
-                    blues[x] = blues[x-1] + b;
-                } else {
-                    reds[x] = r;
-                    greens[x] = g;
-                    blues[x] = b;
-                }
-            }
-
-            for(int x = 0; x < dst->w; ++x) {
-                int red = 0;
-                int green = 0;
-                int blue = 0;
-                int count = 0;                
-                if(x - radius >= 0) {
-                    red -= reds[x - radius];
-                    green -= greens[x - radius];
-                    blue -= blues[x - radius];
-                    count += radius;
-                } else {
-                    count += x;
-                }
-                if(x + radius < dst->w) {
-                    red += reds[x + radius];
-                    green += greens[x + radius];
-                    blue += blues[x + radius];
-                    count += radius;
-                } else {
-                    red += reds[dst->w - 1];
-                    green += greens[dst->w - 1];
-                    blue += blues[dst->w - 1];
-                    count += dst->w - x;
-                }
-                scanline[x] = SDL_MapRGB(dst->format,
-                                         red / count,
-                                         green / count,
-                                         blue / count);
-            }
+            bytes += format->BytesPerPixel;
         }
     }
-
-    template<class Pixel>
-    void BlurVertical(Surface &, int)
-    {
-    }
     
-    template<class Pixel>
-    void BlurSurfaceImpl(Surface &dst, int radius)
+    void ConvolveBuffer(char *bytes, int length, int stride, const SDL_PixelFormat *format, uint32_t *redBuff, uint32_t *greenBuff, uint32_t *blueBuff, int radius)
     {
-        SurfaceLocker lock(dst);
-        if(dst.Null())
-            return;
+        uint32_t redAccum = 0;
+        uint32_t greenAccum = 0;
+        uint32_t blueAccum = 0;
 
-        BlurHorizontal<Pixel>(dst, radius);
-        BlurVertical<Pixel>(dst, radius);
-    }
-    
+        for(int i = 0; i < length; ++i) {
+            const uint32_t pixel = GetPackedPixel(bytes + i * stride, format->BytesPerPixel);
+
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+            SDL_GetRGB(pixel, format, &r, &g, &b);
+            
+            redAccum += r;
+            greenAccum += g;
+            blueAccum += b;
+            
+            redBuff[i] = redAccum;
+            greenBuff[i] = greenAccum;
+            blueBuff[i] = blueAccum;
+        }
+
+        for(int i = 0; i < length; ++i) {
+            const size_t minIndex = std::max(0, i - radius);
+            const size_t maxIndex = std::min(i + radius, length - 1);
+
+            const uint32_t red = redBuff[maxIndex] - redBuff[minIndex];
+            const uint32_t green = greenBuff[maxIndex] - greenBuff[minIndex];
+            const uint32_t blue = blueBuff[maxIndex] - blueBuff[minIndex];
+            const uint32_t count = maxIndex - minIndex;
+
+            const uint32_t pixel = SDL_MapRGB(format, red / count, green / count, blue / count);
+            SetPackedPixel(bytes + i * stride, pixel, format->BytesPerPixel);
+        }
+    }    
 }
 
 SurfaceLocker::SurfaceLocker(const Surface &surface)
@@ -274,22 +241,22 @@ Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
         throw std::invalid_argument("CreateSurface: passed nullptr format");
     }
 
-    uint32_t rmask = format->Rmask;
-    uint32_t gmask = format->Gmask;
-    uint32_t bmask = format->Bmask;
-    uint32_t amask = format->Amask;
-    int bpp = format->BitsPerPixel;
+    const uint32_t rmask = format->Rmask;
+    const uint32_t gmask = format->Gmask;
+    const uint32_t bmask = format->Bmask;
+    const uint32_t amask = format->Amask;
+    const int bpp = format->BitsPerPixel;
 
     return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
 Surface CreateSurface(int width, int height, int format)
 {
-    uint32_t rmask = 0;
-    uint32_t gmask = 0;
-    uint32_t bmask = 0;
-    uint32_t amask = 0;
-    int bpp = 0;
+    uint32_t rmask;
+    uint32_t gmask;
+    uint32_t bmask;
+    uint32_t amask;
+    int bpp;
 
     if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
@@ -302,7 +269,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const 
 {
     if(pixels == nullptr) {
         std::ostringstream oss;
-        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr ";
+        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr";
         throw std::invalid_argument(oss.str());
     }
     
@@ -312,11 +279,11 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const 
         throw std::invalid_argument(oss.str());
     }
         
-    uint32_t rmask = format->Rmask;
-    uint32_t gmask = format->Gmask;
-    uint32_t bmask = format->Bmask;
-    uint32_t amask = format->Amask;
-    int bpp = format->BitsPerPixel;
+    const uint32_t rmask = format->Rmask;
+    const uint32_t gmask = format->Gmask;
+    const uint32_t bmask = format->Bmask;
+    const uint32_t amask = format->Amask;
+    const int bpp = format->BitsPerPixel;
 
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
 }
@@ -329,11 +296,11 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
         throw std::invalid_argument(oss.str());
     }
         
-    uint32_t rmask = 0;
-    uint32_t gmask = 0;
-    uint32_t bmask = 0;
-    uint32_t amask = 0;
-    int bpp = 0;
+    uint32_t rmask;
+    uint32_t gmask;
+    uint32_t bmask;
+    uint32_t amask;
+    int bpp;
 
     if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
@@ -344,8 +311,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 
 SDL_Rect FindCropRect(const Surface &surface)
 {
-    SDL_Rect rect = SurfaceBounds(surface);
-    return rect;
+    return SurfaceBounds(surface);
 }
 
 void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
@@ -355,26 +321,22 @@ void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_
     }
 }
 
-void DrawFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)
+void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
 {
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
-    uint8_t r, g, b, a;
-    SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
-    SDL_SetRenderDrawColor(render.get(), r, g, b, a);
-    SDL_RenderDrawRect(render.get(), dstrect);
+    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
+    SDL_RenderDrawRect(render.get(), &dstrect);
 }
 
-void FillFrame(Surface &dst, const SDL_Rect *dstrect, uint32_t color)
+void FillFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
 {
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
-    uint8_t r, g, b, a;
-    SDL_GetRGBA(color, dst->format, &r, &g, &b, &a);
-    SDL_SetRenderDrawColor(render.get(), r, g, b, a);
-    SDL_RenderFillRect(render.get(), dstrect);
+    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(render.get(), &dstrect);
 }
 
 SDL_Rect SurfaceBounds(const Surface &src)
@@ -382,13 +344,6 @@ SDL_Rect SurfaceBounds(const Surface &src)
     return (src.Null()
             ? MakeEmptyRect()
             : MakeRect(src->w, src->h));
-}
-
-bool HasPalette(const Surface &surface)
-{
-    return !surface.Null()
-        && surface->format != nullptr
-        && surface->format->BitsPerPixel == 8;
 }
 
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
@@ -410,20 +365,28 @@ void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t)
 
 void BlurSurface(Surface &dst, int radius)
 {
-    switch(dst->format->BytesPerPixel) {
-    case 1:
-        BlurSurfaceImpl<uint8_t>(dst, radius);
-        break;
-    case 2:
-        BlurSurfaceImpl<uint16_t>(dst, radius);
-        break;
-    case 4:
-        BlurSurfaceImpl<uint32_t>(dst, radius);
-        break;
-    case 3:
-        // TODO implement me
-        /* fallthrough */
-    default:
-        throw std::runtime_error("Unsupported BPP");
+    const SurfaceLocker lock(dst);
+
+    if(!dst) {
+        return;
+    }
+
+    const int bufferSize = std::max(dst->w, dst->h);
+    std::vector<uint32_t> buffer(bufferSize * 3);
+
+    uint32_t *const redBuffer = &buffer[bufferSize*0];
+    uint32_t *const greenBuffer = &buffer[bufferSize*1];
+    uint32_t *const blueBuffer = &buffer[bufferSize*2];
+
+    char *const bytes = GetPixels(dst);
+
+    const int bytesPP = dst->format->BytesPerPixel;
+
+    for(int y = 0; y < dst->h; ++y) {
+        ConvolveBuffer(bytes + y * dst->pitch, dst->w, bytesPP, dst->format, redBuffer, greenBuffer, blueBuffer, radius);
+    }
+
+    for(int x = 0; x < dst->w; ++x) {
+        ConvolveBuffer(bytes + x * bytesPP, dst->h, dst->pitch, dst->format, redBuffer, greenBuffer, blueBuffer, radius);
     }
 }

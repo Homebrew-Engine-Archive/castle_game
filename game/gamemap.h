@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <game/terrain.h>
+
 enum class Direction;
 
 class Surface;
@@ -11,15 +13,14 @@ namespace Castle
 {
     class GameMap
     {
-        int mRows;
-        int mCols;
-        std::vector<int> mTiles;
+        int mSize;
         
     public:
-        GameMap(int rows, int cols);
-        void Randomize(int seed);
+        explicit GameMap(int size);
         void Draw(Surface &surface, int viewportX, int viewportY, Direction viewportOrient, int viewportRadius);
     };
+
+    GameMap RandomMap(uint64_t seed);
 }
 
 #endif // GAMEMAP_H_

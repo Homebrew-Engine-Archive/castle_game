@@ -9,7 +9,7 @@
 SDLInitializer::SDLInitializer()
 {
     SDL_SetMainReady();
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0) {
         throw std::runtime_error(SDL_GetError());
     }
 }
@@ -26,7 +26,7 @@ SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 SDL_Color GetPixelColor(uint32_t pixel, int format)
 {
-    SDL_Color rgba;
+    SDL_Color rgba {0, 0, 0, 0};
 
     PixelFormatPtr pf(SDL_AllocFormat(format));
     SDL_GetRGBA(pixel, pf.get(), &rgba.r, &rgba.g, &rgba.b, &rgba.a);
@@ -72,7 +72,7 @@ std::istream& operator>>(std::istream &in, SDL_Color &color)
     uint32_t value = 0;
     in >> std::hex >> value;
 
-    /** 0x11223344 is has alpha - 11, red -  22, green - 33, blue - 44 **/
+    /** 0x11223344 has ALPHA 0x11, RED 0x22, GREEN 0x33, BLUE 0x44 **/
     value = Endian::SwapLittle<uint32_t>(value);
 
     color.a = (value & 0xff000000) >> 24;
@@ -112,30 +112,21 @@ uint32_t GetPackedPixel(const char *data, int bytesPerPixel)
     }
 }
 
-// NOTE I ignore endianness
+// \note I'm just ignoring endianness
 void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel)
 {
     switch(bytesPerPixel) {
-    case 1:
-        data[0] = pixel & 0xff;
-        return;
-        
-    case 2:
-        data[0] = pixel & 0xff;
-        data[1] = pixel & 0xff00;
-        return;
+    case 4:
+        data[3] = (pixel & 0xff000000) >> 24;
 
     case 3:
-        data[0] = pixel & 0xff;
-        data[1] = pixel & 0xff00;
-        data[2] = pixel & 0xff0000;
-        return;
+        data[2] = (pixel & 0x00ff0000) >> 16;
 
-    case 4:
-        data[0] = pixel & 0xff;
-        data[1] = pixel & 0xff00;
-        data[2] = pixel & 0xff0000;
-        data[3] = pixel & 0xff000000;
+    case 2:
+        data[1] = (pixel & 0x0000ff00) >> 8;
+        
+    case 1:
+        data[0] = (pixel & 0x000000ff) >> 0;
         return;
 
     default:
@@ -143,31 +134,44 @@ void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel)
     }
 }
 
-
+/**
+ * \brief Calculate layout rect for src in dst
+ *
+ * One assumed that src is smaller and dst is larger.
+ * The area of dst is mapped onto two-dimensional plane with bounds [-1..1] by x and y.
+ *
+ * \param src       Inner rect (only width and height matter).
+ * \param dst       Outer rect.
+ * \param x         Relative x-pos of src center
+ * \param y         Relative y-pos of src center
+ *
+ */
 SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {
-    // Unintuitive formulas is for the sake of precision
-    // int xcenter = dst.x + dst.w / 2;
-    // int ycenter = dst.y + dst.h / 2;
-    int xcenter = 2 * dst.x + dst.w;
-    int ycenter = 2 * dst.y + dst.h;
+    // Non-intuitive formulas is for the sake of precision
+    const int xcenter = 2 * dst.x + dst.w;
+    const int ycenter = 2 * dst.y + dst.h;
 
-    int xspace = std::max(0, dst.w - src.w);
-    int yspace = std::max(0, dst.h - src.h);
+    const int xspace = std::max(0, dst.w - src.w);
+    const int yspace = std::max(0, dst.h - src.h);
 
-    // int xpos = x * xspace / 2;
-    // int ypos = y * yspace / 2;
-    int xpos = x * xspace;
-    int ypos = y * yspace;
+    const int xpos = x * xspace;
+    const int ypos = y * yspace;
 
     SDL_Rect rect;
-    // rect.x = xcenter + xpos - src.w / 2;
-    // rect.y = ycenter + ypos - src.h / 2;
-    rect.x = (xcenter + xpos - src.w) / 2;
-    rect.y = (ycenter + ypos - src.h) / 2;
+    rect.x = (xcenter + xpos - src.w) / 2;               // dst.x + 0.5*(dst.w + x*xspace - src.w)
+    rect.y = (ycenter + ypos - src.h) / 2;               // dst.y + 0.5*(dst.h + y*yspace - src.h)
     rect.w = src.w;
     rect.h = src.h;
     return rect;
+}
+
+SDL_Rect PadOut(const SDL_Rect &src, int pad)
+{
+    return MakeRect(src.x - pad,
+                    src.y - pad,
+                    src.w + 2 * pad,
+                    src.h + 2 * pad);
 }
 
 SDL_Rect PadIn(const SDL_Rect &src, int pad)
@@ -180,12 +184,17 @@ SDL_Rect PadIn(const SDL_Rect &src, int pad)
             src.h - 2 * pad);
     }
 
-    return src;
+    return MakeEmptyRect();
 }
 
 SDL_Rect MakeRect(const SDL_Point &p, int w, int h)
 {
     return SDL_Rect {p.x, p.y, w, h};
+}
+
+SDL_Rect MakeRect(const SDL_Point &p)
+{
+    return MakeRect(p.x, p.y);
 }
 
 SDL_Rect MakeRect(int x, int y, int w, int h)
@@ -196,6 +205,14 @@ SDL_Rect MakeRect(int x, int y, int w, int h)
 SDL_Rect MakeRect(int w, int h)
 {
     return SDL_Rect {0, 0, w, h};
+}
+
+SDL_Rect MakeRect(const SDL_Point &p1, const SDL_Point &p2)
+{
+    return MakeRect(std::min(p1.x, p2.x),
+                    std::min(p1.y, p2.y),
+                    std::abs(p1.x - p2.x),
+                    std::abs(p1.y - p2.y));
 }
 
 SDL_Rect MakeEmptyRect()
@@ -241,19 +258,6 @@ SDL_Point AlignPoint(const SDL_Rect &rect, double x, double y)
 {
     return MakePoint(rect.x + rect.w * (x + 1) / 2,
                      rect.y + rect.h * (y + 1) / 2);
-}
-
-SDL_Rect MakeRect(const SDL_Point &p1, const SDL_Point &p2)
-{
-    return MakeRect(std::min(p1.x, p2.x),
-                    std::min(p1.y, p2.y),
-                    std::abs(p1.x - p2.x),
-                    std::abs(p1.y - p2.y));
-}
-
-SDL_Rect MakeRect(const SDL_Point &p)
-{
-    return MakeRect(p.x, p.y);
 }
 
 SDL_Rect ShiftRect(const SDL_Rect &rect, int xshift, int yshift)

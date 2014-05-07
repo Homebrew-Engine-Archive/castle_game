@@ -1,13 +1,17 @@
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
+#include <SDL.h>
+
+#include <game/surface.h>
+#include <game/collection.h>
+
 namespace Castle
 {
     class Terrain
     {
     public:
-        virtual Surface Texture() const;
-        virtual 
+        void Draw(Surface &surface, int x, int y);
     };
 }
 

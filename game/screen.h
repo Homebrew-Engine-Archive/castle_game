@@ -18,8 +18,6 @@ namespace UI
         /**
          * \brief Check whether screen should be repainted.
          */
-        virtual bool IsDirty(int64_t dtime) { return dtime != 0; }
-
         virtual bool IsClosed() { return false; }
 
         /**
