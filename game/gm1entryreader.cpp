@@ -139,7 +139,7 @@ namespace
         //     return SDL_Color { r, 255, b, g };
         // };
     
-        // MapSurface(tmp, swap_green_alpha);
+        // TransformSurface(tmp, swap_green_alpha);
 
         // surface = tmp;
     }

@@ -31,7 +31,7 @@ namespace
         }
     }
     
-    void MapBuffer(char *bytes, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
+    void TransformBuffer(char *bytes, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
     {
         const char *end = bytes + size * format->BytesPerPixel;
         
@@ -346,7 +346,7 @@ SDL_Rect SurfaceBounds(const Surface &src)
             : MakeRect(src->w, src->h));
 }
 
-void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
+void TransformSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
 {
     if(!dst) {
         return;
@@ -358,7 +358,7 @@ void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t)
     const SDL_PixelFormat *fmt = dst->format;
 
     for(int y = 0; y < dst->h; ++y) {
-        MapBuffer(data, dst->w, fmt, func);
+        TransformBuffer(data, dst->w, fmt, func);
         data += dst->pitch;
     }
 }
@@ -389,4 +389,9 @@ void BlurSurface(Surface &dst, int radius)
     for(int x = 0; x < dst->w; ++x) {
         ConvolveBuffer(bytes + x * bytesPP, dst->h, dst->pitch, dst->format, redBuffer, greenBuffer, blueBuffer, radius);
     }
+}
+
+bool HasPalette(const Surface &surface)
+{
+    return SDL_ISPIXELFORMAT_INDEXED(surface->format->format);
 }

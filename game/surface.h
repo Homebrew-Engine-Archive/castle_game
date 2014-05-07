@@ -69,6 +69,8 @@ public:
     SurfaceView(Surface &src, const SDL_Rect *roi);
 };
 
+bool HasPalette(const Surface &surface);
+
 void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
 
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);

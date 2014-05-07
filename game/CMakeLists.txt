@@ -14,6 +14,7 @@ set (SRCS
   gm1entryreader.cpp
   gm1palette.cpp
   gm1reader.cpp
+  gm1writer.cpp
   loadingscreen.cpp
   main.cpp
   menu_combat.cpp

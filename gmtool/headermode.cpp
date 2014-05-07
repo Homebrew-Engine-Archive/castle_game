@@ -1,7 +1,7 @@
 #include "headermode.h"
 
-#include <game/gm1reader.h>
 #include <game/gm1writer.h>
+#include <game/gm1reader.h>
 
 namespace po = boost::program_options;
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <gmtool/rw.h>
+#include <game/rw.h>
 #include "renderers/bitmap.h"
 #include "renderers/tgxrenderer.h"
 
