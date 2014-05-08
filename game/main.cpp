@@ -52,16 +52,12 @@ int main()
             throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
         }
 
-        std::unique_ptr<Render::Renderer> renderer;
-        renderer.reset(new Render::Renderer(sdlRenderer.get()));
+        Render::Renderer renderer(sdlRenderer.get());
+        Castle::Engine engine(renderer);
 
-        std::unique_ptr<Castle::Engine> engine;
-        engine.reset(new Castle::Engine(renderer.get()));
-
-        int code = engine->Exec();
-        std::clog << "Shutting down" << std::endl;
+        int code = engine.Exec();
+        std::clog << "Return with code " << code << std::endl;
         return code;
-        
     } catch(const Castle::Exception &error) {
         std::cerr << error << std::endl;
     }

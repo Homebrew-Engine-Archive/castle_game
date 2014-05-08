@@ -254,6 +254,12 @@ SDL_Point TopRight(const SDL_Rect &src)
                      src.y);
 }
 
+SDL_Point RectCenter(const SDL_Rect &rect)
+{
+    return MakePoint(rect.x + rect.w / 2,
+                     rect.y + rect.h / 2);
+}
+
 SDL_Point AlignPoint(const SDL_Rect &rect, double x, double y)
 {
     return MakePoint(rect.x + rect.w * (x + 1) / 2,

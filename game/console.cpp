@@ -1,38 +1,40 @@
-#include "debugconsole.h"
+#include "console.h"
 
 #include <SDL.h>
 #include <iostream>
 #include <vector>
 #include <string>
 
+#include <game/renderer.h>
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/sdl_utils.h>
 #include <game/make_unique.h>
 #include <game/surface.h>
-#include <game/renderer.h>
+#include <game/textrenderer.h>
 
 namespace UI
 {
-    DebugConsole::DebugConsole(ScreenManager *mgr, Render::Renderer *render)
-        : mScreenMgr(mgr)
-        , mRenderer(render)
+    Console::Console(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
+        : mRenderer(renderer)
+        , mFontManager(fontManager)
+        , mScreenManager(screenManager)
         , mText("")
         , mFontName(Render::FontStronghold)
         , mFontSize(14)
         , mClosed(false)
     { }
 
-    void DebugConsole::Draw(Surface&)
+    void Console::Draw(Surface &frame)
     {
-    }
-
-    bool DebugConsole::IsDirty(int64_t elapsed)
-    {
-        return (elapsed != 0);
+        FillFrame(frame, MakeRect(0, 0, frame->w, frame->h / 2), MakeColor(0, 0, 0, 100));
+        
+        Render::TextRenderer textRenderer(frame);
+        textRenderer.SetFont(mFontManager.Font(mFontName, mFontSize));
+        textRenderer.PutString(mText);
     }
     
-    bool DebugConsole::HandleEvent(const SDL_Event &event)
+    bool Console::HandleEvent(const SDL_Event &event)
     {
         switch(event.type) {
         case SDL_QUIT:
@@ -46,11 +48,11 @@ namespace UI
         }
     }
 
-    bool DebugConsole::HandleKey(const SDL_KeyboardEvent &event)
+    bool Console::HandleKey(const SDL_KeyboardEvent &event)
     {
         switch(event.keysym.sym) {
         case SDLK_ESCAPE:
-            mScreenMgr->CloseScreen(this);
+            mScreenManager.PopScreen();
             return true;
         case SDLK_RETURN:
             mText = std::string();
@@ -64,7 +66,7 @@ namespace UI
         }
     }
 
-    bool DebugConsole::HandleTextInput(const SDL_TextInputEvent &text)
+    bool Console::HandleTextInput(const SDL_TextInputEvent &text)
     {
         mText += text.text;
         return true;

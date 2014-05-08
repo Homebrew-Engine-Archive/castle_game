@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <game/terrain.h>
+#include <game/camera.h>
 
 enum class Direction;
 
@@ -11,13 +11,21 @@ class Surface;
 
 namespace Castle
 {
+    struct TerrainTile
+    {
+        int heightDelta;
+        int tileGroup;
+        int tileIndex;
+    };
+    
     class GameMap
     {
         int mSize;
+        std::vector<TerrainTile> mTerrain;
         
     public:
-        explicit GameMap(int size);
-        void Draw(Surface &surface, int viewportX, int viewportY, Direction viewportOrient, int viewportRadius);
+        GameMap(int size);
+        void DrawTerrain(Surface &surface, const Castle::Camera &camera);
     };
 
     GameMap RandomMap(uint64_t seed);

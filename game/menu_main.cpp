@@ -9,23 +9,19 @@
 
 namespace UI
 {
-
-    MenuMain::MenuMain(UI::ScreenManager *mgr, Render::Renderer *render)
-        : mScreenMgr(mgr)
-        , mRenderer(render)
+    MenuMain::MenuMain(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
+        : mRenderer(renderer)
+        , mFontManager(fontManager)
+        , mScreenManager(screenManager)
+        , mBackground(
+            LoadSurface(
+                fs::TGXFilePath("frontend_main2")))
     {
-        fs::path backgroundFilePath = fs::TGXFilePath("frontend_main2");
-        mBackground = mRenderer->QuerySurface(backgroundFilePath);
     }
 
     bool MenuMain::HandleEvent(const SDL_Event &event)
     {
         return false;
-    }
-
-    bool MenuMain::IsDirty(int64_t elapsed)
-    {
-        return elapsed != 0;
     }
     
     void MenuMain::Draw(Surface &frame)
@@ -34,25 +30,6 @@ namespace UI
         SDL_Rect bgRect = SurfaceBounds(mBackground);
         SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
-        BlitSurface(mBackground, NULL, frame, &bgAligned);
+        BlitSurface(mBackground, bgRect, frame, bgAligned);
     }
-
-    void MenuMain::GoCombat()
-    {
-    }
-
-    void MenuMain::GoEconomics()
-    {
-    }
-    
-    void MenuMain::GoBuilder()
-    {
-    }
-
-    void MenuMain::GoLoadGame()    {
-    }
-
-    void MenuMain::GoExit()
-    {
-    }    
 } // namespace UI

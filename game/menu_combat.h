@@ -7,14 +7,10 @@
 #include <game/screen.h>
 #include <game/surface.h>
 
-namespace Castle
-{
-    class Engine;
-}
-
 namespace Render
 {
     class Renderer;
+    class FontManager;
 }
 
 namespace UI
@@ -23,18 +19,17 @@ namespace UI
     
     class MenuCombat : public Screen
     {
-        UI::ScreenManager *mScreenMgr;
-        Render::Renderer *mRenderer;
+        Render::Renderer &mRenderer;
+        Render::FontManager &mFontManager;
+        UI::ScreenManager &mScreenManager;
         Surface mBackground;
 
         bool HandleKey(const SDL_KeyboardEvent &event);
         
     public:
-        MenuCombat(UI::ScreenManager *mgr, Render::Renderer *render);
+        MenuCombat(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
-
-        bool IsDirty(int64_t elapsed);
     };
 }
 

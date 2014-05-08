@@ -1,5 +1,5 @@
-#ifndef DEBUG_CONSOLE_H_
-#define DEBUG_CONSOLE_H_
+#ifndef CONSOLE_H_
+#define CONSOLE_H_
 
 #include <SDL.h>
 #include <iosfwd>
@@ -7,25 +7,26 @@
 
 #include <game/screen.h>
 
-namespace Castle
-{
-    class Engine;
-}
-
 namespace Render
 {
     class Renderer;
+    class FontManager;
 }
 
 namespace UI
 {
     class ScreenManager;
+}
 
-    class DebugConsole : public Screen
+namespace UI
+{
+    class Console : public Screen
     {
     private:
-        ScreenManager *mScreenMgr;
-        Render::Renderer *mRenderer;
+        Render::Renderer &mRenderer;
+        Render::FontManager &mFontManager;
+        UI::ScreenManager &mScreenManager;
+        
         std::string mText;
         std::string mFontName;
         int mFontSize;
@@ -35,16 +36,15 @@ namespace UI
         bool HandleTextInput(const SDL_TextInputEvent &text);
     
     public:
-        DebugConsole(ScreenManager *mgr, Render::Renderer *render);
-        DebugConsole(DebugConsole const&) = delete;
-        DebugConsole &operator=(DebugConsole const&) = delete;
+        Console(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
+        Console(Console const&) = delete;
+        Console& operator=(Console const&) = delete;
 
         bool IsClosed() const;
         
         void Draw(Surface &frame);
-        bool IsDirty(int64_t elapsed);
         bool HandleEvent(const SDL_Event &event);
     };
 }
 
-#endif  // DEBUGCONSOLE_H_
+#endif  // CONSOLE_H_

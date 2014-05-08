@@ -7,10 +7,11 @@ namespace Castle
 {
     GameMap::GameMap(int size)
         : mSize(size)
+        , mTerrain(mSize * mSize)
     {
     }
 
-    void GameMap::Draw(Surface &surface, int viewportX, int viewportY, Direction viewportOrient, int viewportRadius)
+    void GameMap::DrawTerrain(Surface &surface, const Castle::Camera &camera)
     {
         
     }
@@ -23,6 +24,9 @@ namespace Castle
         const int size = dist(gen);
         
         GameMap map(size);
+
+        
+        
         return map;
     }
 }

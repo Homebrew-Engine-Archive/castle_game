@@ -3,18 +3,17 @@
 #include <stdexcept>
 
 #include <game/exception.h>
-#include <game/debugconsole.h>
-#include <game/make_unique.h>
 
 namespace UI
 {
-
-    ScreenManager::ScreenManager(Render::FontManager *fontMgr, Render::Renderer *renderer)
+    ScreenManager::ScreenManager(Render::Renderer &renderer, Render::FontManager &fontManager)
         : mRenderer(renderer)
-        , mConsole(this, renderer)
-        , mMenuMain(this, renderer)
-        , mGameScreen(*this, *fontMgr, *renderer)
-        , mMenuCombat(this, renderer)
+        , mFontManager(fontManager)
+        , mLoadingScreen()
+        , mConsole(renderer, fontManager, *this)
+        , mMenuMain(renderer, fontManager, *this)
+        , mGameScreen(renderer, fontManager, *this)
+        , mMenuCombat(renderer, fontManager, *this)
         , mScreenStack()
     {
     }
@@ -89,9 +88,14 @@ namespace UI
         return mGameScreen;
     }
     
-    UI::DebugConsole& ScreenManager::DebugConsole()
+    UI::Console& ScreenManager::Console()
     {
         return mConsole;
+    }
+
+    UI::LoadingScreen& ScreenManager::LoadingScreen()
+    {
+        return mLoadingScreen;
     }
     
 } // namespace UI

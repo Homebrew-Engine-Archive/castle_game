@@ -20,7 +20,7 @@ namespace Castle
 {
     class Engine
     {
-        class Render::Renderer *mRenderer;
+        class Render::Renderer &mRenderer;
         double mFpsAverage;
         double mFpsAverageMax;
         int64_t mFrameCounter;
@@ -45,7 +45,8 @@ namespace Castle
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 
     public:
-        explicit Engine(Render::Renderer*);
+        explicit Engine(Render::Renderer&);
+        
         Engine(Engine const&) = delete;
         Engine& operator=(Engine const&) = delete;
     

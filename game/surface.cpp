@@ -314,9 +314,9 @@ SDL_Rect FindCropRect(const Surface &surface)
     return SurfaceBounds(surface);
 }
 
-void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect)
+void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, const SDL_Rect &dstrect)
 {
-    if(SDL_BlitSurface(src, srcrect, dst, dstrect) < 0) {
+    if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<SDL_Rect&>(dstrect)) < 0) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
 }

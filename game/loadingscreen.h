@@ -1,30 +1,22 @@
 #ifndef LOADINGSCREEN_H_
 #define LOADINGSCREEN_H_
 
-#include <vector>
-#include <iosfwd>
-#include <functional>
-#include <game/filesystem.h>
+#include <string>
+
 #include <game/surface.h>
 #include <game/screen.h>
-
-namespace Castle
-{
-    class Engine;
-}
 
 namespace UI
 {
     class LoadingScreen : public UI::Screen
     {
-        Castle::Engine *mEngine;
         Surface mBackground;
         int mProgressDone;
         int mProgressMax;
         std::string mStage;
 
     public:
-        explicit LoadingScreen(Castle::Engine*);
+        LoadingScreen();
         void SetProgressDone(int done);
         void SetProgressMax(int max);
         void IncreaseDone(int delta = 1);

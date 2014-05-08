@@ -1,11 +1,13 @@
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
+  camera.cpp
   collection.cpp
-  debugconsole.cpp
+  console.cpp
   direction.cpp
   engine.cpp
   exception.cpp
+  environment.cpp
   filesystem.cpp
   fontmanager.cpp
   gamescreen.cpp

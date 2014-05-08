@@ -81,7 +81,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
-void BlitSurface(const Surface &src, const SDL_Rect *srcrect, Surface &dst, SDL_Rect *dstrect);
+void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, const SDL_Rect &dstrect);
 
 void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color);
 

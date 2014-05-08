@@ -59,6 +59,7 @@ SDL_Point TopRight(const SDL_Rect &src);
 SDL_Point BottomLeft(const SDL_Rect &src);
 SDL_Point TopLeft(const SDL_Rect &src);
 SDL_Point BottomRight(const SDL_Rect &src);
+SDL_Point RectCenter(const SDL_Rect &src);
 SDL_Point AlignPoint(const SDL_Rect &dst, double x, double y);
 SDL_Point ShiftPoint(const SDL_Point &point, int x, int y);
 

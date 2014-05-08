@@ -5,10 +5,9 @@
 #include <SDL.h>
 #include <game/screen.h>
 #include <game/gamemap.h>
+#include <game/camera.h>
 
 class CollectionData;
-
-enum class Direction;
 class Surface;
 
 enum class CursorMode : int {
@@ -39,27 +38,21 @@ namespace UI
     
     class GameScreen : public Screen
     {
-        UI::ScreenManager &mScreenMgr;
-        Render::FontManager &mFontMgr;
         Render::Renderer &mRenderer;
+        Render::FontManager &mFontManager;
+        UI::ScreenManager &mScreenManager;
         int mCursorX;
         int mCursorY;
         bool mCursorInvalid;
-        int mViewportX;
-        int mViewportY;
-        int mViewportRadius;
-        Direction mViewportOrient;
-        bool mFlatView;
-        bool mLowView;
-        bool mZoomedOut;
         bool mHiddenUI;
         CursorMode mCursorMode;
-        bool mClosed;
+        Castle::Camera mCamera;
         Castle::GameMap mGameMap;
         int mSpriteCount;
     
     public:
-        GameScreen(UI::ScreenManager &screenMgr, Render::FontManager &fontMgr, Render::Renderer &render);
+        GameScreen(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
+        
         GameScreen(GameScreen const&) = delete;
         GameScreen &operator=(GameScreen const&) = delete;
 

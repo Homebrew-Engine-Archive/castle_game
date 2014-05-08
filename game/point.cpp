@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 
+#include <SDL.h>
+
 namespace
 {
 
@@ -11,6 +13,20 @@ namespace
         return x * x;
     }
     
+}
+
+Point::Point(int x, int y)
+    : x(x)
+    , y(y)
+{ }
+
+Point::Point()
+    : Point{0, 0}
+{ }
+
+Point::operator SDL_Point() const
+{
+    return SDL_Point { x, y };
 }
 
 std::ostream &operator<<(std::ostream &out, const Point &pt)
@@ -29,56 +45,86 @@ double EuclidianDist(const Point &lhs, const Point &rhs)
     return hypot(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
-Point::Point(int x, int y)
-    : x(x)
-    , y(y)
-{ }
-
-Point::Point()
-    : Point{0, 0}
-{ }
-
-bool Point::operator==(const Point &that) const
+bool operator==(const Point &lhs, const Point &rhs)
 {
-    return (that.x == x) && (that.y == y);
+    return (lhs.x == rhs.x) && (lhs.y == rhs.y);
 }
 
-
-bool Point::operator!=(const Point &that) const
+bool operator!=(const Point &lhs, const Point &rhs)
 {
-    return (that.x != x) || (that.y != y);
+    return (lhs.x != rhs.x) || (lhs.y != rhs.y);
 }
 
-bool Point::operator<(const Point &that) const
+bool operator<(const Point &lhs, const Point &rhs)
 {
-    return (that.x < x) || ((that.x == x) && (that.y < y));
+    return (lhs.x < rhs.x) || (lhs.x == rhs.x && lhs.y < rhs.y);
 }
 
-bool Point::operator<=(const Point &that) const
+bool operator<=(const Point &lhs, const Point &rhs)
 {
-    return (that.x <= x) || ((that.x == x) && (that.y <= y));
+    return (lhs.x <= rhs.x) || (lhs.x == rhs.x && lhs.y <= rhs.y);
 }
 
-Point Point::operator+(const Point &that) const
+bool operator>(const Point &lhs, const Point &rhs)
 {
-    return Point(x + that.x, y + that.y);
+    return (lhs.x > rhs.x) || (lhs.x == rhs.x && lhs.y > rhs.y);
 }
 
-Point Point::operator-(const Point &that) const
+bool operator>=(const Point &lhs, const Point &rhs)
 {
-    return Point(x - that.x, y - that.y);
+    return (lhs.x >= rhs.x) || (lhs.x == rhs.x && lhs.y >= rhs.y);
 }
 
-Point &Point::operator+=(const Point &that)
+Point& Point::operator+=(const Point &that)
 {
     x += that.x;
     y += that.y;
     return *this;
 }
 
-Point &Point::operator-=(const Point &that)
+Point& Point::operator-=(const Point &that)
 {
     x -= that.x;
     y -= that.y;
     return *this;
+}
+
+Point operator-(const Point &lhs, const Point &rhs)
+{
+    return Point(lhs.x - rhs.x, lhs.y - rhs.y);
+}
+
+Point operator+(const Point &lhs, const Point &rhs)
+{
+    return Point(lhs.x + rhs.x, lhs.y + rhs.y);
+}
+
+Point operator*(const Point &lhs, const Point &rhs)
+{
+    return Point(lhs.x * rhs.x, lhs.y * rhs.y);
+}
+
+Point operator/(const Point &lhs, const Point &rhs)
+{
+    return Point(lhs.x / rhs.x, lhs.y / rhs.y);
+}
+
+Point operator-(const Point &pt, int x)
+{
+    return Point(pt.x - x, pt.y - x);
+}
+
+Point operator+(const Point &pt, int x)
+{
+    return Point(pt.x + x, pt.y + x);
+}
+
+Point operator*(const Point &pt, int x)
+{
+    return Point(pt.x * x, pt.y * x);
+}
+
+Point operator/(const Point &pt, int x)
+{
+    return Point(pt.x / x, pt.y / x);
 }

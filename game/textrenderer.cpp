@@ -77,7 +77,7 @@ namespace Render
 
         SDL_Rect dstRect = MakeRect(GetTopLeftBoxPoint(), text->w, text->h);
                 
-        SDL_BlitSurface(text, NULL, mSurface, &dstRect);
+        BlitSurface(text, SurfaceBounds(text), mSurface, dstRect);
         Translate(text->w, 0);
     }
     

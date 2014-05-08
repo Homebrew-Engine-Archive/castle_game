@@ -16,32 +16,29 @@ namespace Castle
 namespace Render
 {
     class Renderer;
+    class FontManager;
 }
 
 namespace UI
 {
-
     class ScreenManager;
-    
+}
+
+namespace UI
+{
     class MenuMain : public Screen
     {
-        UI::ScreenManager *mScreenMgr;
-        Render::Renderer *mRenderer;
+        Render::Renderer &mRenderer;
+        Render::FontManager &mFontManager;
+        UI::ScreenManager &mScreenManager;
+        
         Surface mBackground;
     
     public:
-        MenuMain(UI::ScreenManager *mgr, Render::Renderer *render);
-    
-        void GoCombat();
-        void GoEconomics();
-        void GoBuilder();
-        void GoLoadGame();
-        void GoExit();
+        MenuMain(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
     
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
-
-        bool IsDirty(int64_t elapsed);
     };
 }
 

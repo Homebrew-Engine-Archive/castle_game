@@ -16,25 +16,24 @@
 #include <game/menu_combat.h>
 #include <game/menu_main.h>
 #include <game/loadingscreen.h>
-#include <game/debugconsole.h>
 #include <game/screen.h>
 
 namespace Castle
 {
-    Engine::Engine(Render::Renderer *renderer)
+    Engine::Engine(Render::Renderer &renderer)
         : mRenderer(renderer)
         , mFpsAverage(0.0f)
         , mFpsAverageMax(mFpsAverage)
         , mFrameCounter(0)
         , mClosed(false)
-        , mFrameUpdateInterval(1)
+        , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
         , mShowConsole(false)
         , mIO()
         , mPort(4500)
         , mFontMgr()
-        , mScreenMgr(&mFontMgr, mRenderer)
+        , mScreenMgr(mRenderer, mFontMgr)
         , mSimulationMgr()
         , mServer(mIO, mPort)
     { }
@@ -46,7 +45,7 @@ namespace Castle
             {
                 const int width = window.data1;
                 const int height = window.data2;
-                mRenderer->SetWindowSize(width, height);
+                mRenderer.SetWindowSize(width, height);
             }
             return true;
         default:
@@ -103,7 +102,7 @@ namespace Castle
     
     void Engine::DrawFrame()
     {
-        Surface frame = mRenderer->BeginFrame();
+        Surface frame = mRenderer.BeginFrame();
         mScreenMgr.DrawScreen(frame);
         
         std::ostringstream oss;
@@ -126,7 +125,7 @@ namespace Castle
         FillFrame(frame, textRenderer.CalculateTextRect(text), MakeColor(0, 0, 0, 100));
         textRenderer.PutString(text);
 
-        mRenderer->EndFrame();
+        mRenderer.EndFrame();
     }
 
     void Engine::UpdateFrameCounter(std::chrono::milliseconds elapsed)

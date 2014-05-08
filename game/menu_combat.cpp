@@ -12,12 +12,14 @@
 namespace UI
 {
     
-    MenuCombat::MenuCombat(UI::ScreenManager *mgr, Render::Renderer *render)
-        : mScreenMgr(mgr)
-        , mRenderer(render)
+    MenuCombat::MenuCombat(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
+        : mRenderer(renderer)
+        , mFontManager(fontManager)
+        , mScreenManager(screenManager)
+        , mBackground(
+            LoadSurface(
+                fs::TGXFilePath("frontend_combat")))
     {
-        fs::path filepath = fs::TGXFilePath("frontend_combat");
-        mBackground = mRenderer->QuerySurface(filepath);
     }
 
     void MenuCombat::Draw(Surface &frame)
@@ -26,19 +28,14 @@ namespace UI
         SDL_Rect bgRect = SurfaceBounds(mBackground);
         SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
-        BlitSurface(mBackground, NULL, frame, &bgAligned);
-    }
-
-    bool MenuCombat::IsDirty(int64_t elapsed)
-    {
-        return elapsed != 0;
+        BlitSurface(mBackground, bgRect, frame, bgAligned);
     }
 
     bool MenuCombat::HandleKey(const SDL_KeyboardEvent &event)
     {
         switch(event.keysym.sym) {
         case SDLK_ESCAPE:
-            mScreenMgr->CloseScreen(this);
+            mScreenManager.CloseScreen(this);
             return true;
         }
         return false;

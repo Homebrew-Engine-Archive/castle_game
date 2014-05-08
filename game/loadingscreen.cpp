@@ -10,13 +10,12 @@
 #include <game/make_unique.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
-#include <game/renderer.h>
+#include <game/collection.h>
 
 namespace UI
 {
-    LoadingScreen::LoadingScreen(Castle::Engine *engine)
-        : mEngine(engine)
-        , mBackground(
+    LoadingScreen::LoadingScreen()
+        : mBackground(
             LoadSurface(
                 fs::TGXFilePath("frontend_loading")))
         , mProgressDone(0)
@@ -63,7 +62,7 @@ namespace UI
         SDL_Rect bgRect = SurfaceBounds(mBackground);
 
         SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-        BlitSurface(mBackground, NULL, frame, &bgAligned);
+        BlitSurface(mBackground, bgRect, frame, bgAligned);
     
         SDL_Rect barOuter = MakeRect(300, 25);
         SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);

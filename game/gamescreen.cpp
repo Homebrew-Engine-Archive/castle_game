@@ -19,26 +19,20 @@
 
 namespace UI
 {
-    GameScreen::GameScreen(UI::ScreenManager &screenMgr, Render::FontManager &fontMgr, Render::Renderer &render)
-        : mScreenMgr(screenMgr)
-        , mFontMgr(fontMgr)
-        , mRenderer(render)
+    GameScreen::GameScreen(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
+        : mRenderer(renderer)
+        , mFontManager(fontManager)
+        , mScreenManager(screenManager)
         , mCursorX(0)
         , mCursorY(0)
         , mCursorInvalid(true)
-        , mViewportX(0)
-        , mViewportY(0)
-        , mViewportRadius(1)
-        , mViewportOrient(Direction::North)
-        , mFlatView(false)
-        , mLowView(false)
-        , mZoomedOut(false)
         , mHiddenUI(false)
         , mCursorMode(CursorMode::Normal)
-        , mClosed(false)
+        , mCamera()
         , mGameMap(400)
         , mSpriteCount(0)
     {
+        mCamera.ViewRadius(100);
     }
 
     void GameScreen::DrawUnits(Surface &frame, const CollectionData &gm1)
@@ -73,7 +67,7 @@ namespace UI
             }
             
             SDL_Rect whither = MakeRect(x, y, face->w, face->h);
-            BlitSurface(face, NULL, frame, &whither);
+            BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
     }
@@ -89,7 +83,7 @@ namespace UI
 
         std::default_random_engine g(0);
         std::uniform_int_distribution<int> entryIndex(0, gm1.entries.size() - 1);
-        
+
         for(;;) {
             const CollectionEntry &entry = gm1.entries.at(entryIndex(g));
             Surface face = entry.surface;
@@ -106,7 +100,7 @@ namespace UI
             }
 
             SDL_Rect whither = MakeRect(x - gm1.header.anchorX, y - gm1.header.anchorY - entry.header.tileY, face->w, face->h);
-            BlitSurface(face, NULL, frame, &whither);
+            BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
     }
@@ -114,7 +108,7 @@ namespace UI
     void GameScreen::DrawTestScene(Surface &frame)
     {
         mSpriteCount = 0;
-        
+
         static fs::path tileLand = fs::GM1FilePath("tile_land8");
         static const CollectionData &tileLandGM1 = mRenderer.QueryCollection(tileLand);
         DrawTerrain(frame, tileLandGM1);
@@ -123,27 +117,35 @@ namespace UI
         static const CollectionData &bodyLordGM1 = mRenderer.QueryCollection(bodyLord);
         DrawUnits(frame, bodyLordGM1);
 
+        FillFrame(frame, mCamera.Viewport(), MakeColor(0, 0, 0, 100));
+        
         Render::TextRenderer textRenderer(frame);
         textRenderer.Translate(0, frame->h - 20);
         textRenderer.SetColor(MakeColor(255, 0, 0, 255));
-        textRenderer.SetFont(mFontMgr.Font(Render::FontStronghold, 10));
+        textRenderer.SetFont(mFontManager.Font(Render::FontStronghold, 12));
 
         std::ostringstream oss;
         oss << "Scene objects: " << mSpriteCount;
-        FillFrame(frame, textRenderer.CalculateTextRect(oss.str()), MakeColor(0, 0, 0, 100));
+        FillFrame(frame, textRenderer.CalculateTextRect(oss.str()), MakeColor(0, 0, 0, 200));
         textRenderer.PutString(oss.str());
     }
 
     void GameScreen::Draw(Surface &frame)
     {
+        AdjustViewport(SurfaceBounds(frame));
         DrawTestScene(frame);
-        return;
-        mGameMap.Draw(frame, mViewportX, mViewportY, mViewportOrient, mViewportRadius);
     }
     
     bool GameScreen::HandleEvent(const SDL_Event &event)
     {
         switch(event.type) {
+        case SDL_WINDOWEVENT:
+            {
+                if(event.window.event == SDL_WINDOWEVENT_LEAVE) {
+                    mCursorInvalid = true;
+                }
+            }
+            break;
         case SDL_MOUSEMOTION:
             {
                 mCursorInvalid = false;
@@ -167,15 +169,21 @@ namespace UI
 
     void GameScreen::AdjustViewport(const SDL_Rect &screen)
     {
-        if(screen.w == mCursorX)
-            ++mViewportX;
-        else if(0 == mCursorX)
-            --mViewportX;
-
-        if(screen.h == mCursorY)
-            ++mViewportY;
-        else if(0 == mCursorY)
-            --mViewportY;
+        const int speed = 3;
+        if(!mCursorInvalid) {
+            if(mCursorX < 10) {
+                mCamera.Translate(-speed, 0);
+            }
+            if(mCursorX > screen.w - 10) {
+                mCamera.Translate(speed, 0);
+            }
+            if(mCursorY < 10) {
+                mCamera.Translate(0, -speed);
+            }
+            if(mCursorY > screen.h - 10) {
+                mCamera.Translate(0, speed);
+            }
+        }
     }
 
 } // namespace UI
