@@ -7,6 +7,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <game/point.h>
+#include <game/rect.h>
 #include <game/sdl_utils.h>
 
 class Surface;
@@ -36,10 +38,10 @@ namespace Render
         int mCursorY = 0;
         CursorMode mCursorMode = CursorMode::BaseLine;
         TTF_Font *mCurrentFont = nullptr;
-        SDL_Rect mClipBox {0, 0, 0, 0};
+        Rect mClipBox {0, 0, 0, 0};
         int mFontStyle = FontStyle_Normal;
 
-        SDL_Point GetTopLeftBoxPoint() const;
+        Point GetTopLeftBoxPoint() const;
         void PutRenderedString(Surface &text);
 
         void CheckFontIsSet() const;
@@ -53,7 +55,7 @@ namespace Render
         virtual void PutString(const std::u16string &str);
 
         void SetFontStyle(int style);
-        void SetClipBox(const SDL_Rect &clipbox);
+        void SetClipBox(const Rect &clipbox);
         void SetFont(TTF_Font *font);
         TTF_Font* GetFont();
         void SetColor(const SDL_Color &color);
@@ -61,8 +63,8 @@ namespace Render
         void LoadIdentity();
         void Translate(int dx, int dy);
         
-        SDL_Rect CalculateTextRect(const std::u16string &str) const;
-        SDL_Rect CalculateTextRect(const std::string &str) const;
+        Rect CalculateTextRect(const std::u16string &str) const;
+        Rect CalculateTextRect(const std::string &str) const;
     };
     
 } // namespace Renderer

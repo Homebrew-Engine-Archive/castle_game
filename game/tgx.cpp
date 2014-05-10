@@ -13,7 +13,7 @@
 
 #include <boost/current_function.hpp>
 
-#include <game/sdl_utils.h>
+#include <game/color.h>
 #include <game/endianness.h>
 #include <game/surface.h>
 

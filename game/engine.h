@@ -41,6 +41,7 @@ namespace Castle
         bool HandleEvent(SDL_Event const&);
         void LoadFonts();
         void PollInput();
+        void PollNetwork();
         void DrawFrame();
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 

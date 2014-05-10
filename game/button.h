@@ -2,7 +2,10 @@
 #define BUTTON_H_
 
 #include <SDL.h>
+
 #include <functional>
+
+#include <game/rect.h>
 #include <game/surface.h>
 
 namespace UI
@@ -16,7 +19,7 @@ namespace UI
 
     class Button
     {
-        SDL_Rect mBoundRect;
+        Rect mBoundRect;
         Surface mReleased;
         Surface mOver;
         Surface mPressed;
@@ -29,12 +32,12 @@ namespace UI
         void SetButtonState(ButtonState state);
     
     public:
-        Button(const SDL_Rect &rect, Surface released, Surface over, Surface pressed, std::function<void()> handler);
+        Button(const Rect &rect, Surface released, Surface over, Surface pressed, void handler());
     
         virtual void Draw(Surface &surface);
         virtual void HandleEvent(const SDL_Event &event);
 
-        virtual SDL_Rect Rect() const;
+        virtual Rect BoundRect() const;
     };
 
 }

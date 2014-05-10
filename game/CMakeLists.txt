@@ -3,6 +3,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 set (SRCS
   camera.cpp
   collection.cpp
+  color.cpp
   console.cpp
   direction.cpp
   engine.cpp
@@ -22,8 +23,9 @@ set (SRCS
   menu_combat.cpp
   menu_main.cpp
   network.cpp
+  point.cpp
+  rect.cpp
   renderer.cpp
-  rw.cpp
   screenmanager.cpp
   simulationmanager.cpp
   sdl_utils.cpp

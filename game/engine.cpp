@@ -9,6 +9,8 @@
 
 #include <SDL.h>
 
+#include <game/color.h>
+#include <game/rect.h>
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
@@ -101,6 +103,13 @@ namespace Castle
         }
     }
     
+    void Engine::PollNetwork()
+    {
+        mIO.poll();
+        // forward connections to simulation manager
+        // forward data to simulation manager
+    }
+    
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer.BeginFrame();
@@ -117,13 +126,13 @@ namespace Castle
 
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(mFontMgr.DefaultFont());
-        textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
+        textRenderer.SetClipBox(Rect(0, 0, 100, 100));
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
-        textRenderer.SetColor(MakeColor(255, 0, 0, 255));
+        textRenderer.SetColor(Color(255, 0, 0, 255));
 
-        FillFrame(frame, textRenderer.CalculateTextRect(text), MakeColor(0, 0, 0, 100));
+        FillFrame(frame, textRenderer.CalculateTextRect(text), Color(0, 0, 0, 100));
         textRenderer.PutString(text);
 
         mRenderer.EndFrame();
@@ -152,7 +161,7 @@ namespace Castle
 
         while(!mClosed) {
             PollInput();
-            mIO.poll();
+            PollNetwork();
             
             if(!mFpsLimited || prevFrame + mFrameUpdateInterval < steady_clock::now()) {
                 mFrameCounter += 1;

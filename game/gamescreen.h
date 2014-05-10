@@ -6,6 +6,7 @@
 #include <game/screen.h>
 #include <game/gamemap.h>
 #include <game/camera.h>
+#include <game/rect.h>
 
 class CollectionData;
 class Surface;
@@ -50,7 +51,6 @@ namespace UI
         bool mHiddenUI;
         CursorMode mCursorMode;
         Castle::Camera mCamera;
-        Castle::GameMap mGameMap;
         int mSpriteCount;
     
     public:
@@ -68,7 +68,7 @@ namespace UI
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
 
-        void AdjustViewport(const SDL_Rect &screen);
+        void AdjustViewport(const Rect &screen);
     
     };
     

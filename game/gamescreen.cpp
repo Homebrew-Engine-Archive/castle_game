@@ -3,6 +3,8 @@
 #include <sstream>
 #include <random>
 
+#include <game/color.h>
+#include <game/rect.h>
 #include <game/renderer.h>
 #include <game/landscape.h>
 #include <game/sdl_utils.h>
@@ -33,7 +35,6 @@ namespace UI
         , mHiddenUI(false)
         , mCursorMode(CursorMode::Normal)
         , mCamera()
-        , mGameMap(400)
         , mSpriteCount(0)
     {
         mCamera.ViewRadius(100);
@@ -45,7 +46,7 @@ namespace UI
         std::uniform_int_distribution<int> paletteIndex(1, GM1::CollectionPaletteCount - 1);
         std::uniform_int_distribution<int> entryIndex(0, gm1.entries.size() - 1);
 
-        const SDL_Rect frameRect = SurfaceBounds(frame);
+        const Rect frameRect = SurfaceBounds(frame);
 
         int x = 0;
         int y = 0;
@@ -70,7 +71,7 @@ namespace UI
                 break;
             }
             
-            SDL_Rect whither = MakeRect(x, y, face->w, face->h);
+            Rect whither = Rect(x, y, face->w, face->h);
             BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
@@ -83,7 +84,7 @@ namespace UI
 
         bool evenRow = true;
         
-        const SDL_Rect frameRect = SurfaceBounds(frame);
+        const Rect frameRect = SurfaceBounds(frame);
 
         std::default_random_engine g(0);
         std::uniform_int_distribution<int> entryIndex(0, gm1.entries.size() - 1);
@@ -103,7 +104,7 @@ namespace UI
                 break;
             }
 
-            SDL_Rect whither = MakeRect(x - gm1.header.anchorX, y - gm1.header.anchorY - entry.header.tileY, face->w, face->h);
+            Rect whither = Rect(x - gm1.header.anchorX, y - gm1.header.anchorY - entry.header.tileY, face->w, face->h);
             BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
@@ -121,17 +122,17 @@ namespace UI
         static const CollectionData &bodyLordGM1 = mRenderer.QueryCollection(bodyLord);
         DrawUnits(frame, bodyLordGM1);
 
-        FillFrame(frame, mCamera.Viewport(), MakeColor(0, 0, 0, 100));
+        FillFrame(frame, mCamera.Viewport(), Color(0, 0, 0, 100));
         
         Render::TextRenderer textRenderer(frame);
         textRenderer.Translate(0, frame->h - 20);
-        textRenderer.SetColor(MakeColor(255, 0, 0, 255));
+        textRenderer.SetColor(Color(255, 0, 0, 255));
         textRenderer.SetFont(mFontManager.DefaultFont());
 
         std::ostringstream oss;
         oss << "Scene objects: " << mSpriteCount;
         std::string text = oss.str();
-        FillFrame(frame, textRenderer.CalculateTextRect(text), MakeColor(0, 0, 0, 200));
+        FillFrame(frame, textRenderer.CalculateTextRect(text), Color(0, 0, 0, 200));
         textRenderer.PutString(text);
     }
 
@@ -171,7 +172,7 @@ namespace UI
         return false;
     }
 
-    void GameScreen::AdjustViewport(const SDL_Rect &screen)
+    void GameScreen::AdjustViewport(const Rect &screen)
     {
         const int speed = 3;
         if(!mCursorInvalid) {

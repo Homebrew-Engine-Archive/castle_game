@@ -12,8 +12,7 @@
 #include <game/gm1palette.h>
 #include <game/gm1entryreader.h>
 #include <game/surface.h>
-#include <game/sdl_utils.h>
-
+#include <game/color.h>
 #include <game/rw.h>
 
 namespace po = boost::program_options;
@@ -34,7 +33,7 @@ namespace GMTool
             ("output,o", po::value(&mOutputFile), "Set output image filename")
             ("format,f", po::value(&mFormat)->default_value(mFormats.front().name), "Set rendering format")
             ("palette,p", po::value(&mPaletteIndex), "Set palette index for 8-bit entries")
-            ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()), "Set background color in ARGB format")
+            ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()), "Set background color in #AARRGGBB format")
             ("approximate-size", po::bool_switch(&mApproxSize), "Prints size of resulting image in bytes")
             ;
         opts.add(mode);
@@ -57,9 +56,9 @@ namespace GMTool
         }
     }
 
-    SDL_Color RenderMode::DefaultTransparent() const
+    Color RenderMode::DefaultTransparent() const
     {
-        return MakeColor(240, 0, 255, 0);
+        return Color(240, 0, 255, 0);
     }
     
     void RenderMode::SetupPalette(Surface &surface, const GM1::Palette &palette)
@@ -77,7 +76,7 @@ namespace GMTool
     void RenderMode::SetupFormat(Surface &surface, const PixelFormatPtr &format)
     {
         if(format->format != surface->format->format) {
-            Surface tmp = SDL_ConvertSurface(surface, format.get(), NoFlags);
+            Surface tmp = SDL_ConvertSurface(surface, format.get(), 0);
             if(!tmp) {
                 throw std::runtime_error(SDL_GetError());
             }
@@ -86,7 +85,7 @@ namespace GMTool
         }
     }
 
-    void RenderMode::SetupTransparentColor(Surface &surface, const SDL_Color &color)
+    void RenderMode::SetupTransparentColor(Surface &surface, const Color &color)
     {
         uint32_t colorkey = SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
         if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {

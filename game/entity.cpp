@@ -1,4 +1,4 @@
-#include "entityclass.h"
+#include "entity.h"
 
 #include <string>
 
@@ -16,7 +16,7 @@ namespace
 
 namespace Entities
 {
-    std::vector<AnimationGroup> ArcherAnimationGroups = {
+    std::vector<AnimationGroup> BodyArcherInfo = {
         {"walk", 16, EightDirs},
         {"run", 16, EightDirs},
         {"shot", 24, EightDirs},

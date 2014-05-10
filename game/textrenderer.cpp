@@ -7,6 +7,8 @@
 
 #include <SDL.h>
 
+#include <game/point.h>
+
 #include <boost/current_function.hpp>
 
 #include <game/surface.h>
@@ -42,21 +44,21 @@ namespace Render
         , mFontStyle(FontStyle_Normal)
     { }
 
-    SDL_Point TextRenderer::GetTopLeftBoxPoint() const
+    Point TextRenderer::GetTopLeftBoxPoint() const
     {
         CheckFontIsSet();
-        SDL_Point cursor { 0, 0 };
+        Point cursor { 0, 0 };
        
         switch(mCursorMode) {
         case CursorMode::BaseLine:
-            cursor = MakePoint(mCursorX, mCursorY - TTF_FontAscent(mCurrentFont));
+            cursor = Point(mCursorX, mCursorY - TTF_FontAscent(mCurrentFont));
             break;
         case CursorMode::BottomLeft:
-            cursor = MakePoint(mCursorX, mCursorY - TTF_FontHeight(mCurrentFont));
+            cursor = Point(mCursorX, mCursorY - TTF_FontHeight(mCurrentFont));
             break;
         case CursorMode::TopLeft:
         default:
-            cursor = MakePoint(mCursorX, mCursorY);
+            cursor = Point(mCursorX, mCursorY);
             break;
         }
         
@@ -75,7 +77,7 @@ namespace Render
             throw std::runtime_error(SDL_GetError());
         }
 
-        SDL_Rect dstRect = MakeRect(GetTopLeftBoxPoint(), text->w, text->h);
+        Rect dstRect = Rect(GetTopLeftBoxPoint(), text->w, text->h);
                 
         BlitSurface(text, SurfaceBounds(text), mSurface, dstRect);
         Translate(text->w, 0);
@@ -98,11 +100,11 @@ namespace Render
         PutRenderedString(textSurface);
     }
     
-    SDL_Rect TextRenderer::CalculateTextRect(const std::string &str) const
+    Rect TextRenderer::CalculateTextRect(const std::string &str) const
     {
         CheckFontIsSet();
         
-        SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
+        Rect size(GetTopLeftBoxPoint(), 0, 0);
         
         if(TTF_SizeText(mCurrentFont, str.c_str(), &size.w, &size.h) < 0) {
             throw std::runtime_error(TTF_GetError());
@@ -110,11 +112,11 @@ namespace Render
         return size;
     }
 
-    SDL_Rect TextRenderer::CalculateTextRect(const std::u16string &str) const
+    Rect TextRenderer::CalculateTextRect(const std::u16string &str) const
     {
         CheckFontIsSet();
         
-        SDL_Rect size = MakeRect(GetTopLeftBoxPoint(), 0, 0);
+        Rect size(GetTopLeftBoxPoint(), 0, 0);
 
         std::basic_string<Uint16> uint16Str = ToUint16String(str);
         
@@ -151,7 +153,7 @@ namespace Render
         mCurrentFont = font;
     }
 
-    void TextRenderer::SetClipBox(const SDL_Rect &clipbox)
+    void TextRenderer::SetClipBox(const Rect &clipbox)
     {
         mClipBox = clipbox;
     }

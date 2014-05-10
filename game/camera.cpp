@@ -1,6 +1,7 @@
 #include "camera.h"
 
-#include <game/sdl_utils.h>
+#include <game/gamemap.h>
+#include <game/rect.h>
 
 namespace Castle
 {
@@ -14,6 +15,12 @@ namespace Castle
         UpdateViewport();
     }
 
+    Rect Camera::TileBox(const GameMap &map, int tile) const
+    {
+        Rect rect;
+        return rect;
+    }
+    
     void Camera::Flat(bool yes)
     {
         mFlatView = yes;
@@ -34,7 +41,7 @@ namespace Castle
         return mDirection;
     }
 
-    void Camera::ViewPoint(const SDL_Point &viewpoint)
+    void Camera::ViewPoint(const Point &viewpoint)
     {
         mViewpoint = viewpoint;
         UpdateViewport();
@@ -46,7 +53,7 @@ namespace Castle
         UpdateViewport();
     }
     
-    SDL_Point Camera::ViewPoint() const
+    Point Camera::ViewPoint() const
     {
         return mViewpoint;
     }
@@ -62,12 +69,12 @@ namespace Castle
         UpdateViewport();
     }
 
-    SDL_Rect Camera::Viewport() const
+    Rect Camera::Viewport() const
     {
         return mViewport;
     }
 
-    void Camera::Viewport(const SDL_Rect &viewport)
+    void Camera::Viewport(const Rect &viewport)
     {
         mViewport = viewport;
         UpdateViewpoint();
@@ -76,8 +83,8 @@ namespace Castle
 
     void Camera::UpdateViewport()
     {
-        mViewport = MakeRect(ShiftPoint(mViewpoint, -mViewradius, -mViewradius),
-                             ShiftPoint(mViewpoint, mViewradius, mViewradius));
+        mViewport = Rect(ShiftPoint(mViewpoint, -mViewradius, -mViewradius),
+                         ShiftPoint(mViewpoint, mViewradius, mViewradius));
     }
 
     void Camera::UpdateViewpoint()

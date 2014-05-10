@@ -1,130 +1,167 @@
 #include "point.h"
+
 #include <cmath>
 #include <iostream>
 
-#include <SDL.h>
-
 namespace
 {
-
     template<class T>
-    inline T Sqr(T x)
+    constexpr T Sqr(T x)
     {
         return x * x;
     }
-    
 }
 
-Point::Point(int x, int y)
-    : x(x)
-    , y(y)
-{ }
-
-Point::Point()
-    : Point{0, 0}
-{ }
-
-Point::operator SDL_Point() const
-{
-    return SDL_Point { x, y };
-}
-
-std::ostream &operator<<(std::ostream &out, const Point &pt)
-{
-    out << '(' << pt.x << ',' << pt.y << ')';
-    return out;
-}
-
-int ManhattanDist(const Point &lhs, const Point &rhs)
-{
-    return Sqr(lhs.x - rhs.x) + Sqr(rhs.y - lhs.y);
-}
-
-double EuclidianDist(const Point &lhs, const Point &rhs)
-{
-    return hypot(lhs.x - rhs.x, lhs.y - rhs.y);
-}
-
-bool operator==(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x == rhs.x) && (lhs.y == rhs.y);
-}
-
-bool operator!=(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x != rhs.x) || (lhs.y != rhs.y);
-}
-
-bool operator<(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x < rhs.x) || (lhs.x == rhs.x && lhs.y < rhs.y);
-}
-
-bool operator<=(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x <= rhs.x) || (lhs.x == rhs.x && lhs.y <= rhs.y);
-}
-
-bool operator>(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x > rhs.x) || (lhs.x == rhs.x && lhs.y > rhs.y);
-}
-
-bool operator>=(const Point &lhs, const Point &rhs)
-{
-    return (lhs.x >= rhs.x) || (lhs.x == rhs.x && lhs.y >= rhs.y);
-}
-
-Point& Point::operator+=(const Point &that)
+Point& Point::operator+=(const SDL_Point &that)
 {
     x += that.x;
     y += that.y;
     return *this;
 }
 
-Point& Point::operator-=(const Point &that)
+Point& Point::operator-=(const SDL_Point &that)
 {
     x -= that.x;
     y -= that.y;
     return *this;
 }
 
-Point operator-(const Point &lhs, const Point &rhs)
+Point& Point::operator*=(const SDL_Point &that)
+{
+    x *= that.x;
+    y *= that.y;
+    return *this;
+}
+
+Point& Point::operator/=(const SDL_Point &that)
+{
+    x /= that.x;
+    y /= that.y;
+    return *this;
+}
+
+std::ostream& operator<<(std::ostream &out, const SDL_Point &pt)
+{
+    out << '(' << pt.x << ',' << pt.y << ')';
+    return out;
+}
+
+int Manhattan(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return Sqr(lhs.x - rhs.x) + Sqr(rhs.y - lhs.y);
+}
+
+float Hypot(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return hypot(Sqr(lhs.x - rhs.x), Sqr(lhs.y - rhs.y));
+}
+
+bool operator==(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+}
+
+bool operator!=(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return (lhs.x != rhs.x) || (lhs.y != rhs.y);
+}
+
+bool operator<(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return (lhs.x < rhs.x) || (lhs.x == rhs.x && lhs.y < rhs.y);
+}
+
+bool operator>(const SDL_Point &lhs, const SDL_Point &rhs)
+{
+    return (lhs.x > rhs.x) || (lhs.x == rhs.x && lhs.y > rhs.y);
+}
+
+Point operator-(const SDL_Point &lhs, const SDL_Point &rhs)
 {
     return Point(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
-Point operator+(const Point &lhs, const Point &rhs)
+Point operator+(const SDL_Point &lhs, const SDL_Point &rhs)
 {
     return Point(lhs.x + rhs.x, lhs.y + rhs.y);
 }
 
-Point operator*(const Point &lhs, const Point &rhs)
+Point operator*(const SDL_Point &lhs, const SDL_Point &rhs)
 {
     return Point(lhs.x * rhs.x, lhs.y * rhs.y);
 }
 
-Point operator/(const Point &lhs, const Point &rhs)
+Point operator/(const SDL_Point &lhs, const SDL_Point &rhs)
 {
     return Point(lhs.x / rhs.x, lhs.y / rhs.y);
 }
 
-Point operator-(const Point &pt, int x)
+Point operator-(const SDL_Point &pt, int x)
 {
     return Point(pt.x - x, pt.y - x);
 }
 
-Point operator+(const Point &pt, int x)
+Point operator+(const SDL_Point &pt, int x)
 {
     return Point(pt.x + x, pt.y + x);
 }
 
-Point operator*(const Point &pt, int x)
+Point operator*(const SDL_Point &pt, int x)
 {
     return Point(pt.x * x, pt.y * x);
 }
 
-Point operator/(const Point &pt, int x)
+Point operator/(const SDL_Point &pt, int x)
 {
     return Point(pt.x / x, pt.y / x);
+}
+
+Point ShiftPoint(const SDL_Point &pt, int x, int y)
+{
+    return Point(pt.x + x, pt.y + y);
+}
+
+Point AlignPoint(const SDL_Rect &rt, double x, double y)
+{
+    return Point(rt.x + rt.w * (x + 1) / 2,
+                 rt.y + rt.h * (y + 1) / 2);
+}
+
+bool PointInRect(const SDL_Rect &rect, const SDL_Point &pt)
+{
+    return PointInRect(rect, pt.x, pt.y);
+}
+
+bool PointInRect(const SDL_Rect &rect, int x, int y)
+{
+    return (rect.x >= x)
+        && (rect.y >= y)
+        && (rect.w + rect.x > x)
+        && (rect.h + rect.y > y);
+}
+
+Point RectCenter(const SDL_Rect &rect)
+{
+    return Point(rect.x + rect.w / 2,
+                 rect.y + rect.h / 2);
+}
+
+Point TopLeft(const SDL_Rect &rect)
+{
+    return Point(rect.x, rect.y);
+}
+
+Point TopRight(const SDL_Rect &rect)
+{
+    return Point(rect.x + rect.w, rect.y);
+}
+
+Point BottomLeft(const SDL_Rect &rect)
+{
+    return Point(rect.x, rect.y + rect.h);
+}
+
+Point BottomRight(const SDL_Rect &rect)
+{
+    return Point(rect.x + rect.w, rect.y + rect.y);
 }

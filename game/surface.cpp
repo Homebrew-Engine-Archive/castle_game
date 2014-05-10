@@ -1,5 +1,6 @@
 #include "surface.h"
 
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -11,6 +12,9 @@
 
 #include <boost/current_function.hpp>
 
+#include <game/color.h>
+#include <game/rect.h>
+#include <game/point.h>
 #include <game/sdl_utils.h>
 
 namespace
@@ -29,27 +33,33 @@ namespace
         }
     }
     
-    void TransformBuffer(char *bytes, size_t size, const SDL_PixelFormat *format, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
+    struct TransformFunctor
     {
-        const char *end = bytes + size * format->BytesPerPixel;
-        
-        while(bytes != end) {
-            const uint32_t origPixel = GetPackedPixel(bytes, format->BytesPerPixel);
+        const SDL_PixelFormat *mFormat;
+        std::function<Color(Color const&)> mFunc;
 
-            uint8_t r;
-            uint8_t g;
-            uint8_t b;
-            uint8_t a;
-            SDL_GetRGBA(origPixel, format, &r, &g, &b, &a);
-        
-            const SDL_Color result = func(r, g, b, a);
+        TransformFunctor(const SDL_PixelFormat *format, Color func(Color const&))
+            : mFormat(format)
+            , mFunc(func)
+            {}
 
-            const uint32_t pixel = SDL_MapRGBA(format, result.r, result.g, result.b, result.a);
-            SetPackedPixel(bytes, pixel, format->BytesPerPixel);
-            
-            bytes += format->BytesPerPixel;
+        void operator()(char *bytes, size_t size) {
+            const char *end = bytes + size * mFormat->BytesPerPixel;
+        
+            while(bytes != end) {
+                const uint32_t origPixel = GetPackedPixel(bytes, mFormat->BytesPerPixel);
+
+                Color color;
+                SDL_GetRGBA(origPixel, mFormat, &color.r, &color.g, &color.b, &color.a);
+
+                const Color result = mFunc(color);
+                const uint32_t pixel = SDL_MapRGBA(mFormat, result.r, result.g, result.b, result.a);
+                SetPackedPixel(bytes, pixel, mFormat->BytesPerPixel);
+
+                bytes += mFormat->BytesPerPixel;
+            }
         }
-    }
+    };
 
     struct ConvolveFunctor
     {
@@ -200,7 +210,7 @@ void Surface::reset(SDL_Surface *surface)
     Assign(surface);
 }
 
-SurfaceView::SurfaceView(Surface &src, const SDL_Rect &clip)
+SurfaceView::SurfaceView(Surface &src, const Rect &clip)
 {
     if(!src) {
         Fail(BOOST_CURRENT_FUNCTION, "Null surface");
@@ -305,19 +315,14 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
 }
 
-SDL_Rect FindCropRect(const Surface &surface)
+void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
 {
-    return SurfaceBounds(surface);
-}
-
-void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, const SDL_Rect &dstrect)
-{
-    if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<SDL_Rect&>(dstrect)) < 0) {
+    if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<Rect&>(dstrect)) < 0) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
 }
 
-void DrawFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
+void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color)
 {
     if(!dst) {
         Fail(BOOST_CURRENT_FUNCTION, "Null surface");
@@ -330,7 +335,7 @@ void DrawFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
     SDL_RenderDrawRect(render.get(), &dstrect);
 }
 
-void FillFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
+void FillFrame(Surface &dst, const Rect &dstrect, const Color &color)
 {
     if(!dst) {
         Fail(BOOST_CURRENT_FUNCTION, "Null surface");
@@ -343,12 +348,7 @@ void FillFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
     SDL_RenderFillRect(render.get(), &dstrect);
 }
 
-SDL_Rect SurfaceBounds(const Surface &src)
-{
-    return ((!src) ? MakeEmptyRect() : MakeRect(src->w, src->h));
-}
-
-void TransformSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
+void TransformSurface(Surface &dst, Color func(Color const&))
 {
     if(!dst) {
         Fail(BOOST_CURRENT_FUNCTION, "Null surface");
@@ -358,9 +358,10 @@ void TransformSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, ui
 
     char *bytes = GetPixels(dst);
 
-    for(int y = 0; y < dst->h; ++y) {
-        TransformBuffer(bytes, dst->w, dst->format, func);
-        bytes += dst->pitch;
+    TransformFunctor transformBuffer(dst->format, func);
+    
+    for(int i = 0; i < dst->h; ++i) {
+        transformBuffer(bytes + i * dst->pitch, dst->w);
     }
 }
 
@@ -383,6 +384,11 @@ void BlurSurface(Surface &dst, int radius)
     for(int x = 0; x < dst->w; ++x) {
         convolve(bytes + x * bytesPP, dst->h, dst->pitch);
     }
+}
+
+Rect SurfaceBounds(const Surface &src)
+{
+    return Rect(src->w, src->h);
 }
 
 bool HasPalette(const Surface &surface)

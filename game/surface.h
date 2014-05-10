@@ -3,6 +3,10 @@
 
 #include <SDL.h>
 
+#include <game/rect.h>
+
+class Color;
+
 /**
  * \brief Wrapper for SDL_Surface with reference counting
  */
@@ -14,16 +18,16 @@ protected:
     
 public:
     Surface();
-    Surface(SDL_Surface *s);
-    Surface(const Surface &that);
+    Surface(SDL_Surface*);
+    Surface(Surface const&);
     virtual ~Surface();
     bool Null() const;
-    operator SDL_Surface *() const;
+    operator SDL_Surface*() const;
     bool operator!() const;
-    Surface &operator=(SDL_Surface *s);
-    Surface &operator=(const Surface &that);
-    bool operator==(const Surface &that);
-    SDL_Surface *operator->() const;
+    Surface& operator=(SDL_Surface*);
+    Surface& operator=(Surface const&);
+    bool operator==(Surface const&);
+    SDL_Surface* operator->() const;
     void reset(SDL_Surface *surface = nullptr);
 };
 
@@ -60,12 +64,12 @@ class SurfaceView : public Surface
 {
     Surface mReferer;
 public:
-    SurfaceView(Surface &src, const SDL_Rect &clip);
+    SurfaceView(Surface &src, const Rect &clip);
 };
 
 bool HasPalette(const Surface &surface);
 
-void MapSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t));
+void MapSurface(Surface &dst, Color func(uint8_t, uint8_t, uint8_t, uint8_t));
 
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
 Surface CreateSurface(int width, int height, int format);
@@ -75,17 +79,17 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
-void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, const SDL_Rect &dstrect);
+void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
 
-void DrawFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color);
+void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
 
-void FillFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color);
+void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
 
 void BlurSurface(Surface &dst, int radius);
 
-SDL_Rect SurfaceBounds(const Surface &src);
+void TransformSurface(const Surface &surface, Color(Color const&));
 
-SDL_Rect FindCropRect(const Surface &src);
+Rect SurfaceBounds(const Surface &src);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels

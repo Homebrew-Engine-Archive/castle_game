@@ -44,7 +44,7 @@ namespace Render
         , mGFXCache()
         , mGMCache()
     {
-        SDL_Rect rect = GetOutputSize();
+        Rect rect = GetOutputSize();
         mScreenWidth = rect.w;
         mScreenHeight = rect.h;
         mScreenFormat = SDL_PIXELFORMAT_ARGB8888;
@@ -114,7 +114,7 @@ namespace Render
                     ("What", SDL_GetError());
             }
 
-            const SDL_Rect textureRect = SurfaceBounds(mScreenSurface);
+            const Rect textureRect = SurfaceBounds(mScreenSurface);
             if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
                 throw Castle::Error()
                     ("Where", BOOST_CURRENT_FUNCTION)
@@ -125,16 +125,19 @@ namespace Render
         SDL_RenderPresent(mRenderer);
     }
 
-    SDL_Rect Renderer::GetOutputSize() const
+    Rect Renderer::GetOutputSize() const
     {
-        SDL_Rect outputSize { 0, 0, 0, 0 };
-        if(SDL_GetRendererOutputSize(mRenderer, &outputSize.w, &outputSize.h) < 0) {
+        Rect size;
+        
+        if(SDL_GetRendererOutputSize(mRenderer, &size.w, &size.h) < 0) {
             throw Castle::Error()
-                ("Where", BOOST_CURRENT_FUNCTION)
-                ("What", SDL_GetError());
+                ("Function", BOOST_CURRENT_FUNCTION)
+                ("File", __FILE__)
+                ("Line", std::to_string(__LINE__))
+                ("SDL_GetError", SDL_GetError());
         }
         
-        return outputSize;
+        return size;
     }
 
     void Renderer::SetWindowSize(int width, int height)

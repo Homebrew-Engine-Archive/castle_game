@@ -24,9 +24,9 @@ namespace UI
     
     void MenuMain::Draw(Surface &frame)
     {
-        SDL_Rect frameRect = SurfaceBounds(frame);
-        SDL_Rect bgRect = SurfaceBounds(mBackground);
-        SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
+        Rect frameRect = SurfaceBounds(frame);
+        Rect bgRect = SurfaceBounds(mBackground);
+        Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
         BlitSurface(mBackground, bgRect, frame, bgAligned);
     }

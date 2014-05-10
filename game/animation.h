@@ -7,7 +7,7 @@
 #include <game/surface.h>
 #include <game/filesystem.h>
 
-enum class AnimationClass : int
+enum class AnimType : int
 {
     Walk,
     Run,

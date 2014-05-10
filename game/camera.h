@@ -3,14 +3,16 @@
 
 #include <SDL.h>
 #include <game/direction.h>
+#include <game/rect.h>
+#include <game/point.h>
 
 namespace Castle
 {
     class Camera
     {
-        SDL_Point mViewpoint;
+        Point mViewpoint;
         int mViewradius;
-        SDL_Rect mViewport;
+        Rect mViewport;
         Direction mDirection;
         bool mFlatView;
 
@@ -21,22 +23,24 @@ namespace Castle
     public:
         Camera();
 
+        Rect TileBox(const class GameMap &map, int tile) const;
+        
         bool Flat() const;
         void Flat(bool yes);
         
         Direction Dir() const;
         void Dir(const Direction &dir);
         
-        SDL_Point ViewPoint() const;
-        void ViewPoint(const SDL_Point &point);
+        Point ViewPoint() const;
+        void ViewPoint(const Point &point);
 
         void Translate(int dx, int dy);
         
         int ViewRadius() const;
         void ViewRadius(int radius);
 
-        SDL_Rect Viewport() const;
-        void Viewport(const SDL_Rect &viewport);
+        Rect Viewport() const;
+        void Viewport(const Rect &viewport);
     };
 }
 

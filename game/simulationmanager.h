@@ -1,8 +1,12 @@
 #ifndef SIMULATIONMANAGER_H_
 #define SIMULATIONMANAGER_H_
 
+#include <map>
 #include <chrono>
 #include <vector>
+#include <memory>
+
+#include <game/gamemap.h>
 
 namespace Castle
 {
@@ -11,8 +15,13 @@ namespace Castle
     
     class SimulationManager
     {
-        std::vector<SimulationCommand> mBatchedCommands;
+        std::vector<int> mEntities;
+        std::unique_ptr<Castle::GameMap> mMap;
+        std::map<int, std::vector<SimulationCommand>> mBatchedCommands;
+
     public:
+        SimulationManager();
+        
         void Update();
 
         void InjectCommand(const SimulationCommand &command);

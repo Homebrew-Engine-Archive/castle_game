@@ -33,6 +33,18 @@ namespace Network
         void StartAccept();
         void AcceptHandler(const boost::system::error_code &e);
     };
+
+    class Client
+    {
+        boost::asio::io_service &mIO;
+        short mPort;
+        boost::asio::ip::tcp::endpoint mAddr;
+        Connection mConnection;
+    public:
+        Client(boost::asio::io_service &io, boost::asio::ip::tcp::endpoint addr, short port);
+        void StartConnect();
+        void EndConnect();
+    };
 }
 
 #endif  // NETWORK_H_

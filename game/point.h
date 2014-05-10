@@ -2,43 +2,78 @@
 #define POINT_H_
 
 #include <iosfwd>
+#include <SDL.h>
 
-struct SDL_Point;
-
-struct Point
+class Point : public SDL_Point
 {
-    int x;
-    int y;
+public:
+    constexpr Point()
+        : Point(0, 0) {}
     
-    Point(int x, int y);
-    Point();
+    constexpr Point(int x, int y)
+        : SDL_Point {x, y} {}
 
-    Point& operator+=(const Point &that);
-    Point& operator-=(const Point &that);
+    Point& operator+=(const SDL_Point &that);
+    Point& operator-=(const SDL_Point &that);
+    Point& operator*=(const SDL_Point &that);
+    Point& operator/=(const SDL_Point &that);
 
-    operator SDL_Point() const;
+    template<class T> Point& operator+=(const T v) {
+        x += v;
+        y += v;
+        return *this;
+    }
+    
+    template<class T> Point& operator-=(const T v) {
+        x -= v;
+        y -= v;
+        return *this;
+    }
+    
+    template<class T> Point& operator*=(const T v) {
+        x *= v;
+        y *= v;
+        return *this;
+    }
+    
+    template<class T> Point& operator/=(const T v) {
+        x /= v;
+        y /= v;
+        return *this;
+    }
 };
 
-double EuclidianDist(const Point &lhs, const Point &rhs);
-int ManhattanDist(const Point &lhs, const Point &rhs);
+float Hypot(const SDL_Point &lhs, const SDL_Point &rhs);
+int Manhattan(const SDL_Point &lhs, const SDL_Point &rhs);
 
-bool operator==(const Point &lhs, const Point &rhs);
-bool operator!=(const Point &lhs, const Point &rhs);    
-bool operator<(const Point &lhs, const Point &rhs);
-bool operator<=(const Point &lhs, const Point &rhs);
-bool operator>(const Point &lhs, const Point &rhs);
-bool operator>=(const Point &lhs, const Point &rhs);
+bool operator==(const SDL_Point &lhs, const SDL_Point &rhs);
+bool operator!=(const SDL_Point &lhs, const SDL_Point &rhs);    
+bool operator<(const SDL_Point &lhs, const SDL_Point &rhs);
+bool operator>(const SDL_Point &lhs, const SDL_Point &rhs);
 
-Point operator-(const Point &lhs, const Point &rhs);
-Point operator+(const Point &lhs, const Point &rhs);
-Point operator*(const Point &lhs, const Point &rhs);
-Point operator/(const Point &lhs, const Point &rhs);
+Point operator-(const SDL_Point &lhs, const SDL_Point &rhs);
+Point operator+(const SDL_Point &lhs, const SDL_Point &rhs);
+Point operator*(const SDL_Point &lhs, const SDL_Point &rhs);
+Point operator/(const SDL_Point &lhs, const SDL_Point &rhs);
 
-Point operator-(const Point &pt, int x);
-Point operator+(const Point &pt, int x);
-Point operator*(const Point &pt, int x);
-Point operator/(const Point &pt, int x);
+Point operator-(const SDL_Point &pt, int x);
+Point operator+(const SDL_Point &pt, int x);
+Point operator*(const SDL_Point &pt, int x);
+Point operator/(const SDL_Point &pt, int x);
 
-std::ostream &operator<<(std::ostream &out, const Point &pt);
+Point TopLeft(const SDL_Rect &rect);
+Point TopRight(const SDL_Rect &rect);
+Point BottomLeft(const SDL_Rect &rect);
+Point BottomRight(const SDL_Rect &rect);
+
+Point RectCenter(const SDL_Rect &src);
+
+bool PointInRect(const SDL_Rect &rect, int x, int y);
+bool PointInRect(const SDL_Rect &rect, const SDL_Point &pt);
+
+Point AlignPoint(const SDL_Rect &dst, double x, double y);
+Point ShiftPoint(const SDL_Point &point, int x, int y);
+
+std::ostream& operator<<(std::ostream &out, const SDL_Point &pt);
 
 #endif

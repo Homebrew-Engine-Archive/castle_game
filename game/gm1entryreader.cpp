@@ -8,6 +8,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <SDL.h>
 
+#include <game/rect.h>
 #include <game/sdl_utils.h>
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>
@@ -117,10 +118,10 @@ namespace
         // Originally I found that just color-keying of an image
         // doesn't work properly. After skipping all fully-transparent
         // pixels of the image some opaque magenta "halo" still remains.
-        //
+
         // In the way to solve it i'd just swapped green channel with alpha
         // and go clean my hands.
-        // 
+
         // TODO is there a better way to do so?
         // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         // if(!tmp) {
@@ -134,8 +135,8 @@ namespace
 
         // Here we just ignore original color information. What we are really
         // interested in is green channel
-        // auto swap_green_alpha = [](uint8_t r, uint8_t g, uint8_t b, uint8_t) {
-        //     return SDL_Color { r, 255, b, g };
+        // auto swap_green_alpha = [](const Color &color) {
+        //     return Color(color.r, 255, color.b, color.g);
         // };
     
         // TransformSurface(tmp, swap_green_alpha);
@@ -190,11 +191,11 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), GM1::TileHeight);
+        Rect tilerect(0, header.tileY, Width(header), GM1::TileHeight);
         SurfaceView tile(surface, tilerect);
         ReadTile(in, tile);
         
-        SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
+        Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceView box(surface, boxrect);
         TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box);
     }
@@ -203,8 +204,8 @@ namespace
 namespace GM1
 {
     GM1EntryReader::GM1EntryReader()
+        : mTransparentColor(255, 0, 255)
     {
-        mTransparentColor = MakeColor(255, 0, 255, 0);
     }
     
     Surface GM1EntryReader::CreateCompatibleSurface(const GM1::EntryHeader &header) const
@@ -281,12 +282,12 @@ namespace GM1
         return SDL_ISPIXELFORMAT_INDEXED(CompatiblePixelFormat());
     }
 
-    SDL_Color GM1EntryReader::Transparent() const
+    Color GM1EntryReader::Transparent() const
     {
         return mTransparentColor;
     }
 
-    void GM1EntryReader::Transparent(SDL_Color color)
+    void GM1EntryReader::Transparent(Color color)
     {
         mTransparentColor = color;
     }

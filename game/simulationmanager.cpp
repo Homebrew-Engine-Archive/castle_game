@@ -2,6 +2,14 @@
 
 namespace Castle
 {
+    SimulationManager::SimulationManager()
+        : mEntities()
+        , mMap(nullptr)
+        , mBatchedCommands()
+    {
+
+    }
+    
     void SimulationManager::Update()
     {
 

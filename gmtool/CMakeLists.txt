@@ -29,7 +29,9 @@ set (SHARED
   ../game/gm1entryreader.cpp
   ../game/gm1palette.cpp
   ../game/surface.cpp
-  ../game/sdl_utils.cpp
+  ../game/color.cpp
+  ../game/rect.cpp
+  ../game/point.cpp
   ../game/tgx.cpp
   ../game/rw.cpp
 )

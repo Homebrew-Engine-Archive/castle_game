@@ -40,7 +40,11 @@ int main()
                              windowFlags));
 
         if(!sdlWindow) {
-            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::Error()
+                ("SDL_GetError", SDL_GetError())
+                ("File", __FILE__)
+                ("Line", std::to_string(__LINE__))
+                ;
         }
 
         sdlRenderer.reset(
@@ -49,7 +53,11 @@ int main()
                                rendererFlags));
         
         if(!sdlRenderer) {
-            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::Error()
+                ("SDL_GetError", SDL_GetError())
+                ("File", __FILE__)
+                ("Line", std::to_string(__LINE__))
+                ;
         }
 
         Render::Renderer renderer(sdlRenderer.get());

@@ -7,7 +7,7 @@
 namespace UI
 {
 
-    Button::Button(const SDL_Rect &rect, Surface released, Surface over, Surface pressed, std::function<void()> handler)
+    Button::Button(const Rect &rect, Surface released, Surface over, Surface pressed, void handler())
         : mBoundRect(rect)
         , mReleased(released)
         , mOver(over)
@@ -90,7 +90,7 @@ namespace UI
         }
     }
 
-    SDL_Rect Button::Rect() const
+    Rect Button::BoundRect() const
     {
         return mBoundRect;
     }

@@ -9,6 +9,7 @@
 
 #include <SDL.h>
 
+#include <game/rect.h>
 #include <game/collection.h>
 #include <game/surface.h>
 #include <game/sdl_utils.h>
@@ -42,7 +43,7 @@ namespace Render
         
         Surface BeginFrame();
         void EndFrame();
-        SDL_Rect GetOutputSize() const;
+        Rect GetOutputSize() const;
         void SetWindowSize(int width, int height);
         void AdjustBufferSize(int width, int height);
         Surface QuerySurface(const fs::path &filename);

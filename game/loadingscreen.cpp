@@ -3,12 +3,15 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/clamp.hpp>
+
 #include <SDL.h>
 
+#include <boost/filesystem/fstream.hpp>
+#include <boost/algorithm/clamp.hpp>
+
+#include <game/color.h>
+#include <game/rect.h>
 #include <game/filesystem.h>
-#include <game/sdl_utils.h>
 #include <game/collection.h>
 
 namespace UI
@@ -57,20 +60,20 @@ namespace UI
     {
         double rate = GetCompleteRate();
         
-        SDL_Rect frameRect = SurfaceBounds(frame);
-        SDL_Rect bgRect = SurfaceBounds(mBackground);
+        Rect frameRect = SurfaceBounds(frame);
+        Rect bgRect = SurfaceBounds(mBackground);
 
-        SDL_Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
+        Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
         BlitSurface(mBackground, bgRect, frame, bgAligned);
     
-        SDL_Rect barOuter = MakeRect(300, 25);
-        SDL_Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-        FillFrame(frame, barOuterAligned, MakeColor(0, 0, 0, 128));
-        DrawFrame(frame, barOuterAligned, MakeColor(0, 0, 0, 255));
+        Rect barOuter(300, 25);
+        Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
+        FillFrame(frame, barOuterAligned, Color(0, 0, 0, 128));
+        DrawFrame(frame, barOuterAligned, Color(0, 0, 0, 255));
 
-        SDL_Rect barOuterPadded = PadIn(barOuterAligned, 5);
-        SDL_Rect barInner = MakeRect(barOuterPadded.w * rate, barOuterPadded.h);
-        SDL_Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-        FillFrame(frame, barInnerAligned, MakeColor(0, 0, 0, 255));
+        Rect barOuterPadded = PadIn(barOuterAligned, 5);
+        Rect barInner(barOuterPadded.w * rate, barOuterPadded.h);
+        Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
+        FillFrame(frame, barInnerAligned, Color(0, 0, 0, 255));
     }   
 } // namespace UI

@@ -37,41 +37,4 @@ struct RWCloseDeleter
 
 typedef std::unique_ptr<SDL_RWops, RWCloseDeleter> RWPtr;
 
-SDL_Rect MakeRect(int x, int y, int w, int h);
-SDL_Rect MakeRect(int w, int h);
-SDL_Rect MakeRect(const SDL_Point &p1, const SDL_Point &p2);
-SDL_Rect MakeRect(const SDL_Point &p);
-SDL_Rect MakeRect(const SDL_Point &p, int w, int h);
-SDL_Rect MakeEmptyRect();
-SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
-SDL_Point MakePoint(int x, int y);
-
-SDL_Color GetPixelColor(uint32_t pixel, int format);
-uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
-void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);
-
-SDL_Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);
-SDL_Rect PadIn(const SDL_Rect &src, int pad);
-SDL_Rect PadOut(const SDL_Rect &src, int pad);
-SDL_Rect ShiftRect(const SDL_Rect &src, int xshift, int yshift);
-bool PointInRect(const SDL_Rect &rect, int x, int y);
-SDL_Point TopRight(const SDL_Rect &src);
-SDL_Point BottomLeft(const SDL_Rect &src);
-SDL_Point TopLeft(const SDL_Rect &src);
-SDL_Point BottomRight(const SDL_Rect &src);
-SDL_Point RectCenter(const SDL_Rect &src);
-SDL_Point AlignPoint(const SDL_Rect &dst, double x, double y);
-SDL_Point ShiftPoint(const SDL_Point &point, int x, int y);
-
-bool operator==(const SDL_Color &left, const SDL_Color &right);
-bool operator!=(const SDL_Color &left, const SDL_Color &right);
-
-bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs);
-bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs);
-
-std::ostream& operator<<(std::ostream &out, const SDL_Color &color);
-std::ostream& operator<<(std::ostream &out, const SDL_Rect &rect);
-std::ostream& operator<<(std::ostream &out, const SDL_Point &pt);
-std::istream& operator>>(std::istream &in, SDL_Color &color);
-
 #endif

@@ -3,8 +3,10 @@
 
 #include <iosfwd>
 #include <memory>
+
 #include <game/tgx.h>
 #include <game/surface.h>
+#include <game/color.h>
 
 namespace GM1
 {
@@ -18,7 +20,7 @@ namespace GM1
 {        
     class GM1EntryReader
     {
-        SDL_Color mTransparentColor;
+        Color mTransparentColor;
         
     protected:
         virtual Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
@@ -27,8 +29,8 @@ namespace GM1
     public:
         GM1EntryReader();
 
-        void Transparent(SDL_Color color);
-        SDL_Color Transparent() const;
+        void Transparent(Color color);
+        Color Transparent() const;
         
         virtual int Width(GM1::EntryHeader const&) const;
         virtual int Height(GM1::EntryHeader const&) const;
@@ -42,7 +44,6 @@ namespace GM1
     };
     
     GM1EntryReader::Ptr CreateEntryReader(GM1::Encoding const&);
-    
 }
 
 #endif

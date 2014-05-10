@@ -1,14 +1,16 @@
 #include "console.h"
 
 #include <SDL.h>
+
 #include <iostream>
 #include <vector>
 #include <string>
 
+#include <game/color.h>
+#include <game/rect.h>
 #include <game/renderer.h>
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
-#include <game/sdl_utils.h>
 #include <game/surface.h>
 #include <game/textrenderer.h>
 
@@ -26,7 +28,7 @@ namespace UI
 
     void Console::Draw(Surface &frame)
     {
-        FillFrame(frame, MakeRect(0, 0, frame->w, frame->h / 2), MakeColor(0, 0, 0, 100));
+        FillFrame(frame, Rect(0, 0, frame->w, frame->h / 2), Color(0, 0, 0, 100));
         
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(mFontManager.Font(mFontName, mFontSize));

@@ -10,6 +10,7 @@
 #include <gmtool/renderer.h>
 #include <gmtool/hexcolor.h>
 
+#include <game/color.h>
 #include <game/gm1palette.h>
 
 class Surface;
@@ -23,15 +24,15 @@ namespace GMTool
         std::string mFormat;
         int mEntryIndex = 0;
         int mPaletteIndex = 0;
-        SDL_Color mTransparentColor;
+        Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
         bool mApproxSize = false;
 
-        SDL_Color DefaultTransparent() const;
+        Color DefaultTransparent() const;
         
         void SetupFormat(Surface &surface, const PixelFormatPtr &format);
         void SetupPalette(Surface &surface, const GM1::Palette &palette);
-        void SetupTransparentColor(Surface &surface, const SDL_Color &color);
+        void SetupTransparentColor(Surface &surface, const Color &color);
         
     public:
         RenderMode();
