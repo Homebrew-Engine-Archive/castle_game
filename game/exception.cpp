@@ -23,6 +23,17 @@ namespace Castle
     {
         return Exception(SDL_GetError(), where, file, line);
     }
+
+    Error& Error::operator()(const std::string &attribute, const std::string &value)
+    {
+        mAttributes[attribute] = value;
+        return *this;
+    }
+
+    const char* Error::what() const throw()
+    {
+        return "Error wat?!";
+    }
 }
 
 std::ostream& operator<<(std::ostream &out, const Castle::Exception &error)
@@ -32,5 +43,14 @@ std::ostream& operator<<(std::ostream &out, const Castle::Exception &error)
         << "\tWhere = " << error.mWhere << std::endl
         << "\tFile = " << error.mFile << std::endl
         << "\tLine = " << error.mLine << std::endl;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream &out, const Castle::Error &error)
+{
+    out << "Exception: " << std::endl;
+    for(auto attrib : error.mAttributes) {
+        out << attrib.first << " = " << attrib.second << std::endl;
+    }
     return out;
 }

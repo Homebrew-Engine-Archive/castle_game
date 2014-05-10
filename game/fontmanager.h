@@ -17,20 +17,29 @@ namespace Render
     class FontManager
     {
         std::vector<FontData> mFontTable;
+        FontData *mDefaultFontData;
 
         FontData* GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs);
         FontData* LookupFontName(const std::string &name, int fsize);
+
+        void CheckDefaultFontIsSet() const;
         
     public:
         FontManager();
-        FontManager(FontManager const&) = delete;
-        FontManager& operator=(FontManager const&) = delete;
         FontManager& operator=(FontManager&&);
         FontManager(FontManager&&);
+        FontManager(FontManager const&) = delete;
+        FontManager& operator=(FontManager const&) = delete;
         virtual ~FontManager();
         
-        virtual void LoadFontFile(const std::string &name, int fsize);
-        virtual TTF_Font* Font(const std::string &name, int fsize);
+        void LoadFontFile(const std::string &name, int fsize);
+        TTF_Font* Font(const std::string &name, int fsize);
+
+        void SetDefaultFont(const std::string &name, int fsize);
+        
+        TTF_Font* DefaultFont();
+        std::string DefaultFontName() const;
+        int DefaultFontSize() const;
     };
 }
 

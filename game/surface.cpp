@@ -12,11 +12,9 @@
 #include <boost/current_function.hpp>
 
 #include <game/sdl_utils.h>
-#include <game/make_unique.h>
 
 namespace
 {
-
     void Fail(const std::string &where, const std::string &what)
     {
         std::ostringstream oss;
@@ -52,43 +50,62 @@ namespace
             bytes += format->BytesPerPixel;
         }
     }
-    
-    void ConvolveBuffer(char *bytes, int length, int stride, const SDL_PixelFormat *format, uint32_t *redBuff, uint32_t *greenBuff, uint32_t *blueBuff, int radius)
+
+    struct ConvolveFunctor
     {
-        uint32_t redAccum = 0;
-        uint32_t greenAccum = 0;
-        uint32_t blueAccum = 0;
+        std::vector<uint32_t> mBuffer;
+        uint32_t *const mRedBuff;
+        uint32_t *const mGreenBuff;
+        uint32_t *const mBlueBuff;
+        const int mRadius;
+        const SDL_PixelFormat *mFormat;
 
-        for(int i = 0; i < length; ++i) {
-            const uint32_t pixel = GetPackedPixel(bytes + i * stride, format->BytesPerPixel);
+        ConvolveFunctor(int radius, const SDL_PixelFormat *format, int bufferSize)
+            : mBuffer(bufferSize * 3)
+            , mRedBuff(&mBuffer[bufferSize * 0])
+            , mGreenBuff(&mBuffer[bufferSize * 1])
+            , mBlueBuff(&mBuffer[bufferSize * 2])
+            , mRadius(radius)
+            , mFormat(format)
+            { }
+        
+        void operator()(char *bytes, int length, int stride)
+        {    
+            uint32_t redAccum = 0;
+            uint32_t greenAccum = 0;
+            uint32_t blueAccum = 0;
 
-            uint8_t r;
-            uint8_t g;
-            uint8_t b;
-            SDL_GetRGB(pixel, format, &r, &g, &b);
-            
-            redAccum += r;
-            greenAccum += g;
-            blueAccum += b;
-            
-            redBuff[i] = redAccum;
-            greenBuff[i] = greenAccum;
-            blueBuff[i] = blueAccum;
+            for(int i = 0; i < length; ++i) {
+                const uint32_t pixel = GetPackedPixel(bytes + i * stride, mFormat->BytesPerPixel);
+
+                uint8_t r;
+                uint8_t g;
+                uint8_t b;
+                SDL_GetRGB(pixel, mFormat, &r, &g, &b);
+
+                redAccum += r;
+                greenAccum += g;
+                blueAccum += b;
+
+                mRedBuff[i] = redAccum;
+                mGreenBuff[i] = greenAccum;
+                mBlueBuff[i] = blueAccum;
+            }
+
+            for(int i = 0; i < length; ++i) {
+                const size_t minIndex = std::max(0, i - mRadius);
+                const size_t maxIndex = std::min(i + mRadius, length - 1);
+
+                const uint32_t red = mRedBuff[maxIndex] - mRedBuff[minIndex];
+                const uint32_t green = mGreenBuff[maxIndex] - mGreenBuff[minIndex];
+                const uint32_t blue = mBlueBuff[maxIndex] - mBlueBuff[minIndex];
+                const uint32_t count = maxIndex - minIndex;
+
+                const uint32_t pixel = SDL_MapRGB(mFormat, red / count, green / count, blue / count);
+                SetPackedPixel(bytes + i * stride, pixel, mFormat->BytesPerPixel);
+            }
         }
-
-        for(int i = 0; i < length; ++i) {
-            const size_t minIndex = std::max(0, i - radius);
-            const size_t maxIndex = std::min(i + radius, length - 1);
-
-            const uint32_t red = redBuff[maxIndex] - redBuff[minIndex];
-            const uint32_t green = greenBuff[maxIndex] - greenBuff[minIndex];
-            const uint32_t blue = blueBuff[maxIndex] - blueBuff[minIndex];
-            const uint32_t count = maxIndex - minIndex;
-
-            const uint32_t pixel = SDL_MapRGB(format, red / count, green / count, blue / count);
-            SetPackedPixel(bytes + i * stride, pixel, format->BytesPerPixel);
-        }
-    }    
+    };
 }
 
 SurfaceLocker::SurfaceLocker(const Surface &surface)
@@ -131,13 +148,13 @@ Surface::Surface(const Surface &that)
     AddSurfaceRef(mSurface);
 }
 
-Surface &Surface::operator=(SDL_Surface *s)
+Surface& Surface::operator=(SDL_Surface *s)
 {
     Assign(s);
     return *this;
 }
 
-Surface &Surface::operator=(const Surface &that)
+Surface& Surface::operator=(const Surface &that)
 {
     AddSurfaceRef(that.mSurface);
     Assign(that.mSurface);
@@ -162,12 +179,12 @@ bool Surface::Null() const
     return (mSurface == nullptr);
 }
 
-SDL_Surface *Surface::operator->() const
+SDL_Surface* Surface::operator->() const
 {
     return mSurface;
 }
 
-Surface::operator SDL_Surface *() const
+Surface::operator SDL_Surface*() const
 {
     return mSurface;
 }
@@ -183,46 +200,31 @@ void Surface::reset(SDL_Surface *surface)
     Assign(surface);
 }
 
-SurfaceView::SurfaceView(Surface &src, const SDL_Rect *roi)
+SurfaceView::SurfaceView(Surface &src, const SDL_Rect &clip)
 {
     if(!src) {
-        return;
+        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
+    }
+
+    if(SDL_MUSTLOCK(src)) {
+        // can we deal with it?
+        Fail(BOOST_CURRENT_FUNCTION, "RLEaccel installed on source surface");
     }
     
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-
-    if(roi != nullptr) {
-        x = roi->x;
-        y = roi->y;
-        width = roi->w;
-        height = roi->h;
-    } else {
-        x = 0;
-        y = 0;
-        width = src->w;
-        height = src->h;
-    }    
-
-    const int bytesPerPixel = src->format->BytesPerPixel;
-    
     char *pixels = GetPixels(src)
-        + y * src->pitch
-        + x * bytesPerPixel;
+        + clip.y * src->pitch
+        + clip.x * src->format->BytesPerPixel;
     
-    Surface tmp = CreateSurfaceFrom(pixels, width, height, src->pitch, src->format);
+    Surface tmp = CreateSurfaceFrom(pixels, clip.w, clip.h, src->pitch, src->format);
     if(!tmp) {
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
     
     CopyColorKey(src, tmp);
 
+    mReferer = src;
     mSurface = tmp;
     AddSurfaceRef(mSurface);
-    
-    mReferer = src;
 }
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
@@ -238,7 +240,7 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
 {
     if(format == nullptr) {
-        throw std::invalid_argument("CreateSurface: passed nullptr format");
+        Fail(BOOST_CURRENT_FUNCTION, "Null format");
     }
 
     const uint32_t rmask = format->Rmask;
@@ -247,7 +249,7 @@ Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
     const uint32_t amask = format->Amask;
     const int bpp = format->BitsPerPixel;
 
-    return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
+    return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
 Surface CreateSurface(int width, int height, int format)
@@ -262,21 +264,17 @@ Surface CreateSurface(int width, int height, int format)
         Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
     }
     
-    return SDL_CreateRGBSurface(NoFlags, width, height, bpp, rmask, gmask, bmask, amask);
+    return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format)
 {
     if(pixels == nullptr) {
-        std::ostringstream oss;
-        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr";
-        throw std::invalid_argument(oss.str());
+        Fail(BOOST_CURRENT_FUNCTION, "Null pixels");
     }
     
     if(format == nullptr) {
-        std::ostringstream oss;
-        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr format";
-        throw std::invalid_argument(oss.str());
+        Fail(BOOST_CURRENT_FUNCTION, "Null format");
     }
         
     const uint32_t rmask = format->Rmask;
@@ -291,9 +289,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const 
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format)
 {
     if(pixels == nullptr) {
-        std::ostringstream oss;
-        oss << BOOST_CURRENT_FUNCTION << ": passed nullptr pixels";
-        throw std::invalid_argument(oss.str());
+        Fail(BOOST_CURRENT_FUNCTION, "Null pixels");
     }
         
     uint32_t rmask;
@@ -321,8 +317,12 @@ void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, cons
     }
 }
 
-void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
+void DrawFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
 {
+    if(!dst) {
+        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
+    }
+    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
@@ -330,8 +330,12 @@ void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
     SDL_RenderDrawRect(render.get(), &dstrect);
 }
 
-void FillFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
+void FillFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color)
 {
+    if(!dst) {
+        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
+    }
+    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
@@ -341,53 +345,43 @@ void FillFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color)
 
 SDL_Rect SurfaceBounds(const Surface &src)
 {
-    return (src.Null()
-            ? MakeEmptyRect()
-            : MakeRect(src->w, src->h));
+    return ((!src) ? MakeEmptyRect() : MakeRect(src->w, src->h));
 }
 
 void TransformSurface(Surface &dst, SDL_Color func(uint8_t, uint8_t, uint8_t, uint8_t))
 {
     if(!dst) {
-        return;
+        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
     }
     
     const SurfaceLocker lock(dst);
 
-    char *data = GetPixels(dst);
-    const SDL_PixelFormat *fmt = dst->format;
+    char *bytes = GetPixels(dst);
 
     for(int y = 0; y < dst->h; ++y) {
-        TransformBuffer(data, dst->w, fmt, func);
-        data += dst->pitch;
+        TransformBuffer(bytes, dst->w, dst->format, func);
+        bytes += dst->pitch;
     }
 }
 
 void BlurSurface(Surface &dst, int radius)
 {
-    const SurfaceLocker lock(dst);
-
     if(!dst) {
-        return;
+        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
     }
-
-    const int bufferSize = std::max(dst->w, dst->h);
-    std::vector<uint32_t> buffer(bufferSize * 3);
-
-    uint32_t *const redBuffer = &buffer[bufferSize*0];
-    uint32_t *const greenBuffer = &buffer[bufferSize*1];
-    uint32_t *const blueBuffer = &buffer[bufferSize*2];
-
+    
+    const SurfaceLocker lock(dst);
+    
     char *const bytes = GetPixels(dst);
-
     const int bytesPP = dst->format->BytesPerPixel;
-
+    ConvolveFunctor convolve(radius, dst->format, std::max(dst->w, dst->h));
+    
     for(int y = 0; y < dst->h; ++y) {
-        ConvolveBuffer(bytes + y * dst->pitch, dst->w, bytesPP, dst->format, redBuffer, greenBuffer, blueBuffer, radius);
+        convolve(bytes + y * dst->pitch, dst->w, bytesPP);
     }
 
     for(int x = 0; x < dst->w; ++x) {
-        ConvolveBuffer(bytes + x * bytesPP, dst->h, dst->pitch, dst->format, redBuffer, greenBuffer, blueBuffer, radius);
+        convolve(bytes + x * bytesPP, dst->h, dst->pitch);
     }
 }
 

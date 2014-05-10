@@ -19,10 +19,14 @@
 
 namespace UI
 {
-    GameScreen::GameScreen(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
+    GameScreen::GameScreen(Render::Renderer &renderer,
+                           Render::FontManager &fontManager,
+                           UI::ScreenManager &screenManager,
+                           Castle::SimulationManager &simulationManager)
         : mRenderer(renderer)
         , mFontManager(fontManager)
         , mScreenManager(screenManager)
+        , mSimulationManager(simulationManager)
         , mCursorX(0)
         , mCursorY(0)
         , mCursorInvalid(true)
@@ -108,7 +112,7 @@ namespace UI
     void GameScreen::DrawTestScene(Surface &frame)
     {
         mSpriteCount = 0;
-
+        
         static fs::path tileLand = fs::GM1FilePath("tile_land8");
         static const CollectionData &tileLandGM1 = mRenderer.QueryCollection(tileLand);
         DrawTerrain(frame, tileLandGM1);
@@ -122,17 +126,17 @@ namespace UI
         Render::TextRenderer textRenderer(frame);
         textRenderer.Translate(0, frame->h - 20);
         textRenderer.SetColor(MakeColor(255, 0, 0, 255));
-        textRenderer.SetFont(mFontManager.Font(Render::FontStronghold, 12));
+        textRenderer.SetFont(mFontManager.DefaultFont());
 
         std::ostringstream oss;
         oss << "Scene objects: " << mSpriteCount;
-        FillFrame(frame, textRenderer.CalculateTextRect(oss.str()), MakeColor(0, 0, 0, 200));
-        textRenderer.PutString(oss.str());
+        std::string text = oss.str();
+        FillFrame(frame, textRenderer.CalculateTextRect(text), MakeColor(0, 0, 0, 200));
+        textRenderer.PutString(text);
     }
 
     void GameScreen::Draw(Surface &frame)
     {
-        AdjustViewport(SurfaceBounds(frame));
         DrawTestScene(frame);
     }
     

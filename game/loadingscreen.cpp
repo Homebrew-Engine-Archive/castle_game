@@ -7,7 +7,6 @@
 #include <boost/algorithm/clamp.hpp>
 #include <SDL.h>
 
-#include <game/make_unique.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
@@ -16,7 +15,7 @@ namespace UI
 {
     LoadingScreen::LoadingScreen()
         : mBackground(
-            LoadSurface(
+            LoadTGXSurface(
                 fs::TGXFilePath("frontend_loading")))
         , mProgressDone(0)
         , mProgressMax(1)

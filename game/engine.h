@@ -32,8 +32,8 @@ namespace Castle
         boost::asio::io_service mIO;
         int16_t mPort;
         Render::FontManager mFontMgr;
-        UI::ScreenManager mScreenMgr;
         Castle::SimulationManager mSimulationMgr;
+        UI::ScreenManager mScreenMgr;
         Network::Server mServer;
 
         bool HandleWindowEvent(SDL_WindowEvent const&);

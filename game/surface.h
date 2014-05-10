@@ -3,12 +3,6 @@
 
 #include <SDL.h>
 
-const int NoFlags = 0;
-const int DefaultRedMask = 0;
-const int DefaultGreenMask = 0;
-const int DefaultBlueMask = 0;
-const int DefaultAlphaMask = 0;
-
 /**
  * \brief Wrapper for SDL_Surface with reference counting
  */
@@ -16,7 +10,7 @@ class Surface
 {
 protected:
     SDL_Surface *mSurface;
-    void Assign(SDL_Surface *);
+    void Assign(SDL_Surface*);
     
 public:
     Surface();
@@ -66,7 +60,7 @@ class SurfaceView : public Surface
 {
     Surface mReferer;
 public:
-    SurfaceView(Surface &src, const SDL_Rect *roi);
+    SurfaceView(Surface &src, const SDL_Rect &clip);
 };
 
 bool HasPalette(const Surface &surface);
@@ -83,9 +77,9 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &src, const SDL_Rect &srcrect, Surface &dst, const SDL_Rect &dstrect);
 
-void DrawFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color);
+void DrawFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color);
 
-void FillFrame(Surface &dst, const SDL_Rect &dstrect, SDL_Color color);
+void FillFrame(Surface &dst, const SDL_Rect &dstrect, const SDL_Color &color);
 
 void BlurSurface(Surface &dst, int radius);
 

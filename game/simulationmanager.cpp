@@ -2,13 +2,13 @@
 
 namespace Castle
 {
-    void SimulationManager::Simulate()
+    void SimulationManager::Update()
     {
 
     }
 
-    std::chrono::milliseconds SimulationManager::UpdateInterval() const
+    bool SimulationManager::HasUpdate(std::chrono::milliseconds elapsed)
     {
-        return std::chrono::milliseconds(10);
+        return elapsed > std::chrono::milliseconds(100);
     }
 }

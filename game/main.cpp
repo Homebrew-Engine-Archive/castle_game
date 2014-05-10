@@ -60,6 +60,8 @@ int main()
         return code;
     } catch(const Castle::Exception &error) {
         std::cerr << error << std::endl;
+    } catch(const Castle::Error &error) {
+        std::cerr << error << std::endl;
     }
     // } catch(const std::exception &error) {
     //     std::cerr << "std::exception: " << error.what() << std::endl;

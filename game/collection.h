@@ -29,7 +29,7 @@ struct CollectionData
 
 typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
-Surface LoadSurface(const fs::path &filename);
+Surface LoadTGXSurface(const fs::path &filename);
 CollectionDataPtr LoadCollectionData(const fs::path &filename);
 
 #endif

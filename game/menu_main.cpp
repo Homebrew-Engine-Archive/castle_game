@@ -1,9 +1,7 @@
 #include "menu_main.h"
 
 #include <game/menu_combat.h>
-#include <game/make_unique.h>
 #include <game/filesystem.h>
-#include <game/collection.h>
 #include <game/sdl_utils.h>
 #include <game/screenmanager.h>
 
@@ -14,7 +12,7 @@ namespace UI
         , mFontManager(fontManager)
         , mScreenManager(screenManager)
         , mBackground(
-            LoadSurface(
+            LoadTGXSurface(
                 fs::TGXFilePath("frontend_main2")))
     {
     }

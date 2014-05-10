@@ -9,7 +9,6 @@
 #include <SDL.h>
 
 #include <game/sdl_utils.h>
-#include <game/make_unique.h>
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>
 #include <game/gm1.h>
@@ -123,7 +122,7 @@ namespace
         // and go clean my hands.
         // 
         // TODO is there a better way to do so?
-        // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, NoFlags);
+        // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         // if(!tmp) {
         //     Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         // }
@@ -192,11 +191,11 @@ namespace
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
         SDL_Rect tilerect = MakeRect(0, header.tileY, Width(header), GM1::TileHeight);
-        SurfaceView tile(surface, &tilerect);
+        SurfaceView tile(surface, tilerect);
         ReadTile(in, tile);
         
         SDL_Rect boxrect = MakeRect(header.hOffset, 0, header.boxWidth, Height(header));
-        SurfaceView box(surface, &boxrect);
+        SurfaceView box(surface, boxrect);
         TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box);
     }
 }

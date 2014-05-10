@@ -66,6 +66,9 @@ SDL_Point ShiftPoint(const SDL_Point &point, int x, int y);
 bool operator==(const SDL_Color &left, const SDL_Color &right);
 bool operator!=(const SDL_Color &left, const SDL_Color &right);
 
+bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs);
+bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs);
+
 std::ostream& operator<<(std::ostream &out, const SDL_Color &color);
 std::ostream& operator<<(std::ostream &out, const SDL_Rect &rect);
 std::ostream& operator<<(std::ostream &out, const SDL_Point &pt);

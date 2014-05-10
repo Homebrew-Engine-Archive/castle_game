@@ -4,7 +4,6 @@
 #include <memory>
 
 #include <game/renderer.h>
-#include <game/make_unique.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/screenmanager.h>
@@ -17,7 +16,7 @@ namespace UI
         , mFontManager(fontManager)
         , mScreenManager(screenManager)
         , mBackground(
-            LoadSurface(
+            LoadTGXSurface(
                 fs::TGXFilePath("frontend_combat")))
     {
     }

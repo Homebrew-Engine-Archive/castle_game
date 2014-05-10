@@ -29,6 +29,7 @@ namespace Render
 namespace Castle
 {
     class GameMap;
+    class SimulationManager;
 }
 
 namespace UI
@@ -41,6 +42,8 @@ namespace UI
         Render::Renderer &mRenderer;
         Render::FontManager &mFontManager;
         UI::ScreenManager &mScreenManager;
+        Castle::SimulationManager &mSimulationManager;
+        
         int mCursorX;
         int mCursorY;
         bool mCursorInvalid;
@@ -51,7 +54,10 @@ namespace UI
         int mSpriteCount;
     
     public:
-        GameScreen(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
+        GameScreen(Render::Renderer &renderer,
+                   Render::FontManager &fontManager,
+                   UI::ScreenManager &screenManager,
+                   Castle::SimulationManager &simulationManager);
         
         GameScreen(GameScreen const&) = delete;
         GameScreen &operator=(GameScreen const&) = delete;

@@ -6,13 +6,16 @@
 
 namespace UI
 {
-    ScreenManager::ScreenManager(Render::Renderer &renderer, Render::FontManager &fontManager)
+    ScreenManager::ScreenManager(Render::Renderer &renderer,
+                                 Render::FontManager &fontManager,
+                                 Castle::SimulationManager &simulationManager)
         : mRenderer(renderer)
         , mFontManager(fontManager)
+        , mSimulationManager(simulationManager)
         , mLoadingScreen()
         , mConsole(renderer, fontManager, *this)
         , mMenuMain(renderer, fontManager, *this)
-        , mGameScreen(renderer, fontManager, *this)
+        , mGameScreen(renderer, fontManager, *this, simulationManager)
         , mMenuCombat(renderer, fontManager, *this)
         , mScreenStack()
     {

@@ -9,7 +9,6 @@
 
 #include <SDL.h>
 
-#include <game/make_unique.h>
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
@@ -33,8 +32,8 @@ namespace Castle
         , mIO()
         , mPort(4500)
         , mFontMgr()
-        , mScreenMgr(mRenderer, mFontMgr)
         , mSimulationMgr()
+        , mScreenMgr(mRenderer, mFontMgr, mSimulationMgr)
         , mServer(mIO, mPort)
     { }
 
@@ -88,6 +87,8 @@ namespace Castle
         for(int fsize : sizes) {
             mFontMgr.LoadFontFile(fontset, fsize);
         }
+
+        mFontMgr.SetDefaultFont(Render::FontStronghold, 13);
     }
 
     void Engine::PollInput()
@@ -115,7 +116,7 @@ namespace Castle
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontMgr.Font(Render::FontStronghold, 10));
+        textRenderer.SetFont(mFontMgr.DefaultFont());
         textRenderer.SetClipBox(MakeRect(0, 0, 100, 100));
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
@@ -159,9 +160,10 @@ namespace Castle
                 DrawFrame();
             }
 
-            if(prevSimulation + mSimulationMgr.UpdateInterval() < steady_clock::now()) {
+            milliseconds sinceLastSim = duration_cast<milliseconds>(steady_clock::now() - prevSimulation);
+            if(mSimulationMgr.HasUpdate(sinceLastSim)) {
                 prevSimulation = steady_clock::now();
-                mSimulationMgr.Simulate();
+                mSimulationMgr.Update();
             }
             
             if(prevSecond + mFpsUpdateInterval < steady_clock::now()) {

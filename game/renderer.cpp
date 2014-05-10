@@ -8,7 +8,6 @@
 #include <boost/algorithm/clamp.hpp>
 
 #include <game/exception.h>
-#include <game/make_unique.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
 
@@ -67,7 +66,12 @@ namespace Render
 
         // Inconsistent size should be reported by SDL itself
         if(!mScreenTexture) {
-            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::Error()
+                ("Where", BOOST_CURRENT_FUNCTION)
+                ("Width", std::to_string(width))
+                ("Height", std::to_string(height))
+                ("What", SDL_GetError())
+                ;
         }
 
         mScreenWidth = width;
@@ -105,12 +109,16 @@ namespace Render
     {
         if(!mScreenSurface.Null()) {
             if(SDL_UpdateTexture(mScreenTexture.get(), NULL, mScreenSurface->pixels, mScreenSurface->pitch) < 0) {
-                throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::Error()
+                    ("Where", BOOST_CURRENT_FUNCTION)
+                    ("What", SDL_GetError());
             }
 
-            const SDL_Rect textureRect = MakeRect(mScreenWidth, mScreenHeight);
+            const SDL_Rect textureRect = SurfaceBounds(mScreenSurface);
             if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
-                throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::Error()
+                    ("Where", BOOST_CURRENT_FUNCTION)
+                    ("What", SDL_GetError());
             }
         }
 
@@ -121,7 +129,9 @@ namespace Render
     {
         SDL_Rect outputSize { 0, 0, 0, 0 };
         if(SDL_GetRendererOutputSize(mRenderer, &outputSize.w, &outputSize.h) < 0) {
-            throw Castle::SDLException(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw Castle::Error()
+                ("Where", BOOST_CURRENT_FUNCTION)
+                ("What", SDL_GetError());
         }
         
         return outputSize;
@@ -156,7 +166,7 @@ namespace Render
             return cached->second;
         }
         
-        Surface loaded = LoadSurface(filename);
+        Surface loaded = LoadTGXSurface(filename);
         mGFXCache.insert({filename, loaded});
         return loaded;
     }
@@ -171,7 +181,9 @@ namespace Render
         
             CollectionDataPtr &&ptr = LoadCollectionData(filename);
             if(!ptr) {
-                throw Castle::Exception("Unable to load collection", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw Castle::Error()
+                    ("Reason", "Unable to load collection")
+                    ;
             }
         
             const CollectionData &data = *ptr;
@@ -179,9 +191,10 @@ namespace Render
                 std::make_pair(filename, std::move(ptr)));
 
             return data;
-        } catch(const std::exception &error) {
-            std::cerr << "Query collection failed: " << error.what() << std::endl;
-            throw;
+        } catch(Castle::Error &error) {
+            throw error
+                ("Filename", filename.string())
+                ;
         }
     }
 
@@ -190,9 +203,10 @@ namespace Render
         try {
             QueryCollection(filename);
             return true;
-        } catch(const std::exception &error) {
-            std::cerr << "Cache collection failed: " << error.what() << std::endl;
-            throw;
+        } catch(Castle::Error &error) {
+            throw error
+                ("Filename", filename.string())
+                ;
         }
     }
     

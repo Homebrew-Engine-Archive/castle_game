@@ -2,15 +2,22 @@
 #define SIMULATIONMANAGER_H_
 
 #include <chrono>
-#include <unordered_set>
+#include <vector>
 
 namespace Castle
 {
+    class SimulationCommand
+    { };
+    
     class SimulationManager
     {
+        std::vector<SimulationCommand> mBatchedCommands;
     public:
-        void Simulate();
-        std::chrono::milliseconds UpdateInterval() const;
+        void Update();
+
+        void InjectCommand(const SimulationCommand &command);
+        
+        bool HasUpdate(std::chrono::milliseconds elapsed);
     };
 }
 

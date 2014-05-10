@@ -29,6 +29,7 @@ namespace UI
     {
         Render::Renderer &mRenderer;
         Render::FontManager &mFontManager;
+        Castle::SimulationManager &mSimulationManager;
 
         UI::LoadingScreen mLoadingScreen;
         UI::Console mConsole;
@@ -40,7 +41,9 @@ namespace UI
         std::vector<Screen*> mScreenStack;
         
     public:
-        ScreenManager(Render::Renderer &renderer, Render::FontManager &fontManager);
+        ScreenManager(Render::Renderer &renderer,
+                      Render::FontManager &fontManager,
+                      Castle::SimulationManager &simulationManager);
 
         void EnterGameScreen();
         void EnterMenuMain();

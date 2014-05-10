@@ -8,7 +8,8 @@
 #include <SDL_ttf.h>
 
 #include <game/sdl_utils.h>
-#include <game/atlas.h>
+
+class Surface;
 
 namespace Render
 {

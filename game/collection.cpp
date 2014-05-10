@@ -7,7 +7,6 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
-#include <game/make_unique.h>
 #include <game/gm1palette.h>
 #include <game/gm1entryreader.h>
 #include <game/gm1reader.h>
@@ -46,7 +45,7 @@ CollectionDataPtr LoadCollectionData(const fs::path &path)
     }
 }
 
-Surface LoadSurface(const fs::path &path)
+Surface LoadTGXSurface(const fs::path &path)
 {
     using namespace boost;
     

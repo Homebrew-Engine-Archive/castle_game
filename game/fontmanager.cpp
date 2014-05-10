@@ -1,10 +1,13 @@
 #include "fontmanager.h"
 
+#include <cassert>
+
 #include <functional>
 #include <algorithm>
 
 #include <boost/filesystem/fstream.hpp>
-#include <game/rw.h>
+
+#include <game/exception.h>
 #include <game/sdl_utils.h>
 
 struct FontData
@@ -21,6 +24,8 @@ struct FontData
 namespace Render
 {
     FontManager::FontManager()
+        : mFontTable()
+        , mDefaultFontData(nullptr)
     {
         TTF_Init();
     }
@@ -67,7 +72,10 @@ namespace Render
     {
         FontData *nearest = LookupFontName(name, fsize);
         if((nearest != nullptr) && (nearest->name == name) && (nearest->fsize == fsize)) {
-            throw std::runtime_error("Font already loaded");
+            throw Castle::Error()
+                ("Reason", "Font is already loaded")
+                ("Font", name)
+                ("Size", std::to_string(fsize));
         }
         
         FontData fontData;
@@ -104,6 +112,42 @@ namespace Render
         if(fd != nullptr) {
             return fd->font.get();
         }
-        throw std::runtime_error("No font with such name");
+        throw Castle::Error()
+            ("Reason", "No such font")
+            ("Font", name)
+            ("Size", std::to_string(fsize))
+            ("File", __FILE__)
+            ("Line", std::to_string(__LINE__));
+    }
+    
+    TTF_Font* FontManager::DefaultFont()
+    {
+        CheckDefaultFontIsSet();
+        return mDefaultFontData->font.get();
+    }
+
+    std::string FontManager::DefaultFontName() const 
+    {
+        CheckDefaultFontIsSet();
+        return mDefaultFontData->name;
+    }
+
+    int FontManager::DefaultFontSize() const
+    {
+        CheckDefaultFontIsSet();
+        return mDefaultFontData->fsize;
+    }
+
+    void FontManager::SetDefaultFont(const std::string &name, int fsize)
+    {
+        mDefaultFontData = LookupFontName(name, fsize);
+    }
+
+    void FontManager::CheckDefaultFontIsSet() const
+    {
+        if(mDefaultFontData == nullptr) {
+            throw Castle::Error()
+                ("Reason", "No default font");
+        }
     }
 }

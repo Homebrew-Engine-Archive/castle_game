@@ -9,8 +9,8 @@
 
 #include <boost/current_function.hpp>
 
+#include <game/surface.h>
 #include <game/exception.h>
-#include <game/make_unique.h>
 
 namespace
 {

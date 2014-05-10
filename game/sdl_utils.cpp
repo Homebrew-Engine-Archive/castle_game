@@ -8,8 +8,9 @@
 
 SDLInitializer::SDLInitializer()
 {
+    // | SDL_INIT_NOPARACHUTE
     SDL_SetMainReady();
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         throw std::runtime_error(SDL_GetError());
     }
 }
@@ -21,7 +22,7 @@ SDLInitializer::~SDLInitializer()
 
 SDL_Color MakeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    return SDL_Color { r, g, b, a };
+    return SDL_Color {r, g, b, a};
 }
 
 SDL_Color GetPixelColor(uint32_t pixel, int format)
@@ -94,6 +95,22 @@ bool operator==(const SDL_Color &left, const SDL_Color &right)
 bool operator!=(const SDL_Color &left, const SDL_Color &right)
 {
     return !(left == right);
+}
+
+bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs)
+{
+    return (lhs.x == rhs.x)
+        && (lhs.y == rhs.y)
+        && (lhs.w == rhs.w)
+        && (lhs.h == rhs.h);
+}
+
+bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs)
+{
+    return (lhs.x != rhs.x)
+        || (lhs.y != rhs.y)
+        || (lhs.w != rhs.w)
+        || (lhs.h != rhs.h);
 }
 
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel)
