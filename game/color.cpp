@@ -114,3 +114,8 @@ Color Inverted(const SDL_Color &color)
                  255 - color.b,
                  color.a);
 }
+
+Color Color::Opaque(int alpha) const
+{
+    return Color(r, g, b, alpha);
+}

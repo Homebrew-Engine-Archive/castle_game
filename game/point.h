@@ -13,38 +13,33 @@ public:
     constexpr Point(int x, int y)
         : SDL_Point {x, y} {}
 
-    Point& operator+=(const SDL_Point &that);
-    Point& operator-=(const SDL_Point &that);
-    Point& operator*=(const SDL_Point &that);
-    Point& operator/=(const SDL_Point &that);
+    constexpr Point(const Point &that) = default;
 
-    template<class T> Point& operator+=(const T v) {
-        x += v;
-        y += v;
-        return *this;
-    }
-    
-    template<class T> Point& operator-=(const T v) {
-        x -= v;
-        y -= v;
-        return *this;
-    }
-    
-    template<class T> Point& operator*=(const T v) {
-        x *= v;
-        y *= v;
-        return *this;
-    }
-    
-    template<class T> Point& operator/=(const T v) {
-        x /= v;
-        y /= v;
-        return *this;
-    }
+    constexpr Point(const SDL_Point &that)
+        : Point(that.x, that.y) {}
+
+    Point& operator=(const SDL_Point &that);
 };
 
 float Hypot(const SDL_Point &lhs, const SDL_Point &rhs);
 int Manhattan(const SDL_Point &lhs, const SDL_Point &rhs);
+
+template<class T> Point& operator+=(Point &pt, const T v)
+{
+    pt.x += v;
+    pt.y += v;
+    return pt;
+}
+    
+template<class T> Point& operator-=(Point &pt, const T v)
+{
+    pt.x -= v;
+    pt.y -= v;
+    return pt;
+}
+
+Point& operator+=(Point &lhs, const SDL_Point &that);
+Point& operator-=(Point &lhs, const SDL_Point &that);
 
 bool operator==(const SDL_Point &lhs, const SDL_Point &rhs);
 bool operator!=(const SDL_Point &lhs, const SDL_Point &rhs);    

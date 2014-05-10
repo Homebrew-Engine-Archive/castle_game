@@ -28,7 +28,7 @@ namespace UI
 
     void Console::Draw(Surface &frame)
     {
-        FillFrame(frame, Rect(0, 0, frame->w, frame->h / 2), Color(0, 0, 0, 100));
+        FillFrame(frame, Rect(frame->w, frame->h / 2), Color::Black().Opaque(100));
         
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(mFontManager.Font(mFontName, mFontSize));

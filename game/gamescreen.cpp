@@ -84,7 +84,7 @@ namespace UI
 
         bool evenRow = true;
         
-        const Rect frameRect = SurfaceBounds(frame);
+        const Rect frameRect(frame->w, frame->h);
 
         std::default_random_engine g(0);
         std::uniform_int_distribution<int> entryIndex(0, gm1.entries.size() - 1);
@@ -122,17 +122,17 @@ namespace UI
         static const CollectionData &bodyLordGM1 = mRenderer.QueryCollection(bodyLord);
         DrawUnits(frame, bodyLordGM1);
 
-        FillFrame(frame, mCamera.Viewport(), Color(0, 0, 0, 100));
+        FillFrame(frame, mCamera.Viewport(), Color::Black().Opaque(100));
         
         Render::TextRenderer textRenderer(frame);
         textRenderer.Translate(0, frame->h - 20);
-        textRenderer.SetColor(Color(255, 0, 0, 255));
+        textRenderer.SetColor(Color::Red());
         textRenderer.SetFont(mFontManager.DefaultFont());
 
         std::ostringstream oss;
         oss << "Scene objects: " << mSpriteCount;
         std::string text = oss.str();
-        FillFrame(frame, textRenderer.CalculateTextRect(text), Color(0, 0, 0, 200));
+        FillFrame(frame, textRenderer.CalculateTextRect(text), Color::Black().Opaque(200));
         textRenderer.PutString(text);
     }
 

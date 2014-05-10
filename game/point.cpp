@@ -12,32 +12,25 @@ namespace
     }
 }
 
-Point& Point::operator+=(const SDL_Point &that)
+Point& Point::operator=(const SDL_Point &that)
 {
-    x += that.x;
-    y += that.y;
+    x = that.x;
+    y = that.y;
     return *this;
 }
 
-Point& Point::operator-=(const SDL_Point &that)
+Point& operator+=(Point &lhs, const SDL_Point &rhs)
 {
-    x -= that.x;
-    y -= that.y;
-    return *this;
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
 }
 
-Point& Point::operator*=(const SDL_Point &that)
+Point& operator-=(Point &lhs, const SDL_Point &rhs)
 {
-    x *= that.x;
-    y *= that.y;
-    return *this;
-}
-
-Point& Point::operator/=(const SDL_Point &that)
-{
-    x /= that.x;
-    y /= that.y;
-    return *this;
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
 }
 
 std::ostream& operator<<(std::ostream &out, const SDL_Point &pt)
@@ -48,7 +41,7 @@ std::ostream& operator<<(std::ostream &out, const SDL_Point &pt)
 
 int Manhattan(const SDL_Point &lhs, const SDL_Point &rhs)
 {
-    return Sqr(lhs.x - rhs.x) + Sqr(rhs.y - lhs.y);
+    return abs(lhs.x - rhs.x) + abs(rhs.y - lhs.y);
 }
 
 float Hypot(const SDL_Point &lhs, const SDL_Point &rhs)

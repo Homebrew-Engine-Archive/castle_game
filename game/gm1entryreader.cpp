@@ -204,7 +204,7 @@ namespace
 namespace GM1
 {
     GM1EntryReader::GM1EntryReader()
-        : mTransparentColor(255, 0, 255)
+        : mTransparentColor(Color::Magenta())
     {
     }
     

@@ -15,9 +15,26 @@ public:
     
     constexpr Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
         : SDL_Color {r, g, b, a} {}
+
+    constexpr Color(const Color &that) = default;
+
+    constexpr Color(const SDL_Color &that)
+        : Color(that.r, that.g, that.b, that.a) {}
     
     Color(uint32_t argb32, int format);
     Color(uint32_t argb32, const SDL_PixelFormat *format);
+
+    Color Opaque(int alpha) const;
+
+    static Color Black() { return Color(0, 0, 0); }
+    static Color Red() { return Color(255, 0, 0); }
+    static Color Green() { return Color(0, 255, 0); }
+    static Color Blue() { return Color(0, 0, 255); }
+    static Color White() { return Color(255, 255, 255); }
+    static Color Magenta() { return Color(255, 0, 255); }
+    static Color Yellow() { return Color(255, 255, 0); }
+    static Color Cyan() { return Color(0, 255, 255); }
+    static Color Gray() { return Color(128, 128, 128); }
 };
 
 Color GetPixelColor(uint32_t pixel, int format);

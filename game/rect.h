@@ -19,6 +19,9 @@ public:
     constexpr Rect(const SDL_Point &lt, int w, int h)
         : Rect(lt.x, lt.y, w, h) {}
 
+    constexpr explicit Rect(const SDL_Point &wh)
+        : Rect(wh.x, wh.y) {}
+    
     constexpr Rect(int x, int y, const SDL_Point &br)
         : Rect(x, y, br.x - x, br.y - y) {}
     
@@ -27,6 +30,10 @@ public:
 
     constexpr Rect(const SDL_Rect &other)
         : Rect(other.x, other.y, other.w, other.h) {}
+
+    constexpr Rect(const Rect &that) = default;
+
+    Rect& operator=(const SDL_Rect &that);
 };
 
 bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs);

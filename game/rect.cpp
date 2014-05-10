@@ -3,6 +3,15 @@
 #include <iostream>
 #include <algorithm>
 
+Rect& Rect::operator=(const SDL_Rect &that)
+{
+    x = that.x;
+    y = that.y;
+    w = that.w;
+    h = that.h;
+    return *this;
+}
+
 Rect Normalized(const SDL_Rect &rect)
 {
     Rect result = rect;

@@ -68,12 +68,12 @@ namespace UI
     
         Rect barOuter(300, 25);
         Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-        FillFrame(frame, barOuterAligned, Color(0, 0, 0, 128));
-        DrawFrame(frame, barOuterAligned, Color(0, 0, 0, 255));
+        FillFrame(frame, barOuterAligned, Color::Black().Opaque(100));
+        DrawFrame(frame, barOuterAligned, Color::Black());
 
         Rect barOuterPadded = PadIn(barOuterAligned, 5);
         Rect barInner(barOuterPadded.w * rate, barOuterPadded.h);
         Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-        FillFrame(frame, barInnerAligned, Color(0, 0, 0, 255));
+        FillFrame(frame, barInnerAligned, Color::Black());
     }   
 } // namespace UI

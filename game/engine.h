@@ -28,7 +28,6 @@ namespace Castle
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
-        bool mShowConsole;
         boost::asio::io_service mIO;
         int16_t mPort;
         Render::FontManager mFontMgr;

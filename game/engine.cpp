@@ -30,7 +30,6 @@ namespace Castle
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
-        , mShowConsole(false)
         , mIO()
         , mPort(4500)
         , mFontMgr()
@@ -130,9 +129,9 @@ namespace Castle
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
-        textRenderer.SetColor(Color(255, 0, 0, 255));
+        textRenderer.SetColor(Color::Red());
 
-        FillFrame(frame, textRenderer.CalculateTextRect(text), Color(0, 0, 0, 100));
+        FillFrame(frame, textRenderer.CalculateTextRect(text), Color::Black().Opaque(100));
         textRenderer.PutString(text);
 
         mRenderer.EndFrame();
