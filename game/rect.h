@@ -34,18 +34,40 @@ public:
     constexpr Rect(const Rect &that) = default;
 
     Rect& operator=(const SDL_Rect &that);
+    Rect& operator+=(const SDL_Point &point);
+    Rect& operator-=(const SDL_Point &point);
 };
 
-bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs);
-bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs);
+constexpr bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs)
+{
+    return (lhs.x == rhs.x)
+        && (lhs.y == rhs.y)
+        && (lhs.w == rhs.w)
+        && (lhs.h == rhs.h);
+}
+
+constexpr bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs)
+{
+    return (lhs.x != rhs.x)
+        || (lhs.y != rhs.y)
+        || (lhs.w != rhs.w)
+        || (lhs.h != rhs.h);
+}
+
+constexpr Rect operator+(const SDL_Rect &rect, const SDL_Point &point)
+{
+    return Rect(rect.x + point.x, rect.y + point.y, rect.w, rect.h);
+}
+
+constexpr Rect operator-(const SDL_Rect &rect, const SDL_Point &point)
+{
+    return Rect(rect.x - point.x, rect.y - point.y, rect.w, rect.h);
+}
 
 Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);
 Rect PadIn(const SDL_Rect &src, int pad);
 Rect PadOut(const SDL_Rect &src, int pad);
-
 Rect Normalized(const SDL_Rect &src);
-
-Rect ShiftRect(const SDL_Rect &src, int xshift, int yshift);
 
 Rect UnionRects(const SDL_Rect &lhs, const SDL_Rect &rhs);
 Rect IntersectRects(const SDL_Rect &lhs, const SDL_Rect &rhs);

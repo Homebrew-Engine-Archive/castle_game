@@ -6,18 +6,24 @@
 namespace Castle
 {
     Camera::Camera()
-        : mViewpoint {0, 0}
-        , mViewradius(12)
-        , mViewport {0, 0, 0, 0}
+        : mViewpoint(0, 0)
+        , mTileSize(30, 16)
         , mDirection(Direction::North)
         , mFlatView(false)
     {
-        UpdateViewport();
     }
 
     Rect Camera::TileBox(const GameMap &map, int tile) const
     {
         Rect rect;
+        // tile height
+        // tile coord
+        // tile texture box
+        // tile texture center
+        // camera tile size
+        // camera direction
+        // camera viewpoint
+        // camera flat view
         return rect;
     }
     
@@ -44,13 +50,11 @@ namespace Castle
     void Camera::ViewPoint(const Point &viewpoint)
     {
         mViewpoint = viewpoint;
-        UpdateViewport();
     }
 
     void Camera::Translate(int dx, int dy)
     {
-        mViewpoint = ShiftPoint(mViewpoint, dx, dy);
-        UpdateViewport();
+        mViewpoint += Point(dx, dy);
     }
     
     Point Camera::ViewPoint() const
@@ -58,42 +62,18 @@ namespace Castle
         return mViewpoint;
     }
 
-    int Camera::ViewRadius() const
+    Point Camera::TileSize() const
     {
-        return mViewradius;
+        return mTileSize;
     }
 
-    void Camera::ViewRadius(int radius)
+    void Camera::TileSize(const Point &tileSize)
     {
-        mViewradius = radius;
-        UpdateViewport();
+        mTileSize = tileSize;
     }
 
-    Rect Camera::Viewport() const
+    Rect Camera::Viewport(const Rect &screen) const
     {
-        return mViewport;
-    }
-
-    void Camera::Viewport(const Rect &viewport)
-    {
-        mViewport = viewport;
-        UpdateViewpoint();
-        UpdateViewradius();
-    }
-
-    void Camera::UpdateViewport()
-    {
-        mViewport = Rect(ShiftPoint(mViewpoint, -mViewradius, -mViewradius),
-                         ShiftPoint(mViewpoint, mViewradius, mViewradius));
-    }
-
-    void Camera::UpdateViewpoint()
-    {
-        mViewpoint = RectCenter(mViewport);
-    }
-
-    void Camera::UpdateViewradius()
-    {
-        mViewradius = std::min(mViewport.w / 2, mViewport.h / 2);
+        return Rect();
     }
 }

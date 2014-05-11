@@ -52,22 +52,6 @@ std::istream& operator>>(std::istream &in, SDL_Color &color)
     
     return in;
 }
-
-bool operator==(const SDL_Color &lhs, const SDL_Color &rhs)
-{
-    return (lhs.r == rhs.r)
-        && (lhs.g == rhs.g)
-        && (lhs.b == rhs.b)
-        && (lhs.a == rhs.a);
-}
-
-bool operator!=(const SDL_Color &lhs, const SDL_Color &rhs)
-{
-    return (lhs.r != rhs.r)
-        || (lhs.g != rhs.g)
-        || (lhs.b != rhs.b)
-        || (lhs.a != rhs.a);
-}
     
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel)
 {
@@ -105,17 +89,4 @@ void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel)
     default:
         throw std::runtime_error("Unknown bpp");
     }
-}
-    
-Color Inverted(const SDL_Color &color)
-{
-    return Color(255 - color.r,
-                 255 - color.g,
-                 255 - color.b,
-                 color.a);
-}
-
-Color Color::Opaque(int alpha) const
-{
-    return Color(r, g, b, alpha);
 }

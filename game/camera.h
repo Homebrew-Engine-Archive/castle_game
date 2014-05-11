@@ -10,20 +10,23 @@ namespace Castle
 {
     class Camera
     {
+        /** Top left corner of the screen mapped onto game map **/
         Point mViewpoint;
-        int mViewradius;
-        Rect mViewport;
-        Direction mDirection;
-        bool mFlatView;
 
-        void UpdateViewport();
-        void UpdateViewpoint();
-        void UpdateViewradius();
+        /** 30x16 by default, 15x8 zoomed out **/
+        Point mTileSize;
+
+        /** North direction **/
+        Direction mDirection;
+        
+        bool mFlatView;
         
     public:
         Camera();
 
         Rect TileBox(const class GameMap &map, int tile) const;
+
+        void Translate(int dx, int dy);
         
         bool Flat() const;
         void Flat(bool yes);
@@ -33,14 +36,11 @@ namespace Castle
         
         Point ViewPoint() const;
         void ViewPoint(const Point &point);
-
-        void Translate(int dx, int dy);
         
-        int ViewRadius() const;
-        void ViewRadius(int radius);
+        Point TileSize() const;
+        void TileSize(const Point &tileSize);
 
-        Rect Viewport() const;
-        void Viewport(const Rect &viewport);
+        Rect Viewport(const Rect &screen) const;
     };
 }
 

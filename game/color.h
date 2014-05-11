@@ -24,7 +24,9 @@ public:
     Color(uint32_t argb32, int format);
     Color(uint32_t argb32, const SDL_PixelFormat *format);
 
-    Color Opaque(int alpha) const;
+    constexpr Color Opaque(int alpha) const {
+        return Color(r, g, b, alpha);
+    }
 
     static Color Black() { return Color(0, 0, 0); }
     static Color Red() { return Color(255, 0, 0); }
@@ -36,15 +38,34 @@ public:
     static Color Cyan() { return Color(0, 255, 255); }
     static Color Gray() { return Color(128, 128, 128); }
 };
+    
+constexpr Color Inverted(const SDL_Color &color)
+{
+    return Color(255 - color.r,
+                 255 - color.g,
+                 255 - color.b,
+                 color.a);
+}
+
+constexpr bool operator==(const SDL_Color &lhs, const SDL_Color &rhs)
+{
+    return (lhs.r == rhs.r)
+        && (lhs.g == rhs.g)
+        && (lhs.b == rhs.b)
+        && (lhs.a == rhs.a);
+}
+
+constexpr bool operator!=(const SDL_Color &lhs, const SDL_Color &rhs)
+{
+    return (lhs.r != rhs.r)
+        || (lhs.g != rhs.g)
+        || (lhs.b != rhs.b)
+        || (lhs.a != rhs.a);
+}
 
 Color GetPixelColor(uint32_t pixel, int format);
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
 void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);
-
-Color Inverted(const SDL_Color &color);
-
-bool operator==(SDL_Color const&, SDL_Color const&);
-bool operator!=(SDL_Color const&, SDL_Color const&);
 
 std::ostream& operator<<(std::ostream &out, SDL_Color const&);
 std::istream& operator>>(std::istream &in, SDL_Color&);

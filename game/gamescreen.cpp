@@ -37,7 +37,6 @@ namespace UI
         , mCamera()
         , mSpriteCount(0)
     {
-        mCamera.ViewRadius(100);
     }
 
     void GameScreen::DrawUnits(Surface &frame, const CollectionData &gm1)
@@ -71,7 +70,7 @@ namespace UI
                 break;
             }
             
-            Rect whither = Rect(x, y, face->w, face->h);
+            Rect whither(x, y, face->w, face->h);
             BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
@@ -104,7 +103,7 @@ namespace UI
                 break;
             }
 
-            Rect whither = Rect(x - gm1.header.anchorX, y - gm1.header.anchorY - entry.header.tileY, face->w, face->h);
+            Rect whither(x - gm1.header.anchorX, y - gm1.header.anchorY - entry.header.tileY, face->w, face->h);
             BlitSurface(face, SurfaceBounds(face), frame, whither);
             mSpriteCount++;
         }
@@ -122,8 +121,6 @@ namespace UI
         static const CollectionData &bodyLordGM1 = mRenderer.QueryCollection(bodyLord);
         DrawUnits(frame, bodyLordGM1);
 
-        FillFrame(frame, mCamera.Viewport(), Color::Black().Opaque(100));
-        
         Render::TextRenderer textRenderer(frame);
         textRenderer.Translate(0, frame->h - 20);
         textRenderer.SetColor(Color::Red());

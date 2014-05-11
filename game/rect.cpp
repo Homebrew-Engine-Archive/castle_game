@@ -12,6 +12,20 @@ Rect& Rect::operator=(const SDL_Rect &that)
     return *this;
 }
 
+Rect& Rect::operator+=(const SDL_Point &point)
+{
+    x += point.x;
+    y += point.y;
+    return *this;
+}
+
+Rect& Rect::operator-=(const SDL_Point &point)
+{
+    x -= point.x;
+    y -= point.y;
+    return *this;
+}
+
 Rect Normalized(const SDL_Rect &rect)
 {
     Rect result = rect;
@@ -29,22 +43,6 @@ Rect Normalized(const SDL_Rect &rect)
     return result;
 }
 
-bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs)
-{
-    return (lhs.x == rhs.x)
-        && (lhs.y == rhs.y)
-        && (lhs.w == rhs.w)
-        && (lhs.h == rhs.h);
-}
-
-bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs)
-{
-    return (lhs.x != rhs.x)
-        || (lhs.y != rhs.y)
-        || (lhs.w != rhs.w)
-        || (lhs.h != rhs.h);
-}
-
 Rect UnionRects(const SDL_Rect &lhs, const SDL_Rect &rhs)
 {
     Rect result;
@@ -57,14 +55,6 @@ Rect IntersectRects(const SDL_Rect &lhs, const SDL_Rect &rhs)
     Rect result;
     SDL_IntersectRect(&lhs, &rhs, &result);
     return result;
-}
-
-Rect ShiftRect(const SDL_Rect &rect, int xshift, int yshift)
-{
-    return Rect(rect.x + xshift,
-                rect.y + yshift,
-                rect.w,
-                rect.h);
 }
 
 /**
