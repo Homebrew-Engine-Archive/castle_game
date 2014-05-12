@@ -21,6 +21,8 @@ namespace Castle
 
     public:
         SimulationManager();
+
+        Castle::GameMap& GetGameMap();
         
         void Update();
 

@@ -12,14 +12,9 @@ namespace Castle
     {
     }
 
-    int GameMap::TileRow(int tile) const
+    Point GameMap::TileCoord(int tile) const
     {
-        return mTileRows.at(tile);
-    }
-
-    int GameMap::TileCol(int tile) const
-    {
-        return mTileCols.at(tile);
+        return mTileCoords.at(tile);
     }
 
     int GameMap::TileHeight(int tile) const
@@ -27,14 +22,9 @@ namespace Castle
         return mTileHeights.at(tile);
     }
 
-    int GameMap::TileGroup(int tile) const
+    int GameMap::TileType(int tile) const
     {
-        return mTileGroup.at(tile);
-    }
-
-    int GameMap::TileIndex(int tile) const
-    {
-        return mTileIndex.at(tile);
+        return mTileType.at(tile);
     }
     
     void GameMap::Borderless(bool yes)

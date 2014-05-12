@@ -46,6 +46,7 @@ namespace Render
         Rect GetOutputSize() const;
         void SetWindowSize(int width, int height);
         void AdjustBufferSize(int width, int height);
+        
         Surface QuerySurface(const fs::path &filename);
         CollectionData const& QueryCollection(const fs::path &filename);
         bool CacheCollection(const fs::path &filepath);

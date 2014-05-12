@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <game/camera.h>
+#include <game/point.h>
 
 enum class Direction;
 
@@ -11,21 +12,12 @@ class Surface;
 
 namespace Castle
 {
-    struct TerrainTile
-    {
-        int heightDelta;
-        int tileGroup;
-        int tileIndex;
-    };
-    
     class GameMap
     {
         int mSize;
-        std::vector<int> mTileRows;
-        std::vector<int> mTileCols;
+        std::vector<Point> mTileCoords;
         std::vector<int> mTileHeights;
-        std::vector<int> mTileGroup;
-        std::vector<int> mTileIndex;
+        std::vector<int> mTileType;
         bool mBorderless;
         
     public:
@@ -33,12 +25,10 @@ namespace Castle
         
         bool Borderless() const;
         void Borderless(bool yes);
-
-        int TileRow(int tile) const;
-        int TileCol(int tile) const;
+                
+        Point TileCoord(int tile) const;
         int TileHeight(int tile) const;
-        int TileGroup(int tile) const;
-        int TileIndex(int tile) const;
+        int TileType(int tile) const;
     };
 
     GameMap RandomMap(uint64_t seed);

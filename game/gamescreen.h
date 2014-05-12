@@ -62,6 +62,8 @@ namespace UI
         GameScreen(GameScreen const&) = delete;
         GameScreen &operator=(GameScreen const&) = delete;
 
+        Rect TileBox(int tile) const;
+        
         void DrawUnits(Surface &frame, const CollectionData &gm1);
         void DrawTerrain(Surface &frame, const CollectionData &gm1);
         void DrawTestScene(Surface &frame);

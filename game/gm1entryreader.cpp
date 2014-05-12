@@ -82,6 +82,10 @@ namespace
             return GM1::TileHeight + header.tileY;
         }
 
+        Point ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const {
+            return Point(header.anchorX, header.anchorY) + Point(0, entry.tileY);
+        }
+        
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
@@ -204,7 +208,7 @@ namespace
 namespace GM1
 {
     GM1EntryReader::GM1EntryReader()
-        : mTransparentColor(Color::Magenta())
+        : mTransparentColor(240, 0, 255)
     {
     }
     
@@ -290,6 +294,11 @@ namespace GM1
     void GM1EntryReader::Transparent(Color color)
     {
         mTransparentColor = color;
+    }
+
+    Point GM1EntryReader::ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const
+    {
+        return Point(header.anchorX, header.anchorY);
     }
     
     GM1EntryReader::Ptr CreateEntryReader(const GM1::Encoding &encoding)

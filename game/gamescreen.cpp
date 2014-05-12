@@ -12,12 +12,11 @@
 #include <game/surface.h>
 #include <game/collection.h>
 #include <game/direction.h>
-
 #include <game/gm1.h>
 #include <game/gm1palette.h>
-
 #include <game/fontmanager.h>
 #include <game/textrenderer.h>
+#include <game/simulationmanager.h>
 
 namespace UI
 {
@@ -53,8 +52,8 @@ namespace UI
         bool evenRow = true;
 
         for(;;) {
-            SDL_Palette *palette = gm1.palettes.at(paletteIndex(g)).get();
-            const CollectionEntry &entry = gm1.entries.at(entryIndex(g));
+            SDL_Palette *palette = gm1.palettes[paletteIndex(g)].get();
+            const CollectionEntry &entry = gm1.entries[entryIndex(g)];
         
             Surface face = entry.surface;
             SDL_SetSurfacePalette(face, palette);
@@ -171,21 +170,64 @@ namespace UI
 
     void GameScreen::AdjustViewport(const Rect &screen)
     {
-        const int speed = 3;
+        const int Gap = 40;
+        const int Speed = 3;
         if(!mCursorInvalid) {
-            if(mCursorX < 10) {
-                mCamera.Translate(-speed, 0);
+            if(mCursorX < Gap) {
+                mCamera.Translate(-Speed, 0);
             }
-            if(mCursorX > screen.w - 10) {
-                mCamera.Translate(speed, 0);
+            if(mCursorX > screen.w - Gap) {
+                mCamera.Translate(Speed, 0);
             }
-            if(mCursorY < 10) {
-                mCamera.Translate(0, -speed);
+            if(mCursorY < Gap) {
+                mCamera.Translate(0, -Speed);
             }
-            if(mCursorY > screen.h - 10) {
-                mCamera.Translate(0, speed);
+            if(mCursorY > screen.h - Gap) {
+                mCamera.Translate(0, Speed);
             }
         }
     }
 
+    Rect GameScreen::TileBox(int tile) const
+    {
+        Rect rect;
+
+        // Castle::GameMap &map = mSimulationManager.GetGameMap();
+        
+        // int tileHeight = map.TileHeight(tile);
+
+        // Point tileCoord = map.TileCoord(tile);
+
+        // int tileGroup = map.TileGroup(tile);
+        // int tileIndex = map.TileIndex(tile);
+
+        // Point tileCenter;
+        // Surface tileBox;
+        // if(mCamera.Flat()) {
+        //     int flatTile = mGraphicsManager.GetFlatTile(tileIndex);
+        //     tileBox = mGraphicsManager.GetTileSurface(flatTile);
+        //     tileCenter = mGraphicsManager.GetTileCenter(flatTile);
+        // } else {
+        //     tileBox = mGraphicsManager.GetTileSurface(tileIndex);
+        //     tileCenter = mGraphicsManager.GetTileCenter(tileIndex);
+        // }
+
+        // Point tileSize = mCamera.TileSize();
+        // Point viewpoint = mCamera.ViewPoint();
+        
+
+        // tile texture box
+        // tile texture center
+        // flat tile
+        // tile height
+        // 
+        
+        // camera tile size
+        // camera direction
+        // camera viewpoint
+        // camera flat view
+        
+        return rect;
+    }
+    
 } // namespace UI

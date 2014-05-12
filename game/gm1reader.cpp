@@ -254,5 +254,15 @@ namespace GM1
     GM1::GM1EntryReader& GM1Reader::EntryReader()
     {
         return *mEntryReader;
-    }    
+    }
+
+    Surface GM1Reader::ReadEntry(int index) const
+    {
+        return mEntryReader->Load(*this, index);
+    }
+
+    Point GM1Reader::ImageCenter(int index) const
+    {
+        return mEntryReader->ImageCenter(mHeader, mEntryHeaders.at(index));
+    }
 }

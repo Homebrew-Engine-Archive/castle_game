@@ -18,6 +18,7 @@ set (SRCS
   gm1palette.cpp
   gm1reader.cpp
   gm1writer.cpp
+  graphicsmanager.cpp
   loadingscreen.cpp
   main.cpp
   menu_combat.cpp

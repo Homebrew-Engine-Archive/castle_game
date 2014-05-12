@@ -92,6 +92,11 @@ namespace Castle
         mFontMgr.SetDefaultFont(Render::FontStronghold, 13);
     }
 
+    void Engine::LoadGraphics()
+    {
+        // precache gm dir
+    }
+    
     void Engine::PollInput()
     {
         SDL_Event event;
@@ -125,7 +130,7 @@ namespace Castle
 
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(mFontMgr.DefaultFont());
-        textRenderer.SetClipBox(Rect(0, 0, 100, 100));
+        textRenderer.SetClipBox(Rect(100, 100));
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
@@ -151,6 +156,7 @@ namespace Castle
         using namespace std::chrono;
         
         LoadFonts();
+        LoadGraphics();
         mScreenMgr.EnterGameScreen();
         mServer.StartAccept();
         

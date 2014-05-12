@@ -24,8 +24,6 @@ namespace Castle
     public:
         Camera();
 
-        Rect TileBox(const class GameMap &map, int tile) const;
-
         void Translate(int dx, int dy);
         
         bool Flat() const;

@@ -7,6 +7,7 @@
 #include <game/tgx.h>
 #include <game/surface.h>
 #include <game/color.h>
+#include <game/point.h>
 
 namespace GM1
 {
@@ -37,6 +38,7 @@ namespace GM1
         virtual uint32_t GetColorKey() const;
         virtual int CompatiblePixelFormat() const;
         virtual bool Palettized() const;
+        virtual Point ImageCenter(GM1::Header const&, GM1::EntryHeader const&) const;
 
         Surface Load(const GM1::GM1Reader &reader, size_t index) const;
 

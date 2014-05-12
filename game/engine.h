@@ -39,6 +39,7 @@ namespace Castle
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);
         bool HandleEvent(SDL_Event const&);
         void LoadFonts();
+        void LoadGraphics();
         void PollInput();
         void PollNetwork();
         void DrawFrame();

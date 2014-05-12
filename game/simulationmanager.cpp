@@ -9,6 +9,11 @@ namespace Castle
     {
 
     }
+
+    Castle::GameMap& SimulationManager::GetGameMap()
+    {
+        return *mMap;
+    }
     
     void SimulationManager::Update()
     {

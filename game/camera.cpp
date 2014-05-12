@@ -12,20 +12,6 @@ namespace Castle
         , mFlatView(false)
     {
     }
-
-    Rect Camera::TileBox(const GameMap &map, int tile) const
-    {
-        Rect rect;
-        // tile height
-        // tile coord
-        // tile texture box
-        // tile texture center
-        // camera tile size
-        // camera direction
-        // camera viewpoint
-        // camera flat view
-        return rect;
-    }
     
     void Camera::Flat(bool yes)
     {

@@ -1,9 +1,11 @@
 #ifndef GM1READER_H_
 #define GM1READER_H_
 
+#include <game/surface.h>
 #include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/filesystem.h>
+#include <game/point.h>
 
 #include <boost/filesystem/fstream.hpp>
 
@@ -44,6 +46,8 @@ namespace GM1
         void SetBuffering(bool on);
         void Open(fs::path, Flags);
         bool IsOpened() const;
+        Surface ReadEntry(int index) const;
+        Point ImageCenter(int index) const;
         void Close();
         virtual ~GM1Reader();
         
