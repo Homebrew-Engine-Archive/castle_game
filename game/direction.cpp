@@ -1,14 +1,18 @@
 #include "direction.h"
 
+#include <cmath>
+
 #include <stdexcept>
 #include <algorithm>
-#include <cmath>
 #include <iostream>
 #include <limits>
 
+#include <game/point.h>
+
 namespace
 {
-
+    const double PI = 3.141593;
+    
     const int DirCount = 8;
 
     Direction Rotated(const Direction &dir, int times)
@@ -16,7 +20,6 @@ namespace
         return Direction(
             (static_cast<int>(dir) + times + DirCount) % DirCount);
     }
-    
 }
 
 Direction RotatedLeft(const Direction &dir, int times)
@@ -46,8 +49,6 @@ int MinRotates(const Direction &lhs, const Direction &rhs)
 
 Direction RadiansToDirection(double angle)
 {
-    const static double PI = 3.141593;
-
     // Avoid negative angles
     double alpha = fmod(2 * PI + angle, 2 * PI);
 
@@ -61,6 +62,22 @@ Direction RadiansToDirection(double angle)
     int d = (int(gamma * DirCount) + DirCount) % DirCount;
     
     return static_cast<Direction>(d);
+}
+
+double DirectionToRadians(const Direction &dir)
+{
+    switch(dir) {
+    case Direction::East: return 0.0f;
+    case Direction::NorthEast: return PI / 4.0f;
+    case Direction::North: return PI / 2.0f;
+    case Direction::NorthWest: return 3.0f * PI / 4.0f;
+    case Direction::West: return PI;
+    case Direction::SouthWest: return PI + PI / 4.0f;
+    case Direction::South: return 3.0f * PI / 2.0f;
+    case Direction::SouthEast: return 3.0f * PI / 4.0f + PI;
+    }
+
+    throw std::runtime_error("invalid direction");
 }
 
 Direction PointsDirection(const Point &lhs, const Point &rhs)
@@ -81,7 +98,7 @@ Direction GetOppositeDirection(const Direction &dir)
     case Direction::SouthEast: return Direction::NorthWest;
     }
 
-    throw std::runtime_error("Wrong direction");
+    throw std::runtime_error("invalid direction");
 }
 
 Direction ClosestDirection(const DirectionSet &set, const Direction &dir)

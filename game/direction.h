@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <iosfwd>
-#include <game/point.h>
+
+class Point;
 
 /**
  * Just regular counter-clockwise directions.
@@ -34,6 +35,8 @@ Direction GetOppositeDirection(const Direction &direction);
  * \note The angle of 0 points on Direction::East
  */
 Direction RadiansToDirection(double angle);
+
+double DirectionToRadians(const Direction &dir);
     
 Direction PointsDirection(const Point &lhs, const Point &rhs);
 

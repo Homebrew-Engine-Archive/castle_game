@@ -3,6 +3,8 @@
 #include <sstream>
 #include <random>
 
+#include <game/make_unique.h>
+
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/renderer.h>
@@ -20,6 +22,27 @@
 
 namespace UI
 {
+    SmoothValue::SmoothValue(std::chrono::milliseconds latency, int from, int to)
+        : mLatency(latency)
+        , mElapsed(0)
+        , mFrom(from)
+        , mTo(to)
+    {}
+    
+    void SmoothValue::Update(std::chrono::milliseconds elapsed)
+    {
+        mElapsed += elapsed;
+    }
+
+    int SmoothValue::Get() const
+    {
+        return mFrom + (mTo - mFrom) * std::min(mElapsed, mLatency).count() / mLatency.count();
+    }
+}
+
+namespace UI
+{
+    GameScreen::~GameScreen() = default;
     GameScreen::GameScreen(Render::Renderer &renderer,
                            Render::FontManager &fontManager,
                            UI::ScreenManager &screenManager,
@@ -28,11 +51,8 @@ namespace UI
         , mFontManager(fontManager)
         , mScreenManager(screenManager)
         , mSimulationManager(simulationManager)
-        , mCursorX(0)
-        , mCursorY(0)
+        , mCursor(0, 0)
         , mCursorInvalid(true)
-        , mHiddenUI(false)
-        , mCursorMode(CursorMode::Normal)
         , mCamera()
         , mSpriteCount(0)
     {
@@ -132,9 +152,21 @@ namespace UI
         textRenderer.PutString(text);
     }
 
+    void GameScreen::DrawCameraInfo(Surface &frame)
+    {
+        DrawFrame(frame, Rect(mCamera.ViewPoint()), Color::Red());
+    }
+    
     void GameScreen::Draw(Surface &frame)
     {
-        DrawTestScene(frame);
+        std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        std::chrono::milliseconds sinceLastCameraUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(now - mLastCameraUpdate);
+
+        mLastCameraUpdate = now;
+        
+        UpdateCamera(sinceLastCameraUpdate, Rect(frame->w, frame->h));
+
+        DrawCameraInfo(frame);
     }
     
     bool GameScreen::HandleEvent(const SDL_Event &event)
@@ -150,8 +182,7 @@ namespace UI
         case SDL_MOUSEMOTION:
             {
                 mCursorInvalid = false;
-                mCursorX = event.motion.x;
-                mCursorY = event.motion.y;
+                mCursor = Point(event.motion.x, event.motion.y);
             }
             break;
         case SDL_KEYDOWN:
@@ -168,66 +199,55 @@ namespace UI
         return false;
     }
 
-    void GameScreen::AdjustViewport(const Rect &screen)
+    void GameScreen::UpdateCameraVelocity(std::unique_ptr<SmoothValue> &cameraVelocity,
+                                          std::chrono::milliseconds dtime,
+                                          int cursor, int bounds)
     {
-        const int Gap = 40;
-        const int Speed = 3;
-        if(!mCursorInvalid) {
-            if(mCursorX < Gap) {
-                mCamera.Translate(-Speed, 0);
-            }
-            if(mCursorX > screen.w - Gap) {
-                mCamera.Translate(Speed, 0);
-            }
-            if(mCursorY < Gap) {
-                mCamera.Translate(0, -Speed);
-            }
-            if(mCursorY > screen.h - Gap) {
-                mCamera.Translate(0, Speed);
-            }
+        const std::chrono::milliseconds Inertia = std::chrono::seconds(1);
+
+        const int EdgeGap = 30;
+        
+        const int MinVelocity = 1;
+        const int MaxVelocity = 5;
+        
+        bool affected = false;
+
+        int velocity = 0;
+
+        if(cameraVelocity) {
+            cameraVelocity->Update(dtime);
+        }
+        
+        if(cursor < EdgeGap) {
+            affected = !affected;
+            velocity = MaxVelocity;
+        }
+
+        if(cursor > bounds - EdgeGap) {
+            affected = !affected;
+            velocity = -MaxVelocity;
+        }
+
+        if(!affected) {
+            cameraVelocity = nullptr;
+        } else if(!cameraVelocity) {
+            cameraVelocity = std::make_unique<SmoothValue>(Inertia, MinVelocity, -velocity);
         }
     }
-
-    Rect GameScreen::TileBox(int tile) const
-    {
-        Rect rect;
-
-        // Castle::GameMap &map = mSimulationManager.GetGameMap();
-        
-        // int tileHeight = map.TileHeight(tile);
-
-        // Point tileCoord = map.TileCoord(tile);
-
-        // int tileGroup = map.TileGroup(tile);
-        // int tileIndex = map.TileIndex(tile);
-
-        // Point tileCenter;
-        // Surface tileBox;
-        // if(mCamera.Flat()) {
-        //     int flatTile = mGraphicsManager.GetFlatTile(tileIndex);
-        //     tileBox = mGraphicsManager.GetTileSurface(flatTile);
-        //     tileCenter = mGraphicsManager.GetTileCenter(flatTile);
-        // } else {
-        //     tileBox = mGraphicsManager.GetTileSurface(tileIndex);
-        //     tileCenter = mGraphicsManager.GetTileCenter(tileIndex);
-        // }
-
-        // Point tileSize = mCamera.TileSize();
-        // Point viewpoint = mCamera.ViewPoint();
-        
-
-        // tile texture box
-        // tile texture center
-        // flat tile
-        // tile height
-        // 
-        
-        // camera tile size
-        // camera direction
-        // camera viewpoint
-        // camera flat view
-        
-        return rect;
-    }
     
+    void GameScreen::UpdateCamera(std::chrono::milliseconds dtime, const Rect &screen)
+    {
+        if(!mCursorInvalid) {
+            UpdateCameraVelocity(mCameraXVelocity, dtime, mCursor.x, screen.w);
+            UpdateCameraVelocity(mCameraYVelocity, dtime, mCursor.y, screen.h);
+            
+            int deltaX = (mCameraXVelocity ? mCameraXVelocity->Get() : 0);
+            int deltaY = (mCameraYVelocity ? mCameraYVelocity->Get() : 0);
+
+            mCamera.Translate(deltaX, deltaY);
+        } else {
+            mCameraXVelocity = nullptr;
+            mCameraYVelocity = nullptr;
+        }
+    }
 } // namespace UI

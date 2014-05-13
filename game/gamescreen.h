@@ -2,7 +2,10 @@
 #define GAMESCREEN_H_
 
 #include <memory>
+#include <chrono>
+
 #include <SDL.h>
+
 #include <game/screen.h>
 #include <game/gamemap.h>
 #include <game/camera.h>
@@ -10,11 +13,6 @@
 
 class CollectionData;
 class Surface;
-
-enum class CursorMode : int {
-    Normal,
-    Delete
-};
 
 namespace Castle
 {
@@ -35,21 +33,37 @@ namespace Castle
 
 namespace UI
 {
-
     class ScreenManager;
-    
+}
+
+namespace UI
+{
+    class SmoothValue
+    {
+        std::chrono::milliseconds mLatency;
+        std::chrono::milliseconds mElapsed;
+        double mFrom;
+        double mTo;
+    public:
+        SmoothValue(std::chrono::milliseconds latency, int from, int to);
+        void Update(std::chrono::milliseconds elapsed);
+        int Get() const;
+    };
+
     class GameScreen : public Screen
     {
         Render::Renderer &mRenderer;
         Render::FontManager &mFontManager;
         UI::ScreenManager &mScreenManager;
         Castle::SimulationManager &mSimulationManager;
+
+        std::unique_ptr<SmoothValue> mCameraXVelocity;
+        std::unique_ptr<SmoothValue> mCameraYVelocity;
+
+        std::chrono::steady_clock::time_point mLastCameraUpdate;
         
-        int mCursorX;
-        int mCursorY;
+        Point mCursor;
         bool mCursorInvalid;
-        bool mHiddenUI;
-        CursorMode mCursorMode;
         Castle::Camera mCamera;
         int mSpriteCount;
     
@@ -61,19 +75,20 @@ namespace UI
         
         GameScreen(GameScreen const&) = delete;
         GameScreen &operator=(GameScreen const&) = delete;
-
-        Rect TileBox(int tile) const;
+        ~GameScreen();
         
         void DrawUnits(Surface &frame, const CollectionData &gm1);
         void DrawTerrain(Surface &frame, const CollectionData &gm1);
         void DrawTestScene(Surface &frame);
+        void DrawCameraInfo(Surface &frame);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
 
-        void AdjustViewport(const Rect &screen);
-    
+        void UpdateCamera(std::chrono::milliseconds time, const Rect &screen);
+        void UpdateCameraVelocity(std::unique_ptr<SmoothValue> &cameraVelocity,
+                                  std::chrono::milliseconds dtime,
+                                  int cursor, int bounds);
     };
-    
 }
 
 #endif

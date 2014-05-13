@@ -40,7 +40,7 @@ namespace Castle
 
     void Camera::Translate(int dx, int dy)
     {
-        mViewpoint += Point(dx, dy);
+        mViewpoint += {dx, dy};
     }
     
     Point Camera::ViewPoint() const

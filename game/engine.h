@@ -15,6 +15,7 @@
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/simulationmanager.h>
+#include <game/graphicsmanager.h>
 
 namespace Castle
 {
@@ -34,6 +35,7 @@ namespace Castle
         Castle::SimulationManager mSimulationMgr;
         UI::ScreenManager mScreenMgr;
         Network::Server mServer;
+        Graphics::GraphicsManager mGraphicsMgr;
 
         bool HandleWindowEvent(SDL_WindowEvent const&);
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);

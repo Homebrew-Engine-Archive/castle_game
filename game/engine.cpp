@@ -36,6 +36,7 @@ namespace Castle
         , mSimulationMgr()
         , mScreenMgr(mRenderer, mFontMgr, mSimulationMgr)
         , mServer(mIO, mPort)
+        , mGraphicsMgr()
     { }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
