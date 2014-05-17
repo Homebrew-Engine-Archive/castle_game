@@ -2,29 +2,45 @@
 #define CAMERA_H_
 
 #include <SDL.h>
+
+#include <chrono>
+
 #include <game/direction.h>
 #include <game/rect.h>
 #include <game/point.h>
+#include <game/timefunction.h>
 
 namespace Castle
 {
     class Camera
     {
-        /** Top left corner of the screen mapped onto game map **/
-        Point mViewpoint;
-
+        double mPosX;
+        double mPosY;
+        
         /** 30x16 by default, 15x8 zoomed out **/
         Point mTileSize;
 
         /** North direction **/
         Direction mDirection;
-        
+
         bool mFlatView;
+
+        int mScrollLeft;
+        int mScrollRight;
+        int mScrollUp;
+        int mScrollDown;
         
     public:
         Camera();
 
-        void Translate(int dx, int dy);
+        void Update(std::chrono::milliseconds delta);
+        
+        void MoveLeft();
+        void MoveRight();
+        void MoveUp();
+        void MoveDown();
+
+        Point ScreenToWorldCoords(const Point &cursor) const;
         
         bool Flat() const;
         void Flat(bool yes);
@@ -37,8 +53,6 @@ namespace Castle
         
         Point TileSize() const;
         void TileSize(const Point &tileSize);
-
-        Rect Viewport(const Rect &screen) const;
     };
 }
 

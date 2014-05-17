@@ -5,61 +5,62 @@
 #include <stdexcept>
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/current_function.hpp>
 
 #include <game/gm1palette.h>
-#include <game/gm1entryreader.h>
 #include <game/gm1reader.h>
-#include <game/sdl_utils.h>
 #include <game/tgx.h>
 
-CollectionDataPtr LoadCollectionData(const fs::path &path)
+CollectionData LoadGM1(const fs::path &path)
 {
+    CollectionData data;
+    GM1::GM1Reader gm1;
+
     try {
-        GM1::GM1Reader gm1;
         gm1.Open(path, GM1::GM1Reader::Cached);
-
-        CollectionDataPtr ptr(new CollectionData);
-        ptr->header = gm1.Header();
-        
-        for(int i = 0; i < gm1.NumPalettes(); ++i) {
-            ptr->palettes.push_back(
-                std::move(
-                    GM1::CreateSDLPalette(
-                        gm1.Palette(i))));
-        }
-
-        GM1::GM1EntryReader &reader = gm1.EntryReader();
-        for(int i = 0; i < gm1.NumEntries(); ++i) {
-            ptr->entries.push_back(
-                CollectionEntry {
-                    gm1.EntryHeader(i),
-                    reader.Load(gm1, i)}
-            );
-        }
-        
-        return ptr;
-    } catch(const std::exception &e) {
-        std::cerr << "Error while load " << path << std::endl;
+    } catch(const std::exception &error) {
+        std::cerr << "open collection failed: " << error.what() << std::endl;
         throw;
     }
+    
+    data.header = gm1.Header();
+    data.palettes.resize(gm1.NumPalettes());
+
+    for(int i = 0; i < gm1.NumPalettes(); ++i) {
+        try {
+            data.palettes[i] = GM1::CreateSDLPalette(gm1.Palette(i));
+        } catch(const std::exception &error) {
+            std::cerr << "read palette failed: " << error.what() << std::endl;
+            throw;
+        }
+    }
+
+    data.entries.resize(gm1.NumEntries());
+    for(int i = 0; i < gm1.NumEntries(); ++i) {
+        data.entries[i].header = gm1.EntryHeader(i);
+        try {
+            data.entries[i].surface = gm1.ReadEntry(i);
+        } catch(const std::exception &error) {
+            std::cerr << "read entry failed: " << error.what() << std::endl;
+            throw;
+        }
+    }
+        
+    return data;
 }
 
-Surface LoadTGXSurface(const fs::path &path)
+Surface LoadTGX(const fs::path &path)
 {
-    using namespace boost;
+    boost::filesystem::ifstream fin(path, std::ios_base::binary);
+    if(!fin.is_open()) {
+        std::ostringstream oss;
+        oss << "Unable to read " << path << ": " << strerror(errno);
+        throw std::runtime_error(oss.str());
+    }
     
     try {
-        filesystem::ifstream fin(path, std::ios_base::binary);
-        if(!fin.is_open()) {
-            std::ostringstream oss;
-            oss << "Unable to read " << path << ": " << strerror(errno);
-            throw std::runtime_error(oss.str());
-        }
         return TGX::ReadTGX(fin);
-        
-    } catch(const std::exception &e) {
-        std::cerr << "Error while load " << path << std::endl;
+    } catch(const std::exception &error) {
+        std::cerr << "read image failed: " << error.what() << std::endl;
         throw;
     }
 }

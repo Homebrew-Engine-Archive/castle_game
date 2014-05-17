@@ -41,7 +41,7 @@ include_directories (${SDL2_TTF_INCLUDE_DIRS})
 ## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)
 
-## Version is choosen by fair dice roll (we may support even an older ones)
+## Version was choosen by fair dice roll (we may support even an older ones)
 ## TODO check it
 find_package (Boost 1.46.0 REQUIRED COMPONENTS system iostreams)
 

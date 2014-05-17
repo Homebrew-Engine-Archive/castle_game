@@ -1,8 +1,6 @@
 #include "renderer.h"
 
-#include <map>
-#include <vector>
-#include <functional>
+#include <string>
 
 #include <boost/current_function.hpp>
 #include <boost/algorithm/clamp.hpp>
@@ -12,42 +10,67 @@
 #include <game/collection.h>
 
 namespace
-{    
-    const int MinOutputWidth = 320;
-    const int MinOutputHeight = 240;
+{
+    const int WindowWidth = 1024;
+    const int WindowHeight = 768;
+
+    const int WindowXPos = SDL_WINDOWPOS_UNDEFINED;
+    const int WindowYPos = SDL_WINDOWPOS_UNDEFINED;
+
+    const char *WindowTitle = "Castle game";
+
+    const int WindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+    const int RendererIndex = -1;
+    const int RendererFlags = SDL_RENDERER_ACCELERATED;
+    
+    const int MinScreenWidth = 0;
+    const int MinScreenHeight = 0;
     
     // TODO sync with driver's texture max width and height
-    const int MaxOutputWidth = 4096;
-    const int MaxOutputHeight = 4096;
+    const int MaxScreenWidth = 4096;
+    const int MaxScreenHeight = 4096;
 
     int AdjustWidth(int width)
     {
-        return boost::algorithm::clamp(width, MinOutputWidth, MaxOutputWidth);
+        return boost::algorithm::clamp(width, MinScreenWidth, MaxScreenWidth);
     }
 
     int AdjustHeight(int height)
     {
-        return boost::algorithm::clamp(height, MinOutputHeight, MaxOutputHeight);
+        return boost::algorithm::clamp(height, MinScreenHeight, MaxScreenHeight);
     }
 }
 
 namespace Render
 {    
-    Renderer::Renderer(SDL_Renderer *renderer)
-        : mRenderer(renderer)
-        , mScreenWidth(0)
+    Renderer::Renderer()
+        : mScreenWidth(0)
         , mScreenHeight(0)
-        , mScreenFormat(0)
+        , mScreenFormat(SDL_PIXELFORMAT_ARGB8888)
         , mScreenClear(true)
         , mScreenTexture(nullptr)
         , mScreenSurface(nullptr)
-        , mGFXCache()
-        , mGMCache()
     {
-        Rect rect = GetOutputSize();
-        mScreenWidth = rect.w;
-        mScreenHeight = rect.h;
-        mScreenFormat = SDL_PIXELFORMAT_ARGB8888;
+        mWindow.reset(
+            SDL_CreateWindow(WindowTitle,
+                             WindowXPos,
+                             WindowYPos,
+                             WindowWidth,
+                             WindowHeight,
+                             WindowFlags));
+        
+        if(!mWindow) {
+            throw sdl_error();
+        }
+        
+        mRenderer.reset(
+            SDL_CreateRenderer(mWindow.get(),
+                               RendererIndex,
+                               RendererFlags));
+        if(!mRenderer) {
+            throw sdl_error();
+        }
     }
 
     void Renderer::CreateScreenTexture(int width, int height)
@@ -58,7 +81,7 @@ namespace Render
     
         mScreenTexture.reset(
             SDL_CreateTexture(
-                mRenderer,
+                mRenderer.get(),
                 mScreenFormat,
                 SDL_TEXTUREACCESS_STREAMING,
                 width,
@@ -66,12 +89,7 @@ namespace Render
 
         // Inconsistent size should be reported by SDL itself
         if(!mScreenTexture) {
-            throw Castle::Error()
-                ("Where", BOOST_CURRENT_FUNCTION)
-                ("Width", std::to_string(width))
-                ("Height", std::to_string(height))
-                ("What", SDL_GetError())
-                ;
+            throw sdl_error();
         }
 
         mScreenWidth = width;
@@ -109,43 +127,35 @@ namespace Render
     {
         if(!mScreenSurface.Null()) {
             if(SDL_UpdateTexture(mScreenTexture.get(), NULL, mScreenSurface->pixels, mScreenSurface->pitch) < 0) {
-                throw Castle::Error()
-                    ("Where", BOOST_CURRENT_FUNCTION)
-                    ("What", SDL_GetError());
+                throw sdl_error();
             }
 
             const Rect textureRect = SurfaceBounds(mScreenSurface);
-            if(SDL_RenderCopy(mRenderer, mScreenTexture.get(), &textureRect, &textureRect) < 0) {
-                throw Castle::Error()
-                    ("Where", BOOST_CURRENT_FUNCTION)
-                    ("What", SDL_GetError());
+            if(SDL_RenderCopy(mRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
+                throw sdl_error();
             }
         }
 
-        SDL_RenderPresent(mRenderer);
+        SDL_RenderPresent(mRenderer.get());
     }
 
-    Rect Renderer::GetOutputSize() const
+    Rect Renderer::GetScreenSize() const
     {
         Rect size;
         
-        if(SDL_GetRendererOutputSize(mRenderer, &size.w, &size.h) < 0) {
-            throw Castle::Error()
-                ("Function", BOOST_CURRENT_FUNCTION)
-                ("File", __FILE__)
-                ("Line", std::to_string(__LINE__))
-                ("SDL_GetError", SDL_GetError());
+        if(SDL_GetRendererOutputSize(mRenderer.get(), &size.w, &size.h) < 0) {
+            throw sdl_error();
         }
         
         return size;
     }
 
-    void Renderer::SetWindowSize(int width, int height)
+    void Renderer::SetScreenSize(int width, int height)
     {
-        AdjustBufferSize(width, height);
+        AdjustScreenSize(width, height);
     }
     
-    void Renderer::AdjustBufferSize(int width, int height)
+    void Renderer::AdjustScreenSize(int width, int height)
     {
         mScreenSurface.reset(nullptr);
         mScreenTexture.reset(nullptr);
@@ -161,60 +171,35 @@ namespace Render
             CreateScreenSurface(adjustedWidth, adjustedHeight);
         }
     }
-
-    Surface Renderer::QuerySurface(const fs::path &filename)
-    {
-        auto cached = mGFXCache.find(filename);
-        if(cached != mGFXCache.end()) {
-            return cached->second;
-        }
-        
-        Surface loaded = LoadTGXSurface(filename);
-        mGFXCache.insert({filename, loaded});
-        return loaded;
-    }
-
-    CollectionData const& Renderer::QueryCollection(const fs::path &filename)
-    {
-        try {
-            auto searchResult = mGMCache.find(filename);
-            if(searchResult != mGMCache.end()) {
-                return *searchResult->second;
-            }
-        
-            CollectionDataPtr &&ptr = LoadCollectionData(filename);
-            if(!ptr) {
-                throw Castle::Error()
-                    ("Reason", "Unable to load collection")
-                    ;
-            }
-        
-            const CollectionData &data = *ptr;
-            mGMCache.insert(
-                std::make_pair(filename, std::move(ptr)));
-
-            return data;
-        } catch(Castle::Error &error) {
-            throw error
-                ("Filename", filename.string())
-                ;
-        }
-    }
-
-    bool Renderer::CacheCollection(const fs::path &filename)
-    {
-        try {
-            QueryCollection(filename);
-            return true;
-        } catch(Castle::Error &error) {
-            throw error
-                ("Filename", filename.string())
-                ;
-        }
-    }
     
     void Renderer::EnableClearScreen(bool on)
     {
         mScreenClear = on;
     }
+
+    Surface Renderer::CreateImage(int width, int height)
+    {
+        return nullptr;
+    }
+
+    Surface Renderer::CreateImageFrom(int width, int height, int pitch, int format, char *data)
+    {
+        return nullptr;
+    }
+
+    void Renderer::PaintImage(const Surface &surface, const Rect &whither)
+    {
+
+    }
+
+    sdl_error::sdl_error() throw()
+        : mSDL_GetError(SDL_GetError())
+    {
+    }
+
+    char const* sdl_error::what() const throw()
+    {
+        return mSDL_GetError.c_str();
+    }
+    
 } // namespace Render

@@ -4,9 +4,9 @@
 #include <memory>
 #include <string>
 
-#include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <game/color.h>
 #include <game/point.h>
 #include <game/rect.h>
 #include <game/sdl_utils.h>
@@ -33,12 +33,11 @@ namespace Render
     class TextRenderer
     {
         Surface &mSurface;
-        SDL_Color mColor {0, 0, 0, 0};
-        int mCursorX = 0;
-        int mCursorY = 0;
+        Color mColor;
+        Point mCursor;
         CursorMode mCursorMode = CursorMode::BaseLine;
         TTF_Font *mCurrentFont = nullptr;
-        Rect mClipBox {0, 0, 0, 0};
+        Rect mClipBox;
         int mFontStyle = FontStyle_Normal;
 
         Point GetTopLeftBoxPoint() const;
@@ -58,7 +57,7 @@ namespace Render
         void SetClipBox(const Rect &clipbox);
         void SetFont(TTF_Font *font);
         TTF_Font* GetFont();
-        void SetColor(const SDL_Color &color);
+        void SetColor(const Color &color);
         void SetCursorMode(CursorMode mode);
         void LoadIdentity();
         void Translate(int dx, int dy);

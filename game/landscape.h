@@ -1,9 +1,28 @@
 #ifndef LANDSCAPE_H_
 #define LANDSCAPE_H_
 
-const int CHEVRONS_HEIGHT_THRESHOLD = 20;
+const int ChevronsHeightThreshold = 20;
 
-enum class LandscapeClass : int {
+class TerrainClass
+{
+    int mId;
+    int mMinHeight;
+    int mMaxHeight;
+    
+public:
+    TerrainClass(int id, int minHeight, int maxHeight)
+        : mId(id)
+        , mMinHeight(minHeight)
+        , mMaxHeight(maxHeight)
+        {}
+    
+    int MinHeight() const { return mMinHeight; }
+    int MaxHeight() const { return mMaxHeight; }
+
+    int Id() const { return mId; }
+};
+
+enum class Landscape : int {
     Pebbles,
     Stones,
     Rocks,

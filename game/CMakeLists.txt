@@ -19,6 +19,7 @@ set (SRCS
   gm1reader.cpp
   gm1writer.cpp
   graphicsmanager.cpp
+  ingamemenu.cpp
   loadingscreen.cpp
   main.cpp
   menu_combat.cpp

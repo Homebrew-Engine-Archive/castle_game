@@ -14,6 +14,11 @@ namespace Castle
     {
         return *mMap;
     }
+
+    void SimulationManager::SetGameMap(std::unique_ptr<Castle::GameMap> map)
+    {
+        mMap = std::move(map);
+    }
     
     void SimulationManager::Update()
     {

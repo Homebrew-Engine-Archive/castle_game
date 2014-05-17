@@ -3,28 +3,25 @@
 #include <SDL.h>
 #include <memory>
 
-#include <game/renderer.h>
+#include <game/collection.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/screenmanager.h>
 
 namespace UI
 {
-    
-    MenuCombat::MenuCombat(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
-        : mRenderer(renderer)
-        , mFontManager(fontManager)
-        , mScreenManager(screenManager)
+    MenuCombat::MenuCombat(UI::ScreenManager &screenManager)
+        : mScreenManager(screenManager)
         , mBackground(
-            LoadTGXSurface(
+            LoadTGX(
                 fs::TGXFilePath("frontend_combat")))
     {
     }
 
     void MenuCombat::Draw(Surface &frame)
     {
-        Rect frameRect = SurfaceBounds(frame);
-        Rect bgRect = SurfaceBounds(mBackground);
+        Rect frameRect(frame);
+        Rect bgRect(mBackground);
         Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
         BlitSurface(mBackground, bgRect, frame, bgAligned);

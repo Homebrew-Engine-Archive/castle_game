@@ -12,20 +12,6 @@ Rect& Rect::operator=(const SDL_Rect &that)
     return *this;
 }
 
-Rect& Rect::operator+=(const SDL_Point &point)
-{
-    x += point.x;
-    y += point.y;
-    return *this;
-}
-
-Rect& Rect::operator-=(const SDL_Point &point)
-{
-    x -= point.x;
-    y -= point.y;
-    return *this;
-}
-
 Rect Normalized(const SDL_Rect &rect)
 {
     Rect result = rect;
@@ -69,9 +55,9 @@ Rect IntersectRects(const SDL_Rect &lhs, const SDL_Rect &rhs)
  * \param y         Relative y-pos of src center
  *
  */
+
 Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
 {
-    // Non-intuitive formulas is for the sake of precision
     const int xcenter = 2 * dst.x + dst.w;
     const int ycenter = 2 * dst.y + dst.h;
 
@@ -82,8 +68,8 @@ Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
     const int ypos = y * yspace;
 
     Rect rect;
-    rect.x = (xcenter + xpos - src.w) / 2;               // dst.x + 0.5*(dst.w + x*xspace - src.w)
-    rect.y = (ycenter + ypos - src.h) / 2;               // dst.y + 0.5*(dst.h + y*yspace - src.h)
+    rect.x = (xcenter + xpos - src.w) / 2;
+    rect.y = (ycenter + ypos - src.h) / 2;
     rect.w = src.w;
     rect.h = src.h;
     return rect;

@@ -7,12 +7,12 @@
 
 namespace GM1
 {
-    const size_t TileBytes = 512;
-    const size_t TileWidth = 30;
-    const size_t TileHeight = 16;
+    const unsigned TileBytes = 512;
+    const unsigned TileWidth = 30;
+    const unsigned TileHeight = 16;
     
-    const size_t CollectionEntryHeaderBytes = 16;
-    const size_t CollectionHeaderBytes = 88;
+    const unsigned CollectionEntryHeaderBytes = 16;
+    const unsigned CollectionHeaderBytes = 88;
 
     /**
      * \brief Is included in every collection only once.
@@ -112,7 +112,7 @@ namespace GM1
         Size75x75 = 3,
         Unknown0 = 4,
         Size100x100 = 5,
-        Size11x110 = 6,
+        Size110x110 = 6,
         Size130x130 = 7,
         Unknown1 = 8,
         Size185x185 = 9,

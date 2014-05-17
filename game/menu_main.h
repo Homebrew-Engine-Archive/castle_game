@@ -16,7 +16,6 @@ namespace Castle
 namespace Render
 {
     class Renderer;
-    class FontManager;
 }
 
 namespace UI
@@ -28,14 +27,12 @@ namespace UI
 {
     class MenuMain : public Screen
     {
-        Render::Renderer &mRenderer;
-        Render::FontManager &mFontManager;
         UI::ScreenManager &mScreenManager;
         
         Surface mBackground;
     
     public:
-        MenuMain(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
+        MenuMain(UI::ScreenManager &screenManager);
     
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);

@@ -9,7 +9,6 @@
 
 namespace Render
 {
-    class Renderer;
     class FontManager;
 }
 
@@ -19,15 +18,13 @@ namespace UI
     
     class MenuCombat : public Screen
     {
-        Render::Renderer &mRenderer;
-        Render::FontManager &mFontManager;
         UI::ScreenManager &mScreenManager;
         Surface mBackground;
 
         bool HandleKey(const SDL_KeyboardEvent &event);
         
     public:
-        MenuCombat(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager);
+        MenuCombat(UI::ScreenManager &screenManager);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
     };

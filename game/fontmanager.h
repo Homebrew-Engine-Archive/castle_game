@@ -31,6 +31,8 @@ namespace Render
         FontManager(FontManager const&) = delete;
         FontManager& operator=(FontManager const&) = delete;
         virtual ~FontManager();
+
+        static FontManager& Instance();
         
         void LoadFontFile(const std::string &name, int fsize);
         TTF_Font* Font(const std::string &name, int fsize);
@@ -41,6 +43,9 @@ namespace Render
         std::string DefaultFontName() const;
         int DefaultFontSize() const;
     };
+
+    TTF_Font* FindFont(const std::string &name, int fsize);
+    void LoadFont(const std::string &name, int fsize);
 }
 
 #endif  // FONTMANAGER_H_

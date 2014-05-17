@@ -33,8 +33,8 @@ There are some true \m/ names:
 * mixedCase for variables.
 * underscores_style_t for type aliases.
 * The long lines are eligible, but be aware of complicated function and type composition. Better use `auto` instead or just wrap line around.
-* You may place `&`, `&&` and `*` near both type or name.
-* You may place `const` any side of type you wish, but prefer the following notations:
+* You may place `&`, `&&` and `*` whereever you want.
+* You may place variable specifiers anywhere, but prefer the following notations:
 ```
 ReturnType const* FunctionName(const Argument &argumentWithName)
 {

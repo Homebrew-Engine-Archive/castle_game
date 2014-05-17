@@ -11,7 +11,6 @@
 
 namespace GM1
 {
-
     typedef uint16_t PaletteEntry;
     
     const size_t CollectionPaletteCount = 10;
@@ -20,6 +19,13 @@ namespace GM1
     
     typedef std::array<PaletteEntry, CollectionPaletteColors> Palette;
 
+    // class Palette : public std::array<PaletteEntry, CollectionPaletteColors>
+    // {
+    // public:
+    //     PixelFormatPtr PixelFormat() const;
+    //     PalettePtr toSDLPalette() const;
+    // };
+    
     enum class PaletteSet : size_t
     {
         Unknown0,

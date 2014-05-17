@@ -6,40 +6,37 @@
 
 namespace UI
 {
-    ScreenManager::ScreenManager(Render::Renderer &renderer,
-                                 Render::FontManager &fontManager,
-                                 Castle::SimulationManager &simulationManager)
-        : mRenderer(renderer)
-        , mFontManager(fontManager)
-        , mSimulationManager(simulationManager)
+    ScreenManager::ScreenManager(Castle::SimulationManager &simulationManager)
+        : mSimulationManager(simulationManager)
         , mLoadingScreen()
-        , mConsole(renderer, fontManager, *this)
-        , mMenuMain(renderer, fontManager, *this)
-        , mGameScreen(renderer, fontManager, *this, simulationManager)
-        , mMenuCombat(renderer, fontManager, *this)
+        , mConsole(*this)
+        , mMenuMain(*this)
+        , mGameScreen(*this, simulationManager)
+        , mMenuCombat(*this)
+        , mInGameMenu()
         , mScreenStack()
     {
     }
 
-    void ScreenManager::PushScreen(Screen *screen)
+    void ScreenManager::PushScreen(Screen &screen)
     {
-        mScreenStack.push_back(screen);
+        mScreenStack.push_back(&screen);
     }
 
-    Screen* ScreenManager::TopScreen()
+    Screen& ScreenManager::TopScreen()
     {
         if(mScreenStack.empty()) {
-            throw Castle::Exception("Ask for top of empty stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw std::runtime_error("ask about top of empty screen stack");
         }
-        return mScreenStack.back();
+        return *mScreenStack.back();
     }
 
-    Screen* ScreenManager::PopScreen()
+    Screen& ScreenManager::PopScreen()
     {
         if(mScreenStack.empty()) {
-            throw Castle::Exception("Pop top of empty stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+            throw std::runtime_error("pop top of empty stack");
         }
-        Screen *topScreen = TopScreen();
+        Screen &topScreen = TopScreen();
         mScreenStack.pop_back();
         return topScreen;
     }
@@ -52,7 +49,7 @@ namespace UI
     
     bool ScreenManager::HandleEvent(const SDL_Event &event)
     {
-        return TopScreen()->HandleEvent(event);
+        return TopScreen().HandleEvent(event);
     }
 
     void ScreenManager::DrawScreen(Surface &frame)
@@ -61,24 +58,24 @@ namespace UI
             if(ptr) {
                 ptr->Draw(frame);
             } else {
-                throw Castle::Exception("Empty screen on stack", BOOST_CURRENT_FUNCTION, __FILE__, __LINE__);
+                throw std::runtime_error("null screen on stack");
             }
         }
     }
 
     void ScreenManager::EnterGameScreen()
     {
-        PushScreen(&mGameScreen);
+        PushScreen(mGameScreen);
     }
 
     void ScreenManager::EnterMenuMain()
     {
-        PushScreen(&mMenuMain);
+        PushScreen(mMenuMain);
     }
 
     void ScreenManager::EnterMenuCombat()
     {
-        PushScreen(&mMenuCombat);
+        PushScreen(mMenuCombat);
     }
 
     UI::MenuMain& ScreenManager::MenuMain()

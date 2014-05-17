@@ -118,6 +118,34 @@ namespace
     };
 }
 
+SurfaceColorModSetter::SurfaceColorModSetter(const Surface &src, const Color &color)
+{
+    if(SDL_GetSurfaceColorMod(src, &redMod, &greenMod, &blueMod) < 0) {
+        throw std::runtime_error(SDL_GetError());
+    }
+    if(SDL_SetSurfaceColorMod(src, color.r, color.g, color.b) < 0) {
+        throw std::runtime_error(SDL_GetError());
+    }
+    surface = src;
+}
+
+SurfaceColorModSetter::~SurfaceColorModSetter()
+{
+    if(!surface.Null()) {
+        SDL_SetSurfaceColorMod(surface, redMod, greenMod, blueMod);
+    }
+}
+
+SurfaceAlphaModSetter::SurfaceAlphaModSetter(const Surface &src, int alpha)
+{
+
+}
+
+SurfaceAlphaModSetter::~SurfaceAlphaModSetter()
+{
+
+}
+
 SurfaceLocker::SurfaceLocker(const Surface &surface)
     : mObject(surface)
     , mLocked(false)
@@ -318,16 +346,12 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
 {
     if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<Rect&>(dstrect)) < 0) {
-        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        throw std::runtime_error(SDL_GetError());
     }
 }
 
 void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color)
 {
-    if(!dst) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
-    }
-    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 
@@ -337,10 +361,6 @@ void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color)
 
 void FillFrame(Surface &dst, const Rect &dstrect, const Color &color)
 {
-    if(!dst) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
-    }
-    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
 

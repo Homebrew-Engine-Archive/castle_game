@@ -67,6 +67,22 @@ public:
     SurfaceView(Surface &src, const Rect &clip);
 };
 
+class SurfaceColorModSetter
+{
+    Surface surface;
+    uint8_t redMod, greenMod, blueMod;
+public:
+    SurfaceColorModSetter(const Surface &src, const Color &color);
+    ~SurfaceColorModSetter();
+};
+
+class SurfaceAlphaModSetter
+{
+public:
+    SurfaceAlphaModSetter(const Surface &src, int alpha);
+    ~SurfaceAlphaModSetter();
+};
+
 bool HasPalette(const Surface &surface);
 
 void MapSurface(Surface &dst, Color func(uint8_t, uint8_t, uint8_t, uint8_t));
@@ -82,7 +98,6 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
 
 void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
-
 void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
 
 void BlurSurface(Surface &dst, int radius);

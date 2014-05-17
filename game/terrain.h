@@ -4,14 +4,13 @@
 #include <SDL.h>
 
 #include <game/surface.h>
-#include <game/collection.h>
 
 namespace Castle
 {
     class Terrain
     {
     public:
-        void Draw(Surface &surface, int x, int y);
+        bool Stackable(const Terrain&) const;
     };
 }
 

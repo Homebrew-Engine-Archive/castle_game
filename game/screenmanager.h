@@ -11,24 +11,17 @@
 #include <game/gamescreen.h>
 #include <game/console.h>
 #include <game/loadingscreen.h>
+#include <game/ingamemenu.h>
 
 namespace Castle
 {
     class Environment;
 }
 
-namespace Render
-{
-    class Renderer;
-    class FontManager;
-}
-
 namespace UI
 {
     class ScreenManager
     {
-        Render::Renderer &mRenderer;
-        Render::FontManager &mFontManager;
         Castle::SimulationManager &mSimulationManager;
 
         UI::LoadingScreen mLoadingScreen;
@@ -36,14 +29,13 @@ namespace UI
         UI::MenuMain mMenuMain;
         UI::GameScreen mGameScreen;
         UI::MenuCombat mMenuCombat;
+        UI::InGameMenu mInGameMenu;
         
         // From bottom to top
         std::vector<Screen*> mScreenStack;
         
     public:
-        ScreenManager(Render::Renderer &renderer,
-                      Render::FontManager &fontManager,
-                      Castle::SimulationManager &simulationManager);
+        ScreenManager(Castle::SimulationManager &simulationManager);
 
         void EnterGameScreen();
         void EnterMenuMain();
@@ -54,9 +46,9 @@ namespace UI
         UI::Console& Console();
         UI::LoadingScreen& LoadingScreen();
         
-        void PushScreen(Screen *screen);
-        Screen* TopScreen();
-        Screen* PopScreen();
+        void PushScreen(Screen &screen);
+        Screen& TopScreen();
+        Screen& PopScreen();
         void CloseScreen(Screen*);
         bool HandleEvent(SDL_Event const&);
         void DrawScreen(Surface&);

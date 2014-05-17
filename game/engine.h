@@ -16,22 +16,22 @@
 #include <game/screenmanager.h>
 #include <game/simulationmanager.h>
 #include <game/graphicsmanager.h>
+#include <game/renderer.h>
 
 namespace Castle
 {
     class Engine
     {
-        class Render::Renderer &mRenderer;
+        SDLInitializer mSDL_Init;
+        Render::Renderer mRenderer;
         double mFpsAverage;
-        double mFpsAverageMax;
-        int64_t mFrameCounter;
+        int mFrameCounter;
         bool mClosed;
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
         boost::asio::io_service mIO;
         int16_t mPort;
-        Render::FontManager mFontMgr;
         Castle::SimulationManager mSimulationMgr;
         UI::ScreenManager mScreenMgr;
         Network::Server mServer;
@@ -48,7 +48,7 @@ namespace Castle
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 
     public:
-        explicit Engine(Render::Renderer&);
+        Engine();
         
         Engine(Engine const&) = delete;
         Engine& operator=(Engine const&) = delete;

@@ -1,30 +1,20 @@
 #include "gamemap.h"
 
+#include <random>
+
+#include <game/gm1.h>
 #include <game/sdl_utils.h>
 #include <game/direction.h>
-#include <random>
+#include <game/landscape.h>
+#include <game/surface.h>
 
 namespace Castle
 {
     GameMap::GameMap(int size)
         : mSize(size)
+        , mCells(size * size, Cell(Landscape::Land, 0))
         , mBorderless(true)
     {
-    }
-
-    Point GameMap::TileCoord(int tile) const
-    {
-        return mTileCoords.at(tile);
-    }
-
-    int GameMap::TileHeight(int tile) const
-    {
-        return mTileHeights.at(tile);
-    }
-
-    int GameMap::TileType(int tile) const
-    {
-        return mTileType.at(tile);
     }
     
     void GameMap::Borderless(bool yes)
@@ -36,18 +26,53 @@ namespace Castle
     {
         return mBorderless;
     }
-    
-    GameMap RandomMap(uint64_t seed)
+
+    int GameMap::Rows() const
     {
-        std::mt19937 gen(seed);
-        std::uniform_int_distribution<int> dist(100, 1000);
+        return mSize;
+    }
 
-        const int size = dist(gen);
-        
-        GameMap map(size);
+    int GameMap::Cols() const
+    {
+        return mSize;
+    }
 
-        
-        
-        return map;
+    Cell const& GameMap::GetCell(int row, int col) const
+    {
+        return mCells.at(row * mSize + col);
+    }
+    
+    Cell& GameMap::GetCell(int row, int col)
+    {
+        return mCells.at(row * mSize + col);
+    }
+
+    void GenerateRandomMap(GameMap &map)
+    {
+        for(int i = 0; i < map.Rows(); ++i) {
+            for(int j = 0; j < map.Cols(); ++j) {
+                Cell &cell = map.GetCell(i, j);
+                cell.Height(rand() % 20);
+            }
+        }
+    }
+}
+
+namespace Castle
+{
+    Cell::Cell(Landscape land, int height)
+        : mHeight(height)
+        , mLandscape(land)
+    {
+    }
+    
+    int Cell::Height() const
+    {
+        return mHeight;
+    }
+    
+    void Cell::Height(int height)
+    {
+        mHeight = height;
     }
 }

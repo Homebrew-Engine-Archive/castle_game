@@ -33,9 +33,10 @@ public:
 
     constexpr Rect(const Rect &that) = default;
 
+    constexpr Rect(const SDL_Surface *surface)
+        : Rect(surface->w, surface->h) {}
+
     Rect& operator=(const SDL_Rect &that);
-    Rect& operator+=(const SDL_Point &point);
-    Rect& operator-=(const SDL_Point &point);
 };
 
 constexpr bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs)
@@ -54,14 +55,12 @@ constexpr bool operator!=(const SDL_Rect &lhs, const SDL_Rect &rhs)
         || (lhs.h != rhs.h);
 }
 
-constexpr Rect operator+(const SDL_Rect &rect, const SDL_Point &point)
+constexpr bool Intersects(const SDL_Rect &lhs, const SDL_Rect &rhs)
 {
-    return Rect(rect.x + point.x, rect.y + point.y, rect.w, rect.h);
-}
-
-constexpr Rect operator-(const SDL_Rect &rect, const SDL_Point &point)
-{
-    return Rect(rect.x - point.x, rect.y - point.y, rect.w, rect.h);
+    return (lhs.x <= rhs.x + rhs.w)
+        && (rhs.x <= lhs.x + lhs.w)
+        && (lhs.y <= rhs.y + rhs.h)
+        && (rhs.y <= lhs.y + lhs.h);
 }
 
 Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);

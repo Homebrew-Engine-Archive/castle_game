@@ -18,7 +18,7 @@ namespace UI
 {
     LoadingScreen::LoadingScreen()
         : mBackground(
-            LoadTGXSurface(
+            LoadTGX(
                 fs::TGXFilePath("frontend_loading")))
         , mProgressDone(0)
         , mProgressMax(1)

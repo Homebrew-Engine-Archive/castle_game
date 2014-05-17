@@ -23,6 +23,7 @@ namespace Castle
         SimulationManager();
 
         Castle::GameMap& GetGameMap();
+        void SetGameMap(std::unique_ptr<Castle::GameMap> map);
         
         void Update();
 

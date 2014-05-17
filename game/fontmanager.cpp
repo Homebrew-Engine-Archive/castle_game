@@ -38,25 +38,27 @@ namespace Render
     
     FontData* FontManager::GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs)
     {
-        if(lhs == nullptr)
+        if(lhs == nullptr) {
             return rhs;
+        }
         
-        if(rhs == nullptr)
+        if(rhs == nullptr) {
             return lhs;
+        }
         
-        if((lhs->name == name) && (rhs->name != name))
+        if((lhs->name == name) && (rhs->name != name)) {
             return lhs;
+        }
         
-        if((lhs->name != name) && (rhs->name == name))
+        if((lhs->name != name) && (rhs->name == name)) {
             return rhs;
+        }
 
         if(abs(lhs->fsize - fsize) < abs(rhs->fsize - fsize)) {
             return lhs;
         } else {
             return rhs;
         }
-
-        throw std::runtime_error("Where is my old riffle?!!");
     }
     
     FontData* FontManager::LookupFontName(const std::string &name, int fsize)
@@ -149,5 +151,21 @@ namespace Render
             throw Castle::Error()
                 ("Reason", "No default font");
         }
+    }
+
+    FontManager& FontManager::Instance()
+    {
+        static FontManager manager;
+        return manager;
+    }
+
+    TTF_Font* FindFont(const std::string &fname, int fsize)
+    {
+        return FontManager::Instance().Font(fname, fsize);
+    }
+
+    void LoadFont(const std::string &fname, int fsize)
+    {
+        FontManager::Instance().LoadFontFile(fname, fsize);
     }
 }

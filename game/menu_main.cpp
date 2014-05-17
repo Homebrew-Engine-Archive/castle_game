@@ -4,15 +4,14 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/screenmanager.h>
+#include <game/collection.h>
 
 namespace UI
 {
-    MenuMain::MenuMain(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
-        : mRenderer(renderer)
-        , mFontManager(fontManager)
-        , mScreenManager(screenManager)
+    MenuMain::MenuMain(UI::ScreenManager &screenManager)
+        : mScreenManager(screenManager)
         , mBackground(
-            LoadTGXSurface(
+            LoadTGX(
                 fs::TGXFilePath("frontend_main2")))
     {
     }
@@ -24,8 +23,8 @@ namespace UI
     
     void MenuMain::Draw(Surface &frame)
     {
-        Rect frameRect = SurfaceBounds(frame);
-        Rect bgRect = SurfaceBounds(mBackground);
+        Rect frameRect(frame);
+        Rect bgRect(mBackground);
         Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
         BlitSurface(mBackground, bgRect, frame, bgAligned);

@@ -8,7 +8,6 @@
 
 #include <game/color.h>
 #include <game/rect.h>
-#include <game/renderer.h>
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/surface.h>
@@ -16,10 +15,8 @@
 
 namespace UI
 {
-    Console::Console(Render::Renderer &renderer, Render::FontManager &fontManager, UI::ScreenManager &screenManager)
-        : mRenderer(renderer)
-        , mFontManager(fontManager)
-        , mScreenManager(screenManager)
+    Console::Console(UI::ScreenManager &screenManager)
+        : mScreenManager(screenManager)
         , mText("")
         , mFontName(Render::FontStronghold)
         , mFontSize(14)
@@ -29,9 +26,8 @@ namespace UI
     void Console::Draw(Surface &frame)
     {
         FillFrame(frame, Rect(frame->w, frame->h / 2), Color::Black().Opaque(100));
-        
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontManager.Font(mFontName, mFontSize));
+        textRenderer.SetFont(Render::FindFont(mFontName, mFontSize));
         textRenderer.PutString(mText);
     }
     

@@ -9,8 +9,11 @@
 
 #include <SDL.h>
 
+#include <game/make_unique.h>
 #include <game/color.h>
 #include <game/rect.h>
+#include <game/point.h>
+
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
@@ -18,13 +21,14 @@
 #include <game/menu_main.h>
 #include <game/loadingscreen.h>
 #include <game/screen.h>
+#include <game/gamemap.h>
 
 namespace Castle
 {
-    Engine::Engine(Render::Renderer &renderer)
-        : mRenderer(renderer)
+    Engine::Engine()
+        : mSDL_Init()
+        , mRenderer()
         , mFpsAverage(0.0f)
-        , mFpsAverageMax(mFpsAverage)
         , mFrameCounter(0)
         , mClosed(false)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
@@ -32,9 +36,8 @@ namespace Castle
         , mFpsLimited(false)
         , mIO()
         , mPort(4500)
-        , mFontMgr()
         , mSimulationMgr()
-        , mScreenMgr(mRenderer, mFontMgr, mSimulationMgr)
+        , mScreenMgr(mSimulationMgr)
         , mServer(mIO, mPort)
         , mGraphicsMgr()
     { }
@@ -46,7 +49,7 @@ namespace Castle
             {
                 const int width = window.data1;
                 const int height = window.data2;
-                mRenderer.SetWindowSize(width, height);
+                mRenderer.SetScreenSize(width, height);
             }
             return true;
         default:
@@ -86,11 +89,16 @@ namespace Castle
     {
         const int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 30, 45};
         const std::string fontset = Render::FontStronghold;
+
         for(int fsize : sizes) {
-            mFontMgr.LoadFontFile(fontset, fsize);
+            try {
+                Render::LoadFont(fontset, fsize);
+            } catch(const std::exception &error) {
+                std::cerr << "font loading failed: " << error.what() << std::endl;
+            }
         }
 
-        mFontMgr.SetDefaultFont(Render::FontStronghold, 13);
+        Render::FontManager::Instance().SetDefaultFont(Render::FontStronghold, 13);
     }
 
     void Engine::LoadGraphics()
@@ -100,17 +108,30 @@ namespace Castle
     
     void Engine::PollInput()
     {
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(!mScreenMgr.TopScreen()->HandleEvent(event)) {
-                HandleEvent(event);
+        try {
+            SDL_Event event;
+            while(SDL_PollEvent(&event)) {
+                if(!mScreenMgr.TopScreen().HandleEvent(event)) {
+                    HandleEvent(event);
+                }
             }
+        } catch(const std::exception &error) {
+            std::cerr << "exception on input handling: " << error.what() << std::endl;
+        } catch(...) {
+            std::cerr << "unknown exception on input handling" << std::endl;
         }
     }
     
     void Engine::PollNetwork()
     {
-        mIO.poll();
+        try {
+            mIO.poll();
+        } catch(const std::exception &error) {
+            std::cerr << "exception on polling network: " << error.what() << std::endl;
+        } catch(...) {
+            std::cerr << "unknown exception on polling network" << std::endl;
+        }
+        
         // forward connections to simulation manager
         // forward data to simulation manager
     }
@@ -123,14 +144,11 @@ namespace Castle
         std::ostringstream oss;
         oss << "(Castle game project) " << "FPS: ";
         oss.width(10);
-        oss << mFpsAverage << ' ';
-        oss << "Max FPS: ";
-        oss.width(10);
-        oss << mFpsAverageMax << ' ';
+        oss << mFpsAverage;
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(mFontMgr.DefaultFont());
+        textRenderer.SetFont(Render::FontManager::Instance().DefaultFont());
         textRenderer.SetClipBox(Rect(100, 100));
         textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
         textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
@@ -148,8 +166,13 @@ namespace Castle
         const std::chrono::milliseconds oneSecond = std::chrono::seconds(1);
         const double preciseFrameCounter = mFrameCounter * oneSecond.count();
         mFpsAverage = preciseFrameCounter / elapsed.count();
-        mFpsAverageMax = std::max(mFpsAverageMax, mFpsAverage);
         mFrameCounter = 0;
+    }
+
+    constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs,
+                                                const std::chrono::steady_clock::time_point &rhs)
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(rhs - lhs);
     }
     
     int Engine::Exec()
@@ -158,33 +181,44 @@ namespace Castle
         
         LoadFonts();
         LoadGraphics();
+        mSimulationMgr.SetGameMap(std::make_unique<GameMap>(100));
+        GenerateRandomMap(mSimulationMgr.GetGameMap());
         mScreenMgr.EnterGameScreen();
         mServer.StartAccept();
         
         steady_clock::time_point prevSimulation = steady_clock::now();
         steady_clock::time_point prevFrame = steady_clock::now();
-        steady_clock::time_point prevSecond = steady_clock::now();
-
+        steady_clock::time_point prevFpsUpdate = steady_clock::now();
+        
         while(!mClosed) {
             PollInput();
             PollNetwork();
-            
-            if(!mFpsLimited || prevFrame + mFrameUpdateInterval < steady_clock::now()) {
-                mFrameCounter += 1;
-                prevFrame = steady_clock::now();
-                DrawFrame();
+
+            {
+                const steady_clock::time_point now = steady_clock::now();
+                if(!mFpsLimited || prevFrame + mFrameUpdateInterval < now) {
+                    mFrameCounter += 1;
+                    prevFrame = now;
+                    DrawFrame();
+                }
             }
 
-            milliseconds sinceLastSim = duration_cast<milliseconds>(steady_clock::now() - prevSimulation);
-            if(mSimulationMgr.HasUpdate(sinceLastSim)) {
-                prevSimulation = steady_clock::now();
-                mSimulationMgr.Update();
+            {
+                const steady_clock::time_point now = steady_clock::now();
+                milliseconds sinceLastSim = Elapsed(prevSimulation, now);
+                if(mSimulationMgr.HasUpdate(sinceLastSim)) {
+                    prevSimulation = now;
+                    mSimulationMgr.Update();
+                }
             }
-            
-            if(prevSecond + mFpsUpdateInterval < steady_clock::now()) {
-                const milliseconds elapsed = duration_cast<milliseconds>(steady_clock::now() - prevSecond);
-                UpdateFrameCounter(elapsed);
-                prevSecond = steady_clock::now();
+
+            {
+                const steady_clock::time_point now = steady_clock::now();
+                const milliseconds sinceLastFpsUpdate = Elapsed(prevFpsUpdate, now);
+                if(mFpsUpdateInterval < sinceLastFpsUpdate) {
+                    prevFpsUpdate = now;
+                    UpdateFrameCounter(sinceLastFpsUpdate);
+                }
             }
         }
 

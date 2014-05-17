@@ -3,7 +3,6 @@
 
 #include <SDL.h>
 #include <string>
-#include <iosfwd>
 #include <vector>
 #include <memory>
 
@@ -29,7 +28,7 @@ struct CollectionData
 
 typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
-Surface LoadTGXSurface(const fs::path &filename);
-CollectionDataPtr LoadCollectionData(const fs::path &filename);
+Surface LoadTGX(const fs::path &filename);
+CollectionData LoadGM1(const fs::path &filename);
 
 #endif
