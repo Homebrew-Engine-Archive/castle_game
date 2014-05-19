@@ -60,8 +60,8 @@ namespace UI
     {
         double rate = GetCompleteRate();
         
-        Rect frameRect = SurfaceBounds(frame);
-        Rect bgRect = SurfaceBounds(mBackground);
+        Rect frameRect(frame);
+        Rect bgRect(mBackground);
 
         Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
         BlitSurface(mBackground, bgRect, frame, bgAligned);

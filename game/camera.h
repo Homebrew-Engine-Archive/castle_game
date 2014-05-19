@@ -8,7 +8,6 @@
 #include <game/direction.h>
 #include <game/rect.h>
 #include <game/point.h>
-#include <game/timefunction.h>
 
 namespace Castle
 {
@@ -24,11 +23,12 @@ namespace Castle
         Direction mDirection;
 
         bool mFlatView;
+        
+        double mScrollX;
+        double mScrollY;
 
-        int mScrollLeft;
-        int mScrollRight;
-        int mScrollUp;
-        int mScrollDown;
+        double mVerticalScrollSpeed;
+        double mHorizontalScrollSpeed;
         
     public:
         Camera();
@@ -40,7 +40,11 @@ namespace Castle
         void MoveUp();
         void MoveDown();
 
+        void RotateLeft();
+        void RotateRight();
+        
         Point ScreenToWorldCoords(const Point &cursor) const;
+        Point WorldToScreenCoords(const Point &cell) const;
         
         bool Flat() const;
         void Flat(bool yes);

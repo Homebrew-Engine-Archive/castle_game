@@ -1,6 +1,7 @@
 #include "camera.h"
 
 #include <game/gm1.h>
+#include <game/modulo.h>
 
 #include <game/gamemap.h>
 #include <game/rect.h>
@@ -10,13 +11,13 @@ namespace Castle
     Camera::Camera()
         : mPosX(0.0f)
         , mPosY(0.0f)
-        , mTileSize(30, 16)
+        , mTileSize(Point(GM1::TileWidth, GM1::TileHeight) * 2)
         , mDirection(Direction::North)
-        , mFlatView(false)
-        , mScrollLeft(0)
-        , mScrollRight(0)
-        , mScrollUp(0)
-        , mScrollDown(0)
+        , mFlatView(true)
+        , mScrollX(0)
+        , mScrollY(0)
+        , mVerticalScrollSpeed(1)
+        , mHorizontalScrollSpeed(2)
     {
     }
     
@@ -63,45 +64,56 @@ namespace Castle
     
     void Camera::MoveLeft()
     {
-        mScrollLeft = 1;
+        mScrollX -= mHorizontalScrollSpeed;
     }
     
     void Camera::MoveRight()
     {
-        mScrollRight = 1;
+        mScrollX += mHorizontalScrollSpeed;
     }
 
     void Camera::MoveUp()
     {
-        mScrollUp = 1;
+        mScrollY -= mVerticalScrollSpeed;
     }
     
     void Camera::MoveDown()
     {
-        mScrollDown = 1;
+        mScrollY += mVerticalScrollSpeed;
+    }
+    
+    void Camera::RotateLeft()
+    {
+        mDirection = RotatedLeft(mDirection);
+    }
+
+    void Camera::RotateRight()
+    {
+        mDirection = RotatedRight(mDirection);
     }
     
     void Camera::Update(std::chrono::milliseconds delta)
     {
-        const double ScrollSpeed = 0.8;                 // Pixel per msec
+        mPosX += mScrollX * delta.count();
+        mScrollX = 0.0f;
         
-        mPosY += mScrollDown * ScrollSpeed * delta.count();
-        mScrollDown = 0;
-        
-        mPosY -= mScrollUp * ScrollSpeed * delta.count();
-        mScrollUp = 0;
-
-        mPosX -= mScrollLeft * ScrollSpeed * delta.count();
-        mScrollLeft = 0;
-
-        mPosX += mScrollRight * ScrollSpeed * delta.count();
-        mScrollRight = 0;
+        mPosY += mScrollY * delta.count();
+        mScrollY = 0.0f;
     }
-
+    
     Point Camera::ScreenToWorldCoords(const Point &cursor) const
     {
         // \stub
-        return Point((mPosX + cursor.x) / GM1::TileWidth,
-                     (mPosY + cursor.y) / GM1::TileHeight * 2);
+        int y = (mPosY + cursor.y) / mTileSize.y * 2;
+        int x = (mPosX + cursor.x + (core::Even(y) ? (mTileSize.x / 2) : 0)) / mTileSize.x;
+        return Point(x, y);
+    }
+
+    Point Camera::WorldToScreenCoords(const Point &cell) const
+    {
+        // \stub
+        return -ViewPoint() +
+            Point(cell.x * mTileSize.x + core::Modulo(cell.y, 2) * (mTileSize.x / 2),
+                  cell.y * mTileSize.y / 2);
     }
 }

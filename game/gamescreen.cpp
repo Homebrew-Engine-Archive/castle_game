@@ -28,6 +28,7 @@ namespace UI
                            Castle::SimulationManager &simulationManager)
         : mScreenManager(screenManager)
         , mSimulationManager(simulationManager)
+        , tileset(LoadGM1(fs::GM1FilePath("tile_land8")))
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
@@ -39,31 +40,43 @@ namespace UI
     {
         UpdateCamera(Rect(frame));
         
-        static const CollectionData tileset = LoadGM1(fs::GM1FilePath("tile_land8"));
-
-        const Point view = mCamera.ViewPoint();
-        const Point selected = mCamera.ScreenToWorldCoords(mCursor);
-        
+        const Point selected = mCamera.ScreenToWorldCoords(mCursor);        
         const Castle::GameMap &map = mSimulationManager.GetGameMap();
         for(int i = 0; i < map.Rows(); ++i) {
             for(int j = 0; j < map.Cols(); ++j) {
                 const Castle::Cell &cell = map.GetCell(i, j);
                 const CollectionEntry &entry = tileset.entries[cell.Height()];
                 
-                const Rect whither((j * GM1::TileWidth) + ((i % 2) ? (GM1::TileWidth / 2) : 0) - tileset.header.anchorX - view.x,
-                                   (i * GM1::TileHeight) / 2 - tileset.header.anchorY - entry.header.tileY - view.y,
-                                   entry.surface->w,
-                                   entry.surface->h);
-                if(Intersects(Rect(frame), whither)) {
-                    std::unique_ptr<SurfaceColorModSetter> setter;
-                    if((selected.y == i) && (selected.x == j)) {
-                        setter.reset(new SurfaceColorModSetter(entry.surface, Color(255, rand(), 128)));
+                Point cellCenter = mCamera.WorldToScreenCoords(Point(j, i));
+                Rect tileRect(cellCenter, cellCenter + mCamera.TileSize());
+                tileRect.x -= mCamera.TileSize().x / 2;
+                tileRect.y -= mCamera.TileSize().y / 2;
+
+                Rect cellRect(cellCenter, entry.surface->w, entry.surface->h);
+                
+                /** Offset to the center **/
+                cellRect.x -= mCamera.TileSize().x / 2;
+                cellRect.y -= mCamera.TileSize().y / 2;
+
+                /** Offset to the top **/
+                cellRect.y -= entry.header.tileY;
+
+                if(Intersects(Rect(frame), cellRect)) {
+                    if(!mCamera.Flat()) {
+                        std::unique_ptr<SurfaceColorModSetter> setter;
+                        if((selected.y == i) && (selected.x == j)) {
+                            setter.reset(new SurfaceColorModSetter(entry.surface, Color(255, 128, 128)));
+                        }
+                        BlitSurface(entry.surface, Rect(entry.surface), frame, cellRect);
                     }
-                    
-                    BlitSurface(entry.surface,
-                                Rect(entry.surface),
-                                frame,
-                                whither);
+                }
+
+                if(mCamera.Flat() && Intersects(Rect(frame), tileRect)) {
+                    if(selected == Point(j, i)) {
+                        DrawRhombus(frame, tileRect, Color::Yellow());
+                    } else {
+                        DrawRhombus(frame, tileRect, Color::Red().Opaque(100));
+                    }
                 }
             }
         }
@@ -75,7 +88,15 @@ namespace UI
         case SDLK_ESCAPE:
             return false;
         case SDLK_SPACE:
-            mCamera.Flat(!mCamera.Flat());
+            if(event.type == SDL_KEYDOWN) {
+                mCamera.Flat(!mCamera.Flat());
+            }
+            return true;
+        case SDLK_x:
+            mCamera.RotateLeft();
+            return true;
+        case SDLK_c:
+            mCamera.RotateRight();
             return true;
         default:
             return true;

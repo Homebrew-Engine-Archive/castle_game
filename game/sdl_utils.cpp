@@ -2,10 +2,10 @@
 
 #include <stdexcept>
 
-SDLInitializer::SDLInitializer()
+SDLInitializer::SDLInitializer(int flags)
 {
     SDL_SetMainReady();
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0) {
+    if(SDL_Init(flags) < 0) {
         throw std::runtime_error(SDL_GetError());
     }
 }

@@ -37,6 +37,10 @@ namespace
         int CompatiblePixelFormat() const {
             return SDL_PIXELFORMAT_INDEX8;
         }
+
+        Point ImageCenter(const GM1::Header &header, GM1::EntryHeader const&) const {
+            return Point(header.anchorX, header.anchorY);
+        }
         
     protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
@@ -83,7 +87,7 @@ namespace
         }
 
         Point ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const {
-            return Point(header.anchorX, header.anchorY) + Point(0, entry.tileY);
+            return Point(GM1::TileWidth / 2, GM1::TileHeight / 2) + Point(0, entry.tileY);
         }
         
     protected:
@@ -230,11 +234,7 @@ namespace GM1
         if(SDL_FillRect(surface, NULL, colorkey) < 0) {
             Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
         }
-
-        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
-        }
-        
+                
         return surface;
     }
 
@@ -249,6 +249,15 @@ namespace GM1
         
         boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
         ReadSurface(in, size, header, surface);
+
+        surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+        if(!surface) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
+        
+        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
+            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        }
         
         return surface;
     }
@@ -298,7 +307,7 @@ namespace GM1
 
     Point GM1EntryReader::ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const
     {
-        return Point(header.anchorX, header.anchorY);
+        return Point(Width(entry) / 2, Height(entry) / 2);
     }
     
     GM1EntryReader::Ptr CreateEntryReader(const GM1::Encoding &encoding)

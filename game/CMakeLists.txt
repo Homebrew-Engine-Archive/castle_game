@@ -33,7 +33,9 @@ set (SRCS
   sdl_utils.cpp
   surface.cpp
   textrenderer.cpp
+  timefunction.cpp
   tgx.cpp
+
 )
 
 set (TARGET "a.out")

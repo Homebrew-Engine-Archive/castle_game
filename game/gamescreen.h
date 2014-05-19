@@ -7,6 +7,8 @@
 
 #include <SDL.h>
 
+#include <game/collection.h>
+
 #include <game/screen.h>
 #include <game/gamemap.h>
 #include <game/camera.h>
@@ -38,6 +40,7 @@ namespace UI
     {
         UI::ScreenManager &mScreenManager;
         Castle::SimulationManager &mSimulationManager;
+        CollectionData tileset;
 
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         

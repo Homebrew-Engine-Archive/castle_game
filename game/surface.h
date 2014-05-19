@@ -5,6 +5,7 @@
 
 #include <game/rect.h>
 
+class Point;
 class Color;
 
 /**
@@ -57,7 +58,7 @@ public:
  * It holds reference to the parent surface so neither this nor parent
  * surface doesn't intent deallocation of each other.
  *
- * \todo This class is not intended to work together with RLE accel. How we can do that?
+ * \todo This class is not intended to work together with RLE accel. Can we deal with it?
  *
  */
 class SurfaceView : public Surface
@@ -100,11 +101,12 @@ void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Re
 void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
 void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
 
+void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
+void FillRhombus(Surface &dst, const Rect &bounds, const Color &color);
+
 void BlurSurface(Surface &dst, int radius);
 
 void TransformSurface(const Surface &surface, Color(Color const&));
-
-Rect SurfaceBounds(const Surface &src);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels

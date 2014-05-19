@@ -25,6 +25,11 @@ public:
     Point& operator-=(const SDL_Point &that);
 };
 
+constexpr Point operator-(const SDL_Point &point)
+{
+    return Point(-point.x, -point.y);
+}
+
 constexpr bool operator==(const SDL_Point &lhs, const SDL_Point &rhs)
 {
     return (lhs.x == rhs.x) && (lhs.y == rhs.y);

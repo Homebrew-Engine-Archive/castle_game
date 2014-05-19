@@ -4,6 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <chrono>
+
 #include <boost/filesystem/fstream.hpp>
 
 #include <game/gm1palette.h>
@@ -12,6 +14,8 @@
 
 CollectionData LoadGM1(const fs::path &path)
 {
+    std::chrono::steady_clock::time_point startAt = std::chrono::steady_clock::now();
+
     CollectionData data;
     GM1::GM1Reader gm1;
 
@@ -44,7 +48,10 @@ CollectionData LoadGM1(const fs::path &path)
             throw;
         }
     }
-        
+
+    std::chrono::steady_clock::time_point endAt = std::chrono::steady_clock::now();
+    std::clog << "Load " << path << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(endAt - startAt).count() << "ms" << std::endl;
+    
     return data;
 }
 

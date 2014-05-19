@@ -49,10 +49,15 @@ namespace Castle
 
     void GenerateRandomMap(GameMap &map)
     {
+        int cy = rand() % map.Rows();
+        int cx = rand() % map.Cols();
+
+        int maxHeight = map.Rows() + map.Cols();
+        
         for(int i = 0; i < map.Rows(); ++i) {
             for(int j = 0; j < map.Cols(); ++j) {
                 Cell &cell = map.GetCell(i, j);
-                cell.Height(rand() % 20);
+                cell.Height(maxHeight - sqrt((cy-i)*(cy-i) + (cx-j)*(cx-j)));
             }
         }
     }

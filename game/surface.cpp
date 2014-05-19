@@ -368,6 +368,52 @@ void FillFrame(Surface &dst, const Rect &dstrect, const Color &color)
     SDL_RenderFillRect(render.get(), &dstrect);
 }
 
+void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
+{
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
+
+    const Point points[] = {
+        Point(bounds.x, bounds.y + bounds.h / 2),
+        Point(bounds.x + bounds.w / 2, bounds.y),
+        Point(bounds.x + bounds.w, bounds.y + bounds.h / 2),
+        Point(bounds.x + bounds.w / 2, bounds.y + bounds.h),
+        Point(bounds.x, bounds.y + bounds.h / 2)
+    };
+    
+    SDL_RenderDrawLines(render.get(), &points[0], 5);
+}
+
+void FillRhombus(Surface &dst, const Rect &bounds, const Color &color)
+{
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
+    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
+
+    const double delta = static_cast<double>(bounds.w) / bounds.h;
+    double width = 0;
+    
+    Rect rect;
+    rect.y = bounds.y;
+    rect.h = 1;
+    for(int i = 0; i < bounds.h / 2; ++i) {
+        width += 2 * delta;
+        rect.y += 1;
+        rect.w = width;
+        rect.x = bounds.x + (bounds.w - width) / 2;
+        SDL_RenderFillRect(render.get(), &rect);
+    }
+
+    for(int i = bounds.h / 2; i < bounds.h; ++i) {
+        width -= 2 * delta;
+        rect.y += 1;
+        rect.w = width;
+        rect.x = bounds.x + (bounds.w - width) / 2;
+        SDL_RenderFillRect(render.get(), &rect);
+    }
+}
+
 void TransformSurface(Surface &dst, Color func(Color const&))
 {
     if(!dst) {
@@ -404,11 +450,6 @@ void BlurSurface(Surface &dst, int radius)
     for(int x = 0; x < dst->w; ++x) {
         convolve(bytes + x * bytesPP, dst->h, dst->pitch);
     }
-}
-
-Rect SurfaceBounds(const Surface &src)
-{
-    return Rect(src->w, src->h);
 }
 
 bool HasPalette(const Surface &surface)

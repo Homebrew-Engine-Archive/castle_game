@@ -45,8 +45,8 @@ namespace
 namespace Render
 {    
     Renderer::Renderer()
-        : mScreenWidth(0)
-        , mScreenHeight(0)
+        : mScreenWidth(WindowWidth)
+        , mScreenHeight(WindowHeight)
         , mScreenFormat(SDL_PIXELFORMAT_ARGB8888)
         , mScreenClear(true)
         , mScreenTexture(nullptr)
@@ -56,8 +56,8 @@ namespace Render
             SDL_CreateWindow(WindowTitle,
                              WindowXPos,
                              WindowYPos,
-                             WindowWidth,
-                             WindowHeight,
+                             mScreenWidth,
+                             mScreenHeight,
                              WindowFlags));
         
         if(!mWindow) {
@@ -73,43 +73,50 @@ namespace Render
         }
     }
 
-    void Renderer::CreateScreenTexture(int width, int height)
+    void Renderer::CreateScreenTexture(int width, int height, int format)
     {
-        if((mScreenTexture) && (width == mScreenWidth) && (height == mScreenHeight)) {
+        if((mScreenTexture) && (width == mScreenWidth) && (height == mScreenHeight) && (format == mScreenFormat)) {
             return;
         }
-    
-        mScreenTexture.reset(
+
+        TexturePtr temp(
             SDL_CreateTexture(
                 mRenderer.get(),
-                mScreenFormat,
+                format,
                 SDL_TEXTUREACCESS_STREAMING,
                 width,
                 height));
 
-        // Inconsistent size should be reported by SDL itself
-        if(!mScreenTexture) {
+        // Let sdl check the size and the format for us
+        if(!temp) {
             throw sdl_error();
         }
 
+        mScreenFormat = format;
         mScreenWidth = width;
         mScreenHeight = height;
+        mScreenTexture = std::move(temp);
     }
 
     void Renderer::CreateScreenSurface(int width, int height)
     {
-        mScreenSurface = CreateSurface(width, height, mScreenFormat);
+        Surface temp = CreateSurface(width, height, mScreenFormat);
+        if(!temp) {
+            throw sdl_error();
+        }
+
+        mScreenSurface = temp;
     }
 
-    bool Renderer::ReallocationRequired(int width, int height)
+    bool Renderer::ReallocationRequired(int width, int height, int format)
     {
-        return (width != mScreenWidth) || (height != mScreenHeight);
+        return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenHeight);
     }
     
     Surface Renderer::BeginFrame()
     {
         if(!mScreenTexture) {
-            CreateScreenTexture(mScreenWidth, mScreenHeight);
+            CreateScreenTexture(mScreenWidth, mScreenHeight, mScreenFormat);
         }
 
         if(!mScreenSurface) {
@@ -130,7 +137,7 @@ namespace Render
                 throw sdl_error();
             }
 
-            const Rect textureRect = SurfaceBounds(mScreenSurface);
+            const Rect textureRect(mScreenSurface);
             if(SDL_RenderCopy(mRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
                 throw sdl_error();
             }
@@ -150,26 +157,26 @@ namespace Render
         return size;
     }
 
-    void Renderer::SetScreenSize(int width, int height)
+    void Renderer::SetScreenMode(int width, int height, int format)
     {
-        AdjustScreenSize(width, height);
+        if(ReallocationRequired(width, height, format)) {
+            CreateScreenTexture(width, height, format);
+            CreateScreenSurface(width, height);
+        }
+    }
+
+    void Renderer::SetScreenFormat(int format)
+    {
+        SetScreenMode(mScreenWidth, mScreenHeight, format);
     }
     
-    void Renderer::AdjustScreenSize(int width, int height)
+    void Renderer::SetScreenSize(int width, int height)
     {
-        mScreenSurface.reset(nullptr);
-        mScreenTexture.reset(nullptr);
-        
         // Cutting up and down texture height and width
-        int adjustedWidth = AdjustWidth(width);
-        int adjustedHeight = AdjustHeight(height);
+        const int newWidth = AdjustWidth(width);
+        const int newHeight = AdjustHeight(height);
 
-        // NOTE
-        // This is the only place we limit width and height
-        if(ReallocationRequired(adjustedWidth, adjustedHeight)) {
-            CreateScreenTexture(adjustedWidth, adjustedHeight);
-            CreateScreenSurface(adjustedWidth, adjustedHeight);
-        }
+        SetScreenMode(newWidth, newHeight, mScreenFormat);
     }
     
     void Renderer::EnableClearScreen(bool on)
@@ -177,29 +184,18 @@ namespace Render
         mScreenClear = on;
     }
 
-    Surface Renderer::CreateImage(int width, int height)
+    Surface Renderer::CreateImage(int width, int height, int format)
     {
-        return nullptr;
+        return CreateSurface(width, height, format);
     }
 
     Surface Renderer::CreateImageFrom(int width, int height, int pitch, int format, char *data)
     {
-        return nullptr;
+        return CreateSurfaceFrom(data, width, height, pitch, format);
     }
 
     void Renderer::PaintImage(const Surface &surface, const Rect &whither)
     {
-
-    }
-
-    sdl_error::sdl_error() throw()
-        : mSDL_GetError(SDL_GetError())
-    {
-    }
-
-    char const* sdl_error::what() const throw()
-    {
-        return mSDL_GetError.c_str();
-    }
-    
+        BlitSurface(surface, Rect(surface), mScreenSurface, whither);
+    }    
 } // namespace Render

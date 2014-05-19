@@ -26,7 +26,7 @@
 namespace Castle
 {
     Engine::Engine()
-        : mSDL_Init()
+        : mSDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE)
         , mRenderer()
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
@@ -94,7 +94,7 @@ namespace Castle
             try {
                 Render::LoadFont(fontset, fsize);
             } catch(const std::exception &error) {
-                std::cerr << "font loading failed: " << error.what() << std::endl;
+                std::cerr << "Load font failed: " << error.what() << std::endl;
             }
         }
 
@@ -199,7 +199,11 @@ namespace Castle
                 if(!mFpsLimited || prevFrame + mFrameUpdateInterval < now) {
                     mFrameCounter += 1;
                     prevFrame = now;
-                    DrawFrame();
+                    try {
+                        DrawFrame();
+                    } catch(const std::exception &error) {
+                        std::cerr << "Draw frame failed: " << error.what() << std::endl;
+                    }
                 }
             }
 

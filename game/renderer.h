@@ -12,13 +12,6 @@ class Surface;
 
 namespace Render
 {
-    struct sdl_error : public std::exception
-    {
-        std::string mSDL_GetError;
-        sdl_error() throw();
-        char const* what() const throw();
-    };
-    
     class Renderer
     {
         RendererPtr mRenderer;
@@ -29,12 +22,11 @@ namespace Render
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
         WindowPtr mWindow;
-
-        bool ReallocationRequired(int width, int heigth);
-        void CreateScreenTexture(int width, int height);
-        void CreateScreenSurface(int width, int height);
         
-        void AdjustScreenSize(int width, int height);
+
+        bool ReallocationRequired(int width, int heigth, int format);
+        void CreateScreenTexture(int width, int height, int format);
+        void CreateScreenSurface(int width, int height);
 
     public:
         Renderer();
@@ -45,10 +37,13 @@ namespace Render
         void EndFrame();
         Rect GetScreenSize() const;
         void SetScreenSize(int width, int height);
+
+        void SetScreenFormat(int format);
+        void SetScreenMode(int width, int height, int format);
         
         void EnableClearScreen(bool on);
 
-        Surface CreateImage(int width, int height);
+        Surface CreateImage(int width, int height, int format);
         Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void PaintImage(const Surface &surface, const Rect &whither);
