@@ -2,16 +2,15 @@
 
 #include <game/gm1.h>
 #include <game/modulo.h>
-
 #include <game/gamemap.h>
-#include <game/rect.h>
+#include <game/point.h>
 
 namespace Castle
 {
     Camera::Camera()
         : mPosX(0.0f)
         , mPosY(0.0f)
-        , mTileSize(Point(GM1::TileWidth, GM1::TileHeight) * 2)
+        , mTileSize(Point(GM1::TileWidth, GM1::TileHeight))
         , mDirection(Direction::North)
         , mFlatView(true)
         , mScrollX(0)
@@ -62,24 +61,10 @@ namespace Castle
         mTileSize = tileSize;
     }
     
-    void Camera::MoveLeft()
+    void Camera::Move(int dx, int dy)
     {
-        mScrollX -= mHorizontalScrollSpeed;
-    }
-    
-    void Camera::MoveRight()
-    {
-        mScrollX += mHorizontalScrollSpeed;
-    }
-
-    void Camera::MoveUp()
-    {
-        mScrollY -= mVerticalScrollSpeed;
-    }
-    
-    void Camera::MoveDown()
-    {
-        mScrollY += mVerticalScrollSpeed;
+        mScrollX += mHorizontalScrollSpeed * dx;
+        mScrollY += mVerticalScrollSpeed * dy;
     }
     
     void Camera::RotateLeft()
@@ -103,17 +88,20 @@ namespace Castle
     
     Point Camera::ScreenToWorldCoords(const Point &cursor) const
     {
-        // \stub
-        int y = (mPosY + cursor.y) / mTileSize.y * 2;
-        int x = (mPosX + cursor.x + (core::Even(y) ? (mTileSize.x / 2) : 0)) / mTileSize.x;
-        return Point(x, y);
+        int x = cursor.x + mPosX;
+        int y = cursor.y + mPosY;
+        return Point(x / mTileSize.x + y / mTileSize.y,
+                     y / mTileSize.y - x / mTileSize.x);
     }
 
     Point Camera::WorldToScreenCoords(const Point &cell) const
     {
-        // \stub
+        // return -ViewPoint() +
+        //     Point(cell.x * mTileSize.x + core::Modulo(cell.y, 2) * (mTileSize.x / 2),
+        //           cell.y * mTileSize.y / 2);
+
         return -ViewPoint() +
-            Point(cell.x * mTileSize.x + core::Modulo(cell.y, 2) * (mTileSize.x / 2),
-                  cell.y * mTileSize.y / 2);
+            Point(mTileSize.x * (cell.x - cell.y) / 2,
+                  mTileSize.y * (cell.x + cell.y) / 2);
     }
 }

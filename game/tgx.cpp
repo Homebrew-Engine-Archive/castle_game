@@ -14,7 +14,7 @@
 #include <boost/current_function.hpp>
 
 #include <game/color.h>
-#include <game/endianness.h>
+#include <game/iohelpers.h>
 #include <game/surface.h>
 
 namespace
@@ -92,15 +92,15 @@ namespace
     
     std::istream& ReadHeader(std::istream &in, Header &header)
     {
-        header.width = Endian::ReadLittle<uint32_t>(in);
-        header.height = Endian::ReadLittle<uint32_t>(in);
+        io::ReadLittle(in, header.width);
+        io::ReadLittle(in, header.height);
         return in;
     }
 
     std::ostream& WriteHeader(std::ostream &out, const Header &header)
     {
-        Endian::WriteLittle<uint32_t>(out, header.width);
-        Endian::WriteLittle<uint32_t>(out, header.height);
+        io::WriteLittle(out, header.width);
+        io::WriteLittle(out, header.height);
         return out;
     }
     
@@ -132,7 +132,7 @@ namespace
     std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
         if(numPixels > 0) {
-            Endian::WriteLittle<token_t>(out, MakeStreamToken(numPixels));
+            io::WriteLittle(out, MakeStreamToken(numPixels));
             return out.write(pixels, numPixels * bytesPerPixel);
         }
 
@@ -141,13 +141,13 @@ namespace
 
     std::ostream& WriteLineFeed(std::ostream &out)
     {
-        return Endian::WriteLittle<token_t>(out, MakeLineFeedToken());
+        return io::WriteLittle(out, MakeLineFeedToken());
     }
 
     std::ostream& WriteTransparentToken(std::ostream &out, int numPixels)
     {
         if(numPixels > 0) {
-            return Endian::WriteLittle<token_t>(out, MakeTransparentToken(numPixels));
+            return io::WriteLittle(out, MakeTransparentToken(numPixels));
         }
 
         return out;
@@ -155,7 +155,7 @@ namespace
     std::ostream& WriteRepeatToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
         if(numPixels > 0) {
-            Endian::WriteLittle<token_t>(out, MakeRepeatToken(numPixels));
+            io::WriteLittle(out, MakeRepeatToken(numPixels));
             return out.write(pixels, bytesPerPixel);
         }
 
@@ -278,7 +278,8 @@ namespace TGX
         const char *dstEnd = dst + width * bytesPerPixel;
         
         while(in.tellg() < endPos) {
-            const token_t token = Endian::ReadLittle<token_t>(in);
+            token_t token;
+            io::ReadLittle(in, token);
             // \note any io errors are just ignored if token has valid TokenType
             // we handle them latter anyway
 

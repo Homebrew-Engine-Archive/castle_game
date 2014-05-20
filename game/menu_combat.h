@@ -2,25 +2,21 @@
 #define MENU_COMBAT_H_
 
 #include <SDL.h>
-#include <memory>
 
 #include <game/screen.h>
 #include <game/surface.h>
 
-namespace Render
+namespace UI
 {
-    class FontManager;
+    class ScreenManager;
 }
 
 namespace UI
 {
-    class ScreenManager;
-    
     class MenuCombat : public Screen
     {
         UI::ScreenManager &mScreenManager;
         Surface mBackground;
-
         bool HandleKey(const SDL_KeyboardEvent &event);
         
     public:

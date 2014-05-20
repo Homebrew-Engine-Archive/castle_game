@@ -3,8 +3,7 @@
 
 #include <SDL.h>
 
-#include <game/rect.h>
-
+class Rect;
 class Point;
 class Color;
 

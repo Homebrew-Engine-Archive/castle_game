@@ -1,31 +1,21 @@
 #ifndef GAMESCREEN_H_
 #define GAMESCREEN_H_
 
-#include <memory>
 #include <chrono>
 #include <map>
 
 #include <SDL.h>
 
-#include <game/collection.h>
-
-#include <game/screen.h>
-#include <game/gamemap.h>
-#include <game/camera.h>
-#include <game/rect.h>
 #include <game/point.h>
+#include <game/screen.h>
+#include <game/collection.h>
+#include <game/camera.h>
 
-class CollectionData;
+class Rect;
 class Surface;
 
 namespace Castle
 {
-    class Engine;
-}
-
-namespace Castle
-{
-    class GameMap;
     class SimulationManager;
 }
 
@@ -41,16 +31,14 @@ namespace UI
         UI::ScreenManager &mScreenManager;
         Castle::SimulationManager &mSimulationManager;
         CollectionData tileset;
-
         std::chrono::steady_clock::time_point mLastCameraUpdate;
-        
         std::map<SDL_Keycode, bool> mKeyState;
-
         Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
         int mSpriteCount;
-    
+        bool mZoomed;
+        
     public:
         GameScreen(UI::ScreenManager &screenManager,
                    Castle::SimulationManager &simulationManager);
@@ -62,9 +50,10 @@ namespace UI
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
         bool HandleKey(const SDL_KeyboardEvent &event);
-
+        bool HandleMouseButton(const SDL_MouseButtonEvent &event);
         void UpdateCamera(const Rect &screenRect);
+        Castle::Camera& ActiveCamera();
     };
 }
 
-#endif
+#endif  // GAMESCREEN_H_

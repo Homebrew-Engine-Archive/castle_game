@@ -3,42 +3,41 @@
 #include <iostream>
 
 #include <game/gm1.h>
-#include <game/endianness.h>
+#include <game/iohelpers.h>
 
 namespace GM1
 {
     std::ostream& WriteHeader(std::ostream &out, const GM1::Header &header)
     {
-        using namespace Endian;
-        WriteLittle<uint32_t>(out, header.u1);
-        WriteLittle<uint32_t>(out, header.u2);
-        WriteLittle<uint32_t>(out, header.u3);
-        WriteLittle<uint32_t>(out, header.imageCount);
-        WriteLittle<uint32_t>(out, header.u4);
-        WriteLittle<uint32_t>(out, header.dataClass);
-        WriteLittle<uint32_t>(out, header.u5);
-        WriteLittle<uint32_t>(out, header.u6);
-        WriteLittle<uint32_t>(out, header.sizeCategory);
-        WriteLittle<uint32_t>(out, header.u7);
-        WriteLittle<uint32_t>(out, header.u8);
-        WriteLittle<uint32_t>(out, header.u9);
-        WriteLittle<uint32_t>(out, header.width);
-        WriteLittle<uint32_t>(out, header.height);
-        WriteLittle<uint32_t>(out, header.u10);
-        WriteLittle<uint32_t>(out, header.u11);
-        WriteLittle<uint32_t>(out, header.u12);
-        WriteLittle<uint32_t>(out, header.u13);
-        WriteLittle<uint32_t>(out, header.anchorX);
-        WriteLittle<uint32_t>(out, header.anchorY);
-        WriteLittle<uint32_t>(out, header.dataSize);
-        WriteLittle<uint32_t>(out, header.u14);
+        io::WriteLittle(out, header.u1);
+        io::WriteLittle(out, header.u2);
+        io::WriteLittle(out, header.u3);
+        io::WriteLittle(out, header.imageCount);
+        io::WriteLittle(out, header.u4);
+        io::WriteLittle(out, header.dataClass);
+        io::WriteLittle(out, header.u5);
+        io::WriteLittle(out, header.u6);
+        io::WriteLittle(out, header.sizeCategory);
+        io::WriteLittle(out, header.u7);
+        io::WriteLittle(out, header.u8);
+        io::WriteLittle(out, header.u9);
+        io::WriteLittle(out, header.width);
+        io::WriteLittle(out, header.height);
+        io::WriteLittle(out, header.u10);
+        io::WriteLittle(out, header.u11);
+        io::WriteLittle(out, header.u12);
+        io::WriteLittle(out, header.u13);
+        io::WriteLittle(out, header.anchorX);
+        io::WriteLittle(out, header.anchorY);
+        io::WriteLittle(out, header.dataSize);
+        io::WriteLittle(out, header.u14);
         return out;
     }
 
     std::ostream& WritePalette(std::ostream &out, const GM1::Palette &palette)
     {
         for(GM1::PaletteEntry entry : palette) {
-            Endian::WriteLittle<GM1::PaletteEntry>(out, entry);
+            io::WriteLittle(out, entry);
         }
         return out;
     }

@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include <game/gm1palette.h>
-#include <game/endianness.h>
+#include <game/iohelpers.h>
 
 namespace GM1
 {
@@ -130,14 +130,15 @@ namespace GM1
     
     SizeCategory ReadSizeCategory(std::istream &in)
     {
-        return
-            static_cast<SizeCategory>(
-                Endian::ReadLittle<uint32_t>(in));
+        uint32_t cat;
+        io::ReadLittle(in, cat);
+        return static_cast<SizeCategory>(cat);
     }
     
     std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat)
     {
-        return Endian::WriteLittle<uint32_t>(out, static_cast<uint32_t>(cat));
+        io::WriteLittle(out, static_cast<uint32_t>(cat));
+        return out;
     }
     
     SizeCategory GetSizeCategoryByDims(int width, int height)

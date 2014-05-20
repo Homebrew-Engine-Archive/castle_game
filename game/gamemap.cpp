@@ -3,10 +3,8 @@
 #include <random>
 
 #include <game/gm1.h>
-#include <game/sdl_utils.h>
 #include <game/direction.h>
 #include <game/landscape.h>
-#include <game/surface.h>
 
 namespace Castle
 {
@@ -27,12 +25,7 @@ namespace Castle
         return mBorderless;
     }
 
-    int GameMap::Rows() const
-    {
-        return mSize;
-    }
-
-    int GameMap::Cols() const
+    int GameMap::Size() const
     {
         return mSize;
     }
@@ -49,13 +42,15 @@ namespace Castle
 
     void GenerateRandomMap(GameMap &map)
     {
-        int cy = rand() % map.Rows();
-        int cx = rand() % map.Cols();
-
-        int maxHeight = map.Rows() + map.Cols();
+        srand((int)&map);
         
-        for(int i = 0; i < map.Rows(); ++i) {
-            for(int j = 0; j < map.Cols(); ++j) {
+        int cy = rand() % map.Size();
+        int cx = rand() % map.Size();
+
+        int maxHeight = 2 * map.Size();
+        
+        for(int i = 0; i < map.Size(); ++i) {
+            for(int j = 0; j < map.Size(); ++j) {
                 Cell &cell = map.GetCell(i, j);
                 cell.Height(maxHeight - sqrt((cy-i)*(cy-i) + (cx-j)*(cx-j)));
             }

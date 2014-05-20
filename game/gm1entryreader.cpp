@@ -1,12 +1,11 @@
 #include "gm1entryreader.h"
 
-#include <cassert>
+#include <SDL.h>
 
 #include <sstream>
-#include <boost/current_function.hpp>
+
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <SDL.h>
 
 #include <game/rect.h>
 #include <game/sdl_utils.h>
@@ -18,13 +17,6 @@
 
 namespace
 {    
-    void Fail(const std::string &where, const std::string &what)
-    {
-        std::ostringstream oss;
-        oss << where << " failed: " << what;
-        throw std::runtime_error(oss.str());
-    }
-
     /**
      * \brief Reader for animation sprites.
      *
@@ -133,12 +125,12 @@ namespace
         // TODO is there a better way to do so?
         // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         // if(!tmp) {
-        //     Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        //     throw sdl_error();
         // }
 
         // uint32_t colorkey = GetColorKey();
         // if(SDL_SetColorKey(tmp, SDL_TRUE, colorkey) < 0) {
-        //     Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        //     throw sdl_error();
         // }
 
         // Here we just ignore original color information. What we are really
@@ -223,16 +215,16 @@ namespace GM1
         
         Surface surface = CreateSurface(width, height, CompatiblePixelFormat());
         if(!surface) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
         
         uint32_t colorkey = GetColorKey();
         if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
         
         if(SDL_FillRect(surface, NULL, colorkey) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
                 
         return surface;
@@ -252,11 +244,11 @@ namespace GM1
 
         surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
         if(!surface) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
         
         if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
         
         return surface;

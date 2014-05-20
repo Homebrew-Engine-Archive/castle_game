@@ -1,10 +1,8 @@
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
 
-#include <SDL.h>
-#include <iosfwd>
 #include <string>
-
+#include <SDL.h>
 #include <game/screen.h>
 
 namespace UI
@@ -18,7 +16,6 @@ namespace UI
     {
     private:
         UI::ScreenManager &mScreenManager;
-        
         std::string mText;
         std::string mFontName;
         int mFontSize;
@@ -33,7 +30,6 @@ namespace UI
         Console& operator=(Console const&) = delete;
 
         bool IsClosed() const;
-        
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
     };

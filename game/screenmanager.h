@@ -37,6 +37,7 @@ namespace UI
     public:
         ScreenManager(Castle::SimulationManager &simulationManager);
 
+        void ToggleConsole();
         void EnterGameScreen();
         void EnterMenuMain();
         void EnterMenuCombat();

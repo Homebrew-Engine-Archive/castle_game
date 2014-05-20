@@ -1,7 +1,5 @@
 #include "loadingscreen.h"
 
-#include <memory>
-#include <sstream>
 #include <iostream>
 
 #include <SDL.h>

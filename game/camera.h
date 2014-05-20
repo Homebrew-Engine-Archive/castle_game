@@ -34,12 +34,9 @@ namespace Castle
         Camera();
 
         void Update(std::chrono::milliseconds delta);
-        
-        void MoveLeft();
-        void MoveRight();
-        void MoveUp();
-        void MoveDown();
 
+        void Move(int dx, int dy);
+        
         void RotateLeft();
         void RotateRight();
         
@@ -54,7 +51,7 @@ namespace Castle
         
         Point ViewPoint() const;
         void ViewPoint(const Point &point);
-        
+
         Point TileSize() const;
         void TileSize(const Point &tileSize);
     };

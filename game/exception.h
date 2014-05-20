@@ -6,9 +6,6 @@
 #include <string>
 #include <exception>
 
-#define GAME_EXCEPTION(what) Exception(what, BOOST_CURRENT_FUNCTION, __FILE__, __LINE__)
-#define SDL_EXCEPTION() GAME_EXCEPTION(SDL_GetError())
-
 namespace Castle
 {
     struct Exception : public std::exception

@@ -9,69 +9,61 @@
 #include <boost/current_function.hpp>
 
 #include <game/gm1entryreader.h>
-#include <game/endianness.h>
 #include <game/filesystem.h>
+#include <game/iohelpers.h>
 
 namespace
 {
-    
-    void Fail(const std::string &where, const std::string &what)
-    {
-        std::stringstream ss;
-        ss << "In " << where << " error: " << what;
-        throw std::runtime_error(ss.str());
-    }
-    
     std::istream& ReadHeader(std::istream &in, GM1::Header &header)
     {
-        header.u1            = Endian::ReadLittle<uint32_t>(in);
-        header.u2            = Endian::ReadLittle<uint32_t>(in);
-        header.u3            = Endian::ReadLittle<uint32_t>(in);
-        header.imageCount    = Endian::ReadLittle<uint32_t>(in);
-        header.u4            = Endian::ReadLittle<uint32_t>(in);
-        header.dataClass     = Endian::ReadLittle<uint32_t>(in);
-        header.u5            = Endian::ReadLittle<uint32_t>(in);
-        header.u6            = Endian::ReadLittle<uint32_t>(in);
-        header.sizeCategory  = Endian::ReadLittle<uint32_t>(in);
-        header.u7            = Endian::ReadLittle<uint32_t>(in);
-        header.u8            = Endian::ReadLittle<uint32_t>(in);
-        header.u9            = Endian::ReadLittle<uint32_t>(in);
-        header.width         = Endian::ReadLittle<uint32_t>(in);
-        header.height        = Endian::ReadLittle<uint32_t>(in);
-        header.u10           = Endian::ReadLittle<uint32_t>(in);
-        header.u11           = Endian::ReadLittle<uint32_t>(in);
-        header.u12           = Endian::ReadLittle<uint32_t>(in);
-        header.u13           = Endian::ReadLittle<uint32_t>(in);
-        header.anchorX       = Endian::ReadLittle<uint32_t>(in);
-        header.anchorY       = Endian::ReadLittle<uint32_t>(in);
-        header.dataSize      = Endian::ReadLittle<uint32_t>(in);
-        header.u14           = Endian::ReadLittle<uint32_t>(in);
+        io::ReadLittle(in, header.u1);
+        io::ReadLittle(in, header.u2);
+        io::ReadLittle(in, header.u3);
+        io::ReadLittle(in, header.imageCount);
+        io::ReadLittle(in, header.u4);
+        io::ReadLittle(in, header.dataClass);
+        io::ReadLittle(in, header.u5);
+        io::ReadLittle(in, header.u6);
+        io::ReadLittle(in, header.sizeCategory);
+        io::ReadLittle(in, header.u7);
+        io::ReadLittle(in, header.u8);
+        io::ReadLittle(in, header.u9);
+        io::ReadLittle(in, header.width);
+        io::ReadLittle(in, header.height);
+        io::ReadLittle(in, header.u10);
+        io::ReadLittle(in, header.u11);
+        io::ReadLittle(in, header.u12);
+        io::ReadLittle(in, header.u13);
+        io::ReadLittle(in, header.anchorX);
+        io::ReadLittle(in, header.anchorY);
+        io::ReadLittle(in, header.dataSize);
+        io::ReadLittle(in, header.u14);
         return in;
     }
 
     std::istream& ReadPalette(std::istream &in, GM1::Palette &palette)
     {
-        for(uint16_t &entry : palette)
-            entry = Endian::ReadLittle<uint16_t>(in);
+        for(uint16_t &entry : palette) {
+            io::ReadLittle(in, entry);
+        }
         return in;
     }
 
     std::istream& ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
     {
-        header.width      = Endian::ReadLittle<uint16_t>(in);
-        header.height     = Endian::ReadLittle<uint16_t>(in);
-        header.posX       = Endian::ReadLittle<uint16_t>(in);
-        header.posY       = Endian::ReadLittle<uint16_t>(in);
-        header.group      = Endian::ReadLittle<uint8_t>(in);
-        header.groupSize  = Endian::ReadLittle<uint8_t>(in);
-        header.tileY      = Endian::ReadLittle<uint16_t>(in);
-        header.tileOrient = Endian::ReadLittle<uint8_t>(in);
-        header.hOffset    = Endian::ReadLittle<uint8_t>(in);
-        header.boxWidth   = Endian::ReadLittle<uint8_t>(in);
-        header.flags      = Endian::ReadLittle<uint8_t>(in);
+        io::ReadLittle(in, header.width);
+        io::ReadLittle(in, header.height);
+        io::ReadLittle(in, header.posX);
+        io::ReadLittle(in, header.posY);
+        io::ReadLittle(in, header.group);
+        io::ReadLittle(in, header.groupSize);
+        io::ReadLittle(in, header.tileY);
+        io::ReadLittle(in, header.tileOrient);
+        io::ReadLittle(in, header.hOffset);
+        io::ReadLittle(in, header.boxWidth);
+        io::ReadLittle(in, header.flags);
         return in;
     }
-
 }
 
 namespace GM1
@@ -114,7 +106,7 @@ namespace GM1
 
         mStream.open(mPath, std::ios_base::binary);
         if(!mStream.is_open()) {
-            Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+            throw std::runtime_error(strerror(errno));
         }
 
         mStream.seekg(0, std::ios_base::end);
@@ -122,48 +114,48 @@ namespace GM1
         mStream.seekg(0);
         
         if(fsize < GM1::CollectionHeaderBytes) {
-            Fail(BOOST_CURRENT_FUNCTION, "File too small to read header");
+            throw std::logic_error("File too small to read header");
         }
         
         if(!ReadHeader(mStream, mHeader)) {
-            Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+            throw std::runtime_error(strerror(errno));
         }
 
         if(fsize < GetPreambleSize(mHeader)) {
-            Fail(BOOST_CURRENT_FUNCTION, "File to small to read preamble");
+            throw std::logic_error("File to small to read preamble");
         } 
         mPalettes.resize(GM1::CollectionPaletteCount);
         for(GM1::Palette &palette : mPalettes) {
             if(!ReadPalette(mStream, palette)) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                throw std::runtime_error(strerror(errno));
             }
         }
 
         mOffsets.resize(mHeader.imageCount);
         for(uint32_t &offset : mOffsets) {
-            offset = Endian::ReadLittle<uint32_t>(mStream);
-            if(!mStream) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
-            }
+            io::ReadLittle(mStream, offset);
+        }
+        if(!mStream) {
+            throw std::runtime_error(strerror(errno));
         }
         
         mSizes.resize(mHeader.imageCount);
         for(uint32_t &size : mSizes) {
-            size = Endian::ReadLittle<uint32_t>(mStream);
-            if(!mStream) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
-            }
+            io::ReadLittle(mStream, size);
+        }
+        if(!mStream) {
+            throw std::runtime_error(strerror(errno));
         }
         
         mEntryHeaders.resize(mHeader.imageCount);
         for(GM1::EntryHeader &hdr : mEntryHeaders) {
             if(!ReadEntryHeader(mStream, hdr)) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                throw std::runtime_error(strerror(errno));
             }
         }
 
         if(fsize < mHeader.dataSize) {
-            Fail(BOOST_CURRENT_FUNCTION, "File too small to read data");
+            throw std::logic_error("File too small to read data");
         }
 
         mDataOffset = mStream.tellg();
@@ -171,7 +163,7 @@ namespace GM1
             mBuffer.resize(mHeader.dataSize);
             mStream.read(&mBuffer[0], mBuffer.size());
             if(!mStream) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                throw std::runtime_error(strerror(errno));
             }
             mStream.close();
         } else {
@@ -218,7 +210,7 @@ namespace GM1
                 entryData.resize(entrySize);
                 mStream.read(&entryData[0], entrySize);
                 if(!mStream) {
-                    Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                    throw std::runtime_error(strerror(errno));
                 }
             }
             // TODO what if it would have length about 0?

@@ -63,7 +63,8 @@ namespace Castle
         case SDLK_ESCAPE:
             mClosed = true;
             return false;
-        case SDLK_BACKSLASH:
+        case SDLK_q:
+            mScreenMgr.ToggleConsole();
             return true;
         default:
             return true;

@@ -3,9 +3,6 @@
 
 #include <vector>
 
-#include <game/camera.h>
-#include <game/point.h>
-
 enum class Landscape;
 enum class Direction;
 class Surface;
@@ -29,7 +26,6 @@ namespace Castle
         int mHeight;
         Landscape mLandscape;
         
-        
     public:
         Cell(Landscape landscape, int height);
         
@@ -52,8 +48,7 @@ namespace Castle
         Cell const& GetCell(int row, int col) const;
         Cell& GetCell(int row, int col);
         
-        int Rows() const;
-        int Cols() const;
+        int Size() const;
     };
 
     void GenerateRandomMap(GameMap &map);

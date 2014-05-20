@@ -97,5 +97,14 @@ namespace UI
     {
         return mLoadingScreen;
     }
+
+    void ScreenManager::ToggleConsole()
+    {
+        if(&TopScreen() == &mConsole) {
+            PopScreen();
+        } else {
+            PushScreen(mConsole);
+        }
+    }
     
 } // namespace UI
