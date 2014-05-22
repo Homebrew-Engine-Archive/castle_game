@@ -143,16 +143,13 @@ namespace Castle
         mScreenMgr.DrawScreen(frame);
         
         std::ostringstream oss;
-        oss << "(Castle game project) " << "FPS: ";
+        oss << "(Your jam, sir) " << "FPS: ";
         oss.width(10);
         oss << mFpsAverage;
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(Render::FontManager::Instance().DefaultFont());
-        textRenderer.SetClipBox(Rect(100, 100));
-        textRenderer.SetFontStyle(Render::FontStyle_Bold | Render::FontStyle_Italic);
-        textRenderer.SetCursorMode(Render::CursorMode::BaseLine);
         textRenderer.Translate(0, 20);
         textRenderer.SetColor(Color::Red());
 
@@ -203,7 +200,7 @@ namespace Castle
                     try {
                         DrawFrame();
                     } catch(const std::exception &error) {
-                        std::cerr << "Draw frame failed: " << error.what() << std::endl;
+                        std::cerr << "DrawFrame failed: " << error.what() << std::endl;
                     }
                 }
             }

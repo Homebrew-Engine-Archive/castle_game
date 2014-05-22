@@ -1,8 +1,8 @@
 #include "camera.h"
 
+#include <iostream>
 #include <game/gm1.h>
 #include <game/modulo.h>
-#include <game/gamemap.h>
 #include <game/point.h>
 
 namespace Castle
@@ -10,7 +10,8 @@ namespace Castle
     Camera::Camera()
         : mPosX(0.0f)
         , mPosY(0.0f)
-        , mTileSize(Point(GM1::TileWidth, GM1::TileHeight))
+        , mTileSize(Point(32, 16))
+        , mRotation(0)
         , mDirection(Direction::North)
         , mFlatView(true)
         , mScrollX(0)
@@ -29,7 +30,7 @@ namespace Castle
     {
         return mFlatView;
     }
-
+    
     void Camera::Dir(const Direction &dir)
     {
         mDirection = dir;
@@ -58,7 +59,7 @@ namespace Castle
 
     void Camera::TileSize(const Point &tileSize)
     {
-        mTileSize = tileSize;
+        mTileSize = tileSize;        
     }
     
     void Camera::Move(int dx, int dy)
@@ -69,12 +70,12 @@ namespace Castle
     
     void Camera::RotateLeft()
     {
-        mDirection = RotatedLeft(mDirection);
+        mRotation -= 1;
     }
 
     void Camera::RotateRight()
     {
-        mDirection = RotatedRight(mDirection);
+        mRotation += 1;
     }
     
     void Camera::Update(std::chrono::milliseconds delta)
@@ -86,22 +87,31 @@ namespace Castle
         mScrollY = 0.0f;
     }
     
-    Point Camera::ScreenToWorldCoords(const Point &cursor) const
+    GameMap::Cell Camera::ScreenToWorldCoords(const Point &cursor) const
     {
-        int x = cursor.x + mPosX;
-        int y = cursor.y + mPosY;
-        return Point(x / mTileSize.x + y / mTileSize.y,
-                     y / mTileSize.y - x / mTileSize.x);
+        /** stretched and unprojected cursor position **/
+        const double px = mPosX + cursor.x - mTileSize.x / 2;
+        const double py = (mPosY + cursor.y) * mTileSize.x / mTileSize.y - mTileSize.y;
+
+        /** rotated counterclockwise by 45 degrees **/
+        const double rx = px + py;
+        const double ry = py - px;
+
+        /** coordinates in square-cell grid **/
+        const int x = round(rx / mTileSize.x);
+        const int y = round(ry / mTileSize.x);
+
+        /** rotated clockwise by 45 degrees **/
+        const int tx = floor((x - y) * mTileSize.y / double(mTileSize.x));
+        const int ty = x + y;
+        
+        return GameMap::Cell(tx, ty);
     }
-
-    Point Camera::WorldToScreenCoords(const Point &cell) const
+    
+    Point Camera::WorldToScreenCoords(const GameMap::Cell &cell) const
     {
-        // return -ViewPoint() +
-        //     Point(cell.x * mTileSize.x + core::Modulo(cell.y, 2) * (mTileSize.x / 2),
-        //           cell.y * mTileSize.y / 2);
-
         return -ViewPoint() +
-            Point(mTileSize.x * (cell.x - cell.y) / 2,
-                  mTileSize.y * (cell.x + cell.y) / 2);
-    }
+            Point(cell.x * mTileSize.x + core::Mod(cell.y, 2) * (mTileSize.x / 2),
+                  cell.y * mTileSize.y / 2);
+}
 }

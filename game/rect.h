@@ -33,7 +33,7 @@ public:
 
     constexpr Rect(const Rect &that) = default;
 
-    constexpr Rect(const SDL_Surface *surface)
+    explicit constexpr Rect(const SDL_Surface *surface)
         : Rect(surface->w, surface->h) {}
 
     Rect& operator=(const SDL_Rect &that);

@@ -16,6 +16,7 @@
 #include <game/color.h>
 #include <game/iohelpers.h>
 #include <game/surface.h>
+#include <game/sdl_error.h>
 
 namespace
 {
@@ -82,13 +83,6 @@ namespace
         default: return "Unknown";
         }
     }
-        
-    void Fail(const std::string &where, const std::string &what)
-    {
-        std::ostringstream oss;
-        oss << where << " failed: " << what;
-        throw std::runtime_error(oss.str());
-    }
     
     std::istream& ReadHeader(std::istream &in, Header &header)
     {
@@ -108,7 +102,7 @@ namespace
     {
         Surface surface = CreateSurface(width, height, TGX::PixelFormatEnum);
         if(!surface) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
 
         return surface;
@@ -232,7 +226,7 @@ namespace TGX
 
         uint32_t colorKey = 0;
         if(SDL_GetColorKey(surface, &colorKey) < 0) {
-            std::cerr << "No color key in surface" << std::endl;
+            throw std::runtime_error("only color-keyed surfaced might be encoded");
         }
 
         for(int row = 0; row < surface->h; ++row) {
@@ -259,7 +253,7 @@ namespace TGX
     {
         Header header;
         if(!ReadHeader(in, header)) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
+            throw std::runtime_error(strerror(errno));
         }
         Surface surface = CreateCompatibleSurface(header.width, header.height);
 
@@ -295,7 +289,7 @@ namespace TGX
                     // we have no space for placing LineFeed. It is certainly an erroneous behavior.
                     // Should we report it here?
                     if(dst + length * bytesPerPixel > dstEnd) {
-                        Fail(BOOST_CURRENT_FUNCTION, "Overflow");
+                        throw std::runtime_error("buffer overflow");
                     }
                 }
             default:
@@ -306,7 +300,7 @@ namespace TGX
             case TokenType::LineFeed:
                 {
                     if(length != 1) {
-                        Fail(BOOST_CURRENT_FUNCTION, "Inconsistent line feed");
+                        throw std::logic_error("inconsistent line break");
                     }
                     return in;
                 }
@@ -333,14 +327,14 @@ namespace TGX
             default:
                 {
                     if(!in) {
-                        Fail(BOOST_CURRENT_FUNCTION, "Unable to read token");
+                        throw std::runtime_error(strerror(errno));
                     }
-                    Fail(BOOST_CURRENT_FUNCTION, "Unknown token");
+                    throw std::logic_error("unknown token");
                 }
             }
 
             if(!in) {
-                Fail(BOOST_CURRENT_FUNCTION, strerror(errno));
+                throw std::runtime_error(strerror(errno));
             }
             
             dst += length * bytesPerPixel;
@@ -382,7 +376,7 @@ namespace TGX
     {
         Header header;
         if(!ReadHeader(in, header)) {
-            Fail(BOOST_CURRENT_FUNCTION, "Can't read header");
+            throw std::runtime_error(strerror(errno));
         }
         surface = CreateCompatibleSurface(header.width, header.height);
         return in;

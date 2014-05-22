@@ -3,25 +3,6 @@
 
 const int ChevronsHeightThreshold = 20;
 
-class TerrainClass
-{
-    int mId;
-    int mMinHeight;
-    int mMaxHeight;
-    
-public:
-    TerrainClass(int id, int minHeight, int maxHeight)
-        : mId(id)
-        , mMinHeight(minHeight)
-        , mMaxHeight(maxHeight)
-        {}
-    
-    int MinHeight() const { return mMinHeight; }
-    int MaxHeight() const { return mMaxHeight; }
-
-    int Id() const { return mId; }
-};
-
 enum class Landscape : int {
     Pebbles,
     Stones,
@@ -40,6 +21,11 @@ enum class Landscape : int {
     Sea,                                                 // zero-high
     Mash                                                 // Sea
 };
+
+constexpr int GetLandscapeIndex(const Landscape &landscape)
+{
+    return static_cast<int>(landscape);
+}
 
 enum class RockClass : int {
     LargeRock,                                           // 4x4

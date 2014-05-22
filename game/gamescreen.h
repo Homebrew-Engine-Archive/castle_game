@@ -36,23 +36,22 @@ namespace UI
         Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
-        int mSpriteCount;
-        bool mZoomed;
         
     public:
         GameScreen(UI::ScreenManager &screenManager,
                    Castle::SimulationManager &simulationManager);
         
         GameScreen(GameScreen const&) = delete;
-        GameScreen &operator=(GameScreen const&) = delete;
+        GameScreen& operator=(GameScreen const&) = delete;
         ~GameScreen();
         
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
-        bool HandleKey(const SDL_KeyboardEvent &event);
+        bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);
         void UpdateCamera(const Rect &screenRect);
         Castle::Camera& ActiveCamera();
+        Castle::GameMap::Cell FindSelectedTile();
     };
 }
 

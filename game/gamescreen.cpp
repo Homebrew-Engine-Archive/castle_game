@@ -1,5 +1,7 @@
 #include "gamescreen.h"
 
+#include <sstream>
+
 #include <game/make_unique.h>
 
 #include <game/direction.h>
@@ -27,8 +29,6 @@ namespace UI
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
-        , mSpriteCount(0)
-        , mZoomed(false)
     {
     }
     
@@ -36,33 +36,40 @@ namespace UI
     {
         UpdateCamera(Rect(frame));
         
-        const Point selected = mCamera.ScreenToWorldCoords(mCursor);        
+        const Castle::GameMap::Cell selected = FindSelectedTile();
         const Castle::GameMap &map = mSimulationManager.GetGameMap();
-        for(int i = 0; i < map.Size(); ++i) {
-            for(int j = 0; j < map.Size(); ++j) {
-                const Castle::Cell &cell = map.GetCell(i, j);
-                const CollectionEntry &entry = tileset.entries[cell.Height()];
+        for(int y = 0; y < map.Size(); ++y) {
+            for(int x = 0; x < map.Size(); ++x) {
+                const Castle::GameMap::Cell cell(x, y);
+                const CollectionEntry &entry =
+                    tileset.entries.at(
+                        GetLandscapeIndex(
+                            map.LandscapeType(cell)));
 
-                Point cellCenter = mCamera.WorldToScreenCoords(Point(j, i));
+                Point cellCenter = mCamera.WorldToScreenCoords(cell);
 
                 Rect tileRect(cellCenter, cellCenter + mCamera.TileSize());
 
-                Rect cellRect(cellCenter, entry.surface->w, entry.surface->h);
+                Rect cellBox(cellCenter, entry.surface->w, entry.surface->h);
 
-                /** Offset to the top **/
-                cellRect.y -= entry.header.tileY;
+                cellBox.y -= entry.header.tileY;
 
-                if(!mCamera.Flat() && Intersects(Rect(frame), cellRect)) {
+                if(!mCamera.Flat() && Intersects(Rect(frame), cellBox)) {
                     std::unique_ptr<SurfaceColorModSetter> setter;
-                    if((selected.y == i) && (selected.x == j)) {
+                    if(selected == cell) {
                         setter.reset(new SurfaceColorModSetter(entry.surface, Color(255, 128, 128)));
                     }
-                    BlitSurface(entry.surface, Rect(entry.surface), frame, cellRect);
+                    if(false /** mCamera.Scaled() **/) {
+                        // \todo crop source and dest rect
+                        BlitSurfaceScaled(entry.surface, Rect(entry.surface), frame, cellBox);
+                    } else {
+                        BlitSurface(entry.surface, Rect(entry.surface), frame, cellBox);
+                    }
                 }
 
                 if(mCamera.Flat() && Intersects(Rect(frame), tileRect)) {
                     Color tileColor = Color::Red().Opaque(100);
-                    if(selected == Point(j, i)) {
+                    if(selected == cell) {
                         tileColor = Color::Yellow();
                     }
                     DrawRhombus(frame, tileRect, tileColor);
@@ -71,35 +78,30 @@ namespace UI
         }
     }
     
-    bool GameScreen::HandleKey(const SDL_KeyboardEvent &event)
+    bool GameScreen::HandleKeyPress(const SDL_KeyboardEvent &event)
     {
         switch(event.keysym.sym) {
-        case SDLK_ESCAPE:
-            return false;
         case SDLK_SPACE:
-            if(event.type == SDL_KEYDOWN) {
-                mCamera.Flat(!mCamera.Flat());
-            }
+            mCamera.Flat(!mCamera.Flat());
             return true;
+            
         case SDLK_x:
             mCamera.RotateLeft();
             return true;
+            
         case SDLK_c:
             mCamera.RotateRight();
             return true;
+            
         case SDLK_z:
-            if(event.type == SDL_KEYDOWN) {
-                mZoomed = !mZoomed;
-                if(mZoomed) {
-                    mCamera.TileSize(Point(15, 8));
-                } else {
-                    mCamera.TileSize(Point(30, 16));
-                }
-            }
+            if(mCamera.TileSize() == Point(32, 32))
+                mCamera.TileSize(Point(32, 16));
+            else
+                mCamera.TileSize(Point(32, 32));
             return true;
-        default:
-            return false;
         }
+
+        return false;
     }
 
     bool GameScreen::HandleMouseButton(const SDL_MouseButtonEvent &event)
@@ -109,7 +111,7 @@ namespace UI
         mCursorInvalid = false;
         
         if(event.button == SDL_BUTTON_LEFT && event.state == SDL_PRESSED) {
-            std::clog << "Tile: " << mCamera.ScreenToWorldCoords(mCursor) << std::endl;
+            std::clog << "Pointed tile: " << FindSelectedTile() << std::endl;
             return true;
         }
 
@@ -121,54 +123,90 @@ namespace UI
         switch(event.type) {
         case SDL_WINDOWEVENT:
             {
-                if(event.window.event == SDL_WINDOWEVENT_LEAVE) {
+                switch(event.window.event) {
+                case SDL_WINDOWEVENT_LEAVE:
                     mCursorInvalid = true;
+                    return true;
+                default:
+                    return false;
                 }
             }
-            break;
         case SDL_MOUSEBUTTONDOWN:
-            return HandleMouseButton(event.button);
+            {
+                return HandleMouseButton(event.button);
+            }
         case SDL_MOUSEMOTION:
             {
                 mCursorInvalid = false;
                 mCursor.x = event.motion.x;
                 mCursor.y = event.motion.y;
+                return true;
             }
-            break;
         case SDL_KEYUP:
         case SDL_KEYDOWN:
-            mKeyState[event.key.keysym.sym] = (event.key.type == SDL_KEYDOWN);
-            return HandleKey(event.key);
+            {
+                mKeyState[event.key.keysym.sym] = (event.key.type == SDL_KEYDOWN);
+                if(event.key.type == SDL_KEYDOWN) {
+                    return HandleKeyPress(event.key);
+                }
+                return false;
+            }
         }
+
         return false;
     }
     
     void GameScreen::UpdateCamera(const Rect &screenRect)
     {
         static const int EdgeWidth = 30;
-                
-        if(!mCursorInvalid) {
-            if(mKeyState[SDLK_LEFT] || mCursor.x < EdgeWidth) {
-                mCamera.Move(-1, 0);
-            }
-
-            if(mKeyState[SDLK_RIGHT] || mCursor.x > screenRect.w - EdgeWidth) {
-                mCamera.Move(1, 0);
-            }
-
-            if(mKeyState[SDLK_UP] || mCursor.y < EdgeWidth) {
-                mCamera.Move(0, -1);
-            }
-
-            if(mKeyState[SDLK_DOWN] || mCursor.y > screenRect.h - EdgeWidth) {
-                mCamera.Move(0, 1);
-            }
+        if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && mCursor.x < EdgeWidth)) {
+            mCamera.Move(-1, 0);
         }
-        
+        if(mKeyState[SDLK_RIGHT] || (!mCursorInvalid &&  mCursor.x > screenRect.w - EdgeWidth)) {
+            mCamera.Move(1, 0);
+        }
+        if(mKeyState[SDLK_UP] || (!mCursorInvalid && mCursor.y < EdgeWidth)) {
+            mCamera.Move(0, -1);
+        }
+        if(mKeyState[SDLK_DOWN] || (!mCursorInvalid && mCursor.y > screenRect.h - EdgeWidth)) {
+            mCamera.Move(0, 1);
+        }
         mCamera.Update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - mLastCameraUpdate));
         mLastCameraUpdate = std::chrono::steady_clock::now();
     }
 
+    Castle::GameMap::Cell GameScreen::FindSelectedTile()
+    {
+        if(mCamera.Flat()) {
+            return mCamera.ScreenToWorldCoords(mCursor);
+        }
+        
+        const Castle::GameMap &map = mSimulationManager.GetGameMap();
+        for(int y = map.Size() - 1; y >= 0; --y) {
+            for(int x = map.Size() - 1; x >= 0; --x) {
+                const Castle::GameMap::Cell cell(x, y);
+                const CollectionEntry &entry =
+                    tileset.entries.at(
+                        GetLandscapeIndex(
+                            map.LandscapeType(cell)));
+                Point cellCenter = mCamera.WorldToScreenCoords(cell);
+                Rect cellBox(cellCenter, entry.surface->w, entry.surface->h);
+
+                /** Offset to the top **/
+                cellBox.y -= entry.header.tileY;
+                
+                if(PointInRect(cellBox, mCursor)) {
+                    Point inside = ClipToRect(cellBox, mCursor);
+                    if(GetPixel(entry.surface, inside) != 0) {
+                        return cell;
+                    }
+                }
+            }
+        }
+        
+        return Point(-1, -1);
+    }
+    
     Castle::Camera& GameScreen::ActiveCamera()
     {
         return mCamera;

@@ -15,15 +15,7 @@ int main()
         throw;
     }
 
-    int code = 0;
-    try {
-        code = engine->Exec();
-    } catch(const std::exception &error) {
-        std::cerr << "Execution failed: " << error.what() << std::endl;
-    } catch(...) {
-        std::cerr << "Unhandled exception during execution" << std::endl;
-    }
-        
+    int code = engine->Exec();        
     std::clog << "Return with code " << code << std::endl;
     return code;
 }

@@ -121,10 +121,10 @@ namespace
 SurfaceColorModSetter::SurfaceColorModSetter(const Surface &src, const Color &color)
 {
     if(SDL_GetSurfaceColorMod(src, &redMod, &greenMod, &blueMod) < 0) {
-        throw std::runtime_error(SDL_GetError());
+        throw sdl_error();
     }
     if(SDL_SetSurfaceColorMod(src, color.r, color.g, color.b) < 0) {
-        throw std::runtime_error(SDL_GetError());
+        throw sdl_error();
     }
     surface = src;
 }
@@ -255,7 +255,7 @@ SurfaceView::SurfaceView(Surface &src, const Rect &clip)
     
     Surface tmp = CreateSurfaceFrom(pixels, clip.w, clip.h, src->pitch, src->format);
     if(!tmp) {
-        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        throw sdl_error();
     }
     
     CopyColorKey(src, tmp);
@@ -270,7 +270,7 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
     uint32_t colorkey = 0;
     if(SDL_GetColorKey(src, &colorkey) == 0) {
         if(SDL_SetColorKey(dst, SDL_TRUE, colorkey) < 0) {
-            Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+            throw sdl_error();
         }
     }
 }
@@ -299,7 +299,7 @@ Surface CreateSurface(int width, int height, int format)
     int bpp;
 
     if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
-        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        throw sdl_error();
     }
     
     return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
@@ -337,7 +337,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
     int bpp;
 
     if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
-        Fail(BOOST_CURRENT_FUNCTION, SDL_GetError());
+        throw sdl_error();
     }
 
     return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
@@ -346,7 +346,14 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
 {
     if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<Rect&>(dstrect)) < 0) {
-        throw std::runtime_error(SDL_GetError());
+        throw sdl_error();
+    }
+}
+
+void BlitSurfaceScaled(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
+{
+    if(SDL_BlitScaled(src, &srcrect, dst, &const_cast<Rect&>(dstrect)) < 0) {
+        throw sdl_error();
     }
 }
 
@@ -450,6 +457,17 @@ void BlurSurface(Surface &dst, int radius)
     for(int x = 0; x < dst->w; ++x) {
         convolve(bytes + x * bytesPP, dst->h, dst->pitch);
     }
+}
+
+uint32_t GetPixel(const Surface &surface, const Point &coord)
+{
+    const SurfaceLocker lock(surface);
+    return GetPixelLocked(surface, coord);
+}
+
+uint32_t GetPixelLocked(const Surface &surface, const Point &coord)
+{
+    return GetPackedPixel(ConstGetPixels(surface) + coord.y * surface->pitch + coord.x * surface->format->BytesPerPixel, surface->format->BytesPerPixel);
 }
 
 bool HasPalette(const Surface &surface)

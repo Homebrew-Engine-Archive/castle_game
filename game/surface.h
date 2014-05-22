@@ -96,6 +96,7 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
+void BlitSurfaceScaled(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
 
 void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
 void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
@@ -106,6 +107,9 @@ void FillRhombus(Surface &dst, const Rect &bounds, const Color &color);
 void BlurSurface(Surface &dst, int radius);
 
 void TransformSurface(const Surface &surface, Color(Color const&));
+
+uint32_t GetPixel(const Surface &surface, const Point &coord);
+uint32_t GetPixelLocked(const Surface &surface, const Point &coord);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels

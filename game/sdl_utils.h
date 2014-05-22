@@ -7,17 +7,7 @@
 #include <SDL_ttf.h>
 #include <SDL.h>
 
-struct sdl_error : public std::exception
-{
-    const char *mSDL_GetError;
-    sdl_error() throw()
-        : mSDL_GetError(SDL_GetError())
-        { }
-
-    char const* what() const throw() {
-        return mSDL_GetError;
-    }
-};
+#include <game/sdl_error.h>
 
 struct SDLInitializer final
 {

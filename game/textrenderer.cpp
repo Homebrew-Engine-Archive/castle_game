@@ -63,11 +63,11 @@ namespace Render
         CheckFontIsSet();
         
         if(SDL_SetSurfaceAlphaMod(text, mColor.a) < 0) {
-            throw std::runtime_error(SDL_GetError());
+            throw sdl_error();
         }
         
         if(SDL_SetSurfaceColorMod(text, mColor.r, mColor.g, mColor.b) < 0) {
-            throw std::runtime_error(SDL_GetError());
+            throw sdl_error();
         }
 
         Rect dstRect(GetTopLeftBoxPoint(), text->w, text->h);
@@ -107,7 +107,7 @@ namespace Render
         int height;
         
         if(TTF_SizeText(mCurrentFont, str.c_str(), &width, &height) < 0) {
-            throw std::runtime_error(TTF_GetError());
+            throw sdl_error();
         }
         return Rect(GetTopLeftBoxPoint(), width, height);
     }
@@ -122,7 +122,7 @@ namespace Render
         std::basic_string<Uint16> uint16Str = ToUint16String(str);
         
         if(TTF_SizeUNICODE(mCurrentFont, uint16Str.c_str(), &width, &height) < 0) {
-            throw std::runtime_error(TTF_GetError());
+            throw sdl_error();
         }
         return Rect(GetTopLeftBoxPoint(), width, height);
     }
@@ -167,6 +167,11 @@ namespace Render
         return mCurrentFont;
     }
 
+    void TextRenderer::SetCursorPos(Point pos)
+    {
+        mCursor = pos;
+    }
+    
     void TextRenderer::CheckFontIsSet() const
     {
         if(mCurrentFont == nullptr) {

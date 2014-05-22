@@ -2,56 +2,83 @@
 #define GAMEMAP_H_
 
 #include <vector>
+#include <game/point.h>
+#include <iterator>
 
 enum class Landscape;
 enum class Direction;
 class Surface;
 
+struct Image
+{
+    void Draw(Surface &surface);
+};
+
+struct TiledImage : public Image
+{
+    
+};
+
+struct SpriteImage : public Image
+{
+};
+
 namespace Castle
 {
-    class Terrain
+    struct MapObject
     {
-        
-    public:
-        
-    };
-
-    class Unit
-    {
-    public:
-    };
-    
-    class Cell
-    {
-        int mHeight;
-        Landscape mLandscape;
-        
-    public:
-        Cell(Landscape landscape, int height);
-        
-        int Height() const;
-        void Height(int height);
+        Image &imageRef;
     };
     
     class GameMap
     {
         int mSize;
-        std::vector<Cell> mCells;
-        bool mBorderless;
+        int mCellsCount;
+        std::vector<int> mHeightLayer;
+        std::vector<Landscape> mLandscapeLayer;
+        std::vector<MapObject> mMapObjects;
+        bool mHorizontalWrapping;
+        bool mVerticalWrapping;
         
-    public:
+    public:        
         explicit GameMap(int size);
-        
-        bool Borderless() const;
-        void Borderless(bool yes);
 
-        Cell const& GetCell(int row, int col) const;
-        Cell& GetCell(int row, int col);
+        typedef Point Cell;
+
+        void Height(const Cell &cell, int height);
+        int Height(const Cell &cell) const;
+
+        void LandscapeType(const Cell &cell, Landscape land);
+        Landscape LandscapeType(const Cell &cell) const;
+
+        void PlaceObject(const MapObject &obj);
+        void RemoveObject(const MapObject &obj);
+        
+        bool HasCell(const Cell &cell) const;
+
+        int CellToIndex(const Cell &cell) const;
+        Cell IndexToCell(int index) const;
+
+        void WrapHorizontal(bool on);
+        void WrapVertical(bool on);
         
         int Size() const;
     };
 
+    constexpr static int TileWidth = 32;
+    constexpr static int TileHeight = 16;
+    
     void GenerateRandomMap(GameMap &map);
+
+    struct EvenAdjacencyIterator : public std::iterator<std::bidirectional_iterator_tag, GameMap::Cell>
+    {
+        explicit constexpr EvenAdjacencyIterator(GameMap::Cell &cell) {}
+    };
+    
+    struct OddAdjacencyIterator : public std::iterator<std::bidirectional_iterator_tag, GameMap::Cell>
+    {
+        explicit constexpr OddAdjacencyIterator(GameMap::Cell &cell) {}
+    };
 }
 
 #endif // GAMEMAP_H_

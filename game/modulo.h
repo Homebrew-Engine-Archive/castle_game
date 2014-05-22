@@ -4,7 +4,7 @@
 namespace core
 {
     template<class T>
-    constexpr T Modulo(T a, T b)
+    constexpr T Mod(T a, T b)
     {
         return (((a % b) + b) % b);
     }
@@ -12,13 +12,13 @@ namespace core
     template<class T>
     constexpr bool Even(T a)
     {
-        return Modulo(a, static_cast<T>(2)) == static_cast<T>(0);
+        return Mod(a, static_cast<T>(2)) == static_cast<T>(0);
     }
 
     template<class T>
     constexpr bool Odd(T a)
     {
-        return Modulo(a, static_cast<T>(2)) == static_cast<T>(1);
+        return Mod(a, static_cast<T>(2)) == static_cast<T>(1);
     }
 }
 

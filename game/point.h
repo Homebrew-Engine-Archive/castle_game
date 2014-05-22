@@ -30,44 +30,44 @@ constexpr Point operator-(const SDL_Point &point)
     return Point(-point.x, -point.y);
 }
 
-constexpr bool operator==(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr bool operator==(const SDL_Point &L, const SDL_Point &R)
 {
-    return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+    return (L.x == R.x) && (L.y == R.y);
 }
 
-constexpr bool operator!=(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr bool operator!=(const SDL_Point &L, const SDL_Point &R)
 {
-    return (lhs.x != rhs.x) || (lhs.y != rhs.y);
+    return (L.x != R.x) || (L.y != R.y);
 }
 
-constexpr bool operator<(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr bool operator<(const SDL_Point &L, const SDL_Point &R)
 {
-    return (lhs.x < rhs.x) || (lhs.x == rhs.x && lhs.y < rhs.y);
+    return (L.x < R.x) || (L.x == R.x && L.y < R.y);
 }
 
-constexpr bool operator>(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr bool operator>(const SDL_Point &L, const SDL_Point &R)
 {
-    return (lhs.x > rhs.x) || (lhs.x == rhs.x && lhs.y > rhs.y);
+    return (L.x > R.x) || (L.x == R.x && L.y > R.y);
 }
 
-constexpr Point operator+(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr Point operator+(const SDL_Point &L, const SDL_Point &R)
 {
-    return Point(lhs.x + rhs.x, lhs.y + rhs.y);
+    return Point(L.x + R.x, L.y + R.y);
 }
 
-constexpr Point operator-(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr Point operator-(const SDL_Point &L, const SDL_Point &R)
 {
-    return Point(lhs.x - rhs.x, lhs.y - rhs.y);
+    return Point(L.x - R.x, L.y - R.y);
 }
 
-constexpr Point operator*(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr Point operator*(const SDL_Point &L, const SDL_Point &R)
 {
-    return Point(lhs.x * rhs.x, lhs.y * rhs.y);
+    return Point(L.x * R.x, L.y * R.y);
 }
 
-constexpr Point operator/(const SDL_Point &lhs, const SDL_Point &rhs)
+constexpr Point operator/(const SDL_Point &L, const SDL_Point &R)
 {
-    return Point(lhs.x / rhs.x, lhs.y / rhs.y);
+    return Point(L.x / R.x, L.y / R.y);
 }
 
 constexpr Point operator+(const SDL_Point &pt, int v)
@@ -124,14 +124,19 @@ constexpr Point AlignPoint(const SDL_Rect &rt, double x, double y)
 
 constexpr bool PointInRect(const SDL_Rect &rect, const SDL_Point &pt)
 {
-    return (rect.x >= pt.x)
-        && (rect.y >= pt.y)
-        && (rect.w + rect.x > pt.x)
-        && (rect.h + rect.y > pt.y);
+    return (pt.x >= rect.x)
+        && (pt.y >= rect.y)
+        && (pt.x <= rect.x + rect.w)
+        && (pt.y <= rect.y + rect.h);
 }
 
-float Hypot(const SDL_Point &lhs, const SDL_Point &rhs);
-int Manhattan(const SDL_Point &lhs, const SDL_Point &rhs);
+constexpr Point ClipToRect(const SDL_Rect &rect, const SDL_Point &pt)
+{
+    return Point((pt.x - rect.x) % rect.w, (pt.y - rect.y) % rect.h);
+}
+
+float Hypot(const SDL_Point &L, const SDL_Point &R);
+int Manhattan(const SDL_Point &L, const SDL_Point &R);
 
 std::ostream& operator<<(std::ostream &out, const SDL_Point &pt);
 

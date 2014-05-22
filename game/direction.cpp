@@ -50,13 +50,13 @@ int MinRotates(const Direction &lhs, const Direction &rhs)
 Direction RadiansToDirection(double angle)
 {
     // Avoid negative angles
-    double alpha = fmod(2 * PI + angle, 2 * PI);
+    double alpha = fmod(2 * M_PI + angle, 2 * M_PI);
 
     // Rotate by half of the direction's angle
     double beta = (alpha - 1.0f / (2 * DirCount));
 
     // scale down to range [0, 1)
-    double gamma = beta / (2 * PI);
+    double gamma = beta / (2 * M_PI);
 
     // and now avoid cyclic directions
     int d = (int(gamma * DirCount) + DirCount) % DirCount;
@@ -68,13 +68,13 @@ double DirectionToRadians(const Direction &dir)
 {
     switch(dir) {
     case Direction::East: return 0.0f;
-    case Direction::NorthEast: return PI / 4.0f;
-    case Direction::North: return PI / 2.0f;
-    case Direction::NorthWest: return 3.0f * PI / 4.0f;
-    case Direction::West: return PI;
-    case Direction::SouthWest: return PI + PI / 4.0f;
-    case Direction::South: return 3.0f * PI / 2.0f;
-    case Direction::SouthEast: return 3.0f * PI / 4.0f + PI;
+    case Direction::NorthEast: return M_PI / 4.0f;
+    case Direction::North: return M_PI / 2.0f;
+    case Direction::NorthWest: return 3.0f * M_PI / 4.0f;
+    case Direction::West: return M_PI;
+    case Direction::SouthWest: return M_PI + M_PI / 4.0f;
+    case Direction::South: return 3.0f * M_PI / 2.0f;
+    case Direction::SouthEast: return 3.0f * M_PI / 4.0f + M_PI;
     }
 
     throw std::runtime_error("invalid direction");

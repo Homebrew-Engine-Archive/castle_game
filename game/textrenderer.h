@@ -61,6 +61,7 @@ namespace Render
         void SetCursorMode(CursorMode mode);
         void LoadIdentity();
         void Translate(int dx, int dy);
+        void SetCursorPos(Point pos);
         
         Rect CalculateTextRect(const std::u16string &str) const;
         Rect CalculateTextRect(const std::string &str) const;
