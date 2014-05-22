@@ -7,7 +7,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 
-#include <game/exception.h>
+#include <game/ttf_error.h>
 #include <game/sdl_utils.h>
 
 struct FontData
@@ -74,10 +74,8 @@ namespace Render
     {
         FontData *nearest = LookupFontName(name, fsize);
         if((nearest != nullptr) && (nearest->name == name) && (nearest->fsize == fsize)) {
-            throw Castle::Error()
-                ("Reason", "Font is already loaded")
-                ("Font", name)
-                ("Size", std::to_string(fsize));
+            std::clog << "Loading font has already been loaded: " << name << ' ' << fsize << std::endl;
+            return;
         }
         
         FontData fontData;
@@ -101,7 +99,7 @@ namespace Render
         TTF_Font *font = TTF_OpenFont(fontData.fontPath.string().c_str(), fsize);
 
         if(font == NULL) {
-            throw std::runtime_error(TTF_GetError());
+            throw ttf_error();
         }
         fontData.font.reset(font);
         
@@ -114,12 +112,7 @@ namespace Render
         if(fd != nullptr) {
             return fd->font.get();
         }
-        throw Castle::Error()
-            ("Reason", "No such font")
-            ("Font", name)
-            ("Size", std::to_string(fsize))
-            ("File", __FILE__)
-            ("Line", std::to_string(__LINE__));
+        throw std::logic_error("no font found");
     }
     
     TTF_Font* FontManager::DefaultFont()
@@ -148,8 +141,7 @@ namespace Render
     void FontManager::CheckDefaultFontIsSet() const
     {
         if(mDefaultFontData == nullptr) {
-            throw Castle::Error()
-                ("Reason", "No default font");
+            throw std::logic_error("no default font has been set");
         }
     }
 

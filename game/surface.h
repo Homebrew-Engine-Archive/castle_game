@@ -22,13 +22,13 @@ public:
     Surface(Surface const&);
     virtual ~Surface();
     bool Null() const;
-    operator SDL_Surface*() const;
-    bool operator!() const;
-    Surface& operator=(SDL_Surface*);
-    Surface& operator=(Surface const&);
-    bool operator==(Surface const&);
+    virtual operator SDL_Surface*() const;
+    virtual bool operator!() const;
+    virtual Surface& operator=(SDL_Surface*);
+    virtual Surface& operator=(Surface const&);
+    virtual bool operator==(Surface const&);
     SDL_Surface* operator->() const;
-    void Reset(SDL_Surface *surface = nullptr);
+    virtual void Reset(SDL_Surface *surface = nullptr);
 };
 
 class PreallocatedSurface : public Surface
@@ -44,7 +44,7 @@ class SurfaceLocker
     const Surface &mObject;
     bool mLocked;
 public:
-    SurfaceLocker(const Surface &surface);
+    explicit SurfaceLocker(const Surface &surface);
     // TODO implement copying surface on copying locker
     SurfaceLocker(SurfaceLocker const&) = delete;
     SurfaceLocker &operator=(SurfaceLocker const&) = delete;
@@ -65,12 +65,16 @@ public:
  * \todo This class is not intended to work together with RLE accel. Can we deal with it?
  *
  */
-class SurfaceView : public Surface
+class SurfaceView
 {
-    Surface mParentRef;
+    Surface mSurface;
+    const Surface &mParentRef;
 public:
     SurfaceView(const Surface &src, const Rect &clip);
     SurfaceView(Surface &src, const Rect &clip);
+
+    inline Surface& View() { return mSurface; }
+    inline Surface const& View() const { return mSurface; }
 };
 
 class SurfaceColorModSetter
@@ -80,13 +84,6 @@ class SurfaceColorModSetter
 public:
     SurfaceColorModSetter(const Surface &src, const Color &color);
     ~SurfaceColorModSetter();
-};
-
-class SurfaceAlphaModSetter
-{
-public:
-    SurfaceAlphaModSetter(const Surface &src, int alpha);
-    ~SurfaceAlphaModSetter();
 };
 
 bool HasPalette(const Surface &surface);

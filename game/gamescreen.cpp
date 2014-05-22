@@ -61,7 +61,8 @@ namespace UI
                     }
                     if(false /** mCamera.Scaled() **/) {
                         // \todo crop source and dest rect
-                        BlitSurfaceScaled(entry.surface, Rect(entry.surface), frame, cellBox);
+                        const Rect entryRect = Translated(IntersectRects(Rect(frame), cellBox), -TopLeft(cellBox));
+                        BlitSurfaceScaled(entry.surface, entryRect, frame, cellBox);
                     } else {
                         BlitSurface(entry.surface, Rect(entry.surface), frame, cellBox);
                     }

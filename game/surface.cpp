@@ -145,16 +145,6 @@ SurfaceColorModSetter::~SurfaceColorModSetter()
     }
 }
 
-SurfaceAlphaModSetter::SurfaceAlphaModSetter(const Surface &src, int alpha)
-{
-
-}
-
-SurfaceAlphaModSetter::~SurfaceAlphaModSetter()
-{
-
-}
-
 SurfaceLocker::SurfaceLocker(const Surface &surface)
     : mObject(surface)
     , mLocked(false)
@@ -273,7 +263,7 @@ Surface CreateSurfaceView(Surface &src, const Rect &clip)
 }
 
 SurfaceView::SurfaceView(Surface &src, const Rect &clip)
-    : Surface(CreateSurfaceView(src, clip))
+    : mSurface(CreateSurfaceView(src, clip))
     , mParentRef(src)
 {
 }

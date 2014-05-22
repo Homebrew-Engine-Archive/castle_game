@@ -2,8 +2,6 @@
 
 #include <stdexcept>
 
-#include <game/exception.h>
-
 namespace UI
 {
     ScreenManager::ScreenManager(Castle::SimulationManager &simulationManager)
@@ -43,8 +41,8 @@ namespace UI
 
     void ScreenManager::CloseScreen(Screen *screen)
     {
-        mScreenStack.resize(
-            std::remove(mScreenStack.begin(), mScreenStack.end(), screen) - mScreenStack.begin());
+        auto end = std::remove(mScreenStack.begin(), mScreenStack.end(), screen);
+        mScreenStack.erase(end, mScreenStack.end());
     }
     
     bool ScreenManager::HandleEvent(const SDL_Event &event)

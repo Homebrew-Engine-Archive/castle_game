@@ -12,7 +12,6 @@
 #include <boost/current_function.hpp>
 
 #include <game/surface.h>
-#include <game/exception.h>
 
 namespace
 {

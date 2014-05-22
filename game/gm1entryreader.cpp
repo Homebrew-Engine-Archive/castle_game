@@ -193,11 +193,11 @@ namespace
     {
         Rect tilerect(0, header.tileY, Width(header), GM1::TileHeight);
         SurfaceView tile(surface, tilerect);
-        ReadTile(in, tile);
+        ReadTile(in, tile.View());
         
         Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceView box(surface, boxrect);
-        TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box);
+        TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box.View());
     }
 }
 

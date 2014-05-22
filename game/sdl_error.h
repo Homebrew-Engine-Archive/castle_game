@@ -4,9 +4,11 @@
 #include <SDL.h>
 #include <exception>
 
-struct sdl_error : public std::exception
+class sdl_error : public std::exception
 {
     const char *mSDL_GetError;
+    
+public:
     sdl_error() throw()
         : mSDL_GetError(SDL_GetError())
         { }

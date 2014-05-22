@@ -5,7 +5,7 @@
 #include <boost/current_function.hpp>
 #include <boost/algorithm/clamp.hpp>
 
-#include <game/exception.h>
+#include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
 
