@@ -89,7 +89,7 @@ namespace Castle
         std::vector<GameMap::Cell> q;
         q.emplace_back(cx, cy);
 
-        while(q.size() != 0) {
+        while(!q.empty()) {
             GameMap::Cell cell = q.back();
             q.pop_back();
             if(map.HasCell(cell)) {

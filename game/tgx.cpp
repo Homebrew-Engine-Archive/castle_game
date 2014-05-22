@@ -221,12 +221,13 @@ namespace TGX
 
         const SurfaceLocker lock(surface);
         
-        const char *pixelsPtr = ConstGetPixels(surface);
+        const char *pixelsPtr = GetPixels(surface);
         const int bytesPerPixel = surface->format->BytesPerPixel;
 
         uint32_t colorKey = 0;
         if(SDL_GetColorKey(surface, &colorKey) < 0) {
-            throw std::runtime_error("only color-keyed surfaced might be encoded");
+            // \todo this is not so
+            throw std::runtime_error("surface should be have color key");
         }
 
         for(int row = 0; row < surface->h; ++row) {
@@ -289,7 +290,7 @@ namespace TGX
                     // we have no space for placing LineFeed. It is certainly an erroneous behavior.
                     // Should we report it here?
                     if(dst + length * bytesPerPixel > dstEnd) {
-                        throw std::runtime_error("buffer overflow");
+                        throw std::overflow_error("token length exceeds available buffer size");
                     }
                 }
             default:
@@ -329,7 +330,7 @@ namespace TGX
                     if(!in) {
                         throw std::runtime_error(strerror(errno));
                     }
-                    throw std::logic_error("unknown token");
+                    throw std::logic_error("unknown tgx token type");
                 }
             }
 

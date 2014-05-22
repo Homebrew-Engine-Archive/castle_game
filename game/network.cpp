@@ -1,6 +1,10 @@
 #include "network.h"
+
+#include <cassert>
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/bind.hpp>
+
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -28,7 +32,8 @@ namespace Network
     void Connection::ReceiveHandler(const boost::system::error_code &code, size_t size)
     {
         if(!code) {
-            std::string msg(&mReadBuffer[0], &mReadBuffer[0] + size);
+            assert(size <= mReadBuffer.size());
+            std::string msg(mReadBuffer.data(), mReadBuffer.data() + size);
             std::cout << msg << std::endl;
             StartReceive();
         } else {

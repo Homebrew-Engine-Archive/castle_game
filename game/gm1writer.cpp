@@ -36,7 +36,7 @@ namespace GM1
 
     std::ostream& WritePalette(std::ostream &out, const GM1::Palette &palette)
     {
-        for(GM1::PaletteEntry entry : palette) {
+        for(GM1::palette_entry_t entry : palette) {
             io::WriteLittle(out, entry);
         }
         return out;

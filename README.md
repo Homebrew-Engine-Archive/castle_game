@@ -28,6 +28,7 @@ Here are some truly \m/ formatted names:
 * `auto` is unwelcome. `auto&` and `auto*` either.
 * Use anonymous namespaces for your static methods, types and constants.
 * Look at `constexpr`. It's better than simply inline your functions.
+* Consider use std::vector::data() instead of explicit dereferencing.
 
 1.5. Namespaces
 --------------

@@ -2,22 +2,14 @@
 
 #include <SDL.h>
 
-#include <sstream>
+#include <iostream>
+#include <algorithm>
 #include <array>
 #include <vector>
 
+#include <game/modulo.h>
 #include <game/tgx.h>
 #include <game/sdl_utils.h>
-
-namespace
-{
-    void Fail(const std::string &where, int line, const std::string &what)
-    {
-        std::ostringstream oss;
-        oss << "In " << where << " at " << line << " fail: " << what;
-        throw std::runtime_error(oss.str());
-    }
-}
 
 namespace GM1
 {
@@ -25,19 +17,19 @@ namespace GM1
     {
         PixelFormatPtr ptr(SDL_AllocFormat(TGX::PixelFormatEnum));
         if(!ptr) {
-            Fail(__FILE__, __LINE__, SDL_GetError());
+            throw sdl_error();
         }
-        return std::move(ptr);
+        return ptr;
     }
-    
+
     std::ostream& PrintPalette(std::ostream &out, const Palette &palette)
     {
         int column = 0;
         out << std::hex;
-        for(auto color : palette) {
-            out << color << ' ';
+        for(palette_entry_t entry : palette) {
+            out << entry << ' ';
             ++column;
-            if(column % 16 == 0)
+            if(core::Mod(column, 16) == 0)
                 out << std::endl;
         }
         return out;
@@ -46,13 +38,13 @@ namespace GM1
     PalettePtr CreateSDLPalette(const GM1::Palette &palette)
     {
         PixelFormatPtr &&format = GM1::PaletteFormat();
-        std::vector<SDL_Color> colors;
-        colors.reserve(GM1::CollectionPaletteColors);
-        for(PaletteEntry entry : palette) {
-            SDL_Color color{0, 0, 0, 0};
-            SDL_GetRGBA(entry, format.get(), &color.r, &color.g, &color.b, &color.a);
-            colors.push_back(std::move(color));
-        }
+        std::vector<SDL_Color> colors(palette.size());
+        std::transform(palette.begin(), palette.end(), colors.begin(),
+                       [&format](palette_entry_t entry) -> SDL_Color {
+                           SDL_Color result;
+                           SDL_GetRGBA(entry, format.get(), &result.r, &result.g, &result.b, &result.a);
+                           return result;
+                       });
         return CreateSDLPalette(colors);
     }
 
@@ -60,10 +52,10 @@ namespace GM1
     {
         PalettePtr ptr(SDL_AllocPalette(colors.size()));
         if(!ptr) {
-            Fail(__FILE__, __LINE__, SDL_GetError());
+            throw sdl_error();
         }
-        if(!SDL_SetPaletteColors(ptr.get(), &colors[0], 0, ptr->ncolors) < 0) {
-            Fail(__FILE__, __LINE__, SDL_GetError());
+        if(!SDL_SetPaletteColors(ptr.get(), colors.data(), 0, ptr->ncolors) < 0) {
+            throw sdl_error();
         }
         return ptr;
     }

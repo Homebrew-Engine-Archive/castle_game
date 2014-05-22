@@ -1,16 +1,15 @@
 #include "surface.h"
 
+#include <cassert>
+
 #include <functional>
 #include <iostream>
-#include <sstream>
 #include <memory>
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
 
 #include <SDL.h>
-
-#include <boost/current_function.hpp>
 
 #include <game/color.h>
 #include <game/rect.h>
@@ -19,13 +18,21 @@
 
 namespace
 {
-    void Fail(const std::string &where, const std::string &what)
+    struct null_pixelformat_error : public std::runtime_error
     {
-        std::ostringstream oss;
-        oss << where << " failed: " << what;
-        throw std::runtime_error(oss.str());
-    }
-    
+         null_pixelformat_error() throw() : std::runtime_error("pixel format is null or invalid") {}
+    };
+
+    struct null_surface_error : public std::runtime_error
+    {
+         null_surface_error() throw() : std::runtime_error("surface is null or invalid") {}
+    };
+
+    struct null_pixeldata_error : public std::runtime_error
+    {
+         null_pixeldata_error() throw() : std::runtime_error("pixel pointer is null") {}
+    };
+        
     void AddSurfaceRef(SDL_Surface *surface)
     {
         if(surface != nullptr) {
@@ -33,15 +40,16 @@ namespace
         }
     }
     
-    struct TransformFunctor
+    class TransformFunctor
     {
         const SDL_PixelFormat *mFormat;
         std::function<Color(Color const&)> mFunc;
 
-        TransformFunctor(const SDL_PixelFormat *format, Color func(Color const&))
-            : mFormat(format)
+    public:
+        TransformFunctor(const SDL_PixelFormat &format, Color func(Color const&))
+            : mFormat(&format)
             , mFunc(func)
-            {}
+            { }
 
         void operator()(char *bytes, size_t size) {
             const char *end = bytes + size * mFormat->BytesPerPixel;
@@ -61,7 +69,7 @@ namespace
         }
     };
 
-    struct ConvolveFunctor
+    class ConvolveFunctor
     {
         std::vector<uint32_t> mBuffer;
         uint32_t *const mRedBuff;
@@ -70,13 +78,14 @@ namespace
         const int mRadius;
         const SDL_PixelFormat *mFormat;
 
-        ConvolveFunctor(int radius, const SDL_PixelFormat *format, int bufferSize)
+    public:
+        ConvolveFunctor(int radius, const SDL_PixelFormat &format, int bufferSize)
             : mBuffer(bufferSize * 3)
             , mRedBuff(&mBuffer[bufferSize * 0])
             , mGreenBuff(&mBuffer[bufferSize * 1])
             , mBlueBuff(&mBuffer[bufferSize * 2])
             , mRadius(radius)
-            , mFormat(format)
+            , mFormat(&format)
             { }
         
         void operator()(char *bytes, int length, int stride)
@@ -232,37 +241,47 @@ bool Surface::operator!() const
     return Null();
 }
 
-void Surface::reset(SDL_Surface *surface)
+void Surface::Reset(SDL_Surface *surface)
 {
     AddSurfaceRef(surface);
     Assign(surface);
 }
 
-SurfaceView::SurfaceView(Surface &src, const Rect &clip)
+Surface CreateSurfaceView(Surface &src, const Rect &clip)
 {
-    if(!src) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
-    }
-
     if(SDL_MUSTLOCK(src)) {
         // can we deal with it?
-        Fail(BOOST_CURRENT_FUNCTION, "RLEaccel installed on source surface");
+        throw std::invalid_argument("SurfaceView might not be created from RLEaccel surface");
     }
-    
-    char *pixels = GetPixels(src)
-        + clip.y * src->pitch
-        + clip.x * src->format->BytesPerPixel;
-    
-    Surface tmp = CreateSurfaceFrom(pixels, clip.w, clip.h, src->pitch, src->format);
+
+    const Rect cropped =
+        IntersectRects(
+            Normalized(clip),
+            Rect(src));
+
+    char *const pixels = GetPixels(src)
+        + cropped.y * src->pitch
+        + cropped.x * src->format->BytesPerPixel;
+
+    Surface tmp = CreateSurfaceFrom(pixels, cropped.w, cropped.h, src->pitch, src->format);
     if(!tmp) {
         throw sdl_error();
     }
-    
     CopyColorKey(src, tmp);
+    
+    return tmp;
+}
 
-    mReferer = src;
-    mSurface = tmp;
-    AddSurfaceRef(mSurface);
+SurfaceView::SurfaceView(Surface &src, const Rect &clip)
+    : Surface(CreateSurfaceView(src, clip))
+    , mParentRef(src)
+{
+}
+
+// \todo there is something wrong with const-specifier
+SurfaceView::SurfaceView(const Surface &src, const Rect &clip)
+    : SurfaceView(const_cast<Surface&>(src), clip)
+{
 }
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
@@ -277,17 +296,16 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
 
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format)
 {
-    if(format == nullptr) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null format");
+    if(format != nullptr) {
+        const uint32_t rmask = format->Rmask;
+        const uint32_t gmask = format->Gmask;
+        const uint32_t bmask = format->Bmask;
+        const uint32_t amask = format->Amask;
+        const int bpp = format->BitsPerPixel;
+        return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
     }
-
-    const uint32_t rmask = format->Rmask;
-    const uint32_t gmask = format->Gmask;
-    const uint32_t bmask = format->Bmask;
-    const uint32_t amask = format->Amask;
-    const int bpp = format->BitsPerPixel;
-
-    return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
+    
+    throw null_pixelformat_error();
 }
 
 Surface CreateSurface(int width, int height, int format)
@@ -307,40 +325,36 @@ Surface CreateSurface(int width, int height, int format)
 
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format)
 {
-    if(pixels == nullptr) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null pixels");
+    if(format != nullptr) {
+        const uint32_t rmask = format->Rmask;
+        const uint32_t gmask = format->Gmask;
+        const uint32_t bmask = format->Bmask;
+        const uint32_t amask = format->Amask;
+        const int bpp = format->BitsPerPixel;
+        if(pixels != nullptr) {
+            return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+        }
+        throw null_pixeldata_error();
     }
-    
-    if(format == nullptr) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null format");
-    }
-        
-    const uint32_t rmask = format->Rmask;
-    const uint32_t gmask = format->Gmask;
-    const uint32_t bmask = format->Bmask;
-    const uint32_t amask = format->Amask;
-    const int bpp = format->BitsPerPixel;
-
-    return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+    throw null_pixelformat_error();
 }
 
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format)
 {
-    if(pixels == nullptr) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null pixels");
-    }
+    if(pixels != nullptr) {
+        uint32_t rmask;
+        uint32_t gmask;
+        uint32_t bmask;
+        uint32_t amask;
+        int bpp;
+
+        if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
+            throw sdl_error();
+        }
         
-    uint32_t rmask;
-    uint32_t gmask;
-    uint32_t bmask;
-    uint32_t amask;
-    int bpp;
-
-    if(!SDL_PixelFormatEnumToMasks(format, &bpp, &rmask, &gmask, &bmask, &amask)) {
-        throw sdl_error();
+        return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
     }
-
-    return SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+    throw null_pixeldata_error();
 }
 
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
@@ -377,11 +391,20 @@ void FillFrame(Surface &dst, const Rect &dstrect, const Color &color)
 
 void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
 {
+    if(!dst) {
+        throw null_surface_error();
+    }
+    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    if(!render) {
+        throw sdl_error();
+    }
+    
     SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
 
-    const Point points[] = {
+    constexpr int numPoints = 5;
+    const Point points[numPoints] = {
         Point(bounds.x, bounds.y + bounds.h / 2),
         Point(bounds.x + bounds.w / 2, bounds.y),
         Point(bounds.x + bounds.w, bounds.y + bounds.h / 2),
@@ -389,49 +412,20 @@ void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
         Point(bounds.x, bounds.y + bounds.h / 2)
     };
     
-    SDL_RenderDrawLines(render.get(), &points[0], 5);
-}
-
-void FillRhombus(Surface &dst, const Rect &bounds, const Color &color)
-{
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
-
-    const double delta = static_cast<double>(bounds.w) / bounds.h;
-    double width = 0;
-    
-    Rect rect;
-    rect.y = bounds.y;
-    rect.h = 1;
-    for(int i = 0; i < bounds.h / 2; ++i) {
-        width += 2 * delta;
-        rect.y += 1;
-        rect.w = width;
-        rect.x = bounds.x + (bounds.w - width) / 2;
-        SDL_RenderFillRect(render.get(), &rect);
-    }
-
-    for(int i = bounds.h / 2; i < bounds.h; ++i) {
-        width -= 2 * delta;
-        rect.y += 1;
-        rect.w = width;
-        rect.x = bounds.x + (bounds.w - width) / 2;
-        SDL_RenderFillRect(render.get(), &rect);
+    if(SDL_RenderDrawLines(render.get(), &points[0], numPoints) < 0) {
+        throw sdl_error();
     }
 }
 
 void TransformSurface(Surface &dst, Color func(Color const&))
 {
     if(!dst) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
+        throw null_surface_error();
     }
     
     const SurfaceLocker lock(dst);
-
     char *bytes = GetPixels(dst);
-
-    TransformFunctor transformBuffer(dst->format, func);
+    TransformFunctor transformBuffer(*dst->format, func);
     
     for(int i = 0; i < dst->h; ++i) {
         transformBuffer(bytes + i * dst->pitch, dst->w);
@@ -441,14 +435,13 @@ void TransformSurface(Surface &dst, Color func(Color const&))
 void BlurSurface(Surface &dst, int radius)
 {
     if(!dst) {
-        Fail(BOOST_CURRENT_FUNCTION, "Null surface");
+        throw null_surface_error();
     }
     
     const SurfaceLocker lock(dst);
-    
     char *const bytes = GetPixels(dst);
     const int bytesPP = dst->format->BytesPerPixel;
-    ConvolveFunctor convolve(radius, dst->format, std::max(dst->w, dst->h));
+    ConvolveFunctor convolve(radius, *dst->format, std::max(dst->w, dst->h));
     
     for(int y = 0; y < dst->h; ++y) {
         convolve(bytes + y * dst->pitch, dst->w, bytesPP);
@@ -461,16 +454,27 @@ void BlurSurface(Surface &dst, int radius)
 
 uint32_t GetPixel(const Surface &surface, const Point &coord)
 {
+    if(!surface) {
+        throw null_surface_error();
+    }
+
+    if(coord.x < 0 || coord.y < 0 || coord.x >= surface->w || coord.y >= surface->h) {
+        throw std::invalid_argument("coord out of surface bounds");
+    }
+    
     const SurfaceLocker lock(surface);
     return GetPixelLocked(surface, coord);
 }
 
 uint32_t GetPixelLocked(const Surface &surface, const Point &coord)
 {
-    return GetPackedPixel(ConstGetPixels(surface) + coord.y * surface->pitch + coord.x * surface->format->BytesPerPixel, surface->format->BytesPerPixel);
+    return GetPackedPixel(GetPixels(surface) + coord.y * surface->pitch + coord.x * surface->format->BytesPerPixel, surface->format->BytesPerPixel);
 }
 
 bool HasPalette(const Surface &surface)
 {
+    if(!surface) {
+        throw null_surface_error();
+    }
     return SDL_ISPIXELFORMAT_INDEXED(surface->format->format);
 }

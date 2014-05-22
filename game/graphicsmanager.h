@@ -13,10 +13,32 @@
 
 namespace Graphics
 {
-    class TerrainClass
+    struct Image
     {
-    public:
-        TerrainClass();
+        virtual void Draw(Surface &surface) {};
+    };
+
+    struct SpritePaletteSet
+    {
+    
+    };
+
+    struct TiledImage : public Image
+    {
+        const Surface &flatRef;
+        const Surface &surfaceRef;
+    };
+
+    struct TranslucentImage : public Image
+    {
+        const Surface &alphaRef;
+        const Surface &surfaceRect;
+    };
+
+    struct SpriteImage : public Image
+    {
+        const SpritePaletteSet &paletteSetRef;
+        const Surface &surfaceRef;
     };
     
     class GraphicsManager

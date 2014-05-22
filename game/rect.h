@@ -59,8 +59,13 @@ constexpr bool Intersects(const SDL_Rect &lhs, const SDL_Rect &rhs)
 {
     return (lhs.x <= rhs.x + rhs.w)
         && (rhs.x <= lhs.x + lhs.w)
-        && (lhs.y <= rhs.y + rhs.h)
-        && (rhs.y <= lhs.y + lhs.h);
+        && (lhs.y < rhs.y + rhs.h)
+        && (rhs.y < lhs.y + lhs.h);
+}
+
+constexpr Rect Translated(const SDL_Rect &rect, const SDL_Point &point)
+{
+    return Rect(rect.x + point.x, rect.y + point.y, rect.w, rect.h);
 }
 
 Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y);

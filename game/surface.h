@@ -28,7 +28,12 @@ public:
     Surface& operator=(Surface const&);
     bool operator==(Surface const&);
     SDL_Surface* operator->() const;
-    void reset(SDL_Surface *surface = nullptr);
+    void Reset(SDL_Surface *surface = nullptr);
+};
+
+class PreallocatedSurface : public Surface
+{
+public:
 };
 
 /**
@@ -62,8 +67,9 @@ public:
  */
 class SurfaceView : public Surface
 {
-    Surface mReferer;
+    Surface mParentRef;
 public:
+    SurfaceView(const Surface &src, const Rect &clip);
     SurfaceView(Surface &src, const Rect &clip);
 };
 
@@ -102,7 +108,6 @@ void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
 void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
 
 void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
-void FillRhombus(Surface &dst, const Rect &bounds, const Color &color);
 
 void BlurSurface(Surface &dst, int radius);
 
@@ -114,12 +119,13 @@ uint32_t GetPixelLocked(const Surface &surface, const Point &coord);
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels
  */
+
 inline char* GetPixels(Surface &surface)
 {
     return reinterpret_cast<char *>(surface->pixels);
 }
 
-inline char const* ConstGetPixels(const Surface &surface)
+inline char const* GetPixels(const Surface &surface)
 {
     return reinterpret_cast<char const*>(surface->pixels);
 }

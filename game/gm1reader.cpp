@@ -161,7 +161,7 @@ namespace GM1
         mDataOffset = mStream.tellg();
         if(mFlags & Cached) {
             mBuffer.resize(mHeader.dataSize);
-            mStream.read(&mBuffer[0], mBuffer.size());
+            mStream.read(mBuffer.data(), mBuffer.size());
             if(!mStream) {
                 throw std::runtime_error(strerror(errno));
             }
@@ -208,7 +208,7 @@ namespace GM1
             if((entrySize > 0) && (entryData.empty())) {
                 mStream.seekg(entryOffset + mDataOffset);
                 entryData.resize(entrySize);
-                mStream.read(&entryData[0], entrySize);
+                mStream.read(entryData.data(), entrySize);
                 if(!mStream) {
                     throw std::runtime_error(strerror(errno));
                 }

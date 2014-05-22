@@ -54,8 +54,9 @@ namespace UI
             mText = std::string();
             return true;
         case SDLK_BACKSPACE:
-            if(mText.size() > 0)
+            if(!mText.empty()) {
                 mText.erase(mText.size() - 1);
+            }
             return true;
         default:
             return false;

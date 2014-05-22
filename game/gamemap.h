@@ -9,25 +9,10 @@ enum class Landscape;
 enum class Direction;
 class Surface;
 
-struct Image
-{
-    void Draw(Surface &surface);
-};
-
-struct TiledImage : public Image
-{
-    
-};
-
-struct SpriteImage : public Image
-{
-};
-
 namespace Castle
 {
     struct MapObject
     {
-        Image &imageRef;
     };
     
     class GameMap

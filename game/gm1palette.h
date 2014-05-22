@@ -6,26 +6,18 @@
 #include <array>
 #include <vector>
 
-#include <game/tgx.h>
 #include <game/sdl_utils.h>
 
 namespace GM1
 {
-    typedef uint16_t PaletteEntry;
+    using palette_entry_t = uint16_t;
     
     const size_t CollectionPaletteCount = 10;
     const size_t CollectionPaletteColors = 256;
-    const size_t CollectionPaletteBytes = CollectionPaletteColors * sizeof(PaletteEntry);
+    const size_t CollectionPaletteBytes = CollectionPaletteColors * sizeof(palette_entry_t);
     
-    typedef std::array<PaletteEntry, CollectionPaletteColors> Palette;
+    using Palette = std::array<palette_entry_t, CollectionPaletteColors>;
 
-    // class Palette : public std::array<PaletteEntry, CollectionPaletteColors>
-    // {
-    // public:
-    //     PixelFormatPtr PixelFormat() const;
-    //     PalettePtr toSDLPalette() const;
-    // };
-    
     enum class PaletteSet : size_t
     {
         Unknown0,
@@ -41,11 +33,8 @@ namespace GM1
     };
 
     PixelFormatPtr PaletteFormat();
-    
     PalettePtr CreateSDLPalette(Palette const&);
-
     PalettePtr CreateSDLPalette(std::vector<SDL_Color> const&);
-    
     std::ostream& PrintPalette(std::ostream&, Palette const&);
     
 }
