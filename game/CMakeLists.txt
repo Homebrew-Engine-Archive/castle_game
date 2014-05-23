@@ -7,7 +7,6 @@ set (SRCS
   console.cpp
   direction.cpp
   engine.cpp
-  exception.cpp
   environment.cpp
   filesystem.cpp
   fontmanager.cpp

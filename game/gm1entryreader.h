@@ -18,7 +18,7 @@ namespace GM1
 }
 
 namespace GM1
-{        
+{
     class GM1EntryReader
     {
         Color mTransparentColor;
@@ -29,6 +29,10 @@ namespace GM1
         
     public:
         GM1EntryReader();
+
+        /** We just have no need in it **/
+        GM1EntryReader(GM1EntryReader const&) = delete;
+        GM1EntryReader& operator=(GM1EntryReader const&) = delete;
 
         void Transparent(Color color);
         Color Transparent() const;

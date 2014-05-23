@@ -23,7 +23,6 @@ namespace Render
         Surface mScreenSurface;
         WindowPtr mWindow;
         
-
         bool ReallocationRequired(int width, int heigth, int format);
         void CreateScreenTexture(int width, int height, int format);
         void CreateScreenSurface(int width, int height);

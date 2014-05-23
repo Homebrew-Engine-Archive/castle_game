@@ -18,19 +18,19 @@
 
 namespace
 {
-    struct null_pixelformat_error : public std::runtime_error
+    struct null_pixelformat_error : public std::invalid_argument
     {
-         null_pixelformat_error() throw() : std::runtime_error("pixel format is null or invalid") {}
+         null_pixelformat_error() throw() : std::invalid_argument("pixel format is null or invalid") {}
     };
 
-    struct null_surface_error : public std::runtime_error
+    struct null_surface_error : public std::invalid_argument
     {
-         null_surface_error() throw() : std::runtime_error("surface is null or invalid") {}
+         null_surface_error() throw() : std::invalid_argument("surface is null or invalid") {}
     };
 
-    struct null_pixeldata_error : public std::runtime_error
+    struct null_pixeldata_error : public std::invalid_argument
     {
-         null_pixeldata_error() throw() : std::runtime_error("pixel pointer is null") {}
+         null_pixeldata_error() throw() : std::invalid_argument("pixel pointer is null") {}
     };
         
     void AddSurfaceRef(SDL_Surface *surface)
@@ -81,9 +81,9 @@ namespace
     public:
         ConvolveFunctor(int radius, const SDL_PixelFormat &format, int bufferSize)
             : mBuffer(bufferSize * 3)
-            , mRedBuff(&mBuffer[bufferSize * 0])
-            , mGreenBuff(&mBuffer[bufferSize * 1])
-            , mBlueBuff(&mBuffer[bufferSize * 2])
+            , mRedBuff(mBuffer.data())
+            , mGreenBuff(mBuffer.data() + bufferSize)
+            , mBlueBuff(mBuffer.data() + bufferSize * 2)
             , mRadius(radius)
             , mFormat(&format)
             { }
@@ -269,6 +269,7 @@ SurfaceView::SurfaceView(Surface &src, const Rect &clip)
 }
 
 // \todo there is something wrong with const-specifier
+// problem arises to SDL_CreateRGBSurfaceFrom which asks for non-const pixels
 SurfaceView::SurfaceView(const Surface &src, const Rect &clip)
     : SurfaceView(const_cast<Surface&>(src), clip)
 {
@@ -361,48 +362,77 @@ void BlitSurfaceScaled(const Surface &src, const Rect &srcrect, Surface &dst, co
     }
 }
 
-void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color)
+void DrawFrame(Surface &dst, const Rect &frame, const Color &color)
 {
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
-
-    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
-    SDL_RenderDrawRect(render.get(), &dstrect);
-}
-
-void FillFrame(Surface &dst, const Rect &dstrect, const Color &color)
-{
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
-
-    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(render.get(), &dstrect);
-}
-
-void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
-{
-    if(!dst) {
-        throw null_surface_error();
-    }
-    
     RendererPtr render(SDL_CreateSoftwareRenderer(dst));
     if(!render) {
         throw sdl_error();
     }
-    
-    SDL_SetRenderDrawBlendMode(render.get(), SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(render.get(), color.r, color.g, color.b, color.a);
 
+    DrawFrame(render.get(), frame, color);
+}
+
+void FillFrame(Surface &dst, const Rect &frame, const Color &color)
+{
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    if(!render) {
+        throw sdl_error();
+    }
+
+    FillFrame(render.get(), frame, color);
+}
+
+void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
+{
+    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
+    if(!render) {
+        throw sdl_error();
+    }
+
+    DrawRhombus(render.get(), bounds, color);
+}
+
+void DrawFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color)
+{
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    if(SDL_RenderDrawRect(renderer, &frame) < 0) {
+        throw sdl_error();
+    }
+}
+
+void FillFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color)
+{
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    if(SDL_RenderFillRect(renderer, &frame) < 0) {
+        throw sdl_error();
+    }
+}
+
+void DrawRhombus(SDL_Renderer *renderer, const Rect &bounds, const Color &color)
+{
     constexpr int numPoints = 5;
+
+    const auto x1 = bounds.x;
+    const auto y1 = bounds.y;
+    const auto x2 = bounds.x + bounds.w;
+    const auto y2 = bounds.y + bounds.h;
+
+    const auto centerX = (x1 + x2) / 2;
+    const auto centerY = (y1 + y2) / 2;
+    
     const Point points[numPoints] = {
-        Point(bounds.x, bounds.y + bounds.h / 2),
-        Point(bounds.x + bounds.w / 2, bounds.y),
-        Point(bounds.x + bounds.w, bounds.y + bounds.h / 2),
-        Point(bounds.x + bounds.w / 2, bounds.y + bounds.h),
-        Point(bounds.x, bounds.y + bounds.h / 2)
+        Point(x1, centerY),
+        Point(centerX, y1),
+        Point(x2, centerY),
+        Point(centerX, y2),
+        Point(x1, centerY)
     };
     
-    if(SDL_RenderDrawLines(render.get(), &points[0], numPoints) < 0) {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);    
+    if(SDL_RenderDrawLines(renderer, &points[0], numPoints) < 0) {
         throw sdl_error();
     }
 }
@@ -414,11 +444,11 @@ void TransformSurface(Surface &dst, Color func(Color const&))
     }
     
     const SurfaceLocker lock(dst);
-    char *bytes = GetPixels(dst);
-    TransformFunctor transformBuffer(*dst->format, func);
+    char *const bytes = GetPixels(dst);
+    TransformFunctor transform(*dst->format, func);
     
     for(int i = 0; i < dst->h; ++i) {
-        transformBuffer(bytes + i * dst->pitch, dst->w);
+        transform(bytes + i * dst->pitch, dst->w);
     }
 }
 

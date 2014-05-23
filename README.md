@@ -1,6 +1,6 @@
 1. Coding style conventions
 ===========================
-1.1. General rules
+1.0. About project source files
 -----------------
 * C++ Header extension is `.h`.
 * C++ Source code files extension is `.cpp`.
@@ -9,8 +9,17 @@ Here are some truly \m/ formatted names:
 `yourjamsir.h`
 `interfacecastle.cpp`
 `archers_ready.h`
-* Place your headers and sources in the same directory.
+* Place related headers and sources in the same directory.
 * Only UTF-8 in source files. Seriously.
+
+1.1. Basic rules
+----------
+* C++-style casts is better than C-style.
+* Templates and inlines is better than macroses.
+* Don't forget include guards. It might be written LIKE_THIS_H_ or somehow else.
+* Avoid compiler's black magic like #pragmas or __attribute__.
+* Forward declare used classes, enums and functions.
+* Include only what headers you use.
 
 1.2. C++ Exceptions
 -------------------
@@ -28,34 +37,29 @@ Here are some truly \m/ formatted names:
 * `auto` is unwelcome. `auto&` and `auto*` either.
 * Use anonymous namespaces for your static methods, types and constants.
 * Look at `constexpr`. It's better than simply inline your functions.
-* Consider use std::vector::data() instead of explicit dereferencing.
 
 1.5. Namespaces
 --------------
 * Explicit namespace is better than usings.
 * `using po = boost::program_options` is better than `boost::program_options::options_descriptions = boo...`
+* Encapsulating your classes and functions into proper namespaces is encouraged.
+* Namespace name should consist of single::word::either::Capitalized::or::not. 
 
-1.6. Types
-----------
-* C++-style casts is better than C-style.
-
-1.7. Declarations and Definitions.
+1.6. Declarations and Definitions.
 ------------------------------------------------------
-* Forward declare your classes, enums and functions.
 * Avoid multiple variable declaration.
-* `const` is encouraged.
-* `constexpr`, `template` and `inline` functions might be placed where declared. Either classes.
-* Encapsulating your classes into namespaces is encouraged.
+* `const` is very encouraged.
+* `constexpr`, `template` and `inline` functions and classes place into headers.
 
-1.8. Formatting rules
+1.7. Formatting rules
 ---------------------
 * General formatting rule - K&R with 4 spaces.
 * CamelCase for classes and functions.
 * mixedCase for variables.
 * Prefix class mMembers with just single `m...` or none.
-* Namespaces should consist of single word either capitalized or not.
 * underscores_style_t for type aliases.
-* The long lines are eligible, but be aware of complicated function and type composition. Better use `auto` instead or just wrap line around.
+* Long lines are good.
+* Long function or type composition are bad.
 * You may place `&`, `&&` and `*` whereever you want.
 * You may place variable specifiers anywhere, but prefer the following notations:
 ```

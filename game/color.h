@@ -63,6 +63,11 @@ constexpr bool operator!=(const SDL_Color &lhs, const SDL_Color &rhs)
         || (lhs.a != rhs.a);
 }
 
+constexpr bool FullyOpaque(const SDL_Color &color)
+{
+    return color.a == 255;
+}
+
 Color GetPixelColor(uint32_t pixel, int format);
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
 void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);

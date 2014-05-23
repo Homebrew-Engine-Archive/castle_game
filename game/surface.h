@@ -10,7 +10,7 @@ class Color;
 /**
  * \brief Wrapper for SDL_Surface with reference counting
  */
-class Surface
+class Surface final
 {
 protected:
     SDL_Surface *mSurface;
@@ -20,26 +20,21 @@ public:
     Surface();
     Surface(SDL_Surface*);
     Surface(Surface const&);
-    virtual ~Surface();
+    ~Surface();
     bool Null() const;
-    virtual operator SDL_Surface*() const;
-    virtual bool operator!() const;
-    virtual Surface& operator=(SDL_Surface*);
-    virtual Surface& operator=(Surface const&);
-    virtual bool operator==(Surface const&);
+    operator SDL_Surface*() const;
+    bool operator!() const;
+    Surface& operator=(SDL_Surface*);
+    Surface& operator=(Surface const&);
+    bool operator==(Surface const&);
     SDL_Surface* operator->() const;
-    virtual void Reset(SDL_Surface *surface = nullptr);
-};
-
-class PreallocatedSurface : public Surface
-{
-public:
+    void Reset(SDL_Surface *surface = nullptr);
 };
 
 /**
  * \brief RAII for SDL_LockSurface and SDL_UnlockSurface functions call
  */
-class SurfaceLocker
+class SurfaceLocker final
 {
     const Surface &mObject;
     bool mLocked;
@@ -48,7 +43,7 @@ public:
     // TODO implement copying surface on copying locker
     SurfaceLocker(SurfaceLocker const&) = delete;
     SurfaceLocker &operator=(SurfaceLocker const&) = delete;
-    virtual ~SurfaceLocker();
+    ~SurfaceLocker();
 };
 
 /**
@@ -65,7 +60,7 @@ public:
  * \todo This class is not intended to work together with RLE accel. Can we deal with it?
  *
  */
-class SurfaceView
+class SurfaceView final
 {
     Surface mSurface;
     const Surface &mParentRef;
@@ -77,7 +72,7 @@ public:
     inline Surface const& View() const { return mSurface; }
 };
 
-class SurfaceColorModSetter
+class SurfaceColorModSetter final
 {
     Surface surface;
     uint8_t redMod, greenMod, blueMod;
@@ -101,10 +96,13 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
 void BlitSurfaceScaled(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
 
-void DrawFrame(Surface &dst, const Rect &dstrect, const Color &color);
-void FillFrame(Surface &dst, const Rect &dstrect, const Color &color);
-
 void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
+void DrawFrame(Surface &dst, const Rect &frame, const Color &color);
+void FillFrame(Surface &dst, const Rect &frame, const Color &color);
+
+void DrawFrame(SDL_Renderer *renderer, const Rect &dstrect, const Color &color);
+void FillFrame(SDL_Renderer *renderer, const Rect &dstrect, const Color &color);
+void DrawRhombus(SDL_Renderer *renderer, const Rect &bounds, const Color &color);
 
 void BlurSurface(Surface &dst, int radius);
 
@@ -119,7 +117,7 @@ uint32_t GetPixelLocked(const Surface &surface, const Point &coord);
 
 inline char* GetPixels(Surface &surface)
 {
-    return reinterpret_cast<char *>(surface->pixels);
+    return reinterpret_cast<char*>(surface->pixels);
 }
 
 inline char const* GetPixels(const Surface &surface)

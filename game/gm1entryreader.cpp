@@ -2,8 +2,6 @@
 
 #include <SDL.h>
 
-#include <sstream>
-
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 
@@ -71,15 +69,15 @@ namespace
     {
     public:
         int Width(GM1::EntryHeader const&) const {
-            return GM1::TileWidth;
+            return GM1::TileSpriteWidth;
         }
         
         int Height(const GM1::EntryHeader &header) const {
-            return GM1::TileHeight + header.tileY;
+            return GM1::TileSpriteHeight + header.tileY;
         }
 
         Point ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const {
-            return Point(GM1::TileWidth / 2, GM1::TileHeight / 2) + Point(0, entry.tileY);
+            return Point(GM1::TileSpriteWidth / 2, GM1::TileSpriteHeight / 2) + Point(0, entry.tileY);
         }
         
     protected:
@@ -165,9 +163,10 @@ namespace
     
     // Width of rhombus rows in pixels.
     // \todo should it be placed in separate header file?
-    inline int GetTilePixelsPerRow(int row)
+    constexpr int PerRow[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
+    
+    constexpr int GetTilePixelsPerRow(int row)
     {
-        static const int PerRow[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
         return PerRow[row];
     }
 
@@ -176,8 +175,8 @@ namespace
         const SurfaceLocker lock(surface);
 
         const int pitch = surface->pitch;
-        const int height = GM1::TileHeight;
-        const int width = GM1::TileWidth;
+        const int height = GM1::TileSpriteHeight;
+        const int width = GM1::TileSpriteWidth;
         const int bytesPerPixel = surface->format->BytesPerPixel;
         char *dst = GetPixels(surface);
     
@@ -191,7 +190,7 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        Rect tilerect(0, header.tileY, Width(header), GM1::TileHeight);
+        Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
         SurfaceView tile(surface, tilerect);
         ReadTile(in, tile.View());
         

@@ -197,5 +197,5 @@ namespace Render
     void Renderer::PaintImage(const Surface &surface, const Rect &whither)
     {
         BlitSurface(surface, Rect(surface), mScreenSurface, whither);
-    }    
+    }
 } // namespace Render

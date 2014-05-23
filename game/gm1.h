@@ -8,8 +8,8 @@
 namespace GM1
 {
     const unsigned TileBytes = 512;
-    const unsigned TileWidth = 30;
-    const unsigned TileHeight = 16;
+    const unsigned TileSpriteWidth = 30;
+    const unsigned TileSpriteHeight = 16;
     
     const unsigned CollectionEntryHeaderBytes = 16;
     const unsigned CollectionHeaderBytes = 88;
