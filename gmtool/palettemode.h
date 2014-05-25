@@ -1,7 +1,7 @@
 #ifndef PALETTEMODE_H_
 #define PALETTEMODE_H_
 
-#include "mode.h"
+#include <gmtool/mode.h>
 #include <boost/filesystem/path.hpp>
 
 namespace GMTool

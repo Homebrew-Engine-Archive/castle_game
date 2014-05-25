@@ -1,12 +1,10 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <vector>
 #include <iosfwd>
 #include <string>
 #include <memory>
-#include <vector>
-
-#include <game/sdl_utils.h>
 
 #include <SDL.h>
 

@@ -2,12 +2,16 @@
 
 #include "config_gmtool.h"
 
+#include <vector>
 #include <iostream>
 #include <stdexcept>
 
+#include <game/sdl_utils.h>
 #include <game/rw.h>
+
 #include "renderers/bitmap.h"
 #include "renderers/tgxrenderer.h"
+
 
 #if HAVE_SDL2_IMAGE_PNG
 #define USE_PNG

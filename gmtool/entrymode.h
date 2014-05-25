@@ -1,7 +1,7 @@
 #ifndef ENTRYMODE_H_
 #define ENTRYMODE_H_
 
-#include "mode.h"
+#include <gmtool/mode.h>
 
 #include <boost/filesystem/path.hpp>
 

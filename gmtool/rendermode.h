@@ -1,7 +1,9 @@
 #ifndef RENDERMODE_H_
 #define RENDERMODE_H_
 
+#include <iosfwd>
 #include <string>
+#include <vector>
 #include <memory>
 
 #include <boost/filesystem/path.hpp>
@@ -10,10 +12,15 @@
 #include <gmtool/renderer.h>
 #include <gmtool/hexcolor.h>
 
+#include <game/sdl_utils.h>
 #include <game/color.h>
-#include <game/gm1palette.h>
 
 class Surface;
+
+namespace GM1
+{
+    class Palette;
+}
 
 namespace GMTool
 {

@@ -5,9 +5,12 @@
 
 #include <iosfwd>
 
-#include <game/gm1reader.h>
-
 #include <boost/filesystem/path.hpp>
+
+namespace GM1
+{
+    class GM1Reader;
+}
 
 namespace GMTool
 {

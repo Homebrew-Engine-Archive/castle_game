@@ -5,9 +5,12 @@
 #include <memory>
 #include <iosfwd>
 #include <boost/program_options.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <gmtool/path_validator.h>
 
 namespace GMTool
-{
+{    
     struct ModeConfig
     {
         bool helpRequested;

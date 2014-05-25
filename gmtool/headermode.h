@@ -1,11 +1,12 @@
 #ifndef HEADERMODE_H_
 #define HEADERMODE_H_
 
-#include "mode.h"
-
-#include <boost/filesystem/path.hpp>
 #include <iostream>
 
+#include <gmtool/mode.h>
+
+#include <boost/filesystem/path.hpp>
+ 
 namespace GMTool
 {
     class HeaderMode : public Mode

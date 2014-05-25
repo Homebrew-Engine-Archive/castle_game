@@ -17,21 +17,21 @@
 #include <game/surface.h>
 #include <game/gm1.h>
 
-#include "headermode.h"
-#include "palettemode.h"
-#include "listmode.h"
-#include "entrymode.h"
-#include "dumpmode.h"
-#include "packmode.h"
-#include "unpackmode.h"
-#include "rendermode.h"
+#include <gmtool/headermode.h>
+#include <gmtool/palettemode.h>
+#include <gmtool/listmode.h>
+#include <gmtool/entrymode.h>
+#include <gmtool/dumpmode.h>
+#include <gmtool/packmode.h>
+#include <gmtool/unpackmode.h>
+#include <gmtool/rendermode.h>
 
 int main(int argc, const char *argv[])
 {
-     try {
+    try {
         GMTool::ToolMain tool;
         return tool.Exec(argc, argv);
-     } catch(const std::exception &error) {
+    } catch(const std::exception &error) {
         std::cerr << error.what() << std::endl;
         return EXIT_FAILURE;
     } catch(...) {
@@ -46,7 +46,6 @@ namespace GMTool
     {
         std::string name;
         std::string description;
-        /** shared ptr to avoid slicing **/
         Mode::Ptr mode;
     };
 
@@ -99,9 +98,9 @@ namespace GMTool
             {"list",    "List entries of GM1 collection",      Mode::Ptr(new ListMode)},
             {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
             {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
-            {"unpack",  "Unpack GM1 collection",               Mode::Ptr(NULL)},
-            {"pack",    "Pack directory into GM1",             Mode::Ptr(NULL)},
-            {"init",    "Create empty unpacked GM1 directory", Mode::Ptr(NULL)}
+            {"unpack",  "Unpack GM1 collection",               Mode::Ptr(nullptr)},
+            {"pack",    "Pack directory into GM1",             Mode::Ptr(nullptr)},
+            {"init",    "Create empty unpacked GM1 directory", Mode::Ptr(nullptr)}
         };
     }
     

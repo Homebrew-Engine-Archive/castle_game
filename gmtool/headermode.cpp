@@ -1,5 +1,7 @@
 #include "headermode.h"
 
+#include <iostream>
+
 #include <game/gm1writer.h>
 #include <game/gm1reader.h>
 

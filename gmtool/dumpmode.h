@@ -1,8 +1,9 @@
 #ifndef DUMPMODE_H_
 #define DUMPMODE_H_
 
-#include "mode.h"
 #include <string>
+
+#include <gmtool/mode.h>
 
 #include <boost/filesystem/path.hpp>
 

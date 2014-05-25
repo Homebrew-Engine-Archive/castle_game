@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 
+#include <game/gm1reader.h>
+
 namespace po = boost::program_options;
 
 namespace

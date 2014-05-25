@@ -3,7 +3,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "mode.h"
+#include <gmtool/mode.h>
 
 namespace GMTool
 {
@@ -21,7 +21,6 @@ namespace GMTool
     public:
         int Exec(int argc, const char *argv[]);
     };
-
 }
 
 #endif
