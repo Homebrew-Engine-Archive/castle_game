@@ -67,7 +67,7 @@ namespace TGX
     
     std::istream& DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
 
-    std::istream& ReadSurfaceHeader(std::istream &, Surface &surface);
+    std::istream& ReadSurfaceHeader(std::istream&, Surface &surface);
 
     Surface ReadTGX(std::istream&);
 
@@ -80,7 +80,7 @@ namespace TGX
      * \param bytesPP       Number of bytes per pixel.
      * \param colorKey      Pixel which we would treat as transparent.
      *
-     * \note Input buffer have real size of width * bytesPerPixel
+     * \note Input buffer must have real size of width * bytesPerPixel bytes.
      */
     std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     

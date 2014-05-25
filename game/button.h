@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 
+#include <chrono>
 #include <functional>
 
 #include <game/rect.h>
@@ -10,8 +11,8 @@
 
 namespace UI
 {
-
-    enum class ButtonState : int {
+    enum class ButtonState : int
+    {
         Released,
         Over,
         Pressed
@@ -19,27 +20,28 @@ namespace UI
 
     class Button
     {
-        Rect mBoundRect;
-        Surface mReleased;
-        Surface mOver;
-        Surface mPressed;
-        std::function<void()> mHandler;
+        Rect mBoundsRect;
         ButtonState mState;
-
+        std::function<void(const Button &button)> mStateHandler;
+        
         void MouseMotion(int x, int y);
         void MousePressed(int x, int y);
         void MouseReleased(int x, int y);
         void SetButtonState(ButtonState state);
-    
+
     public:
-        Button(const Rect &rect, Surface released, Surface over, Surface pressed, void handler());
-    
+        explicit Button(const Rect &rect);
+
+        virtual void Update(std::chrono::milliseconds const&);
+        
         virtual void Draw(Surface &surface);
         virtual void HandleEvent(const SDL_Event &event);
 
-        virtual Rect BoundRect() const;
-    };
+        virtual void SetBoundsRect(const Rect &rect);
+        virtual Rect BoundsRect() const;
 
+        virtual void WhenPressed(void clickHandler(const Button &button));
+    };
 }
 
 #endif

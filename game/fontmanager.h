@@ -3,7 +3,8 @@
 
 #include <game/filesystem.h>
 
-#include <map>
+#include <vector>
+#include <string>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -19,9 +20,7 @@ namespace Render
         std::vector<FontData> mFontTable;
         FontData *mDefaultFontData;
 
-        FontData* GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs);
         FontData* LookupFontName(const std::string &name, int fsize);
-
         void CheckDefaultFontIsSet() const;
         
     public:
@@ -40,8 +39,6 @@ namespace Render
         void SetDefaultFont(const std::string &name, int fsize);
         
         TTF_Font* DefaultFont();
-        std::string DefaultFontName() const;
-        int DefaultFontSize() const;
     };
 
     TTF_Font* FindFont(const std::string &name, int fsize);

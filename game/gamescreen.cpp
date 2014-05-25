@@ -25,7 +25,7 @@ namespace UI
                            Castle::SimulationManager &simulationManager)
         : mScreenManager(screenManager)
         , mSimulationManager(simulationManager)
-        , tileset(LoadGM1(fs::GM1FilePath("tile_land8")))
+        , tileset(LoadGM1(fs::GM1FilePath("tile_data")))
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
@@ -35,7 +35,8 @@ namespace UI
     void GameScreen::Draw(Surface &frame)
     {
         UpdateCamera(Rect(frame));
-        
+
+        const RendererPtr renderer(SDL_CreateSoftwareRenderer(frame));
         const Castle::GameMap::Cell selected = FindSelectedTile();
         const Castle::GameMap &map = mSimulationManager.GetGameMap();
         for(int y = 0; y < map.Size(); ++y) {
@@ -69,13 +70,29 @@ namespace UI
                 }
 
                 if(mCamera.Flat() && Intersects(Rect(frame), tileRect)) {
-                    Color tileColor = Color::Red().Opaque(100);
-                    if(selected == cell) {
-                        tileColor = Color::Yellow();
+                    Color tileColor = Colors::Red.Opaque(100);
+                    if((selected.x == cell.x) || (selected.y == cell.y)) {
+                        tileColor = Colors::Yellow;
                     }
-                    DrawRhombus(frame, tileRect, tileColor);
+                    DrawRhombus(renderer.get(), tileRect, tileColor);
                 }
             }
+        }
+    }
+
+    void GameScreen::ToggleCameraMode()
+    {
+        switch(mCamera.Mode()) {
+        case Castle::CameraMode::Staggered:
+            mCamera.Mode(Castle::CameraMode::Diamond);
+            break;
+        case Castle::CameraMode::Diamond:
+            mCamera.Mode(Castle::CameraMode::Ortho);
+            break;
+        default:
+        case Castle::CameraMode::Ortho:
+            mCamera.Mode(Castle::CameraMode::Staggered);
+            break;
         }
     }
     
@@ -95,11 +112,10 @@ namespace UI
             return true;
             
         case SDLK_z:
-            if(mCamera.TileSize() == Point(32, 32))
-                mCamera.TileSize(Point(32, 16));
-            else
-                mCamera.TileSize(Point(32, 32));
-            return true;
+            {
+                ToggleCameraMode();
+                return true;
+            }
         }
 
         return false;
@@ -110,12 +126,10 @@ namespace UI
         mCursor.x = event.x;
         mCursor.y = event.y;
         mCursorInvalid = false;
-        
         if(event.button == SDL_BUTTON_LEFT && event.state == SDL_PRESSED) {
             std::clog << "Pointed tile: " << FindSelectedTile() << std::endl;
             return true;
         }
-
         return false;
     }
     
@@ -153,7 +167,6 @@ namespace UI
                 return false;
             }
         }
-
         return false;
     }
     
@@ -192,20 +205,17 @@ namespace UI
                             map.LandscapeType(cell)));
                 Point cellCenter = mCamera.WorldToScreenCoords(cell);
                 Rect cellBox(cellCenter, entry.surface->w, entry.surface->h);
-
-                /** Offset to the top **/
-                cellBox.y -= entry.header.tileY;
-                
+                cellBox.y -= entry.header.tileY;         // Offset to the top
                 if(PointInRect(cellBox, mCursor)) {
                     Point inside = ClipToRect(cellBox, mCursor);
-                    if(GetPixel(entry.surface, inside) != 0) {
+                    if(ExtractPixel(entry.surface, inside) != 0) {
                         return cell;
                     }
                 }
             }
         }
         
-        return Point(-1, -1);
+        return map.NullCell();
     }
     
     Castle::Camera& GameScreen::ActiveCamera()

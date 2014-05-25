@@ -51,6 +51,20 @@ Point& Point::operator-=(const SDL_Point &that)
     return *this;
 }
 
+Point& Point::operator*=(const SDL_Point &that)
+{
+    x *= that.x;
+    y *= that.y;
+    return *this;
+}
+
+Point& Point::operator/=(const SDL_Point &that)
+{
+    x /= that.x;
+    y /= that.y;
+    return *this;
+}
+
 Point& Point::operator+=(int v)
 {
     x += v;
@@ -65,6 +79,20 @@ Point& Point::operator-=(int v)
     return *this;
 }
 
+Point& Point::operator*=(int v)
+{
+    x *= v;
+    x *= v;
+    return *this;
+}
+
+Point& Point::operator/=(int v)
+{
+    x /= v;
+    x /= v;
+    return *this;
+}
+
 int Manhattan(const SDL_Point &L, const SDL_Point &R)
 {
     return abs(L.x - R.x) + abs(R.y - L.y);
@@ -72,7 +100,7 @@ int Manhattan(const SDL_Point &L, const SDL_Point &R)
 
 float Hypot(const SDL_Point &L, const SDL_Point &R)
 {
-    return hypot(Sqr(L.x - R.x), Sqr(L.y - R.y));
+    return hypot(L.x - R.x, L.y - R.y);
 }
 
 std::ostream& operator<<(std::ostream &out, const SDL_Point &pt)

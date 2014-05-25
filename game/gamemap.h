@@ -2,17 +2,22 @@
 #define GAMEMAP_H_
 
 #include <vector>
-#include <game/point.h>
 #include <iterator>
 
+#include <game/point.h>
+#include <game/direction.h>
+
 enum class Landscape;
-enum class Direction;
-class Surface;
 
 namespace Castle
 {
-    struct MapObject
+    struct Unit
     {
+        int owner;
+        int posX;
+        int posY;
+        int type;
+        int state;
     };
     
     class GameMap
@@ -21,7 +26,7 @@ namespace Castle
         int mCellsCount;
         std::vector<int> mHeightLayer;
         std::vector<Landscape> mLandscapeLayer;
-        std::vector<MapObject> mMapObjects;
+        std::vector<Unit> mUnits;
         bool mHorizontalWrapping;
         bool mVerticalWrapping;
         
@@ -36,9 +41,6 @@ namespace Castle
         void LandscapeType(const Cell &cell, Landscape land);
         Landscape LandscapeType(const Cell &cell) const;
 
-        void PlaceObject(const MapObject &obj);
-        void RemoveObject(const MapObject &obj);
-        
         bool HasCell(const Cell &cell) const;
 
         int CellToIndex(const Cell &cell) const;
@@ -46,24 +48,48 @@ namespace Castle
 
         void WrapHorizontal(bool on);
         void WrapVertical(bool on);
+
+        Cell NullCell() const;
         
         int Size() const;
-    };
+        
+        struct AdjacencyIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>
+        {
+            explicit constexpr AdjacencyIterator(const GameMap &map, GameMap::Cell cell, int dir)
+                : mMap(map), mCell(cell), mDir(dir) {}
 
+            const AdjacencyIterator operator++(int);
+            void operator++();
+            bool operator!=(const AdjacencyIterator &that) const;
+            GameMap::Cell operator*() const;
+
+        protected:
+            const GameMap &mMap;
+            GameMap::Cell mCell;
+            int mDir;
+        };
+
+        std::pair<AdjacencyIterator, AdjacencyIterator> AdjacentCells(GameMap::Cell cell) const;
+
+        struct CellIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>
+        {
+            explicit constexpr CellIterator(const GameMap &map)
+                : mMap(map) {  }
+
+            CellIterator operator++(int);
+            void operator++();
+            bool operator!=(const CellIterator &that) const;
+            GameMap::Cell operator*() const;
+            
+        protected:
+            const GameMap &mMap;
+        };
+    };
+    
     constexpr static int TileWidth = 32;
     constexpr static int TileHeight = 16;
     
     void GenerateRandomMap(GameMap &map);
-
-    struct EvenAdjacencyIterator : public std::iterator<std::bidirectional_iterator_tag, GameMap::Cell>
-    {
-        explicit constexpr EvenAdjacencyIterator(GameMap::Cell &cell) {}
-    };
-    
-    struct OddAdjacencyIterator : public std::iterator<std::bidirectional_iterator_tag, GameMap::Cell>
-    {
-        explicit constexpr OddAdjacencyIterator(GameMap::Cell &cell) {}
-    };
 }
 
 #endif // GAMEMAP_H_

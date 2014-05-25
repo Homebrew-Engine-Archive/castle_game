@@ -7,14 +7,13 @@
 #include <game/sdl_utils.h>
 
 Color::Color(uint32_t argb32, int format)
+    : Color(argb32, *PixelFormatPtr(SDL_AllocFormat(format)))
 {
-    PixelFormatPtr fmt(SDL_AllocFormat(format));
-    SDL_GetRGBA(argb32, fmt.get(), &r, &g, &b, &a);
 }
 
-Color::Color(uint32_t argb32, const SDL_PixelFormat *format)
+Color::Color(uint32_t argb32, const SDL_PixelFormat &format)
 {
-    SDL_GetRGBA(argb32, format, &r, &g, &b, &a);
+    SDL_GetRGBA(argb32, &format, &r, &g, &b, &a);
 }
 
 Color GetPixelColor(uint32_t argb32, int format)

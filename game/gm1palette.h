@@ -36,7 +36,6 @@ namespace GM1
     PalettePtr CreateSDLPalette(Palette const&);
     PalettePtr CreateSDLPalette(std::vector<SDL_Color> const&);
     std::ostream& PrintPalette(std::ostream&, Palette const&);
-    
 }
 
 #endif

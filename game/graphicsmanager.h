@@ -11,6 +11,11 @@
 #include <game/point.h>
 #include <game/sdl_utils.h>
 
+namespace Render
+{
+    class Renderer;
+}
+
 namespace Graphics
 {
     class GraphicsManager

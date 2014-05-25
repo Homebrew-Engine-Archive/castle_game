@@ -1,10 +1,15 @@
+
 #ifndef DIRECTION_H_
 #define DIRECTION_H_
 
 #include <vector>
 #include <iosfwd>
 
+#include <game/modulo.h>
+
 class Point;
+
+constexpr int MaxDirCount = 8;
 
 /**
  * Just regular counter-clockwise directions.
@@ -20,15 +25,44 @@ enum class Direction : int {
     SouthEast
 };
 
-Direction RotatedLeft(const Direction &dir, int times = 1);
-Direction RotatedRight(const Direction &dir, int times = 1);
+constexpr Direction Rotated(Direction dir, int times)
+{
+    return static_cast<Direction>(
+        core::Mod(
+            static_cast<int>(dir) + times, MaxDirCount));
+}
 
-int LeftRotates(const Direction &lhs, const Direction &rhs);
-int RightRotates(const Direction &lhs, const Direction &rhs);
+constexpr Direction RotatedCCW(Direction dir)
+{
+    return Rotated(dir, -1);
+}
 
-int MinRotates(const Direction &lhs, const Direction &rhs);
+constexpr Direction RotatedCW(Direction dir)
+{
+    return Rotated(dir, 1);
+}
 
-Direction GetOppositeDirection(const Direction &direction);
+constexpr int LeftRotates(Direction lhs, Direction rhs)
+{
+    return core::Mod(static_cast<int>(lhs) - static_cast<int>(rhs), MaxDirCount);
+}
+
+constexpr int RightRotates(Direction lhs, Direction rhs)
+{
+    return LeftRotates(rhs, lhs);
+}
+
+constexpr int MinRotates(Direction lhs, Direction rhs)
+{
+    return (LeftRotates(lhs, rhs) < RightRotates(lhs, rhs)
+            ? LeftRotates(lhs, rhs)
+            : RightRotates(lhs, rhs));
+}
+
+constexpr Direction GetOppositeDirection(Direction dir)
+{
+    return Rotated(dir, MaxDirCount / 2);
+}
 
 /**
  * \brief It maps regular 2D-plane on Direction.
@@ -36,11 +70,9 @@ Direction GetOppositeDirection(const Direction &direction);
  */
 Direction RadiansToDirection(double angle);
 
-double DirectionToRadians(const Direction &dir);
+double DirectionToRadians(Direction dir);
     
 Direction PointsDirection(const Point &lhs, const Point &rhs);
-
-bool operator==(const Direction &lhs, const Direction &rhs);
 
 using DirectionSet = std::vector<Direction>;
 

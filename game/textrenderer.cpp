@@ -72,7 +72,7 @@ namespace Render
         Rect dstRect(GetTopLeftBoxPoint(), text->w, text->h);
                 
         BlitSurface(text, Rect(text), mSurface, dstRect);
-        Translate(text->w, 0);
+        mCursor.x += text->w;
     }
     
     void TextRenderer::PutString(const std::string &str)
@@ -80,24 +80,12 @@ namespace Render
         CheckFontIsSet();
         
         /** Real color will be choosen by SDL_SetSurfaceColorMod **/
-        const Color glyphColor = Color::White();
+        const Color glyphColor = Colors::White;
         
         Surface textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);
         PutRenderedString(textSurface);
     }
 
-    void TextRenderer::PutString(const std::u16string &str)
-    {
-        CheckFontIsSet();
-
-        /** Real color will be choosen by SDL_SetSurfaceColorMod **/
-        const Color glyphColor = Color::White();
-        
-        std::basic_string<Uint16> uint16Str = ToUint16String(str);
-        Surface textSurface = TTF_RenderUNICODE_Blended(mCurrentFont, uint16Str.c_str(), glyphColor);
-        PutRenderedString(textSurface);
-    }
-    
     Rect TextRenderer::CalculateTextRect(const std::string &str) const
     {
         CheckFontIsSet();
@@ -109,31 +97,6 @@ namespace Render
             throw sdl_error();
         }
         return Rect(GetTopLeftBoxPoint(), width, height);
-    }
-
-    Rect TextRenderer::CalculateTextRect(const std::u16string &str) const
-    {
-        CheckFontIsSet();
-        
-        int width;
-        int height;
-
-        std::basic_string<Uint16> uint16Str = ToUint16String(str);
-        
-        if(TTF_SizeUNICODE(mCurrentFont, uint16Str.c_str(), &width, &height) < 0) {
-            throw sdl_error();
-        }
-        return Rect(GetTopLeftBoxPoint(), width, height);
-    }
-    
-    void TextRenderer::LoadIdentity()
-    {
-        mCursor = Point(0, 0);
-    }
-    
-    void TextRenderer::Translate(int dx, int dy)
-    {
-        mCursor += Point(dx, dy);
     }
 
     void TextRenderer::SetColor(const Color &color)

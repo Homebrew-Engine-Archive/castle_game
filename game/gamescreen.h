@@ -50,6 +50,7 @@ namespace UI
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);
         void UpdateCamera(const Rect &screenRect);
+        void ToggleCameraMode();
         Castle::Camera& ActiveCamera();
         Castle::GameMap::Cell FindSelectedTile();
     };

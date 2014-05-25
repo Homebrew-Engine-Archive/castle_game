@@ -4,7 +4,7 @@
 #include <iosfwd>
 #include <SDL.h>
 
-class Point : public SDL_Point
+class Point final : public SDL_Point
 {
 public:
     constexpr Point()
@@ -21,8 +21,12 @@ public:
     Point& operator=(const SDL_Point &that);
     Point& operator+=(int v);
     Point& operator-=(int v);
+    Point& operator*=(int v);
+    Point& operator/=(int v);
     Point& operator+=(const SDL_Point &that);
     Point& operator-=(const SDL_Point &that);
+    Point& operator*=(const SDL_Point &that);
+    Point& operator/=(const SDL_Point &that);
 };
 
 constexpr Point operator-(const SDL_Point &point)

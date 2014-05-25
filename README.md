@@ -1,5 +1,5 @@
-1. Coding style conventions
-===========================
+## Coding style conventions
+
 1.0. About project source files
 -----------------
 * C++ Header extension is `.h`.
@@ -17,7 +17,7 @@ Here are some truly \m/ formatted names:
 * C++-style casts is better than C-style.
 * Templates and inlines is better than macroses.
 * Don't forget include guards. It might be written LIKE_THIS_H_ or somehow else.
-* Avoid compiler's black magic like #pragmas or __attribute__.
+* Avoid compiler's black magic like `#pragma`s or `__attribute__`s.
 * Forward declare used classes, enums and functions.
 * Include only what headers you use.
 
@@ -62,18 +62,22 @@ Here are some truly \m/ formatted names:
 * Long function or type composition are bad.
 * You may place `&`, `&&` and `*` whereever you want.
 * You may place variable specifiers anywhere, but prefer the following notations:
+
 ```
 ReturnType const* FunctionName(const Argument &argumentWithName)
 {
     // <body>
 }
 ```
+
 or
+
 ```
 ReturnType const& FunctionName(Argument const&);
 ```
 
 Here is simple header example:
+
 ```
 #ifndef HEADER_H_
 #define HEADER_H_
@@ -89,7 +93,9 @@ namespace Header
 
 #endif
 ```
+
 Here is simple function's body:
+
 ```
 std::istream& ReadBook(std::istream &in, Game::Objects::Book &book)
 {
@@ -113,18 +119,16 @@ std::istream& ReadBook(std::istream &in, Game::Objects::Book &book)
 }
 ```
 
-2. Install
-==========
+## Install
 
-3. Run
-======
+## Run
 
-4. License
-==========
+## License
 
-5. Troubleshooting
-==================
+## Troubleshooting
 
-6. Thanks
-=========
+That is Scott Meyer's *Effective C++ 3rd*. Read it?
+
+## Thanks
+
 Your tired, my Lord?

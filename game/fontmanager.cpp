@@ -1,9 +1,8 @@
 #include "fontmanager.h"
 
-#include <cassert>
-
-#include <functional>
-#include <algorithm>
+#include <stdexcept>
+#include <string>
+#include <iostream>
 
 #include <boost/filesystem/fstream.hpp>
 
@@ -36,7 +35,7 @@ namespace Render
         TTF_Quit();
     }
     
-    FontData* FontManager::GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs)
+    FontData* GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs)
     {
         if(lhs == nullptr) {
             return rhs;
@@ -119,18 +118,6 @@ namespace Render
     {
         CheckDefaultFontIsSet();
         return mDefaultFontData->font.get();
-    }
-
-    std::string FontManager::DefaultFontName() const 
-    {
-        CheckDefaultFontIsSet();
-        return mDefaultFontData->name;
-    }
-
-    int FontManager::DefaultFontSize() const
-    {
-        CheckDefaultFontIsSet();
-        return mDefaultFontData->fsize;
     }
 
     void FontManager::SetDefaultFont(const std::string &name, int fsize)

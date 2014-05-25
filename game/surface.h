@@ -26,7 +26,6 @@ public:
     bool operator!() const;
     Surface& operator=(SDL_Surface*);
     Surface& operator=(Surface const&);
-    bool operator==(Surface const&);
     SDL_Surface* operator->() const;
     void Reset(SDL_Surface *surface = nullptr);
 };
@@ -100,16 +99,17 @@ void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
 void DrawFrame(Surface &dst, const Rect &frame, const Color &color);
 void FillFrame(Surface &dst, const Rect &frame, const Color &color);
 
-void DrawFrame(SDL_Renderer *renderer, const Rect &dstrect, const Color &color);
-void FillFrame(SDL_Renderer *renderer, const Rect &dstrect, const Color &color);
 void DrawRhombus(SDL_Renderer *renderer, const Rect &bounds, const Color &color);
+void DrawFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color);
+void FillFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color);
+
 
 void BlurSurface(Surface &dst, int radius);
 
 void TransformSurface(const Surface &surface, Color(Color const&));
 
-uint32_t GetPixel(const Surface &surface, const Point &coord);
-uint32_t GetPixelLocked(const Surface &surface, const Point &coord);
+uint32_t ExtractPixel(const Surface &surface, const Point &coord);
+uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord);
 
 /**
  * \brief Wrapper around reinterpret_cast on surface->pixels

@@ -21,6 +21,18 @@ namespace Render
         BottomLeft
     };
 
+    enum TextAlignment
+    {
+        TextAlignment_Left = 1,
+        TextAlignment_HCenter = 2,
+        TextAlignment_Right = 4,
+        TextAlignment_HJustified = 8,
+        TextAlignment_VCenter = 16,
+        TextAlignment_Up = 32,
+        TextAlignment_Bottom = 64,
+        TextAlignment_VJustified = 128
+    };
+    
     enum FontStyle
     {
         FontStyle_Normal = 0,
@@ -39,6 +51,7 @@ namespace Render
         TTF_Font *mCurrentFont = nullptr;
         Rect mClipBox;
         int mFontStyle = FontStyle_Normal;
+        int mFontAlignment;
 
         Point GetTopLeftBoxPoint() const;
         void PutRenderedString(Surface &text);
@@ -46,12 +59,11 @@ namespace Render
         void CheckFontIsSet() const;
 
     public:
-        TextRenderer(Surface &surface);
+        explicit TextRenderer(Surface &surface);
         TextRenderer(TextRenderer const&) = delete;
         TextRenderer& operator=(TextRenderer const&) = delete;
 
-        virtual void PutString(const std::string &str);
-        virtual void PutString(const std::u16string &str);
+        void PutString(const std::string &str);
 
         void SetFontStyle(int style);
         void SetClipBox(const Rect &clipbox);
@@ -59,11 +71,8 @@ namespace Render
         TTF_Font* GetFont();
         void SetColor(const Color &color);
         void SetCursorMode(CursorMode mode);
-        void LoadIdentity();
-        void Translate(int dx, int dy);
         void SetCursorPos(Point pos);
-        
-        Rect CalculateTextRect(const std::u16string &str) const;
+
         Rect CalculateTextRect(const std::string &str) const;
     };
     

@@ -51,7 +51,8 @@ namespace
             , mFunc(func)
             { }
 
-        void operator()(char *bytes, size_t size) {
+        void operator()(char *bytes, size_t size)
+        {
             const char *end = bytes + size * mFormat->BytesPerPixel;
         
             while(bytes != end) {
@@ -151,8 +152,9 @@ SurfaceLocker::SurfaceLocker(const Surface &surface)
 {
     if(!mObject.Null()) {
         if(SDL_MUSTLOCK(mObject)) {
-            if(0 == SDL_LockSurface(mObject))
+            if(0 == SDL_LockSurface(mObject)) {
                 mLocked = true;
+            }
         }
     }
 }
@@ -198,17 +200,13 @@ Surface& Surface::operator=(const Surface &that)
     return *this;
 }
 
-bool Surface::operator==(const Surface &that)
-{
-    return that.mSurface == mSurface;
-}
-
 void Surface::Assign(SDL_Surface *s)
 {
-    // SDL_FreeSurface manages refcount by itself
-    // Suddenly.
-    SDL_FreeSurface(mSurface);
+    SDL_Surface *tmp = mSurface;
     mSurface = s;
+
+    /** SDL_FreeSurface decreases reference counter **/
+    SDL_FreeSurface(tmp);
 }
 
 bool Surface::Null() const
@@ -422,7 +420,7 @@ void DrawRhombus(SDL_Renderer *renderer, const Rect &bounds, const Color &color)
     const auto centerX = (x1 + x2) / 2;
     const auto centerY = (y1 + y2) / 2;
     
-    const Point points[numPoints] = {
+    const Point points[] = {
         Point(x1, centerY),
         Point(centerX, y1),
         Point(x2, centerY),
@@ -448,7 +446,9 @@ void TransformSurface(Surface &dst, Color func(Color const&))
     TransformFunctor transform(*dst->format, func);
     
     for(int i = 0; i < dst->h; ++i) {
-        transform(bytes + i * dst->pitch, dst->w);
+        char *const data = bytes + i * dst->pitch;
+        const auto count = dst->w;
+        transform(data, count);
     }
 }
 
@@ -457,22 +457,35 @@ void BlurSurface(Surface &dst, int radius)
     if(!dst) {
         throw null_surface_error();
     }
+
+    const auto buffSize = std::max(dst->w, dst->h);
+    ConvolveFunctor convolve(radius, *dst->format, buffSize);
     
-    const SurfaceLocker lock(dst);
-    char *const bytes = GetPixels(dst);
-    const int bytesPP = dst->format->BytesPerPixel;
-    ConvolveFunctor convolve(radius, *dst->format, std::max(dst->w, dst->h));
-    
-    for(int y = 0; y < dst->h; ++y) {
-        convolve(bytes + y * dst->pitch, dst->w, bytesPP);
+    if(radius < 1 || radius > buffSize) {
+        throw std::invalid_argument("inproper convolution radius");
     }
 
+    const SurfaceLocker lock(dst);
+    char *const bytes = GetPixels(dst);
+    
+    /** Per row convolution **/
+    for(int y = 0; y < dst->h; ++y) {
+        char *const data = bytes + y * dst->pitch;
+        const auto count = dst->w;
+        const auto stride = dst->format->BytesPerPixel;
+        convolve(data, count, stride);
+    }
+
+    /** Per column convolution **/
     for(int x = 0; x < dst->w; ++x) {
-        convolve(bytes + x * bytesPP, dst->h, dst->pitch);
+        const auto stride = dst->pitch;
+        const auto count = dst->h;
+        char *const data = bytes + x * dst->format->BytesPerPixel;
+        convolve(data, count, stride);
     }
 }
 
-uint32_t GetPixel(const Surface &surface, const Point &coord)
+uint32_t ExtractPixel(const Surface &surface, const Point &coord)
 {
     if(!surface) {
         throw null_surface_error();
@@ -483,10 +496,10 @@ uint32_t GetPixel(const Surface &surface, const Point &coord)
     }
     
     const SurfaceLocker lock(surface);
-    return GetPixelLocked(surface, coord);
+    return ExtractPixelLocked(surface, coord);
 }
 
-uint32_t GetPixelLocked(const Surface &surface, const Point &coord)
+uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord)
 {
     return GetPackedPixel(GetPixels(surface) + coord.y * surface->pitch + coord.x * surface->format->BytesPerPixel, surface->format->BytesPerPixel);
 }

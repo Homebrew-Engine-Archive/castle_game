@@ -4,7 +4,7 @@
 #include <iosfwd>
 #include <SDL.h>
 
-class Rect : public SDL_Rect
+class Rect final : public SDL_Rect
 {
 public:
     constexpr Rect()

@@ -1,6 +1,8 @@
 #ifndef LANDSCAPE_H_
 #define LANDSCAPE_H_
 
+#include <game/modulo.h>
+
 const int ChevronsHeightThreshold = 20;
 
 enum class Landscape : int {
@@ -25,6 +27,11 @@ enum class Landscape : int {
 constexpr int GetLandscapeIndex(const Landscape &landscape)
 {
     return static_cast<int>(landscape);
+}
+
+constexpr Landscape GetLandscapeByIndex(int index)
+{
+    return static_cast<Landscape>(index);
 }
 
 enum class RockClass : int {

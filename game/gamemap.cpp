@@ -1,10 +1,15 @@
 #include "gamemap.h"
 
+#include <algorithm>
+#include <cassert>
+
+#include <iostream>
+#include <set>
 #include <random>
+#include <deque>
 
 #include <game/modulo.h>
 #include <game/gm1.h>
-#include <game/direction.h>
 #include <game/landscape.h>
 
 namespace Castle
@@ -56,7 +61,7 @@ namespace Castle
     
     bool GameMap::HasCell(const Cell &cell) const
     {
-        return (CellToIndex(cell) >= 0) && (CellToIndex(cell) < mCellsCount);
+        return (cell.x >= 0) && (cell.y >= 0) && (cell.x < mSize) && (cell.y < mSize);
     }
 
     void GameMap::WrapHorizontal(bool on)
@@ -68,37 +73,76 @@ namespace Castle
     {
         mVerticalWrapping = on;
     }
+
+    GameMap::Cell GameMap::NullCell() const
+    {
+        return Cell(-1, -1);
+    }
+
+    const GameMap::AdjacencyIterator GameMap::AdjacencyIterator::operator++(int)
+    {
+        GameMap::AdjacencyIterator tmp(*this);
+        this->operator++();
+        return tmp;
+    }
     
+    void GameMap::AdjacencyIterator::operator++()
+    {
+        ++mDir;
+    }
+
+    bool GameMap::AdjacencyIterator::operator!=(const GameMap::AdjacencyIterator &that) const
+    {
+        return mDir != that.mDir;
+    }
+    
+    GameMap::Cell GameMap::AdjacencyIterator::operator*() const
+    {
+        // stuggered iso map
+        constexpr GameMap::Cell adj[MaxDirCount] = {
+            {-1, -1}, {-1, 1}, {1, 1}, {1, -1},
+            {0, 1}, {0, -1}, {1, 0}, {-1, 0}
+        };
+        return mCell + adj[mDir];
+    }
+    
+    std::pair<GameMap::AdjacencyIterator, GameMap::AdjacencyIterator> GameMap::AdjacentCells(GameMap::Cell cell) const
+    {
+        return std::make_pair(GameMap::AdjacencyIterator(*this, cell, 0),
+                              GameMap::AdjacencyIterator(*this, cell, MaxDirCount));
+    }
+        
     void GenerateRandomMap(GameMap &map)
     {
         srand((int)&map);
-        
-        for(int y = 0; y < map.Size(); ++y) {
-            for(int x = 0; x < map.Size(); ++x) {
+
+        const auto size = map.Size();
+        for(int y = 0; y < size; ++y) {
+            for(int x = 0; x < size; ++x) {
                 const GameMap::Cell cell(x, y);
                 map.LandscapeType(cell, Landscape::Land);
                 map.Height(cell, rand() % 20);
             }
         }
+
+        GameMap::Cell center(core::Mod(rand(), map.Size()),
+                             core::Mod(rand(), map.Size()));
+
+        std::set<GameMap::Cell> history;
+        std::deque<GameMap::Cell> q;
+        q.push_back(center);
         
-        int cx = core::Mod(rand(), map.Size());
-        int cy = core::Mod(rand(), map.Size());
-
-        int dist = map.Height(GameMap::Cell(cx, cy)) + core::Mod(rand(), 20);
-
-        std::vector<GameMap::Cell> q;
-        q.emplace_back(cx, cy);
-
         while(!q.empty()) {
-            GameMap::Cell cell = q.back();
-            q.pop_back();
-            if(map.HasCell(cell)) {
-                GameMap::Cell off(core::Mod(rand(), 3) - 1,
-                                  core::Mod(rand(), 3) - 1);
-                if(abs(cell.x - cx) + abs(cell.y - cy) < dist) {
-                    q.push_back(cell + off);
+            GameMap::Cell cell = q.front();
+            q.pop_front();
+            int dist = Hypot(cell, center);
+            map.LandscapeType(cell, GetLandscapeByIndex(dist));
+            const auto xs = map.AdjacentCells(cell);
+            for(auto it = xs.first; it != xs.second; ++it) {
+                if(map.HasCell(*it) && history.find(*it) == history.end()) {
+                    history.insert(*it);
+                    q.push_back(*it);
                 }
-                map.LandscapeType(cell, Landscape::Sea);
             }
         }
     }

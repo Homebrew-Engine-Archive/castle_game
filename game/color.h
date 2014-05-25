@@ -4,7 +4,7 @@
 #include <iosfwd>
 #include <SDL.h>
 
-class Color : public SDL_Color
+class Color final : public SDL_Color
 {
 public:
     constexpr Color()
@@ -22,23 +22,34 @@ public:
         : Color(that.r, that.g, that.b, that.a) {}
     
     Color(uint32_t argb32, int format);
-    Color(uint32_t argb32, const SDL_PixelFormat *format);
+    Color(uint32_t argb32, const SDL_PixelFormat &format);
 
     constexpr Color Opaque(int alpha) const {
         return Color(r, g, b, alpha);
     }
 
-    static Color Black() { return Color(0, 0, 0); }
-    static Color Red() { return Color(255, 0, 0); }
-    static Color Green() { return Color(0, 255, 0); }
-    static Color Blue() { return Color(0, 0, 255); }
-    static Color White() { return Color(255, 255, 255); }
-    static Color Magenta() { return Color(255, 0, 255); }
-    static Color Yellow() { return Color(255, 255, 0); }
-    static Color Cyan() { return Color(0, 255, 255); }
-    static Color Gray() { return Color(128, 128, 128); }
+    constexpr Color Darken(double factor) const {
+        return Color(r / factor, g / factor, b / factor, a);
+    }
+
+    constexpr Color Lighten(double factor) const {
+        return Color(r * factor, g * factor, b * factor, a);
+    }
 };
-    
+
+namespace Colors
+{
+    constexpr Color Black = Color(0, 0, 0);
+    constexpr Color Red = Color(255, 0, 0);
+    constexpr Color Green = Color(0, 255, 0);
+    constexpr Color Blue = Color(0, 0, 255);
+    constexpr Color White = Color(255, 255, 255);
+    constexpr Color Magenta = Color(255, 0, 255);
+    constexpr Color Yellow = Color(255, 255, 0);
+    constexpr Color Cyan = Color(0, 255, 255);
+    constexpr Color Gray = Color(128, 128, 128);
+}
+
 constexpr Color Inverted(const SDL_Color &color)
 {
     return Color(255 - color.r,

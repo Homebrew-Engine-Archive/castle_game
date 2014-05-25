@@ -1,6 +1,8 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <vector>
+
 #include <SDL.h>
 
 #include <game/rect.h>
@@ -18,7 +20,6 @@ namespace Render
         int mScreenWidth;
         int mScreenHeight;
         int mScreenFormat;
-        bool mScreenClear;
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
         WindowPtr mWindow;
@@ -39,13 +40,15 @@ namespace Render
 
         void SetScreenFormat(int format);
         void SetScreenMode(int width, int height, int format);
-        
-        void EnableClearScreen(bool on);
 
+        typedef PalettePtr Palette;
+        Palette CreatePalette(const std::vector<SDL_Color> &colors);
+        
         Surface CreateImage(int width, int height, int format);
         Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void PaintImage(const Surface &surface, const Rect &whither);
+        
     };
     
 } // namespace Render

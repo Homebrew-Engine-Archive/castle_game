@@ -150,10 +150,10 @@ namespace Castle
 
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(Render::FontManager::Instance().DefaultFont());
-        textRenderer.Translate(0, 20);
-        textRenderer.SetColor(Color::Red());
+        textRenderer.SetCursorPos(Point(0, 20));
+        textRenderer.SetColor(Colors::Red);
 
-        FillFrame(frame, textRenderer.CalculateTextRect(text), Color::Black().Opaque(100));
+        FillFrame(frame, textRenderer.CalculateTextRect(text), Colors::Black.Opaque(100));
         textRenderer.PutString(text);
 
         mRenderer.EndFrame();
@@ -197,11 +197,11 @@ namespace Castle
                 if(!mFpsLimited || prevFrame + mFrameUpdateInterval < now) {
                     mFrameCounter += 1;
                     prevFrame = now;
-                    try {
+                    // try {
                         DrawFrame();
-                    } catch(const std::exception &error) {
-                        std::cerr << "DrawFrame failed: " << error.what() << std::endl;
-                    }
+                    // } catch(const std::exception &error) {
+                    //     std::cerr << "DrawFrame failed: " << error.what() << std::endl;
+                    // }
                 }
             }
 

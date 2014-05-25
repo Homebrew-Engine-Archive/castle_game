@@ -29,6 +29,7 @@ namespace GM1
         
     public:
         GM1EntryReader();
+        virtual ~GM1EntryReader() = default;
 
         /** We just have no need in it **/
         GM1EntryReader(GM1EntryReader const&) = delete;

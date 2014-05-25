@@ -48,7 +48,6 @@ namespace Render
         : mScreenWidth(WindowWidth)
         , mScreenHeight(WindowHeight)
         , mScreenFormat(SDL_PIXELFORMAT_ARGB8888)
-        , mScreenClear(true)
         , mScreenTexture(nullptr)
         , mScreenSurface(nullptr)
     {
@@ -123,9 +122,7 @@ namespace Render
             CreateScreenSurface(mScreenWidth, mScreenHeight);
         }
         
-        if(mScreenClear) {
-            SDL_FillRect(mScreenSurface, NULL, 0);
-        }
+        SDL_FillRect(mScreenSurface, NULL, 0);
         
         return mScreenSurface;
     }
@@ -179,11 +176,6 @@ namespace Render
         SetScreenMode(newWidth, newHeight, mScreenFormat);
     }
     
-    void Renderer::EnableClearScreen(bool on)
-    {
-        mScreenClear = on;
-    }
-
     Surface Renderer::CreateImage(int width, int height, int format)
     {
         return CreateSurface(width, height, format);

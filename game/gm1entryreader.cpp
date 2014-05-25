@@ -173,7 +173,7 @@ namespace
     void ReadTile(std::istream &in, Surface &surface)
     {
         const SurfaceLocker lock(surface);
-
+        
         const int pitch = surface->pitch;
         const int height = GM1::TileSpriteHeight;
         const int width = GM1::TileSpriteWidth;
@@ -190,11 +190,11 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
+        const Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
         SurfaceView tile(surface, tilerect);
         ReadTile(in, tile.View());
         
-        Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
+        const Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceView box(surface, boxrect);
         TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box.View());
     }
@@ -293,7 +293,7 @@ namespace GM1
 
     void GM1EntryReader::Transparent(Color color)
     {
-        mTransparentColor = color;
+        mTransparentColor = std::move(color);
     }
 
     Point GM1EntryReader::ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const
@@ -323,6 +323,5 @@ namespace GM1
         default:
             throw std::runtime_error("Unknown encoding");
         }
-    }
-    
+    }    
 }

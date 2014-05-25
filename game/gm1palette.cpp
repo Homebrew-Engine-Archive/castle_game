@@ -29,22 +29,23 @@ namespace GM1
         for(palette_entry_t entry : palette) {
             out << entry << ' ';
             ++column;
-            if(core::Mod(column, 16) == 0)
+            if(core::Mod(column, 16) == 0) {
                 out << std::endl;
+            }
         }
         return out;
     }
     
     PalettePtr CreateSDLPalette(const GM1::Palette &palette)
     {
-        PixelFormatPtr &&format = GM1::PaletteFormat();
-        std::vector<SDL_Color> colors(palette.size());
-        std::transform(palette.begin(), palette.end(), colors.begin(),
-                       [&format](palette_entry_t entry) -> SDL_Color {
-                           SDL_Color result;
-                           SDL_GetRGBA(entry, format.get(), &result.r, &result.g, &result.b, &result.a);
-                           return result;
-                       });
+        const PixelFormatPtr &&format = GM1::PaletteFormat();
+        SDL_Color temp;
+        std::vector<SDL_Color> colors;
+        colors.reserve(palette.size());
+        for(palette_entry_t entry : palette) {
+            SDL_GetRGBA(entry, format.get(), &temp.r, &temp.g, &temp.b, &temp.a);
+            colors.push_back(std::move(temp));
+        }
         return CreateSDLPalette(colors);
     }
 

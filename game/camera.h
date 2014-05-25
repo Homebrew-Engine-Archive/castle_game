@@ -12,6 +12,12 @@
 
 namespace Castle
 {
+    enum class CameraMode : int {
+        Staggered,
+        Diamond,
+        Ortho
+    };
+    
     class Camera
     {
         double mPosX;
@@ -33,6 +39,8 @@ namespace Castle
         double mVerticalScrollSpeed;
         double mHorizontalScrollSpeed;
 
+        CameraMode mCameraMode;
+
     public:
         Camera();
 
@@ -51,6 +59,9 @@ namespace Castle
         
         Direction Dir() const;
         void Dir(const Direction &dir);
+
+        CameraMode Mode() const;
+        void Mode(const CameraMode &mode);
         
         Point ViewPoint() const;
         void ViewPoint(const Point &point);
