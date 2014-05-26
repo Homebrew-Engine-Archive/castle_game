@@ -100,7 +100,7 @@ namespace
     
     Surface CreateCompatibleSurface(int width, int height)
     {
-        Surface surface = CreateSurface(width, height, TGX::PixelFormatEnum);
+        Surface surface = CreateSurface(width, height, TGX::PixelFormat);
         if(!surface) {
             throw sdl_error();
         }

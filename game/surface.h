@@ -87,6 +87,9 @@ void MapSurface(Surface &dst, Color func(uint8_t, uint8_t, uint8_t, uint8_t));
 Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
 Surface CreateSurface(int width, int height, int format);
 
+Surface ConvertSurface(const Surface &source, int format);
+Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &format);
+
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format);
 Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format);
 

@@ -9,6 +9,8 @@
 
 #include <gmtool/renderer.h>
 
+#include <game/rect.h>
+#include <game/sdl_error.h>
 #include <game/gm1.h>
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>
@@ -68,23 +70,19 @@ namespace GMTool
     {
         if(HasPalette(surface)) {
             PalettePtr sdlPalette = GM1::CreateSDLPalette(palette);
-            if(sdlPalette) {
-                if(SDL_SetSurfacePalette(surface, sdlPalette.get()) < 0) {
-                    throw std::runtime_error(SDL_GetError());
-                }
+            if(!sdlPalette) {
+                throw sdl_error();
+            }
+            if(SDL_SetSurfacePalette(surface, sdlPalette.get()) < 0) {
+                throw sdl_error();
             }
         }
     }
 
-    void RenderMode::SetupFormat(Surface &surface, const PixelFormatPtr &format)
+    void RenderMode::SetupFormat(Surface &surface, uint32_t format)
     {
-        if(format->format != surface->format->format) {
-            Surface tmp = SDL_ConvertSurface(surface, format.get(), 0);
-            if(!tmp) {
-                throw std::runtime_error(SDL_GetError());
-            }
-
-            surface = tmp;
+        if(format != surface->format->format) {
+            surface = ConvertSurface(surface, format);
         }
     }
 
@@ -92,7 +90,7 @@ namespace GMTool
     {
         uint32_t colorkey = SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
         if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
-            throw std::runtime_error(SDL_GetError());
+            throw sdl_error();
         }
     }
     
@@ -142,7 +140,7 @@ namespace GMTool
         SetupPalette(entry, reader.Palette(mPaletteIndex));
         
         cfg.verbose << "Setting up format" << std::endl;
-        SetupFormat(entry, GM1::PaletteFormat());
+        SetupFormat(entry, GM1::PalettePixelFormat);
 
         cfg.verbose << "Setting up transparency" << std::endl;
         SetupTransparentColor(entry, mTransparentColor);

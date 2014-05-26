@@ -10,7 +10,6 @@
 
 #include <gmtool/mode.h>
 
-#include <game/sdl_utils.h>
 #include <game/color.h>
 
 class Surface;
@@ -40,7 +39,7 @@ namespace GMTool
 
         Color DefaultTransparent() const;
         
-        void SetupFormat(Surface &surface, const PixelFormatPtr &format);
+        void SetupFormat(Surface &surface, uint32_t format);
         void SetupPalette(Surface &surface, const GM1::Palette &palette);
         void SetupTransparentColor(Surface &surface, const Color &color);
         

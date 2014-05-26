@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/rw.h>
 
@@ -43,7 +44,7 @@ namespace GMTool
         if(rw) {
             RenderTo_SDL_RWops(rw.get(), surface);
         } else {
-            throw std::runtime_error(SDL_GetError());
+            throw sdl_error();
         }
     }
 }

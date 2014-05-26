@@ -13,7 +13,9 @@
 namespace GM1
 {
     using palette_entry_t = uint16_t;
-    
+
+    constexpr uint32_t PalettePixelFormat = SDL_PIXELFORMAT_RGB555;
+
     constexpr size_t CollectionPaletteCount = 10;
     constexpr size_t CollectionPaletteColors = 256;
     constexpr size_t CollectionPaletteBytes = CollectionPaletteColors * sizeof(palette_entry_t);
@@ -66,8 +68,7 @@ namespace GM1
         Green,
         Unknown1
     };
-
-    PixelFormatPtr PaletteFormat();
+    
     PalettePtr CreateSDLPalette(const Palette &palette);
     PalettePtr CreateSDLPalette(const std::vector<SDL_Color> &colors);
     std::ostream& PrintPalette(std::ostream&, const Palette &palette);

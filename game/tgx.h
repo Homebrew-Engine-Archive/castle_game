@@ -46,22 +46,30 @@ class Surface;
 namespace TGX
 {
     /**
-     * Magenta color as 16 bit transparency.
-     * Actually there are no need in the value of such color.
-     * \note It is 11111000 00011111 (0xF81F)
-     *         not 11111100 00011111 (0x7C1F)
-     *
-     * Maybe it is RGB565?
-     *
-     * const uint16_t Transparent16 = 0xF81F;
-     *
-     * const uint32_t AlphaMask16  = 0x00008000;
-     * const uint32_t RedMask16    = 0x00007c00;
-     * const uint32_t GreenMask16  = 0x000003e0;
-     * const uint32_t BlueMask16   = 0x0000001f;
-     */
+       Stronghold's gfx transparentcy is pain.
+       
+       Consider simple ARGB1555 magenta color
+            11111100 00011111 (0x7C1F)
+       and this is what I found in stronghold gfx
+            11111000 00011111 (0xF81F) 
+      
+       Maybe it is RGB565? Nope, it's not!
+       Almost all in SH gfx can be decoded using just Little-Endian, RGB555 and
+       0xf81f as transparency. Almost, except font glyphs,
+       some buildings, puff of smoke and something other.
+       In this certain cases some pixels is slightly magenta-tinted.
+       
+       \todo bring them all here.
+       
+       const uint16_t Transparent16 = 0xF81F;
+      
+       const uint32_t AlphaMask16  = 0x00008000;
+       const uint32_t RedMask16    = 0x00007c00;
+       const uint32_t GreenMask16  = 0x000003e0;
+       const uint32_t BlueMask16   = 0x0000001f;
+    **/
 
-    const uint32_t PixelFormatEnum = SDL_PIXELFORMAT_RGB555;
+    const uint32_t PixelFormat = SDL_PIXELFORMAT_RGB555;
     
     std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     

@@ -346,6 +346,24 @@ Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int fo
     throw null_pixeldata_error();
 }
 
+Surface ConvertSurface(const Surface &source, int format)
+{
+    Surface tmp = SDL_ConvertSurfaceFormat(source, format, 0);
+    if(!tmp) {
+        throw sdl_error();
+    }
+    return tmp;
+}
+
+Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &format)
+{
+    Surface tmp = SDL_ConvertSurface(source, &format, 0);
+    if(!tmp) {
+        throw sdl_error();
+    }
+    return tmp;
+}
+
 void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect)
 {
     if(SDL_BlitSurface(src, &srcrect, dst, &const_cast<Rect&>(dstrect)) < 0) {

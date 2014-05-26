@@ -110,7 +110,7 @@ namespace
         // and go clean my hands.
 
         // TODO is there a better way to do so?
-        // Surface tmp = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+        // Surface tmp = ConvertSurface(surface, SDL_PIXELFORMAT_ARGB8888);
         // if(!tmp) {
         //     throw sdl_error();
         // }
@@ -201,7 +201,7 @@ namespace GM1
             throw sdl_error();
         }
         
-        uint32_t colorkey = GetColorKey();
+        const uint32_t colorkey = GetColorKey();
         if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
             throw sdl_error();
         }
@@ -223,9 +223,11 @@ namespace GM1
         Surface surface = CreateCompatibleSurface(header);
         ReadSurface(in, size, header, surface);
 
-        surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
-        if(!surface) {
-            throw sdl_error();
+        if(!HasPalette(surface)) {
+            surface = ConvertSurface(surface, SDL_PIXELFORMAT_ARGB8888);
+            if(!surface) {
+                throw sdl_error();
+            }
         }
         
         if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
@@ -247,7 +249,7 @@ namespace GM1
 
     int GM1EntryReader::CompatiblePixelFormat() const
     {
-        return TGX::PixelFormatEnum;
+        return TGX::PixelFormat;
     }
     
     uint32_t GM1EntryReader::GetColorKey() const

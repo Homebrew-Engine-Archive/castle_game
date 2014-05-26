@@ -12,15 +12,6 @@
 
 namespace GM1
 {
-    PixelFormatPtr PaletteFormat()
-    {
-        PixelFormatPtr ptr(SDL_AllocFormat(TGX::PixelFormatEnum));
-        if(!ptr) {
-            throw sdl_error();
-        }
-        return ptr;
-    }
-
     std::ostream& PrintPalette(std::ostream &out, const Palette &palette)
     {
         int column = 0;
@@ -37,7 +28,8 @@ namespace GM1
     
     PalettePtr CreateSDLPalette(const GM1::Palette &palette)
     {
-        const PixelFormatPtr &&format = GM1::PaletteFormat();
+        const PixelFormatPtr format(SDL_AllocFormat(PalettePixelFormat));
+        
         SDL_Color temp;
         std::vector<SDL_Color> colors;
         colors.reserve(palette.Size());
