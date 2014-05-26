@@ -10,8 +10,6 @@
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
 
-class Surface;
-
 namespace Render
 {
     class Renderer

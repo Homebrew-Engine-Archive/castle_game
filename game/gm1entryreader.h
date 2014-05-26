@@ -4,8 +4,6 @@
 #include <iosfwd>
 #include <memory>
 
-#include <game/tgx.h>
-#include <game/surface.h>
 #include <game/color.h>
 #include <game/point.h>
 
@@ -17,35 +15,33 @@ namespace GM1
     enum class Encoding;
 }
 
+class Surface;
+
 namespace GM1
 {
     class GM1EntryReader
     {
         Color mTransparentColor;
+
+    private:
+        Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
         
     protected:
-        virtual Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
-        virtual void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const = 0;
-        
-    public:
-        GM1EntryReader();
-        virtual ~GM1EntryReader() = default;
+        virtual void ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const = 0;
 
-        /** We just have no need in it **/
-        GM1EntryReader(GM1EntryReader const&) = delete;
-        GM1EntryReader& operator=(GM1EntryReader const&) = delete;
-
-        void Transparent(Color color);
-        Color Transparent() const;
-        
         virtual int Width(GM1::EntryHeader const&) const;
         virtual int Height(GM1::EntryHeader const&) const;
         virtual uint32_t GetColorKey() const;
         virtual int CompatiblePixelFormat() const;
-        virtual bool Palettized() const;
-        virtual Point ImageCenter(GM1::Header const&, GM1::EntryHeader const&) const;
+        
+    public:
+        GM1EntryReader();
+        virtual ~GM1EntryReader() = default;
+        
+        void Transparent(Color color);
+        const Color Transparent() const;
 
-        Surface Load(const GM1::GM1Reader &reader, size_t index) const;
+        const Surface Load(const GM1::GM1Reader &reader, size_t index) const;
 
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };

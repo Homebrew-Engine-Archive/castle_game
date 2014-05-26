@@ -250,7 +250,7 @@ namespace TGX
         return EncodeSurface(out, surface);
     }
     
-    Surface ReadTGX(std::istream &in)
+    const Surface ReadTGX(std::istream &in)
     {
         Header header;
         if(!ReadHeader(in, header)) {

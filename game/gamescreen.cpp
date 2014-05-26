@@ -25,7 +25,7 @@ namespace UI
                            Castle::SimulationManager &simulationManager)
         : mScreenManager(screenManager)
         , mSimulationManager(simulationManager)
-        , tileset(LoadGM1(fs::GM1FilePath("tile_data")))
+        , tileset(LoadGM1(fs::GM1FilePath("tile_castle")))
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()

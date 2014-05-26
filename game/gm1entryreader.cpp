@@ -23,16 +23,11 @@ namespace
      */
     class TGX8 : public GM1::GM1EntryReader
     {
-    public:
+    protected:
         int CompatiblePixelFormat() const {
             return SDL_PIXELFORMAT_INDEX8;
         }
 
-        Point ImageCenter(const GM1::Header &header, GM1::EntryHeader const&) const {
-            return Point(header.anchorX, header.anchorY);
-        }
-        
-    protected:
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
@@ -67,20 +62,15 @@ namespace
      */
     class TileObject : public GM1::GM1EntryReader
     {
-    public:
-        int Width(GM1::EntryHeader const&) const {
-            return GM1::TileSpriteWidth;
-        }
-        
-        int Height(const GM1::EntryHeader &header) const {
-            return GM1::TileSpriteHeight + header.tileY;
-        }
-
-        Point ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const {
-            return Point(GM1::TileSpriteWidth / 2, GM1::TileSpriteHeight / 2) + Point(0, entry.tileY);
-        }
-        
     protected:
+        // int Width(const GM1::EntryHeader &header) const {
+        //     return GM1::TileSpriteWidth;
+        // }
+        
+        // int Height(const GM1::EntryHeader &header) const {
+        //     return GM1::TileSpriteHeight + header.tileY;
+        // }
+    
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
@@ -89,13 +79,12 @@ namespace
      */
     class Bitmap : public GM1::GM1EntryReader
     {
-    public:
+    protected:
         int Height(const GM1::EntryHeader &header) const {
             // Nobody knows why
             return header.height - 7;
         }
-        
-    protected:
+    
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
     
@@ -141,24 +130,19 @@ namespace
 
         // surface = tmp;
     }
-
-    void ReadBitmap(std::istream &in, size_t numBytes, Surface &surface)
+    
+    void Bitmap::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
     {
         const SurfaceLocker lock(surface);
 
         const size_t rowBytes = surface->w * surface->format->BytesPerPixel;
         char *dst = GetPixels(surface);
-    
+
         while(numBytes >= rowBytes) {
             in.read(dst, rowBytes);
             dst += surface->pitch;
             numBytes -= rowBytes;
         }
-    }
-    
-    void Bitmap::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
-    {
-        ReadBitmap(in, numBytes, surface);
     }
     
     // Width of rhombus rows in pixels.
@@ -229,16 +213,14 @@ namespace GM1
         return surface;
     }
 
-    Surface GM1EntryReader::Load(const GM1::GM1Reader &reader, size_t index) const
+    const Surface GM1EntryReader::Load(const GM1::GM1Reader &reader, size_t index) const
     {
-        const GM1::EntryHeader &header = reader.EntryHeader(index);
-
-        Surface surface = CreateCompatibleSurface(header);
-
         const char *data = reader.EntryData(index);
         const size_t size = reader.EntrySize(index);
-        
         boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
+
+        const GM1::EntryHeader &header = reader.EntryHeader(index);
+        Surface surface = CreateCompatibleSurface(header);
         ReadSurface(in, size, header, surface);
 
         surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
@@ -281,12 +263,7 @@ namespace GM1
         return color;
     }
 
-    bool GM1EntryReader::Palettized() const
-    {
-        return SDL_ISPIXELFORMAT_INDEXED(CompatiblePixelFormat());
-    }
-
-    Color GM1EntryReader::Transparent() const
+    const Color GM1EntryReader::Transparent() const
     {
         return mTransparentColor;
     }
@@ -294,11 +271,6 @@ namespace GM1
     void GM1EntryReader::Transparent(Color color)
     {
         mTransparentColor = std::move(color);
-    }
-
-    Point GM1EntryReader::ImageCenter(const GM1::Header &header, const GM1::EntryHeader &entry) const
-    {
-        return Point(Width(entry) / 2, Height(entry) / 2);
     }
     
     GM1EntryReader::Ptr CreateEntryReader(const GM1::Encoding &encoding)

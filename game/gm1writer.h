@@ -1,10 +1,11 @@
 #ifndef GM1WRITER_H_
 #define GM1WRITER_H_
 
-#include <game/gm1palette.h>
+#include <iosfwd>
 
 namespace GM1
 {
+    class Palette;
     class Header;
 }
 

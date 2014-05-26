@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <algorithm>
-#include <array>
 #include <vector>
 
 #include <game/modulo.h>
@@ -41,7 +40,7 @@ namespace GM1
         const PixelFormatPtr &&format = GM1::PaletteFormat();
         SDL_Color temp;
         std::vector<SDL_Color> colors;
-        colors.reserve(palette.size());
+        colors.reserve(palette.Size());
         for(palette_entry_t entry : palette) {
             SDL_GetRGBA(entry, format.get(), &temp.r, &temp.g, &temp.b, &temp.a);
             colors.push_back(std::move(temp));

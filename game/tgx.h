@@ -69,7 +69,7 @@ namespace TGX
 
     std::istream& ReadSurfaceHeader(std::istream&, Surface &surface);
 
-    Surface ReadTGX(std::istream&);
+    const Surface ReadTGX(std::istream&);
 
     /**
      * \brief Low level TGX-encoding function.

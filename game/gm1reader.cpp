@@ -8,6 +8,8 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/current_function.hpp>
 
+#include <game/gm1palette.h>
+#include <game/surface.h>
 #include <game/gm1entryreader.h>
 #include <game/filesystem.h>
 #include <game/iohelpers.h>
@@ -248,13 +250,8 @@ namespace GM1
         return *mEntryReader;
     }
 
-    Surface GM1Reader::ReadEntry(int index) const
+    const Surface GM1Reader::ReadEntry(int index) const
     {
         return mEntryReader->Load(*this, index);
-    }
-
-    Point GM1Reader::ImageCenter(int index) const
-    {
-        return mEntryReader->ImageCenter(mHeader, mEntryHeaders.at(index));
     }
 }

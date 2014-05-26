@@ -1,16 +1,17 @@
 #ifndef GM1READER_H_
 #define GM1READER_H_
 
-#include <game/surface.h>
-#include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/filesystem.h>
 #include <game/point.h>
 
 #include <boost/filesystem/fstream.hpp>
 
+class Surface;
+
 namespace GM1
 {
+    class Palette;
     class GM1EntryReader;
 }
 
@@ -33,7 +34,6 @@ namespace GM1
         std::unique_ptr<GM1EntryReader> mEntryReader;
         
     public:
-
         enum Flags
         {
             NoFlags = 0,
@@ -42,14 +42,14 @@ namespace GM1
         };
 
         GM1Reader();
+        virtual ~GM1Reader();
+        
         explicit GM1Reader(fs::path, Flags = NoFlags);
         void SetBuffering(bool on);
         void Open(fs::path, Flags);
         bool IsOpened() const;
-        Surface ReadEntry(int index) const;
-        Point ImageCenter(int index) const;
+        const Surface ReadEntry(int index) const;
         void Close();
-        virtual ~GM1Reader();
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;

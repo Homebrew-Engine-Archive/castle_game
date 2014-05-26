@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/iohelpers.h>
 
