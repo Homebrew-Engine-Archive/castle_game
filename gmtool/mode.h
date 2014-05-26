@@ -1,12 +1,14 @@
 #ifndef MODE_H_
 #define MODE_H_
 
-#include <string>
-#include <memory>
 #include <iosfwd>
+#include <memory>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
 
+/**
+   Global namespace operator>> overload for boost::filesystem::path
+**/
 #include <gmtool/path_validator.h>
 
 namespace GMTool

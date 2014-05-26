@@ -8,7 +8,6 @@ set (SRCS
   entrymode.cpp
   dumpmode.cpp
   rendermode.cpp
-  hexcolor.cpp
   headermode.cpp
   palettemode.cpp
   listmode.cpp

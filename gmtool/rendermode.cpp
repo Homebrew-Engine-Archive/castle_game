@@ -7,6 +7,8 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+#include <gmtool/renderer.h>
+
 #include <game/gm1.h>
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>
@@ -19,6 +21,7 @@ namespace po = boost::program_options;
 
 namespace GMTool
 {
+    RenderMode::~RenderMode() throw() = default;
     RenderMode::RenderMode()
     {
         mFormats = RenderFormats();

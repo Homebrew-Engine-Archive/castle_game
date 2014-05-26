@@ -9,8 +9,6 @@
 #include <boost/filesystem/path.hpp>
 
 #include <gmtool/mode.h>
-#include <gmtool/renderer.h>
-#include <gmtool/hexcolor.h>
 
 #include <game/sdl_utils.h>
 #include <game/color.h>
@@ -20,6 +18,11 @@ class Surface;
 namespace GM1
 {
     class Palette;
+}
+
+namespace GMTool
+{
+    class RenderFormat;
 }
 
 namespace GMTool
@@ -43,6 +46,8 @@ namespace GMTool
         
     public:
         RenderMode();
+        virtual ~RenderMode() throw();
+        
         void PrintUsage(std::ostream &out);
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);

@@ -18,9 +18,25 @@ Here are some truly \m/ formatted names:
 * Templates and inlines is better than macroses.
 * Don't forget include guards. It might be written LIKE_THIS_H_ or somehow else.
 * Avoid compiler's black magic like `#pragma`s or `__attribute__`s.
-* Forward declare used classes, enums and functions.
-* Include only what headers you use.
-
+* Don't inlcude headers you don't use.
+* Forward declare classes, enums and functions you really use.
+* Put your enum and class forward declarations on top of header file.
+* Isolate your forward decls from fully declared names (as I do).
+```
+namespace NS
+{
+    class IncompleteClassName;
+}
+...
+namespace NS
+{
+    class ClassManager
+    {
+    public:
+        virtual const IncompleteClassName GetClass() const;
+    };
+}
+```
 1.2. C++ Exceptions
 -------------------
 * Feel free to throw errors, misunderstandings, just throw.

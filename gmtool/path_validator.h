@@ -4,6 +4,11 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 
+/**
+ * \brief Overload for boost::filesystem::path
+ * It is a little workaround of handling paths with spaces.
+ */
+
 inline std::istream& operator>>(std::istream &is, boost::filesystem::path &path)
 {
     boost::filesystem::path::string_type str;
