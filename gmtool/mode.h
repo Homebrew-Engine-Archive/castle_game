@@ -7,7 +7,7 @@
 #include <boost/filesystem/path.hpp>
 
 /**
-   Global namespace operator>> overload for boost::filesystem::path
+   boost::filesystem::operator>> overload for boost::filesystem::path
 **/
 #include <gmtool/path_validator.h>
 
