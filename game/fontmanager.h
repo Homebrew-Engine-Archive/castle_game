@@ -29,7 +29,7 @@ namespace Render
         FontManager(FontManager&&);
         FontManager(FontManager const&) = delete;
         FontManager& operator=(FontManager const&) = delete;
-        virtual ~FontManager();
+        virtual ~FontManager() throw();
 
         static FontManager& Instance();
         

@@ -99,11 +99,19 @@ namespace Castle
     GameMap::Cell GameMap::AdjacencyIterator::operator*() const
     {
         // stuggered iso map
-        constexpr GameMap::Cell adj[MaxDirCount] = {
+        constexpr GameMap::Cell even[MaxDirCount] = {
             {-1, -1}, {-1, 1}, {1, 1}, {1, -1},
             {0, 1}, {0, -1}, {1, 0}, {-1, 0}
         };
-        return mCell + adj[mDir];
+        constexpr GameMap::Cell odd[MaxDirCount] = {
+            {-1, -1}, {-1, 1}, {1, 1}, {1, -1},
+            {0, 1}, {0, -1}, {1, 0}, {-1, 0}
+        };
+        if(core::Even(mCell.y)) {
+            return mCell + even[mDir];
+        } else {
+            return mCell + odd[mDir];
+        }
     }
     
     std::pair<GameMap::AdjacencyIterator, GameMap::AdjacencyIterator> GameMap::AdjacentCells(GameMap::Cell cell) const

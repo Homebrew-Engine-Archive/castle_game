@@ -82,7 +82,8 @@ namespace Render
         /** Real color will be choosen by SDL_SetSurfaceColorMod **/
         const Color glyphColor = Colors::White;
         
-        Surface textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);
+        Surface textSurface;
+        textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);
         PutRenderedString(textSurface);
     }
 

@@ -74,7 +74,7 @@ namespace UI
                     if((selected.x == cell.x) || (selected.y == cell.y)) {
                         tileColor = Colors::Yellow;
                     }
-                    DrawRhombus(renderer.get(), tileRect, tileColor);
+                    DrawRhombus(*renderer, tileRect, tileColor);
                 }
             }
         }

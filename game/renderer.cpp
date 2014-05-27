@@ -112,7 +112,7 @@ namespace Render
         return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenHeight);
     }
     
-    Surface Renderer::BeginFrame()
+    const Surface Renderer::BeginFrame()
     {
         if(!mScreenTexture) {
             CreateScreenTexture(mScreenWidth, mScreenHeight, mScreenFormat);
@@ -176,12 +176,12 @@ namespace Render
         SetScreenMode(newWidth, newHeight, mScreenFormat);
     }
     
-    Surface Renderer::CreateImage(int width, int height, int format)
+    const Surface Renderer::CreateImage(int width, int height, int format)
     {
         return CreateSurface(width, height, format);
     }
 
-    Surface Renderer::CreateImageFrom(int width, int height, int pitch, int format, char *data)
+    const Surface Renderer::CreateImageFrom(int width, int height, int pitch, int format, char *data)
     {
         return CreateSurfaceFrom(data, width, height, pitch, format);
     }

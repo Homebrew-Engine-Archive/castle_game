@@ -26,12 +26,23 @@ namespace Render
         : mFontTable()
         , mDefaultFontData(nullptr)
     {
-        TTF_Init();
+        if(TTF_Init() == -1) {
+            throw ttf_error();
+        }
     }
     
-    FontManager::~FontManager()
+    FontManager::~FontManager() throw()
     {
-        mFontTable.clear();
+        try {
+            // every font must completely be freed with TTF_CloseFont
+            // before TTF_Quit will be called
+            mFontTable.clear();
+        } catch(const std::exception &error) {
+            std::cerr << "exception (" << error.what() << ") in ~FontManager()" << std::endl;
+        } catch(...) {
+            std::cerr << "unknown exception in ~FontManager()" << std::endl;
+        }
+        
         TTF_Quit();
     }
     

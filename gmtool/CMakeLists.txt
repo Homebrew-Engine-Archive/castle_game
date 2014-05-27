@@ -30,7 +30,6 @@ set (SHARED
   ../game/surface.cpp
   ../game/color.cpp
   ../game/rect.cpp
-  ../game/point.cpp
   ../game/tgx.cpp
   ../game/rw.cpp
 )

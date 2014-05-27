@@ -31,7 +31,7 @@ namespace Render
         Renderer(Renderer const&) = delete;
         Renderer& operator=(Renderer const&) = delete;
         
-        Surface BeginFrame();
+        const Surface BeginFrame();
         void EndFrame();
         Rect GetScreenSize() const;
         void SetScreenSize(int width, int height);
@@ -40,10 +40,10 @@ namespace Render
         void SetScreenMode(int width, int height, int format);
 
         typedef PalettePtr Palette;
-        Palette CreatePalette(const std::vector<SDL_Color> &colors);
+        const Palette CreatePalette(const std::vector<SDL_Color> &colors);
         
-        Surface CreateImage(int width, int height, int format);
-        Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
+        const Surface CreateImage(int width, int height, int format);
+        const Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void PaintImage(const Surface &surface, const Rect &whither);
         

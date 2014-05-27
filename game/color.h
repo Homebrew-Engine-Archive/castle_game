@@ -20,9 +20,6 @@ public:
 
     constexpr Color(const SDL_Color &that)
         : Color(that.r, that.g, that.b, that.a) {}
-    
-    Color(uint32_t argb32, int format);
-    Color(uint32_t argb32, const SDL_PixelFormat &format);
 
     constexpr Color Opaque(int alpha) const {
         return Color(r, g, b, alpha);
@@ -50,7 +47,7 @@ namespace Colors
     constexpr Color Gray = Color(128, 128, 128);
 }
 
-constexpr Color Inverted(const SDL_Color &color)
+constexpr const Color Inverted(const SDL_Color &color)
 {
     return Color(255 - color.r,
                  255 - color.g,
@@ -79,7 +76,9 @@ constexpr bool FullyOpaque(const SDL_Color &color)
     return color.a == 255;
 }
 
-Color GetPixelColor(uint32_t pixel, int format);
+const Color GetPixelColor(uint32_t pixel, int format);
+const Color GetPixelColor(uint32_t argb32, const SDL_PixelFormat &format);
+
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
 void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);
 

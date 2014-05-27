@@ -50,7 +50,7 @@ namespace Castle
         void WrapVertical(bool on);
 
         Cell NullCell() const;
-        
+
         int Size() const;
         
         struct AdjacencyIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>

@@ -18,7 +18,7 @@ protected:
     
 public:
     Surface();
-    Surface(SDL_Surface*);
+    explicit Surface(SDL_Surface*);
     Surface(Surface const&);
     ~Surface();
     bool Null() const;
@@ -84,27 +84,31 @@ bool HasPalette(const Surface &surface);
 
 void MapSurface(Surface &dst, Color func(uint8_t, uint8_t, uint8_t, uint8_t));
 
-Surface CreateSurface(int width, int height, const SDL_PixelFormat *format);
-Surface CreateSurface(int width, int height, int format);
+const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format);
+const Surface CreateSurface(int width, int height, int format);
 
-Surface ConvertSurface(const Surface &source, int format);
-Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &format);
+const Surface ConvertSurface(const Surface &source, int format);
+const Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &format);
 
-Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat *format);
-Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format);
+const Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, const SDL_PixelFormat &format);
+const Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, int format);
+
+void SetColorKey(Surface &surface, uint32_t *key);
+uint32_t GetColorKey(const Surface &surface);
+bool HasColorKey(const Surface &surface);
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
-void BlitSurface(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
-void BlitSurfaceScaled(const Surface &src, const Rect &srcrect, Surface &dst, const Rect &dstrect);
+void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
+void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
 
 void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
 void DrawFrame(Surface &dst, const Rect &frame, const Color &color);
 void FillFrame(Surface &dst, const Rect &frame, const Color &color);
 
-void DrawRhombus(SDL_Renderer *renderer, const Rect &bounds, const Color &color);
-void DrawFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color);
-void FillFrame(SDL_Renderer *renderer, const Rect &frame, const Color &color);
+void DrawRhombus(SDL_Renderer &renderer, const Rect &bounds, const Color &color);
+void DrawFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
+void FillFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
 
 
 void BlurSurface(Surface &dst, int radius);
