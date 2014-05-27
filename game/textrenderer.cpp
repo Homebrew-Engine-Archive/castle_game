@@ -8,25 +8,8 @@
 #include <SDL.h>
 
 #include <game/point.h>
-
-#include <boost/current_function.hpp>
-
 #include <game/surface.h>
-
-namespace
-{
-    std::basic_string<Uint16> ToUint16String(const std::basic_string<char16_t> &sourceString)
-    {
-        std::basic_string<Uint16> targetString;
-        targetString.reserve(sourceString.length());
-        
-        for(char16_t c : sourceString) {
-            targetString.push_back(c);
-        }
-        
-        return targetString;
-    }
-}
+#include <game/fontmanager.h>
 
 namespace Render
 {
@@ -35,15 +18,17 @@ namespace Render
         , mColor(0, 0, 0, 0)
         , mCursor(0, 0)
         , mCursorMode(CursorMode::BaseLine)
-        , mCurrentFont(nullptr)
         , mClipBox(0, 0, 0, 0)
         , mFontStyle(FontStyle_Normal)
-    { }
+        , mFontName()
+        , mFontSize()
+        , mCurrentFont(nullptr)
+    {
+        SetFont(Render::FontStronghold, 10);
+    }
 
     Point TextRenderer::GetTopLeftBoxPoint() const
     {
-        CheckFontIsSet();
-       
         switch(mCursorMode) {
         case CursorMode::BaseLine:
             return mCursor - Point(0, TTF_FontAscent(mCurrentFont));
@@ -59,8 +44,6 @@ namespace Render
     
     void TextRenderer::PutRenderedString(Surface &text)
     {
-        CheckFontIsSet();
-        
         if(SDL_SetSurfaceAlphaMod(text, mColor.a) < 0) {
             throw sdl_error();
         }
@@ -69,7 +52,7 @@ namespace Render
             throw sdl_error();
         }
 
-        Rect dstRect(GetTopLeftBoxPoint(), text->w, text->h);
+        const Rect dstRect(GetTopLeftBoxPoint(), text->w, text->h);
                 
         BlitSurface(text, Rect(text), mSurface, dstRect);
         mCursor.x += text->w;
@@ -81,13 +64,14 @@ namespace Render
             return;
         }
         
-        CheckFontIsSet();
-        
         /** Real color will be choosen by SDL_SetSurfaceColorMod **/
         const Color glyphColor = Colors::White;
+
+        TTF_SetFontStyle(mCurrentFont, mFontStyle);
         
         Surface textSurface;
-        textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);        
+        textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);
+        
         if(!textSurface) {
             throw ttf_error();
         }
@@ -95,10 +79,8 @@ namespace Render
         PutRenderedString(textSurface);
     }
 
-    Rect TextRenderer::CalculateTextRect(const std::string &str) const
+    const Rect TextRenderer::CalculateTextRect(const std::string &str) const
     {
-        CheckFontIsSet();
-        
         int width;
         int height;
         
@@ -118,9 +100,14 @@ namespace Render
         mCursorMode = mode;
     }
     
-    void TextRenderer::SetFont(TTF_Font *font)
+    void TextRenderer::SetFont(const std::string &fontName, int fontSize)
     {
-        mCurrentFont = font;
+        mFontName = fontName;
+        mFontSize = fontSize;
+        mCurrentFont = Render::FindFont(fontName, fontSize);
+        if(mCurrentFont == nullptr) {
+            throw std::runtime_error("no fonts available");
+        }
     }
 
     void TextRenderer::SetClipBox(const Rect &clipbox)
@@ -133,20 +120,19 @@ namespace Render
         mFontStyle = style;
     }
     
-    TTF_Font* TextRenderer::Font()
+    const std::string TextRenderer::FontName() const
     {
-        return mCurrentFont;
+        return mFontName;
     }
 
+    int TextRenderer::FontSize() const
+    {
+        return mFontSize;
+    }
+    
     void TextRenderer::SetCursorPos(Point pos)
     {
         mCursor = pos;
     }
     
-    void TextRenderer::CheckFontIsSet() const
-    {
-        if(mCurrentFont == nullptr) {
-            throw std::runtime_error("current font is null");
-        }
-    }
 } // namespace Render

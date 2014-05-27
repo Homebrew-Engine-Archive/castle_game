@@ -29,7 +29,6 @@ namespace UI
         FillFrame(frame, consoleRect, Colors::Black.Opaque(200));
         
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(Render::FindFont(mFontName, mFontSize));
         textRenderer.SetColor(Colors::Magenta);
         textRenderer.SetCursorPos(BottomLeft(consoleRect) - Point(0, 20));
         textRenderer.PutString(mText);

@@ -6,7 +6,6 @@
 #include <functional>
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/current_function.hpp>
 
 #include <game/gm1palette.h>
 #include <game/surface.h>

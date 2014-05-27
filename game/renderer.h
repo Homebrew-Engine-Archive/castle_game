@@ -33,12 +33,12 @@ namespace Render
         
         const Surface BeginFrame();
         void EndFrame();
+        
         const Rect GetScreenSize() const;
         void SetScreenSize(int width, int height);
-
         void SetScreenFormat(int format);
         void SetScreenMode(int width, int height, int format);
-
+        
         typedef PalettePtr Palette;
         const Palette CreatePalette(const std::vector<SDL_Color> &colors);
         
@@ -46,7 +46,6 @@ namespace Render
         const Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void PaintImage(const Surface &surface, const Rect &whither);
-        
     };
     
 } // namespace Render

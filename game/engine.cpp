@@ -149,7 +149,6 @@ namespace Castle
         std::string text = oss.str();
 
         Render::TextRenderer textRenderer(frame);
-        textRenderer.SetFont(Render::FontManager::Instance().DefaultFont());
         textRenderer.SetCursorPos(Point(0, 20));
         textRenderer.SetColor(Colors::Red);
 

@@ -35,11 +35,11 @@ namespace Render
     
     enum FontStyle
     {
-        FontStyle_Normal = 0,
-        FontStyle_Bold = 1,
-        FontStyle_Italic = 2,
-        FontStyle_Underline = 4,
-        FontStyle_Strike = 8
+        FontStyle_Normal = TTF_STYLE_NORMAL,
+        FontStyle_Bold = TTF_STYLE_BOLD,
+        FontStyle_Italic = TTF_STYLE_ITALIC,
+        FontStyle_Underline = TTF_STYLE_UNDERLINE,
+        FontStyle_Strike = TTF_STYLE_STRIKETHROUGH
     };
     
     class TextRenderer
@@ -48,14 +48,15 @@ namespace Render
         Color mColor;
         Point mCursor;
         CursorMode mCursorMode = CursorMode::BaseLine;
-        TTF_Font *mCurrentFont;
         Rect mClipBox;
         int mFontStyle = FontStyle_Normal;
         int mFontAlignment;
-
+        std::string mFontName;
+        int mFontSize;
+        TTF_Font *mCurrentFont;
+        
         Point GetTopLeftBoxPoint() const;
         void PutRenderedString(Surface &text);
-        void CheckFontIsSet() const;
 
     public:
         explicit TextRenderer(Surface &surface);
@@ -66,13 +67,14 @@ namespace Render
 
         void SetFontStyle(int style);
         void SetClipBox(const Rect &clipbox);
-        void SetFont(TTF_Font *font);
+        void SetFont(const std::string &fontname, int fsize);
         void SetColor(const Color &color);
         void SetCursorMode(CursorMode mode);
         void SetCursorPos(Point pos);
         
-        TTF_Font* Font();
-        Rect CalculateTextRect(const std::string &str) const;
+        const std::string FontName() const;
+        int FontSize() const;
+        const Rect CalculateTextRect(const std::string &str) const;
     };
     
 } // namespace Renderer

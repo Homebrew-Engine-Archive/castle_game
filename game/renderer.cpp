@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include <boost/current_function.hpp>
 #include <boost/algorithm/clamp.hpp>
 
 #include <game/sdl_error.h>

@@ -11,14 +11,7 @@ enum class Landscape;
 
 namespace Castle
 {
-    struct Unit
-    {
-        int owner;
-        int posX;
-        int posY;
-        int type;
-        int state;
-    };
+    class Occupier;
     
     class GameMap
     {
@@ -26,7 +19,7 @@ namespace Castle
         int mCellsCount;
         std::vector<int> mHeightLayer;
         std::vector<Landscape> mLandscapeLayer;
-        std::vector<Unit> mUnits;
+        std::vector<Occupier> mBuildingLayer;
         bool mHorizontalWrapping;
         bool mVerticalWrapping;
         
@@ -52,7 +45,7 @@ namespace Castle
         Cell NullCell() const;
 
         int Size() const;
-        
+
         struct AdjacencyIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>
         {
             explicit constexpr AdjacencyIterator(const GameMap &map, GameMap::Cell cell, int dir)
@@ -84,6 +77,13 @@ namespace Castle
         protected:
             const GameMap &mMap;
         };
+    };
+
+    class Occupier
+    {
+    protected:
+        std::vector<GameMap> mOccupiedTiles;
+    public:
     };
     
     constexpr static int TileWidth = 32;

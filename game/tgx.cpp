@@ -11,8 +11,6 @@
 
 #include <SDL.h>
 
-#include <boost/current_function.hpp>
-
 #include <game/color.h>
 #include <game/iohelpers.h>
 #include <game/surface.h>
