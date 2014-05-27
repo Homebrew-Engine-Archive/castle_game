@@ -2,6 +2,7 @@
 #define FONTMANAGER_H_
 
 #include <game/filesystem.h>
+#include <game/sdl_utils.h>
 
 #include <vector>
 #include <string>
@@ -17,6 +18,7 @@ namespace Render
     
     class FontManager
     {
+        TTFInitializer mTTF_Init;
         std::vector<FontData> mFontTable;
         FontData *mDefaultFontData;
 
@@ -29,7 +31,7 @@ namespace Render
         FontManager(FontManager&&);
         FontManager(FontManager const&) = delete;
         FontManager& operator=(FontManager const&) = delete;
-        virtual ~FontManager() throw();
+        virtual ~FontManager();
 
         static FontManager& Instance();
         

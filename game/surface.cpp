@@ -233,7 +233,7 @@ void Surface::Reset(SDL_Surface *surface)
 const Surface CreateSurfaceView(Surface &src, const Rect &clip)
 {
     if(SDL_MUSTLOCK(src)) {
-        // can we deal with it?
+        // \todo can we deal with it?
         throw std::invalid_argument("SurfaceView might not be created from RLEaccel surface");
     }
 
@@ -567,4 +567,14 @@ bool HasPalette(const Surface &surface)
         throw null_surface_error();
     }
     return SDL_ISPIXELFORMAT_INDEXED(surface->format->format);
+}
+
+char* GetPixels(Surface &surface)
+{
+    return reinterpret_cast<char*>(surface->pixels);
+}
+
+char const* GetPixels(const Surface &surface)
+{
+    return reinterpret_cast<char const*>(surface->pixels);
 }

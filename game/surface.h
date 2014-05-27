@@ -110,7 +110,6 @@ void DrawRhombus(SDL_Renderer &renderer, const Rect &bounds, const Color &color)
 void DrawFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
 void FillFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
 
-
 void BlurSurface(Surface &dst, int radius);
 
 void TransformSurface(const Surface &surface, Color(Color const&));
@@ -118,18 +117,7 @@ void TransformSurface(const Surface &surface, Color(Color const&));
 uint32_t ExtractPixel(const Surface &surface, const Point &coord);
 uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord);
 
-/**
- * \brief Wrapper around reinterpret_cast on surface->pixels
- */
-
-inline char* GetPixels(Surface &surface)
-{
-    return reinterpret_cast<char*>(surface->pixels);
-}
-
-inline char const* GetPixels(const Surface &surface)
-{
-    return reinterpret_cast<char const*>(surface->pixels);
-}
+char* GetPixels(Surface &surface);
+char const* GetPixels(const Surface &surface);
 
 #endif

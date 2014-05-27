@@ -7,12 +7,19 @@
 #include <SDL_ttf.h>
 #include <SDL.h>
 
+#include <game/ttf_error.h>
 #include <game/sdl_error.h>
 
 struct SDLInitializer final
 {
-    SDLInitializer(int flags);
-    ~SDLInitializer();
+    SDLInitializer(int flags) throw(sdl_error);
+    ~SDLInitializer() throw();
+};
+
+struct TTFInitializer final
+{
+    TTFInitializer() throw(sdl_error);
+    ~TTFInitializer() throw();
 };
 
 template<class T, void (*D)(T*)>
