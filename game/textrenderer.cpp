@@ -77,13 +77,21 @@ namespace Render
     
     void TextRenderer::PutString(const std::string &str)
     {
+        if(str.empty()) {
+            return;
+        }
+        
         CheckFontIsSet();
         
         /** Real color will be choosen by SDL_SetSurfaceColorMod **/
         const Color glyphColor = Colors::White;
         
         Surface textSurface;
-        textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);
+        textSurface = TTF_RenderUTF8_Blended(mCurrentFont, str.c_str(), glyphColor);        
+        if(!textSurface) {
+            throw ttf_error();
+        }
+
         PutRenderedString(textSurface);
     }
 
@@ -95,7 +103,7 @@ namespace Render
         int height;
         
         if(TTF_SizeText(mCurrentFont, str.c_str(), &width, &height) < 0) {
-            throw sdl_error();
+            throw ttf_error();
         }
         return Rect(GetTopLeftBoxPoint(), width, height);
     }
@@ -125,7 +133,7 @@ namespace Render
         mFontStyle = style;
     }
     
-    TTF_Font* TextRenderer::GetFont()
+    TTF_Font* TextRenderer::Font()
     {
         return mCurrentFont;
     }

@@ -4,11 +4,10 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 
+#include <SDL_ttf.h>
+
 #include <vector>
 #include <string>
-
-#include <SDL.h>
-#include <SDL_ttf.h>
 
 class FontData;
 
@@ -27,8 +26,6 @@ namespace Render
         
     public:
         FontManager();
-        FontManager& operator=(FontManager&&);
-        FontManager(FontManager&&);
         FontManager(FontManager const&) = delete;
         FontManager& operator=(FontManager const&) = delete;
         virtual ~FontManager();

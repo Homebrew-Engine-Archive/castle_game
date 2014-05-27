@@ -48,14 +48,13 @@ namespace Render
         Color mColor;
         Point mCursor;
         CursorMode mCursorMode = CursorMode::BaseLine;
-        TTF_Font *mCurrentFont = nullptr;
+        TTF_Font *mCurrentFont;
         Rect mClipBox;
         int mFontStyle = FontStyle_Normal;
         int mFontAlignment;
 
         Point GetTopLeftBoxPoint() const;
         void PutRenderedString(Surface &text);
-
         void CheckFontIsSet() const;
 
     public:
@@ -68,11 +67,11 @@ namespace Render
         void SetFontStyle(int style);
         void SetClipBox(const Rect &clipbox);
         void SetFont(TTF_Font *font);
-        TTF_Font* GetFont();
         void SetColor(const Color &color);
         void SetCursorMode(CursorMode mode);
         void SetCursorPos(Point pos);
-
+        
+        TTF_Font* Font();
         Rect CalculateTextRect(const std::string &str) const;
     };
     

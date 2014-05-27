@@ -16,17 +16,22 @@ namespace UI
 {
     Console::Console(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
-        , mText("")
+        , mText()
         , mFontName(Render::FontStronghold)
-        , mFontSize(14)
+        , mHistory()
+        , mFontSize(10)
         , mClosed(false)
     { }
 
     void Console::Draw(Surface &frame)
     {
-        FillFrame(frame, Rect(frame->w, frame->h / 2), Colors::Black.Opaque(100));
+        const Rect consoleRect = Rect(frame->w, frame->h / 2);
+        FillFrame(frame, consoleRect, Colors::Black.Opaque(200));
+        
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetFont(Render::FindFont(mFontName, mFontSize));
+        textRenderer.SetColor(Colors::Magenta);
+        textRenderer.SetCursorPos(BottomLeft(consoleRect) - Point(0, 20));
         textRenderer.PutString(mText);
     }
     
@@ -48,10 +53,15 @@ namespace UI
     {
         switch(event.keysym.sym) {
         case SDLK_ESCAPE:
-            mScreenManager.PopScreen();
+            {
+                mScreenManager.ToggleConsole();
+            }
             return true;
         case SDLK_RETURN:
-            mText = std::string();
+            {
+                mHistory.push_back(mText);
+                mText = std::string();
+            }
             return true;
         case SDLK_BACKSPACE:
             if(!mText.empty()) {

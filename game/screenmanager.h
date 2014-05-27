@@ -13,11 +13,6 @@
 #include <game/loadingscreen.h>
 #include <game/ingamemenu.h>
 
-namespace Castle
-{
-    class Environment;
-}
-
 namespace UI
 {
     class ScreenManager

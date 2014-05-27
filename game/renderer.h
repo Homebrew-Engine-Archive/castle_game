@@ -33,7 +33,7 @@ namespace Render
         
         const Surface BeginFrame();
         void EndFrame();
-        Rect GetScreenSize() const;
+        const Rect GetScreenSize() const;
         void SetScreenSize(int width, int height);
 
         void SetScreenFormat(int format);

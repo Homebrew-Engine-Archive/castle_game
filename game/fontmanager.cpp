@@ -6,6 +6,9 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+#include <SDL.h>
+#include <SDL_ttf.h>
+
 #include <game/ttf_error.h>
 #include <game/sdl_utils.h>
 
@@ -90,7 +93,9 @@ namespace Render
 
         // ... but it gets a crash due to a bug in SDL_OpenFontRW
         // see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
-        
+
+
+
         TTF_Font *font = TTF_OpenFont(fontData.fontPath.string().c_str(), fsize);
 
         if(font == NULL) {
@@ -107,12 +112,11 @@ namespace Render
         if(fd != nullptr) {
             return fd->font.get();
         }
-        throw std::logic_error("no font found");
+        throw std::runtime_error("no font found");
     }
     
     TTF_Font* FontManager::DefaultFont()
     {
-        CheckDefaultFontIsSet();
         return mDefaultFontData->font.get();
     }
 

@@ -91,10 +91,10 @@ namespace Render
             throw sdl_error();
         }
 
+        mScreenTexture = std::move(temp);
         mScreenFormat = format;
         mScreenWidth = width;
         mScreenHeight = height;
-        mScreenTexture = std::move(temp);
     }
 
     void Renderer::CreateScreenSurface(int width, int height)
@@ -143,7 +143,7 @@ namespace Render
         SDL_RenderPresent(mRenderer.get());
     }
 
-    Rect Renderer::GetScreenSize() const
+    const Rect Renderer::GetScreenSize() const
     {
         Rect size;
         

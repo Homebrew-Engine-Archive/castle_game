@@ -1,9 +1,11 @@
 #include "collection.h"
 
+#include <cstring>
+#include <cerrno>
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
 #include <chrono>
 
 #include <boost/filesystem/fstream.hpp>
@@ -14,7 +16,8 @@
 
 CollectionData LoadGM1(const fs::path &path)
 {
-    std::chrono::steady_clock::time_point startAt = std::chrono::steady_clock::now();
+    using namespace std::chrono;
+    steady_clock::time_point startAt = steady_clock::now();
 
     CollectionData data;
     GM1::GM1Reader gm1;
@@ -49,8 +52,8 @@ CollectionData LoadGM1(const fs::path &path)
         }
     }
 
-    std::chrono::steady_clock::time_point endAt = std::chrono::steady_clock::now();
-    std::clog << "Load " << path << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(endAt - startAt).count() << "ms" << std::endl;
+    steady_clock::time_point endAt = steady_clock::now();
+    std::clog << "Load " << path << ": " << duration_cast<milliseconds>(endAt - startAt).count() << "ms" << std::endl;
     
     return data;
 }
@@ -58,10 +61,10 @@ CollectionData LoadGM1(const fs::path &path)
 Surface LoadTGX(const fs::path &path)
 {
     boost::filesystem::ifstream fin(path, std::ios_base::binary);
+
     if(!fin.is_open()) {
-        std::ostringstream oss;
-        oss << "Unable to read " << path << ": " << strerror(errno);
-        throw std::runtime_error(oss.str());
+        std::cerr << "fail reading " << path << std::endl;
+        throw std::runtime_error(strerror(errno));
     }
     
     try {
