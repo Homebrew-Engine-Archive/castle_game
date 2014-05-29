@@ -32,6 +32,7 @@ set (SRCS
   surface.cpp
   surface_view.cpp
   surface_drawing.cpp
+  surface_blur.cpp
   textrenderer.cpp
   tgx.cpp
 )

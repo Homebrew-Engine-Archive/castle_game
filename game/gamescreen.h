@@ -30,6 +30,7 @@ namespace UI
     class GameScreen : public Screen
     {
         UI::ScreenManager &mScreenManager;
+        Collection archer;
         Collection landset;
         Collection seaset;
         Collection rockset;
@@ -46,7 +47,8 @@ namespace UI
         GameScreen(GameScreen const&) = delete;
         GameScreen& operator=(GameScreen const&) = delete;
         virtual ~GameScreen();
-        
+
+        void Render(Render::Renderer &render);
         bool TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const;
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);

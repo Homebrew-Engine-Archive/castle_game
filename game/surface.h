@@ -56,8 +56,6 @@ public:
 
 bool HasPalette(const Surface &surface);
 
-void MapSurface(Surface &dst, Color func(uint8_t, uint8_t, uint8_t, uint8_t));
-
 const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format);
 const Surface CreateSurface(int width, int height, int format);
 
@@ -75,8 +73,6 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
 void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
-
-void BlurSurface(Surface &dst, int radius);
 
 void TransformSurface(const Surface &surface, Color(Color const&));
 

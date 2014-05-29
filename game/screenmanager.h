@@ -13,6 +13,11 @@
 #include <game/loadingscreen.h>
 #include <game/ingamemenu.h>
 
+namespace Render
+{
+    class Renderer;
+}
+
 namespace UI
 {
     class ScreenManager
@@ -31,6 +36,7 @@ namespace UI
         ScreenManager();
 
         void ToggleConsole();
+        
         void EnterGameScreen();
         void EnterMenuMain();
         void EnterMenuCombat();
@@ -46,6 +52,7 @@ namespace UI
         void CloseScreen(Screen*);
         bool HandleEvent(SDL_Event const&);
         void DrawScreen(Surface&);
+        void Render(Render::Renderer &renderer);
     };
 } // namespace UI
 

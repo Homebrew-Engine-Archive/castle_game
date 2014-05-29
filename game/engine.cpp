@@ -37,7 +37,7 @@ namespace Castle
         , mFpsLimited(false)
         , mIO()
         , mPort(4500)
-        , mScreenMgr()
+        , mScreenManager()
         , mServer(mIO, mPort)
         , mGraphicsMgr()
     { }
@@ -64,7 +64,7 @@ namespace Castle
             mClosed = true;
             return false;
         case SDLK_q:
-            mScreenMgr.ToggleConsole();
+            mScreenManager.ToggleConsole();
             return true;
         default:
             return true;
@@ -110,7 +110,7 @@ namespace Castle
         try {
             SDL_Event event;
             while(SDL_PollEvent(&event)) {
-                if(!mScreenMgr.TopScreen().HandleEvent(event)) {
+                if(!mScreenManager.TopScreen().HandleEvent(event)) {
                     HandleEvent(event);
                 }
             }
@@ -147,7 +147,8 @@ namespace Castle
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer.BeginFrame();
-        mScreenMgr.DrawScreen(frame);
+        //mScreenManager.DrawScreen(frame);
+        mScreenManager.Render(mRenderer);
 
         std::ostringstream oss;
         oss.width(10);
@@ -182,9 +183,9 @@ namespace Castle
         
         LoadFonts();
         LoadGraphics();
-        SimulationManager::Instance().SetGameMap(std::make_unique<GameMap>(16));
+        SimulationManager::Instance().SetGameMap(std::make_unique<GameMap>(100));
         GenerateRandomMap(SimulationManager::Instance().GetGameMap());
-        mScreenMgr.EnterGameScreen();
+        mScreenManager.EnterGameScreen();
         mServer.StartAccept();
         
         steady_clock::time_point prevSimulation = steady_clock::now();

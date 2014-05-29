@@ -7,13 +7,19 @@
 
 class Surface;
 
+namespace Render
+{
+    class Renderer;
+}
+
 namespace UI
 {
 
     class Screen
     {
     public:
-        virtual void Draw(Surface &frame) = 0;
+        virtual void Render(Render::Renderer &renderer) {}
+        virtual void Draw(Surface &frame) {}
 
         /**
          * \brief Check whether screen should be repainted.

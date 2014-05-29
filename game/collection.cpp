@@ -114,6 +114,11 @@ GM1::Header const& Collection::GetHeader() const
     return mHeader;
 }
 
+const Point Collection::Anchor() const
+{
+    return Point(mHeader.anchorX, mHeader.anchorY);
+}
+
 const Surface Collection::GetSurface(size_t index) const
 {
     return mEntries.at(index);
@@ -124,7 +129,12 @@ GM1::EntryHeader const& Collection::GetEntryHeader(size_t index) const
     return mHeaders.at(index);
 }
 
-GM1::Palette const& Collection::GetPalette(size_t index) const
+constexpr size_t GetPaletteIndexByName(PaletteName name)
 {
-    return mPalettes.at(index);
+    return static_cast<size_t>(name);
+}
+
+GM1::Palette const& Collection::GetPalette(PaletteName name) const
+{
+    return mPalettes.at(GetPaletteIndexByName(name));
 }

@@ -11,11 +11,27 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 
+class Point;
+
 namespace GM1
 {
     class GM1Reader;
     class Palette;
 }
+
+enum class PaletteName : size_t
+{
+    Unknown0     = 0,
+    Blue         = 1,
+    Red          = 2,
+    Orange       = 3,
+    Yellow       = 4,
+    Purple       = 5,
+    Black        = 6,
+    Cyan         = 7,
+    Green        = 8,
+    Unknown      = 9
+};
 
 class Collection
 {
@@ -25,9 +41,10 @@ public:
     Collection& operator=(const Collection &collection);
 
     GM1::Header const& GetHeader() const;
+    const Point Anchor() const;
     const Surface GetSurface(size_t index) const;
     GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
-    GM1::Palette const& GetPalette(size_t index) const;
+    GM1::Palette const& GetPalette(PaletteName name) const;
 
 protected:
     GM1::Header mHeader;

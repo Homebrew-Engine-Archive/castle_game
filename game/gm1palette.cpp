@@ -61,6 +61,11 @@ namespace GM1
     {
         return *mStorage;
     }
+
+    SDL_Palette& Palette::asSDLPalette()
+    {
+        return *mStorage;
+    }
     
     std::ostream& PrintPalette(std::ostream &out, const Palette &palette)
     {
@@ -75,33 +80,4 @@ namespace GM1
         }
         return out;
     }
-    
-    PalettePtr CreateSDLPalette(const GM1::Palette &palette)
-    {
-        // const PixelFormatPtr format(SDL_AllocFormat(PalettePixelFormat));
-        
-        // SDL_Color temp;
-        // std::vector<SDL_Color> colors;
-        // colors.reserve(palette.Size());
-        // for(Palette::value_type entry : palette) {
-        //     SDL_GetRGBA(entry, format.get(), &temp.r, &temp.g, &temp.b, &temp.a);
-        //     colors.push_back(std::move(temp));
-        // }
-        // return CreateSDLPalette(colors);
-        return PalettePtr(nullptr);
-    }
-
-    PalettePtr CreateSDLPalette(const std::vector<SDL_Color> &colors)
-    {
-        // PalettePtr ptr(SDL_AllocPalette(colors.size()));
-        // if(!ptr) {
-        //     throw sdl_error();
-        // }
-        // if(!SDL_SetPaletteColors(ptr.get(), colors.data(), 0, ptr->ncolors) < 0) {
-        //     throw sdl_error();
-        // }
-        // return ptr;
-        return PalettePtr(nullptr);
-    }
-    
 }

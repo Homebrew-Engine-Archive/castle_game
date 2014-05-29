@@ -4,10 +4,14 @@
 
 #include <boost/algorithm/clamp.hpp>
 
+#include <game/rect.h>
+#include <game/point.h>
+#include <game/color.h>
 #include <game/gm1palette.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
+#include <game/surface_drawing.h>
 
 namespace
 {
@@ -50,6 +54,9 @@ namespace Render
         , mScreenFormat(SDL_PIXELFORMAT_ARGB8888)
         , mScreenTexture(nullptr)
         , mScreenSurface(nullptr)
+        , mBoundPalette()
+        , mBoundTexture()
+        , mBoundAlphaMap()
     {
         mWindow.reset(
             SDL_CreateWindow(WindowTitle,
@@ -143,15 +150,20 @@ namespace Render
         SDL_RenderPresent(mRenderer.get());
     }
 
-    const Rect Renderer::GetScreenSize() const
+    const Point Renderer::GetOutputSize() const
     {
-        Rect size;
+        Point size;
         
-        if(SDL_GetRendererOutputSize(mRenderer.get(), &size.w, &size.h) < 0) {
+        if(SDL_GetRendererOutputSize(mRenderer.get(), &size.x, &size.y) < 0) {
             throw sdl_error();
         }
         
         return size;
+    }
+    
+    const Rect Renderer::GetScreenRect() const
+    {
+        return Rect(mScreenSurface);
     }
 
     void Renderer::SetScreenMode(int width, int height, int format)
@@ -193,18 +205,44 @@ namespace Render
 
     void Renderer::BindTexture(const Surface &surface)
     {
+        mBoundTexture = surface;
     }
     
     void Renderer::BindPalette(const GM1::Palette &palette)
     {
-        
+        mBoundPalette = palette;
     }
     
     void Renderer::BindAlphaMap(const Surface &surface)
     {
+        mBoundAlphaMap = surface;
     }
 
     void Renderer::BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect)
     {
+        if(HasPalette(mBoundTexture)) {
+            SDL_SetSurfacePalette(mBoundTexture, &mBoundPalette.asSDLPalette());
+        }
+        BlitSurface(mBoundTexture, textureSubRect, mScreenSurface, screenSubRect);
+    }
+
+    void Renderer::FillRhombus(const Rect &bounds, const Color &bg)
+    {
+        Graphics::FillRhombus(mScreenSurface, bounds, bg);
+    }
+    
+    void Renderer::DrawRhombus(const Rect &bounds, const Color &fg)
+    {
+        Graphics::DrawRhombus(mScreenSurface, bounds, fg);
+    }
+
+    void Renderer::FillFrame(const Rect &bounds, const Color &bg)
+    {
+        Graphics::FillFrame(mScreenSurface, bounds, bg);
+    }
+
+    void Renderer::DrawFrame(const Rect &bounds, const Color &fg)
+    {
+        Graphics::DrawRhombus(mScreenSurface, bounds, fg);
     }
 } // namespace Render

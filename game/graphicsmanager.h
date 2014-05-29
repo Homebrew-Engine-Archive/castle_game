@@ -26,8 +26,8 @@ namespace Graphics
         GraphicsManager();
         virtual ~GraphicsManager();
         
-        Picture const& GetSurface(const std::string &name) const;
-        Picture const& GetTile(const std::string &name) const;
+        Surface const& GetSurface(const std::string &name) const;
+        Surface const& GetTile(const std::string &name) const;
         GM1::Palette const& GetPalette(const std::string &name) const;
     };
 }

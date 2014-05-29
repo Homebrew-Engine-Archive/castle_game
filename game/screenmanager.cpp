@@ -49,11 +49,22 @@ namespace UI
         return TopScreen().HandleEvent(event);
     }
 
+    void ScreenManager::Render(Render::Renderer &renderer)
+    {
+        for(UI::Screen *screen : mScreenStack) {
+            if(screen != nullptr) {
+                screen->Render(renderer);
+            } else {
+                throw std::runtime_error("null screen on stack");
+            }
+        }
+    }
+    
     void ScreenManager::DrawScreen(Surface &frame)
     {
-        for(auto &ptr : mScreenStack) {
-            if(ptr) {
-                ptr->Draw(frame);
+        for(UI::Screen *screen : mScreenStack) {
+            if(screen != nullptr) {
+                screen->Draw(frame);
             } else {
                 throw std::runtime_error("null screen on stack");
             }

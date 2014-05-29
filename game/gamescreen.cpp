@@ -24,6 +24,7 @@ namespace UI
     GameScreen::~GameScreen() = default;
     GameScreen::GameScreen(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
+        , archer(LoadGM1(fs::GM1FilePath("body_archer")))
         , landset(LoadGM1(fs::GM1FilePath("tile_land8")))
         , seaset(LoadGM1(fs::GM1FilePath("tile_sea8")))
         , rockset(LoadGM1(fs::GM1FilePath("tile_rocks8")))
@@ -51,6 +52,64 @@ namespace UI
             return rockset;
         default:
             return landset;
+        }
+    }
+
+    void GameScreen::Render(Render::Renderer &renderer)
+    {
+        UpdateCamera(renderer.GetScreenRect());
+        
+        const Castle::GameMap::Cell selected = FindSelectedTile();
+        const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
+
+        const auto cellIters = map.Cells();
+        for(auto i = cellIters.first; i != cellIters.second; ++i) {
+            const Castle::GameMap::Cell cell = *i;
+            const Collection &tileset = GetTileSet(map.LandscapeType(*i));
+            
+            const size_t index = map.Height(cell);
+            const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
+            const Surface &surface = tileset.GetSurface(index);
+
+            const Point cellCenter = mCamera.WorldToScreenCoords(*i);
+            const Rect tileRect(
+                cellCenter.x,
+                cellCenter.y,
+                mCamera.TileSize().x,
+                mCamera.TileSize().y);
+            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), surface->w, surface->h);
+
+            if(!mCamera.Flat()) {
+                cellBox.y -= map.Height(*i);
+            }
+
+            if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
+                std::unique_ptr<SurfaceColorModSetter> setter;
+                if(selected == *i) {
+                    setter.reset(new SurfaceColorModSetter(surface, Color(255, 128, 128)));
+                }
+                renderer.BindTexture(surface);
+                renderer.BlitTexture(Rect(surface), cellBox);
+            }
+
+            if(mCamera.Flat() && Intersects(renderer.GetScreenRect(), tileRect)) {
+                const Color tileColor =
+                    ((selected.x == cell.x || selected.y == cell.y)
+                     ? (Colors::Yellow)
+                     : (Colors::Red.Opaque(100)));
+                renderer.FillRhombus(tileRect, Colors::Black.Opaque(200));
+                renderer.DrawRhombus(tileRect, tileColor);
+            }
+
+            const Surface &sprite = archer.GetSurface(index);
+            const GM1::Palette &palette = archer.GetPalette(PaletteName::Blue);
+            renderer.BindPalette(palette);
+            renderer.BindTexture(sprite);
+
+            const Point spriteOffset = (mCamera.Flat()
+                                        ? (Point(0, 0))
+                                        : (Point(0, map.Height(*i))));
+            renderer.BlitTexture(Rect(sprite), Translated(Rect(sprite), cellCenter - archer.Anchor() - spriteOffset + Point(16, 8)));
         }
     }
     

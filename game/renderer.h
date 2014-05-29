@@ -5,10 +5,14 @@
 
 #include <SDL.h>
 
-#include <game/rect.h>
+#include <game/gm1palette.h>
 #include <game/surface.h>
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
+
+class Rect;
+class Point;
+class Color;
 
 namespace GM1
 {
@@ -26,6 +30,9 @@ namespace Render
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
         WindowPtr mWindow;
+        GM1::Palette mBoundPalette;
+        Surface mBoundTexture;
+        Surface mBoundAlphaMap;
         
         bool ReallocationRequired(int width, int heigth, int format);
         void CreateScreenTexture(int width, int height, int format);
@@ -38,8 +45,9 @@ namespace Render
         
         const Surface BeginFrame();
         void EndFrame();
-        
-        const Rect GetScreenSize() const;
+
+        const Point GetOutputSize() const;
+        const Rect GetScreenRect() const;
         void SetScreenSize(int width, int height);
         void SetScreenFormat(int format);
         void SetScreenMode(int width, int height, int format);
@@ -57,6 +65,12 @@ namespace Render
         void BindAlphaMap(const Surface &surface);
         
         void BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect);
+
+        void DrawRhombus(const Rect &bounds, const Color &fg);
+        void FillRhombus(const Rect &bounds, const Color &bg);
+        
+        void DrawFrame(const Rect &bounds, const Color &fg);
+        void FillFrame(const Rect &bounds, const Color &bg);
     };
     
 } // namespace Render

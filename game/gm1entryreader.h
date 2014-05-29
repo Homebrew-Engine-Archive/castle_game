@@ -5,7 +5,6 @@
 #include <memory>
 
 #include <game/color.h>
-#include <game/point.h>
 
 namespace GM1
 {

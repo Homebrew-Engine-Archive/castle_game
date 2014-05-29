@@ -44,23 +44,11 @@ namespace GM1
         iterator begin();
         iterator end();
 
+        // \todo should I take care of this meanless SDL's const?
+        SDL_Palette& asSDLPalette();
         SDL_Palette const& asSDLPalette() const;
     };
     
-    enum class PaletteSet : size_t
-    {
-        Unknown0,
-        Blue,
-        Red,
-        Orange,
-        Yellow,
-        Purple,
-        Black,
-        Cyan,
-        Green,
-        Unknown1
-    };
-
     std::ostream& PrintPalette(std::ostream&, const Palette &palette);
 }
 
