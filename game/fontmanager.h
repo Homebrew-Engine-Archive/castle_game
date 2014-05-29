@@ -2,7 +2,7 @@
 #define FONTMANAGER_H_
 
 #include <game/filesystem.h>
-#include <game/sdl_utils.h>
+#include <game/ttf_utils.h>
 
 #include <SDL_ttf.h>
 
@@ -19,10 +19,8 @@ namespace Render
     {
         TTFInitializer mTTF_Init;
         std::vector<FontData> mFontTable;
-        FontData *mDefaultFontData;
 
         FontData* LookupFontName(const std::string &name, int fsize);
-        void CheckDefaultFontIsSet() const;
         
     public:
         FontManager();
@@ -34,10 +32,6 @@ namespace Render
         
         void LoadFontFile(const std::string &name, int fsize);
         TTF_Font* Font(const std::string &name, int fsize);
-
-        void SetDefaultFont(const std::string &name, int fsize);
-        
-        TTF_Font* DefaultFont();
     };
 
     TTF_Font* FindFont(const std::string &name, int fsize);

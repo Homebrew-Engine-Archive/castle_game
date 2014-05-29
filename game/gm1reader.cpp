@@ -44,8 +44,10 @@ namespace
 
     std::istream& ReadPalette(std::istream &in, GM1::Palette &palette)
     {
-        for(uint16_t &entry : palette) {
-            io::ReadLittle(in, entry);
+        for(GM1::Palette::value_type &entry : palette) {
+            uint16_t pixel;
+            io::ReadLittle<uint16_t>(in, pixel);
+            entry = GetPixelColor(pixel, GM1::PalettePixelFormat);
         }
         return in;
     }

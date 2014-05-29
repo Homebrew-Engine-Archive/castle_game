@@ -6,22 +6,36 @@
 #include <game/endianness.h>
 #include <game/sdl_utils.h>
 
-const Color GetPixelColor(uint32_t argb32, int format)
+const Color GetPixelColor(uint32_t pixel, uint32_t format)
 {
     const PixelFormatPtr fmt(SDL_AllocFormat(format));
     if(!fmt) {
         throw sdl_error();
     }
-    return GetPixelColor(argb32, *fmt);
+    return GetPixelColor(pixel, *fmt);
 }
 
-const Color GetPixelColor(uint32_t argb32, const SDL_PixelFormat &format)
+const Color GetPixelColor(uint32_t pixel, const SDL_PixelFormat &format)
 {
     Color temp;
-    SDL_GetRGBA(argb32, &format, &temp.r, &temp.g, &temp.b, &temp.a);
+    SDL_GetRGBA(pixel, &format, &temp.r, &temp.g, &temp.b, &temp.a);
     return temp;
 }
-    
+
+uint32_t GetColorPixel(const Color &color, uint32_t format)
+{
+    const PixelFormatPtr fmt(SDL_AllocFormat(format));
+    if(!fmt) {
+        throw sdl_error();
+    }
+    return GetColorPixel(color, *fmt);
+}
+
+uint32_t GetColorPixel(const Color &color, const SDL_PixelFormat &format)
+{
+    return SDL_MapRGBA(&format, color.r, color.g, color.b, color.a);
+}
+
 std::ostream& operator<<(std::ostream &out, const SDL_Color &color)
 {
     out << '(';

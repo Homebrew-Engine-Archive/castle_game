@@ -11,6 +11,7 @@
 #include <game/rect.h>
 #include <game/filesystem.h>
 #include <game/collection.h>
+#include <game/surface_drawing.h>
 
 namespace UI
 {
@@ -66,12 +67,12 @@ namespace UI
     
         Rect barOuter(300, 25);
         Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-        FillFrame(frame, barOuterAligned, Colors::Black.Opaque(100));
-        DrawFrame(frame, barOuterAligned, Colors::Black);
+        Graphics::FillFrame(frame, barOuterAligned, Colors::Black.Opaque(100));
+        Graphics::DrawFrame(frame, barOuterAligned, Colors::Black);
 
         Rect barOuterPadded = PadIn(barOuterAligned, 5);
         Rect barInner(barOuterPadded.w * rate, barOuterPadded.h);
         Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-        FillFrame(frame, barInnerAligned, Colors::Black);
+        Graphics::FillFrame(frame, barInnerAligned, Colors::Black);
     }   
 } // namespace UI

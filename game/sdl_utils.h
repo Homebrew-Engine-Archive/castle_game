@@ -1,25 +1,16 @@
 #ifndef SDL_UTILS_H_
 #define SDL_UTILS_H_
 
-#include <iosfwd>
 #include <memory>
 
-#include <SDL_ttf.h>
 #include <SDL.h>
 
-#include <game/ttf_error.h>
 #include <game/sdl_error.h>
 
 struct SDLInitializer final
 {
     SDLInitializer(int flags) throw(sdl_error);
     ~SDLInitializer() throw();
-};
-
-struct TTFInitializer final
-{
-    TTFInitializer() throw(sdl_error);
-    ~TTFInitializer() throw();
 };
 
 template<class T, void (*D)(T*)>
@@ -35,7 +26,6 @@ typedef std::unique_ptr<SDL_Texture, SDLDeleter<SDL_Texture, SDL_DestroyTexture>
 typedef std::unique_ptr<SDL_Window, SDLDeleter<SDL_Window, SDL_DestroyWindow>> WindowPtr;
 typedef std::unique_ptr<SDL_PixelFormat, SDLDeleter<SDL_PixelFormat, SDL_FreeFormat>> PixelFormatPtr;
 typedef std::unique_ptr<SDL_Palette, SDLDeleter<SDL_Palette, SDL_FreePalette>> PalettePtr;
-typedef std::unique_ptr<TTF_Font, SDLDeleter<TTF_Font, TTF_CloseFont>> FontPtr;
 
 struct RWCloseDeleter
 {

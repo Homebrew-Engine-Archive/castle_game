@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 
+#include <game/landscape.h>
 #include <game/surface.h>
 #include <game/filesystem.h>
 #include <game/point.h>
@@ -18,14 +19,28 @@ namespace Render
 
 namespace Graphics
 {
+    class Picture
+    {
+        Surface mSurface;
+        Point mAnchor;
+        
+    public:
+        
+    };
+
+    struct TileSet
+    {
+        std::vector<Picture> pictures;
+    };
+
     class GraphicsManager
     {
-        std::vector<struct TileData> mTiles;
     public:
         GraphicsManager();
         virtual ~GraphicsManager();
         
-        int CreateTile(const std::string &gmpath, int entry);
+        Picture const& GetPicture(const std::string &name) const;
+        
     };
 }
 

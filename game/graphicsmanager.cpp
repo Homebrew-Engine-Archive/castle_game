@@ -8,22 +8,9 @@
 
 namespace Graphics
 {
-    struct TileData
-    {
-        Surface face;
-        Point center;
-        TileData *flat;
-    };
-    
     GraphicsManager::GraphicsManager()
-        : mTiles()
     {
     }
     
     GraphicsManager::~GraphicsManager() = default;
-    
-    int GraphicsManager::CreateTile(const std::string &gmname, int entry)
-    {
-        return 0;
-    }
 }

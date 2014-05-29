@@ -11,15 +11,12 @@ enum class Landscape;
 
 namespace Castle
 {
-    class Occupier;
-    
     class GameMap
     {
         int mSize;
         int mCellsCount;
         std::vector<int> mHeightLayer;
         std::vector<Landscape> mLandscapeLayer;
-        std::vector<Occupier> mBuildingLayer;
         bool mHorizontalWrapping;
         bool mVerticalWrapping;
         
@@ -42,8 +39,8 @@ namespace Castle
         void WrapHorizontal(bool on);
         void WrapVertical(bool on);
 
-        Cell NullCell() const;
-
+        const Cell NullCell() const;
+        
         int Size() const;
 
         struct AdjacencyIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>
@@ -54,7 +51,7 @@ namespace Castle
             const AdjacencyIterator operator++(int);
             void operator++();
             bool operator!=(const AdjacencyIterator &that) const;
-            GameMap::Cell operator*() const;
+            const GameMap::Cell operator*() const;
 
         protected:
             const GameMap &mMap;
@@ -62,30 +59,26 @@ namespace Castle
             int mDir;
         };
 
-        std::pair<AdjacencyIterator, AdjacencyIterator> AdjacentCells(GameMap::Cell cell) const;
+        const std::pair<AdjacencyIterator, AdjacencyIterator> AdjacentCells(GameMap::Cell cell) const;
 
         struct CellIterator : public std::iterator<std::forward_iterator_tag, GameMap::Cell>
         {
-            explicit constexpr CellIterator(const GameMap &map)
-                : mMap(map) {  }
+            explicit constexpr CellIterator(const GameMap &map, size_t cellIndex)
+                : mMap(map), mCellIndex(cellIndex) {  }
 
-            CellIterator operator++(int);
+            const CellIterator operator++(int);
             void operator++();
             bool operator!=(const CellIterator &that) const;
-            GameMap::Cell operator*() const;
+            const GameMap::Cell operator*() const;
             
         protected:
             const GameMap &mMap;
+            size_t mCellIndex;
         };
+
+        const std::pair<CellIterator, CellIterator> Cells() const;
     };
 
-    class Occupier
-    {
-    protected:
-        std::vector<GameMap> mOccupiedTiles;
-    public:
-    };
-    
     constexpr static int TileWidth = 32;
     constexpr static int TileHeight = 16;
     

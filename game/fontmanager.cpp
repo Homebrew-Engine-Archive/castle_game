@@ -30,7 +30,6 @@ namespace Render
     FontManager::FontManager()
         : mTTF_Init()
         , mFontTable()
-        , mDefaultFontData(nullptr)
     {
     }
     
@@ -113,23 +112,6 @@ namespace Render
             return fd->font.get();
         }
         throw std::runtime_error("no font found");
-    }
-    
-    TTF_Font* FontManager::DefaultFont()
-    {
-        return mDefaultFontData->font.get();
-    }
-
-    void FontManager::SetDefaultFont(const std::string &name, int fsize)
-    {
-        mDefaultFontData = LookupFontName(name, fsize);
-    }
-
-    void FontManager::CheckDefaultFontIsSet() const
-    {
-        if(mDefaultFontData == nullptr) {
-            throw std::logic_error("no default font has been set");
-        }
     }
 
     FontManager& FontManager::Instance()

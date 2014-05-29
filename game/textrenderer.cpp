@@ -129,6 +129,11 @@ namespace Render
     {
         return mFontSize;
     }
+
+    const Point TextRenderer::GetCursorPos() const
+    {
+        return mCursor;
+    }
     
     void TextRenderer::SetCursorPos(Point pos)
     {

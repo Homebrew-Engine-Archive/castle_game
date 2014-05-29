@@ -230,45 +230,6 @@ void Surface::Reset(SDL_Surface *surface)
     Assign(surface);
 }
 
-const Surface CreateSurfaceView(Surface &src, const Rect &clip)
-{
-    if(SDL_MUSTLOCK(src)) {
-        // \todo can we deal with it?
-        throw std::invalid_argument("SurfaceView might not be created from RLEaccel surface");
-    }
-
-    const Rect cropped =
-        IntersectRects(
-            Normalized(clip),
-            Rect(src));
-
-    char *const pixels = GetPixels(src)
-        + cropped.y * src->pitch
-        + cropped.x * src->format->BytesPerPixel;
-
-    Surface tmp;
-    tmp = CreateSurfaceFrom(pixels, cropped.w, cropped.h, src->pitch, *src->format);
-    if(!tmp) {
-        throw sdl_error();
-    }
-    CopyColorKey(src, tmp);
-    
-    return tmp;
-}
-
-SurfaceView::SurfaceView(Surface &src, const Rect &clip)
-    : mSurface(CreateSurfaceView(src, clip))
-    , mParentRef(src)
-{
-}
-
-// \todo there is something wrong with const-specifier
-// problem arises to SDL_CreateRGBSurfaceFrom which asks for non-const pixels
-SurfaceView::SurfaceView(const Surface &src, const Rect &clip)
-    : SurfaceView(const_cast<Surface&>(src), clip)
-{
-}
-
 void SetColorKey(Surface &surface, uint32_t *key)
 {
     if(key == nullptr) {
@@ -417,81 +378,6 @@ void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &d
     }
 }
 
-void DrawFrame(Surface &dst, const Rect &frame, const Color &color)
-{
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    if(!render) {
-        throw sdl_error();
-    }
-
-    DrawFrame(*render, frame, color);
-}
-
-void FillFrame(Surface &dst, const Rect &frame, const Color &color)
-{
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    if(!render) {
-        throw sdl_error();
-    }
-
-    FillFrame(*render, frame, color);
-}
-
-void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color)
-{
-    RendererPtr render(SDL_CreateSoftwareRenderer(dst));
-    if(!render) {
-        throw sdl_error();
-    }
-
-    DrawRhombus(*render, bounds, color);
-}
-
-void DrawFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color)
-{
-    SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(&renderer, color.r, color.g, color.b, color.a);
-    if(SDL_RenderDrawRect(&renderer, &frame) < 0) {
-        throw sdl_error();
-    }
-}
-
-void FillFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color)
-{
-    SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(&renderer, color.r, color.g, color.b, color.a);
-    if(SDL_RenderFillRect(&renderer, &frame) < 0) {
-        throw sdl_error();
-    }
-}
-
-void DrawRhombus(SDL_Renderer &renderer, const Rect &bounds, const Color &color)
-{
-    constexpr int numPoints = 5;
-
-    const auto x1 = bounds.x;
-    const auto y1 = bounds.y;
-    const auto x2 = bounds.x + bounds.w;
-    const auto y2 = bounds.y + bounds.h;
-
-    const auto centerX = (x1 + x2) / 2;
-    const auto centerY = (y1 + y2) / 2;
-    
-    const Point points[] = {
-        Point(x1, centerY),
-        Point(centerX, y1),
-        Point(x2, centerY),
-        Point(centerX, y2),
-        Point(x1, centerY)
-    };
-    
-    SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(&renderer, color.r, color.g, color.b, color.a);    
-    if(SDL_RenderDrawLines(&renderer, &points[0], numPoints) < 0) {
-        throw sdl_error();
-    }
-}
-
 void TransformSurface(Surface &dst, Color func(Color const&))
 {
     if(!dst) {
@@ -500,6 +386,8 @@ void TransformSurface(Surface &dst, Color func(Color const&))
     
     const SurfaceLocker lock(dst);
     char *const bytes = GetPixels(dst);
+
+    assert(dst->format != nullptr);
     TransformFunctor transform(*dst->format, func);
     
     for(int i = 0; i < dst->h; ++i) {
@@ -516,6 +404,8 @@ void BlurSurface(Surface &dst, int radius)
     }
 
     const auto buffSize = std::max(dst->w, dst->h);
+
+    assert(dst->format != nullptr);
     ConvolveFunctor convolve(radius, *dst->format, buffSize);
     
     if(radius < 1 || radius > buffSize) {

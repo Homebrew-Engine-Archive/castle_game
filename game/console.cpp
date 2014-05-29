@@ -11,6 +11,7 @@
 #include <game/screenmanager.h>
 #include <game/surface.h>
 #include <game/textrenderer.h>
+#include <game/surface_drawing.h>
 
 namespace UI
 {
@@ -26,7 +27,7 @@ namespace UI
     void Console::Draw(Surface &frame)
     {
         const Rect consoleRect = Rect(frame->w, frame->h / 2);
-        FillFrame(frame, consoleRect, Colors::Black.Opaque(200));
+        Graphics::FillFrame(frame, consoleRect, Colors::Black.Opaque(200));
         
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetColor(Colors::Magenta);

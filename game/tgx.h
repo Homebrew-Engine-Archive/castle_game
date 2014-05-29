@@ -53,13 +53,16 @@ namespace TGX
        and this is what I found in stronghold gfx
             11111000 00011111 (0xF81F) 
       
-       Maybe it is RGB565? Nope, it's not!
-       Almost all in SH gfx can be decoded using just Little-Endian, RGB555 and
+       Say it is RGB565? Nope, it's not!
+       Almost everything in SH gfx can be decoded using just Little-Endian, RGB555 and
        0xf81f as transparency. Almost, except font glyphs,
        some buildings, puff of smoke and something other.
-       In this certain cases some pixels is slightly magenta-tinted.
+       In this cases some pixels have weak magenta tint, but
+       they aren't all the same.
        
-       \todo bring them all here.
+       \todo bring all such cases here to analyze.
+
+       Some constants I mention earlier:
        
        const uint16_t Transparent16 = 0xF81F;
       
@@ -69,7 +72,7 @@ namespace TGX
        const uint32_t BlueMask16   = 0x0000001f;
     **/
 
-    const uint32_t PixelFormat = SDL_PIXELFORMAT_RGB555;
+    constexpr uint32_t PixelFormat = SDL_PIXELFORMAT_RGB555;
     
     std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     

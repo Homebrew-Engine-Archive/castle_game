@@ -69,11 +69,8 @@ namespace GMTool
     void RenderMode::SetupPalette(Surface &surface, const GM1::Palette &palette)
     {
         if(HasPalette(surface)) {
-            PalettePtr sdlPalette = GM1::CreateSDLPalette(palette);
-            if(!sdlPalette) {
-                throw sdl_error();
-            }
-            if(SDL_SetSurfacePalette(surface, sdlPalette.get()) < 0) {
+            GM1::Palette copied = palette;
+            if(SDL_SetSurfacePalette(surface, &copied.asSDLPalette()) < 0) {
                 throw sdl_error();
             }
         }

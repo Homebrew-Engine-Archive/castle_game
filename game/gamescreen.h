@@ -13,6 +13,7 @@
 
 class Rect;
 class Surface;
+enum class Landscape;
 
 namespace Castle
 {
@@ -30,12 +31,15 @@ namespace UI
     {
         UI::ScreenManager &mScreenManager;
         Castle::SimulationManager &mSimulationManager;
-        CollectionData tileset;
+        CollectionData landset;
+        CollectionData seaset;
+        CollectionData rockset;
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         std::map<SDL_Keycode, bool> mKeyState;
         Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
+        CollectionData const& GetTileSet(Landscape landscape) const;
         
     public:
         GameScreen(UI::ScreenManager &screenManager,
@@ -43,8 +47,9 @@ namespace UI
         
         GameScreen(GameScreen const&) = delete;
         GameScreen& operator=(GameScreen const&) = delete;
-        ~GameScreen();
+        virtual ~GameScreen();
         
+        bool TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const;
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);

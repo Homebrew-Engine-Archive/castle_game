@@ -71,7 +71,8 @@ namespace Render
         void SetColor(const Color &color);
         void SetCursorMode(CursorMode mode);
         void SetCursorPos(Point pos);
-        
+
+        const Point GetCursorPos() const;
         const std::string FontName() const;
         int FontSize() const;
         const Rect CalculateTextRect(const std::string &str) const;

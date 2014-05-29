@@ -20,6 +20,12 @@ namespace core
     {
         return Mod(a, static_cast<T>(2)) == static_cast<T>(1);
     }
+
+    template<class T>
+    constexpr T RoundDownTo(T value, T quant)
+    {
+        return value - Mod<T>(value, quant);
+    }
 }
 
 #endif // MODULO_H_

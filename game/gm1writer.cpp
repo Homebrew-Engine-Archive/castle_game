@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <game/color.h>
 #include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/iohelpers.h>
@@ -37,8 +38,9 @@ namespace GM1
 
     std::ostream& WritePalette(std::ostream &out, const GM1::Palette &palette)
     {
-        for(GM1::palette_entry_t entry : palette) {
-            io::WriteLittle(out, entry);
+        for(const GM1::Palette::value_type &entry : palette) {
+            GM1::palette_entry_t pixel = GetColorPixel(entry, GM1::PalettePixelFormat);
+            io::WriteLittle(out, pixel);
         }
         return out;
     }

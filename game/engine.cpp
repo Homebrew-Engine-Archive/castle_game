@@ -14,6 +14,7 @@
 #include <game/rect.h>
 #include <game/point.h>
 
+#include <game/surface_drawing.h>
 #include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
@@ -98,8 +99,6 @@ namespace Castle
                 std::cerr << "Load font failed: " << error.what() << std::endl;
             }
         }
-
-        Render::FontManager::Instance().SetDefaultFont(Render::FontStronghold, 13);
     }
 
     void Engine::LoadGraphics()
@@ -136,24 +135,30 @@ namespace Castle
         // forward connections to simulation manager
         // forward data to simulation manager
     }
+
+    void DrawText(Surface frame, Render::TextRenderer &renderer, const std::string &text, int style, const Color &fg, const Color &bg)
+    {
+        renderer.SetFontStyle(style);
+        renderer.SetColor(fg);
+        const Rect textRect = renderer.CalculateTextRect(text);
+        Graphics::FillFrame(frame, textRect, bg);
+        renderer.PutString(text);
+    }
     
     void Engine::DrawFrame()
     {
         Surface frame = mRenderer.BeginFrame();
         mScreenMgr.DrawScreen(frame);
-        
+
         std::ostringstream oss;
-        oss << "(Your jam, sir) " << "FPS: ";
         oss.width(10);
         oss << mFpsAverage;
-        std::string text = oss.str();
-
+        
         Render::TextRenderer textRenderer(frame);
         textRenderer.SetCursorPos(Point(0, 20));
-        textRenderer.SetColor(Colors::Red);
-
-        FillFrame(frame, textRenderer.CalculateTextRect(text), Colors::Black.Opaque(100));
-        textRenderer.PutString(text);
+        textRenderer.SetFont(Render::FontStronghold, 13);
+        DrawText(frame, textRenderer, "(Your jam sir) FPS: ", Render::FontStyle_Italic, Colors::Red, Colors::Black.Opaque(150));
+        DrawText(frame, textRenderer, oss.str(), Render::FontStyle_Italic | Render::FontStyle_Underline, Colors::Red, Colors::Black.Opaque(150));
 
         mRenderer.EndFrame();
     }

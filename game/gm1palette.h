@@ -2,6 +2,7 @@
 #define GM1PALETTE_H_
 
 #include <iosfwd>
+#include <memory>
 
 #include <SDL.h>
 
@@ -9,6 +10,8 @@
 #include <vector>
 
 #include <game/sdl_utils.h>
+
+class Surface;
 
 namespace GM1
 {
@@ -22,37 +25,26 @@ namespace GM1
     
     class Palette
     {
-        typedef std::array<palette_entry_t, CollectionPaletteColors> storage_type;
-        storage_type mArray;
+        std::shared_ptr<SDL_Palette> mStorage;
+        
     public:
-        typedef storage_type::value_type        value_type;
-        typedef storage_type::const_iterator    const_iterator;
-        typedef storage_type::iterator          iterator;
-        typedef storage_type::size_type         size_type;
-        
-        constexpr value_type operator[](size_type index) const {
-            return mArray[index];
-        }
+        typedef SDL_Color         value_type;
+        typedef SDL_Color const*  const_iterator;
+        typedef SDL_Color*        iterator;
+        typedef size_t            size_type;
 
-        constexpr size_type Size() const {
-            return mArray.size();
-        }
+        Palette();
+        virtual ~Palette() = default;
         
-        inline const_iterator begin() const {
-            return mArray.begin();
-        }
-        
-        inline const_iterator end() const {
-            return mArray.end();
-        }
-        
-        inline iterator begin() {
-            return mArray.begin();
-        }
+        value_type const& operator[](size_type index) const;
+        value_type& operator[](size_type index);
+        size_type Size() const;
+        const_iterator begin() const;
+        const_iterator end() const;
+        iterator begin();
+        iterator end();
 
-        inline iterator end() {
-            return mArray.end();
-        }
+        SDL_Palette& asSDLPalette();
     };
     
     enum class PaletteSet : size_t
@@ -68,9 +60,7 @@ namespace GM1
         Green,
         Unknown1
     };
-    
-    PalettePtr CreateSDLPalette(const Palette &palette);
-    PalettePtr CreateSDLPalette(const std::vector<SDL_Color> &colors);
+
     std::ostream& PrintPalette(std::ostream&, const Palette &palette);
 }
 

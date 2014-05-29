@@ -11,6 +11,11 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 
+namespace GM1
+{
+    class Palette;
+}
+
 struct CollectionEntry
 {
     GM1::EntryHeader header;
@@ -23,7 +28,7 @@ struct CollectionData
 {
     GM1::Header header;
     std::vector<CollectionEntry> entries;
-    std::vector<PalettePtr> palettes;
+    std::vector<GM1::Palette> palettes;
 };
 
 typedef std::unique_ptr<CollectionData> CollectionDataPtr;

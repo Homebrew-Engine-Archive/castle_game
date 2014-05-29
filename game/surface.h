@@ -39,37 +39,11 @@ class SurfaceLocker final
     bool mLocked;
 public:
     explicit SurfaceLocker(const Surface &surface);
-    // TODO implement copying surface on copying locker
     SurfaceLocker(SurfaceLocker const&) = delete;
     SurfaceLocker &operator=(SurfaceLocker const&) = delete;
     ~SurfaceLocker();
 };
 
-/**
- * \brief Region-Of-Interest of surface object
- *
- * It is a surface like object which shares some memory with
- * it's parent surface object. Exactly like OpenCV's Mat class can do .
- *
- * \note Deallocation of parent object isn't invalidate such kind of object.
- *
- * It holds reference to the parent surface so neither this nor parent
- * surface doesn't intent deallocation of each other.
- *
- * \todo This class is not intended to work together with RLE accel. Can we deal with it?
- *
- */
-class SurfaceView final
-{
-    Surface mSurface;
-    const Surface &mParentRef;
-public:
-    SurfaceView(const Surface &src, const Rect &clip);
-    SurfaceView(Surface &src, const Rect &clip);
-
-    inline Surface& View() { return mSurface; }
-    inline Surface const& View() const { return mSurface; }
-};
 
 class SurfaceColorModSetter final
 {
@@ -101,14 +75,6 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
 void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
 void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
-
-void DrawRhombus(Surface &dst, const Rect &bounds, const Color &color);
-void DrawFrame(Surface &dst, const Rect &frame, const Color &color);
-void FillFrame(Surface &dst, const Rect &frame, const Color &color);
-
-void DrawRhombus(SDL_Renderer &renderer, const Rect &bounds, const Color &color);
-void DrawFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
-void FillFrame(SDL_Renderer &renderer, const Rect &frame, const Color &color);
 
 void BlurSurface(Surface &dst, int radius);
 

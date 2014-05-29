@@ -12,6 +12,7 @@
 #include <game/gm1.h>
 #include <game/tgx.h>
 #include <game/surface.h>
+#include <game/surface_view.h>
 
 namespace
 {    

@@ -34,7 +34,7 @@ CollectionData LoadGM1(const fs::path &path)
 
     for(int i = 0; i < gm1.NumPalettes(); ++i) {
         try {
-            data.palettes[i] = GM1::CreateSDLPalette(gm1.Palette(i));
+            data.palettes[i] = gm1.Palette(i);
         } catch(const std::exception &error) {
             std::cerr << "read palette failed: " << error.what() << std::endl;
             throw;
