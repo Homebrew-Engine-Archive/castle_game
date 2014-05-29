@@ -10,6 +10,11 @@
 #include <game/sdl_utils.h>
 #include <game/filesystem.h>
 
+namespace GM1
+{
+    class Palette;
+}
+
 namespace Render
 {
     class Renderer
@@ -46,6 +51,12 @@ namespace Render
         const Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void PaintImage(const Surface &surface, const Rect &whither);
+        
+        void BindTexture(const Surface &surface);
+        void BindPalette(const GM1::Palette &palette);
+        void BindAlphaMap(const Surface &surface);
+        
+        void BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect);
     };
     
 } // namespace Render

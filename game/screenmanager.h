@@ -17,8 +17,6 @@ namespace UI
 {
     class ScreenManager
     {
-        Castle::SimulationManager &mSimulationManager;
-
         UI::LoadingScreen mLoadingScreen;
         UI::Console mConsole;
         UI::MenuMain mMenuMain;
@@ -30,7 +28,7 @@ namespace UI
         std::vector<Screen*> mScreenStack;
         
     public:
-        ScreenManager(Castle::SimulationManager &simulationManager);
+        ScreenManager();
 
         void ToggleConsole();
         void EnterGameScreen();

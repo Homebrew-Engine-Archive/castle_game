@@ -4,12 +4,11 @@
 
 namespace UI
 {
-    ScreenManager::ScreenManager(Castle::SimulationManager &simulationManager)
-        : mSimulationManager(simulationManager)
-        , mLoadingScreen()
+    ScreenManager::ScreenManager()
+        : mLoadingScreen()
         , mConsole(*this)
         , mMenuMain(*this)
-        , mGameScreen(*this, simulationManager)
+        , mGameScreen(*this)
         , mMenuCombat(*this)
         , mInGameMenu()
         , mScreenStack()

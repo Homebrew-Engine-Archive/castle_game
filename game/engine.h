@@ -32,7 +32,6 @@ namespace Castle
         bool mFpsLimited;
         boost::asio::io_service mIO;
         int16_t mPort;
-        Castle::SimulationManager mSimulationMgr;
         UI::ScreenManager mScreenMgr;
         Network::Server mServer;
         Graphics::GraphicsManager mGraphicsMgr;

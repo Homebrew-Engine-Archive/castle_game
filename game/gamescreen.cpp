@@ -22,10 +22,8 @@
 namespace UI
 {
     GameScreen::~GameScreen() = default;
-    GameScreen::GameScreen(UI::ScreenManager &screenManager,
-                           Castle::SimulationManager &simulationManager)
+    GameScreen::GameScreen(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
-        , mSimulationManager(simulationManager)
         , landset(LoadGM1(fs::GM1FilePath("tile_land8")))
         , seaset(LoadGM1(fs::GM1FilePath("tile_sea8")))
         , rockset(LoadGM1(fs::GM1FilePath("tile_rocks8")))
@@ -35,7 +33,7 @@ namespace UI
     {
     }
     
-    CollectionData const& GameScreen::GetTileSet(Landscape landscape) const
+    Collection const& GameScreen::GetTileSet(Landscape landscape) const
     {
         switch(landscape) {
         case Landscape::Sea:
@@ -62,13 +60,16 @@ namespace UI
         
         const RendererPtr renderer(SDL_CreateSoftwareRenderer(frame));
         const Castle::GameMap::Cell selected = FindSelectedTile();
-        const Castle::GameMap &map = mSimulationManager.GetGameMap();
+        const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
 
         const auto cellIters = map.Cells();
         for(auto i = cellIters.first; i != cellIters.second; ++i) {
             const Castle::GameMap::Cell cell = *i;
-            const CollectionData &tileset = GetTileSet(map.LandscapeType(*i));
-            const CollectionEntry &entry = tileset.entries.at(map.Height(*i));
+            const Collection &tileset = GetTileSet(map.LandscapeType(*i));
+            
+            const size_t index = map.Height(cell);
+            const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
+            const Surface &surface = tileset.GetSurface(index);
 
             const Point cellCenter = mCamera.WorldToScreenCoords(*i);
             const Rect tileRect(
@@ -76,7 +77,7 @@ namespace UI
                 cellCenter.y,
                 mCamera.TileSize().x,
                 mCamera.TileSize().y);
-            Rect cellBox(cellCenter - Point(0, entry.header.tileY), entry.surface->w, entry.surface->h);
+            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), surface->w, surface->h);
 
             if(!mCamera.Flat()) {
                 cellBox.y -= map.Height(*i);
@@ -85,14 +86,14 @@ namespace UI
             if(!mCamera.Flat() && Intersects(Rect(frame), cellBox)) {
                 std::unique_ptr<SurfaceColorModSetter> setter;
                 if(selected == *i) {
-                    setter.reset(new SurfaceColorModSetter(entry.surface, Color(255, 128, 128)));
+                    setter.reset(new SurfaceColorModSetter(surface, Color(255, 128, 128)));
                 }
                 if(false /** mCamera.Scaled() **/) {
                     // \todo crop source and dest rect
                     const Rect entryRect = Translated(IntersectRects(Rect(frame), cellBox), -TopLeft(cellBox));
-                    BlitSurfaceScaled(entry.surface, entryRect, frame, cellBox);
+                    BlitSurfaceScaled(surface, entryRect, frame, cellBox);
                 } else {
-                    BlitSurface(entry.surface, Rect(entry.surface), frame, cellBox);
+                    BlitSurface(surface, Rect(surface), frame, cellBox);
                 }
             }
 
@@ -219,17 +220,18 @@ namespace UI
 
     bool GameScreen::TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const
     {
-        const CollectionData &tileset = GetTileSet(map.LandscapeType(cell));
-        const CollectionEntry &entry =
-            tileset.entries.at(
-                map.Height(cell));
+        const Collection &tileset = GetTileSet(map.LandscapeType(cell));
+        
+        const size_t index = map.Height(cell);
+        const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
+        const Surface &surface = tileset.GetSurface(index);
             
         Point cellCenter = mCamera.WorldToScreenCoords(cell);
-        Rect cellBox(cellCenter - Point(0, map.Height(cell)), entry.surface->w, entry.surface->h);
-        cellBox.y -= entry.header.tileY;         // Offset to the top
+        Rect cellBox(cellCenter - Point(0, map.Height(cell)), surface->w, surface->h);
+        cellBox.y -= entryHeader.tileY;         // Offset to the top
         if(PointInRect(cellBox, mCursor)) {
             Point inside = ClipToRect(cellBox, mCursor);
-            if(ExtractPixel(entry.surface, inside) != 0) {
+            if(ExtractPixel(surface, inside) != 0) {
                 return true;
             }
         }
@@ -242,7 +244,7 @@ namespace UI
             return mCamera.ScreenToWorldCoords(mCursor);
         }
 
-        Castle::GameMap &map = mSimulationManager.GetGameMap();
+        Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
         Castle::GameMap::Cell selected = map.NullCell();
         const auto cellsIters = map.Cells();
         for(auto i = cellsIters.first; i != cellsIters.second; ++i) {

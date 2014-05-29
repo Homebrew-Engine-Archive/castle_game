@@ -30,20 +30,18 @@ namespace UI
     class GameScreen : public Screen
     {
         UI::ScreenManager &mScreenManager;
-        Castle::SimulationManager &mSimulationManager;
-        CollectionData landset;
-        CollectionData seaset;
-        CollectionData rockset;
+        Collection landset;
+        Collection seaset;
+        Collection rockset;
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         std::map<SDL_Keycode, bool> mKeyState;
         Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
-        CollectionData const& GetTileSet(Landscape landscape) const;
+        Collection const& GetTileSet(Landscape landscape) const;
         
     public:
-        GameScreen(UI::ScreenManager &screenManager,
-                   Castle::SimulationManager &simulationManager);
+        GameScreen(UI::ScreenManager &screenManager);
         
         GameScreen(GameScreen const&) = delete;
         GameScreen& operator=(GameScreen const&) = delete;

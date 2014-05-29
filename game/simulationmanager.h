@@ -21,7 +21,10 @@ namespace Castle
 
     public:
         SimulationManager();
+        static SimulationManager& Instance();
 
+        
+        
         Castle::GameMap& GetGameMap();
         void SetGameMap(std::unique_ptr<Castle::GameMap> map);
         

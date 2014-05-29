@@ -13,27 +13,30 @@
 
 namespace GM1
 {
+    class GM1Reader;
     class Palette;
 }
 
-struct CollectionEntry
+class Collection
 {
-    GM1::EntryHeader header;
-    Surface surface;
+public:
+    explicit Collection(const GM1::GM1Reader &reader);
+    Collection(const Collection &collection);
+    Collection& operator=(const Collection &collection);
+
+    GM1::Header const& GetHeader() const;
+    const Surface GetSurface(size_t index) const;
+    GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
+    GM1::Palette const& GetPalette(size_t index) const;
+
+protected:
+    GM1::Header mHeader;
+    std::vector<GM1::Palette> mPalettes;
+    std::vector<Surface> mEntries;
+    std::vector<GM1::EntryHeader> mHeaders;
 };
-
-typedef std::unique_ptr<CollectionEntry> CollectionEntryPtr;
-
-struct CollectionData
-{
-    GM1::Header header;
-    std::vector<CollectionEntry> entries;
-    std::vector<GM1::Palette> palettes;
-};
-
-typedef std::unique_ptr<CollectionData> CollectionDataPtr;
 
 Surface LoadTGX(const fs::path &filename);
-CollectionData LoadGM1(const fs::path &filename);
+Collection LoadGM1(const fs::path &filename);
 
 #endif

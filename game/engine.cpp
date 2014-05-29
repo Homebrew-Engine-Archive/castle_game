@@ -37,8 +37,7 @@ namespace Castle
         , mFpsLimited(false)
         , mIO()
         , mPort(4500)
-        , mSimulationMgr()
-        , mScreenMgr(mSimulationMgr)
+        , mScreenMgr()
         , mServer(mIO, mPort)
         , mGraphicsMgr()
     { }
@@ -183,8 +182,8 @@ namespace Castle
         
         LoadFonts();
         LoadGraphics();
-        mSimulationMgr.SetGameMap(std::make_unique<GameMap>(100));
-        GenerateRandomMap(mSimulationMgr.GetGameMap());
+        SimulationManager::Instance().SetGameMap(std::make_unique<GameMap>(16));
+        GenerateRandomMap(SimulationManager::Instance().GetGameMap());
         mScreenMgr.EnterGameScreen();
         mServer.StartAccept();
         
@@ -212,9 +211,9 @@ namespace Castle
             {
                 const steady_clock::time_point now = steady_clock::now();
                 milliseconds sinceLastSim = Elapsed(prevSimulation, now);
-                if(mSimulationMgr.HasUpdate(sinceLastSim)) {
+                if(SimulationManager::Instance().HasUpdate(sinceLastSim)) {
                     prevSimulation = now;
-                    mSimulationMgr.Update();
+                    SimulationManager::Instance().Update();
                 }
             }
 

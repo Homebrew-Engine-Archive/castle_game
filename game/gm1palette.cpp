@@ -57,7 +57,7 @@ namespace GM1
         return mStorage->colors + Size();
     }
 
-    SDL_Palette& Palette::asSDLPalette()
+    SDL_Palette const& Palette::asSDLPalette() const
     {
         return *mStorage;
     }

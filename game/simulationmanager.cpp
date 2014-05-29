@@ -29,4 +29,10 @@ namespace Castle
     {
         return elapsed > std::chrono::milliseconds(100);
     }
+
+    SimulationManager& SimulationManager::Instance()
+    {
+        static SimulationManager simManager;
+        return simManager;
+    }
 }

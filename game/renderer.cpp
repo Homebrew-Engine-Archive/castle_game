@@ -4,6 +4,7 @@
 
 #include <boost/algorithm/clamp.hpp>
 
+#include <game/gm1palette.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/collection.h>
@@ -188,5 +189,22 @@ namespace Render
     void Renderer::PaintImage(const Surface &surface, const Rect &whither)
     {
         BlitSurface(surface, Rect(surface), mScreenSurface, whither);
+    }
+
+    void Renderer::BindTexture(const Surface &surface)
+    {
+    }
+    
+    void Renderer::BindPalette(const GM1::Palette &palette)
+    {
+        
+    }
+    
+    void Renderer::BindAlphaMap(const Surface &surface)
+    {
+    }
+
+    void Renderer::BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect)
+    {
     }
 } // namespace Render

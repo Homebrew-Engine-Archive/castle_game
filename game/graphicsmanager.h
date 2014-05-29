@@ -11,6 +11,7 @@
 #include <game/filesystem.h>
 #include <game/point.h>
 #include <game/sdl_utils.h>
+#include <game/gm1palette.h>
 
 namespace Render
 {
@@ -19,28 +20,15 @@ namespace Render
 
 namespace Graphics
 {
-    class Picture
-    {
-        Surface mSurface;
-        Point mAnchor;
-        
-    public:
-        
-    };
-
-    struct TileSet
-    {
-        std::vector<Picture> pictures;
-    };
-
     class GraphicsManager
     {
     public:
         GraphicsManager();
         virtual ~GraphicsManager();
         
-        Picture const& GetPicture(const std::string &name) const;
-        
+        Picture const& GetSurface(const std::string &name) const;
+        Picture const& GetTile(const std::string &name) const;
+        GM1::Palette const& GetPalette(const std::string &name) const;
     };
 }
 
