@@ -19,4 +19,4 @@ set(TARGET "gfxtool.out")
 
 add_executable (${TARGET} ${SRCS} ${SHARED})
 
-target_link_libraries (${TARGET} ${BOOST_SYSTEM} ${BOOST_} ${SDL2_LIBRARIES})
+target_link_libraries (${TARGET} ${SDL2_LIBRARY})

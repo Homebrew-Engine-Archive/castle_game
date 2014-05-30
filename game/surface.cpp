@@ -66,20 +66,56 @@ namespace
 }
 
 SurfaceColorModSetter::SurfaceColorModSetter(const Surface &src, const Color &color)
+    : surface(src)
 {
-    if(SDL_GetSurfaceColorMod(src, &redMod, &greenMod, &blueMod) < 0) {
+    if(SDL_GetSurfaceColorMod(surface, &redMod, &greenMod, &blueMod) < 0) {
         throw sdl_error();
     }
-    if(SDL_SetSurfaceColorMod(src, color.r, color.g, color.b) < 0) {
+    if(SDL_SetSurfaceColorMod(surface, color.r, color.g, color.b) < 0) {
         throw sdl_error();
     }
-    surface = src;
+}
+
+void SurfaceColorModSetter::Rollback()
+{
+    if(SDL_SetSurfaceColorMod(surface, redMod, greenMod, blueMod) < 0) {
+        throw sdl_error();
+    }
 }
 
 SurfaceColorModSetter::~SurfaceColorModSetter()
 {
-    if(!surface.Null()) {
-        SDL_SetSurfaceColorMod(surface, redMod, greenMod, blueMod);
+    try {
+        Rollback();
+    } catch(const std::exception &error) {
+        std::cerr << "unable recover color modifier: " << error.what() << std::endl;
+    }
+}
+
+SurfaceAlphaModSetter::SurfaceAlphaModSetter(const Surface &src, int newAlphaMod)
+    : surface(src)
+{
+    if(SDL_GetSurfaceAlphaMod(surface, &alphaMod) < 0) {
+        throw sdl_error();
+    }
+    if(SDL_SetSurfaceAlphaMod(surface, newAlphaMod) < 0) {
+        throw sdl_error();
+    }
+}
+
+void SurfaceAlphaModSetter::Rollback()
+{
+    if(SDL_SetSurfaceAlphaMod(surface, alphaMod) < 0) {
+        throw sdl_error();
+    }
+}
+
+SurfaceAlphaModSetter::~SurfaceAlphaModSetter()
+{
+    try {
+        Rollback();
+    } catch(const std::exception &error) {
+        std::cerr << "unable recover alpha modifier: " << error.what() << std::endl;
     }
 }
 
@@ -364,6 +400,16 @@ bool HasPalette(const Surface &surface)
         throw null_surface_error();
     }
     return SDL_ISPIXELFORMAT_INDEXED(surface->format->format);
+}
+
+bool IsRGB(const SDL_PixelFormat &format)
+{
+    return (format.palette == NULL) && (format.Amask == 0);
+}
+
+bool IsARGB(const SDL_PixelFormat &format)
+{
+    return (format.palette == NULL) && (format.Amask != 0);
 }
 
 char* GetPixels(Surface &surface)

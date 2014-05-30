@@ -78,8 +78,10 @@ namespace GMTool
 
     void RenderMode::SetupFormat(Surface &surface, uint32_t format)
     {
-        if(format != surface->format->format) {
-            surface = ConvertSurface(surface, format);
+        if(HasPalette(surface)) {
+            if(format != surface->format->format) {
+                surface = ConvertSurface(surface, format);
+            }
         }
     }
 

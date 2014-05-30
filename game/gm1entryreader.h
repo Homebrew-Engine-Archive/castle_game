@@ -24,14 +24,20 @@ namespace GM1
 
     private:
         Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
+        uint32_t GetColorKey(uint32_t format) const;
         
     protected:
         virtual void ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const = 0;
 
         virtual int Width(GM1::EntryHeader const&) const;
         virtual int Height(GM1::EntryHeader const&) const;
-        virtual uint32_t GetColorKey() const;
-        virtual int CompatiblePixelFormat() const;
+
+        /**
+           Convert from source to target if necessary.
+           \todo does it violate LSP?
+         **/
+        virtual uint32_t SourcePixelFormat() const;
+        virtual uint32_t TargetPixelFormat() const;
         
     public:
         GM1EntryReader();

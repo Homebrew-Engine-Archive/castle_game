@@ -16,6 +16,14 @@ namespace std
     {
         return std::unique_ptr<T>(new T(std::forward<U>(u)...));
     }
+
+    template<class Base,
+             class Derived,
+             class ...U>
+    std::unique_ptr<Base> make_unique(U&... u)
+    {
+        return std::unique_ptr<Base>(new Derived(std::forward<U>(u)...));
+    }
 #endif
 
 } // namespace std

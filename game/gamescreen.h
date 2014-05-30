@@ -31,9 +31,15 @@ namespace UI
     {
         UI::ScreenManager &mScreenManager;
         Collection archer;
+        Collection swordsman;
+        Collection crossbowman;
+        Collection buildings1;
+        Collection buildings2;
+        Collection workshops;
         Collection landset;
         Collection seaset;
         Collection rockset;
+        Collection cliffs;
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         std::map<SDL_Keycode, bool> mKeyState;
         Point mCursor;
@@ -50,7 +56,6 @@ namespace UI
 
         void Render(Render::Renderer &render);
         bool TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const;
-        void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);

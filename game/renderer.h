@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 
+#include <game/color.h>
 #include <game/gm1palette.h>
 #include <game/surface.h>
 #include <game/sdl_utils.h>
@@ -12,7 +13,6 @@
 
 class Rect;
 class Point;
-class Color;
 
 namespace GM1
 {
@@ -30,9 +30,14 @@ namespace Render
         TexturePtr mScreenTexture;
         Surface mScreenSurface;
         WindowPtr mWindow;
+        const GM1::Palette mEmptyPalette;
         GM1::Palette mBoundPalette;
         Surface mBoundTexture;
         Surface mBoundAlphaMap;
+        const int mDefaultAlphaMod;
+        int mAlphaMod;
+        const Color mDefaultColorMod;
+        Color mColorMod;
         
         bool ReallocationRequired(int width, int heigth, int format);
         void CreateScreenTexture(int width, int height, int format);
@@ -58,11 +63,19 @@ namespace Render
         const Surface CreateImage(int width, int height, int format);
         const Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
-        void PaintImage(const Surface &surface, const Rect &whither);
-        
         void BindTexture(const Surface &surface);
         void BindPalette(const GM1::Palette &palette);
         void BindAlphaMap(const Surface &surface);
+
+        void SetAlphaMod(int alpha);
+        void UnsetAlphaMod();
+
+        void SetColorMod(const Color &color);
+        void UnsetColorMod();
+        
+        void UnbindPalette();
+        void UnbindTexture();
+        void UnbindAlphaMap();
         
         void BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect);
 

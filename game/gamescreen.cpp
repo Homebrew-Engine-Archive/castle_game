@@ -19,15 +19,61 @@
 #include <game/textrenderer.h>
 #include <game/simulationmanager.h>
 
+struct RenderMode
+{
+    virtual const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
+        {return cell;}
+    
+    virtual int Height(int height) const
+        {return height;}
+    
+    virtual const std::pair<std::string, int> TileTexture(const std::pair<std::string, int> &texture) const
+        {return texture;}
+};
+
+class RenderPipeline
+{
+    std::vector<RenderMode const*> mModes;
+public:
+    void PushRenderMode(const RenderMode &mode);
+    void PopRenderMode(const RenderMode &mode);
+    
+    void RenderCell(const Castle::GameMap::Cell &cell);
+};
+
+struct ZoomedOut : public RenderMode
+{
+    const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
+        {return cell * 0.5;}
+};
+
+struct CameraRotation : public RenderMode
+{
+    const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
+        {return cell;}
+};
+
+struct FlatRenderMode : public RenderMode
+{
+    int Height(int height) const
+        {return 0;}
+};
+
 namespace UI
 {
     GameScreen::~GameScreen() = default;
     GameScreen::GameScreen(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
         , archer(LoadGM1(fs::GM1FilePath("body_archer")))
+        , swordsman(LoadGM1(fs::GM1FilePath("body_swordsman")))
+        , crossbowman(LoadGM1(fs::GM1FilePath("body_crossbowman")))
+        , buildings1(LoadGM1(fs::GM1FilePath("tile_buildings1")))
+        , buildings2(LoadGM1(fs::GM1FilePath("tile_buildings2")))
+        , workshops(LoadGM1(fs::GM1FilePath("tile_workshops")))
         , landset(LoadGM1(fs::GM1FilePath("tile_land8")))
         , seaset(LoadGM1(fs::GM1FilePath("tile_sea8")))
         , rockset(LoadGM1(fs::GM1FilePath("tile_rocks8")))
+        , cliffs(LoadGM1(fs::GM1FilePath("tile_cliffs")))
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
@@ -84,9 +130,8 @@ namespace UI
             }
 
             if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
-                std::unique_ptr<SurfaceColorModSetter> setter;
                 if(selected == *i) {
-                    setter.reset(new SurfaceColorModSetter(surface, Color(255, 128, 128)));
+                    //renderer.SetColorMod(Color(255, 128, 128));
                 }
                 renderer.BindTexture(surface);
                 renderer.BlitTexture(Rect(surface), cellBox);
@@ -97,74 +142,19 @@ namespace UI
                     ((selected.x == cell.x || selected.y == cell.y)
                      ? (Colors::Yellow)
                      : (Colors::Red.Opaque(100)));
-                renderer.FillRhombus(tileRect, Colors::Black.Opaque(200));
                 renderer.DrawRhombus(tileRect, tileColor);
             }
 
             const Surface &sprite = archer.GetSurface(index);
             const GM1::Palette &palette = archer.GetPalette(PaletteName::Blue);
-            renderer.BindPalette(palette);
-            renderer.BindTexture(sprite);
-
             const Point spriteOffset = (mCamera.Flat()
                                         ? (Point(0, 0))
                                         : (Point(0, map.Height(*i))));
+            renderer.BindPalette(palette);
+            renderer.BindTexture(sprite);
             renderer.BlitTexture(Rect(sprite), Translated(Rect(sprite), cellCenter - archer.Anchor() - spriteOffset + Point(16, 8)));
         }
-    }
-    
-    void GameScreen::Draw(Surface &frame)
-    {
-        UpdateCamera(Rect(frame));
-        
-        const RendererPtr renderer(SDL_CreateSoftwareRenderer(frame));
-        const Castle::GameMap::Cell selected = FindSelectedTile();
-        const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
-
-        const auto cellIters = map.Cells();
-        for(auto i = cellIters.first; i != cellIters.second; ++i) {
-            const Castle::GameMap::Cell cell = *i;
-            const Collection &tileset = GetTileSet(map.LandscapeType(*i));
-            
-            const size_t index = map.Height(cell);
-            const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
-            const Surface &surface = tileset.GetSurface(index);
-
-            const Point cellCenter = mCamera.WorldToScreenCoords(*i);
-            const Rect tileRect(
-                cellCenter.x,
-                cellCenter.y,
-                mCamera.TileSize().x,
-                mCamera.TileSize().y);
-            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), surface->w, surface->h);
-
-            if(!mCamera.Flat()) {
-                cellBox.y -= map.Height(*i);
-            }
-
-            if(!mCamera.Flat() && Intersects(Rect(frame), cellBox)) {
-                std::unique_ptr<SurfaceColorModSetter> setter;
-                if(selected == *i) {
-                    setter.reset(new SurfaceColorModSetter(surface, Color(255, 128, 128)));
-                }
-                if(false /** mCamera.Scaled() **/) {
-                    // \todo crop source and dest rect
-                    const Rect entryRect = Translated(IntersectRects(Rect(frame), cellBox), -TopLeft(cellBox));
-                    BlitSurfaceScaled(surface, entryRect, frame, cellBox);
-                } else {
-                    BlitSurface(surface, Rect(surface), frame, cellBox);
-                }
-            }
-
-            if(mCamera.Flat() && Intersects(Rect(frame), tileRect)) {
-                const Color tileColor =
-                    ((selected.x == cell.x || selected.y == cell.y)
-                     ? (Colors::Yellow)
-                     : (Colors::Red.Opaque(100)));
-                Render::DrawRhombus(*renderer, tileRect, tileColor);
-            }
-        }
-    }
+    }    
 
     void GameScreen::ToggleCameraMode()
     {

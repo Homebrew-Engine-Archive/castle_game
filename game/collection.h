@@ -33,6 +33,15 @@ enum class PaletteName : size_t
     Unknown      = 9
 };
 
+class CompressedSurface
+{
+    Surface mSurface;
+public:
+    const Surface Get() const;
+    void Compress();
+    void Uncompress();
+};
+
 class Collection
 {
 public:

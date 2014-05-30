@@ -6,32 +6,32 @@
 #include <game/endianness.h>
 #include <game/sdl_utils.h>
 
-const Color GetPixelColor(uint32_t pixel, uint32_t format)
+const Color PixelToColor(uint32_t pixel, uint32_t format)
 {
     const PixelFormatPtr fmt(SDL_AllocFormat(format));
     if(!fmt) {
         throw sdl_error();
     }
-    return GetPixelColor(pixel, *fmt);
+    return PixelToColor(pixel, *fmt);
 }
 
-const Color GetPixelColor(uint32_t pixel, const SDL_PixelFormat &format)
+const Color PixelToColor(uint32_t pixel, const SDL_PixelFormat &format)
 {
     Color temp;
     SDL_GetRGBA(pixel, &format, &temp.r, &temp.g, &temp.b, &temp.a);
     return temp;
 }
 
-uint32_t GetColorPixel(const Color &color, uint32_t format)
+uint32_t ColorToPixel(const Color &color, uint32_t format)
 {
     const PixelFormatPtr fmt(SDL_AllocFormat(format));
     if(!fmt) {
         throw sdl_error();
     }
-    return GetColorPixel(color, *fmt);
+    return ColorToPixel(color, *fmt);
 }
 
-uint32_t GetColorPixel(const Color &color, const SDL_PixelFormat &format)
+uint32_t ColorToPixel(const Color &color, const SDL_PixelFormat &format)
 {
     return SDL_MapRGBA(&format, color.r, color.g, color.b, color.a);
 }

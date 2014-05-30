@@ -1,8 +1,13 @@
 #include "renderer.h"
 
+#include <memory>
 #include <string>
 
+#include <cassert>
+
 #include <boost/algorithm/clamp.hpp>
+
+#include <game/make_unique.h>
 
 #include <game/rect.h>
 #include <game/point.h>
@@ -15,6 +20,7 @@
 
 namespace
 {
+    const uint32_t ScreenPixelFormat = SDL_PIXELFORMAT_RGB888;
     const int WindowWidth = 1024;
     const int WindowHeight = 768;
 
@@ -51,12 +57,17 @@ namespace Render
     Renderer::Renderer()
         : mScreenWidth(WindowWidth)
         , mScreenHeight(WindowHeight)
-        , mScreenFormat(SDL_PIXELFORMAT_ARGB8888)
+        , mScreenFormat(ScreenPixelFormat)
         , mScreenTexture(nullptr)
         , mScreenSurface(nullptr)
-        , mBoundPalette()
+        , mEmptyPalette()
+        , mBoundPalette(mEmptyPalette)
         , mBoundTexture()
         , mBoundAlphaMap()
+        , mDefaultAlphaMod(255)
+        , mAlphaMod(mDefaultAlphaMod)
+        , mDefaultColorMod(255, 255, 255, 255)
+        , mColorMod(mDefaultColorMod)
     {
         mWindow.reset(
             SDL_CreateWindow(WindowTitle,
@@ -106,11 +117,11 @@ namespace Render
 
     void Renderer::CreateScreenSurface(int width, int height)
     {
-        Surface temp = CreateSurface(width, height, mScreenFormat);
+        const Surface temp = CreateSurface(width, height, mScreenFormat);
         if(!temp) {
             throw sdl_error();
         }
-
+        
         mScreenSurface = temp;
     }
 
@@ -198,11 +209,6 @@ namespace Render
         return CreateSurfaceFrom(data, width, height, pitch, format);
     }
 
-    void Renderer::PaintImage(const Surface &surface, const Rect &whither)
-    {
-        BlitSurface(surface, Rect(surface), mScreenSurface, whither);
-    }
-
     void Renderer::BindTexture(const Surface &surface)
     {
         mBoundTexture = surface;
@@ -218,11 +224,49 @@ namespace Render
         mBoundAlphaMap = surface;
     }
 
+    void Renderer::UnbindTexture()
+    {
+        mBoundTexture = nullptr;
+    }
+
+    void Renderer::UnbindPalette()
+    {
+        mBoundPalette = mEmptyPalette;
+    }
+
+    void Renderer::UnbindAlphaMap()
+    {
+        mBoundAlphaMap = nullptr;
+    }
+
+    void Renderer::SetAlphaMod(int alpha)
+    {
+        mAlphaMod = alpha;
+    }
+    
+    void Renderer::UnsetAlphaMod()
+    {
+        mAlphaMod = mDefaultAlphaMod;
+    }
+
+    void Renderer::SetColorMod(const Color &colorMod)
+    {
+        mColorMod = colorMod;
+    }
+
+    void Renderer::UnsetColorMod()
+    {
+        mColorMod = mDefaultColorMod;
+    }
+    
     void Renderer::BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect)
     {
-        if(HasPalette(mBoundTexture)) {
+        SDL_SetSurfaceColorMod(mBoundTexture, mColorMod.r, mColorMod.g, mColorMod.b);
+
+        if(HasPalette(mBoundTexture) && IsRGB(*mScreenSurface->format)) {
             SDL_SetSurfacePalette(mBoundTexture, &mBoundPalette.asSDLPalette());
         }
+        
         BlitSurface(mBoundTexture, textureSubRect, mScreenSurface, screenSubRect);
     }
 

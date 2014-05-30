@@ -25,10 +25,14 @@ namespace
     class TGX8 : public GM1::GM1EntryReader
     {
     protected:
-        int CompatiblePixelFormat() const {
+        uint32_t SourcePixelFormat() const {
             return SDL_PIXELFORMAT_INDEX8;
         }
 
+        uint32_t TargetPixelFormat() const {
+            return SourcePixelFormat();
+        }
+        
         void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
     };
 
@@ -111,12 +115,13 @@ namespace
         // and go clean my hands.
 
         // TODO is there a better way to do so?
-        // Surface tmp = ConvertSurface(surface, SDL_PIXELFORMAT_ARGB8888);
+        // uint32_t destFormat = SDL_PIXELFORMAT_ARGB8888;
+        // Surface tmp = ConvertSurface(surface, destFormat);
         // if(!tmp) {
         //     throw sdl_error();
         // }
 
-        // uint32_t colorkey = GetColorKey();
+        // uint32_t colorkey = GetColorKey(destFormat);
         // if(SDL_SetColorKey(tmp, SDL_TRUE, colorkey) < 0) {
         //     throw sdl_error();
         // }
@@ -188,7 +193,7 @@ namespace
 namespace GM1
 {
     GM1EntryReader::GM1EntryReader()
-        : mTransparentColor(240, 0, 255)
+        : mTransparentColor(255, 0, 255)
     {
     }
     
@@ -196,13 +201,14 @@ namespace GM1
     {
         const int width = Width(header);
         const int height = Height(header);
+        const uint32_t format = SourcePixelFormat();
         
-        Surface surface = CreateSurface(width, height, CompatiblePixelFormat());
+        Surface surface = CreateSurface(width, height, format);
         if(!surface) {
             throw sdl_error();
         }
-        
-        const uint32_t colorkey = GetColorKey();
+
+        const uint32_t colorkey = GetColorKey(format);
         if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
             throw sdl_error();
         }
@@ -210,25 +216,31 @@ namespace GM1
         if(SDL_FillRect(surface, NULL, colorkey) < 0) {
             throw sdl_error();
         }
-                
+
         return surface;
     }
 
     const Surface GM1EntryReader::Load(const GM1::GM1Reader &reader, size_t index) const
     {
+        const GM1::EntryHeader &header = reader.EntryHeader(index);
+        Surface surface = CreateCompatibleSurface(header);
+
         const char *data = reader.EntryData(index);
         const size_t size = reader.EntrySize(index);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
-
-        const GM1::EntryHeader &header = reader.EntryHeader(index);
-        Surface surface = CreateCompatibleSurface(header);
         ReadSurface(in, size, header, surface);
 
+        const uint32_t format = TargetPixelFormat();
         if(!HasPalette(surface)) {
-            surface = ConvertSurface(surface, SDL_PIXELFORMAT_ARGB8888);
+            surface = ConvertSurface(surface, format);
             if(!surface) {
                 throw sdl_error();
             }
+        }
+
+        const uint32_t colorkey = GetColorKey(format);
+        if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
+            throw sdl_error();
         }
         
         if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
@@ -248,19 +260,24 @@ namespace GM1
         return header.height;
     }
 
-    int GM1EntryReader::CompatiblePixelFormat() const
+    uint32_t GM1EntryReader::SourcePixelFormat() const
     {
         return TGX::PixelFormat;
     }
+
+    uint32_t GM1EntryReader::TargetPixelFormat() const
+    {
+        return SDL_PIXELFORMAT_RGB888;
+    }
     
-    uint32_t GM1EntryReader::GetColorKey() const
+    uint32_t GM1EntryReader::GetColorKey(uint32_t format) const
     {
         const uint8_t red = mTransparentColor.r;
         const uint8_t green = mTransparentColor.g;
         const uint8_t blue = mTransparentColor.b;
         const uint8_t alpha = mTransparentColor.a;
 
-        const PixelFormatPtr fmt(SDL_AllocFormat(CompatiblePixelFormat()));
+        const PixelFormatPtr fmt(SDL_AllocFormat(format));
         const uint32_t color = SDL_MapRGBA(fmt.get(), red, green, blue, alpha);
         
         return color;
@@ -298,5 +315,6 @@ namespace GM1
         default:
             throw std::runtime_error("Unknown encoding");
         }
-    }    
+    }
+
 }

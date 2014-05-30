@@ -76,11 +76,11 @@ constexpr bool FullyOpaque(const SDL_Color &color)
     return color.a == 255;
 }
 
-const Color GetPixelColor(uint32_t pixel, uint32_t format);
-const Color GetPixelColor(uint32_t pixel, const SDL_PixelFormat &format);
+const Color PixelToColor(uint32_t pixel, uint32_t format);
+const Color PixelToColor(uint32_t pixel, const SDL_PixelFormat &format);
 
-uint32_t GetColorPixel(const Color &color, uint32_t format);
-uint32_t GetColorPixel(const Color &color, const SDL_PixelFormat &format);
+uint32_t ColorToPixel(const Color &color, uint32_t format);
+uint32_t ColorToPixel(const Color &color, const SDL_PixelFormat &format);
 
 uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
 void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);

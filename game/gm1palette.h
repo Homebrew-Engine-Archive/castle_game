@@ -44,7 +44,8 @@ namespace GM1
         iterator begin();
         iterator end();
 
-        // \todo should I take care of this meanless SDL's const?
+        // \todo constness is meanless
+        // \todo encapsulate SDL just to provide SDL interface? wut?!
         SDL_Palette& asSDLPalette();
         SDL_Palette const& asSDLPalette() const;
     };

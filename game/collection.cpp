@@ -16,6 +16,9 @@
 
 Collection LoadGM1(const fs::path &path)
 {
+    using namespace std::chrono;
+    steady_clock::time_point startAt = steady_clock::now();
+    
     GM1::GM1Reader gm1;
     try {
         gm1.Open(path, GM1::GM1Reader::Cached);
@@ -24,48 +27,18 @@ Collection LoadGM1(const fs::path &path)
         throw;
     }
 
-    return Collection(gm1);
-    
-    // using namespace std::chrono;
-    // steady_clock::time_point startAt = steady_clock::now();
-
-    // Collection data;
-    // GM1::GM1Reader gm1;
-
-    // try {
-    //     gm1.Open(path, GM1::GM1Reader::Cached);
-    // } catch(const std::exception &error) {
-    //     std::cerr << "open collection failed: " << error.what() << std::endl;
-    //     throw;
-    // }
-    
-    // data.header = gm1.Header();
-    // data.palettes.resize(gm1.NumPalettes());
-
-    // for(int i = 0; i < gm1.NumPalettes(); ++i) {
-    //     try {
-    //         data.palettes[i] = gm1.Palette(i);
-    //     } catch(const std::exception &error) {
-    //         std::cerr << "read palette failed: " << error.what() << std::endl;
-    //         throw;
-    //     }
-    // }
-
-    // data.entries.resize(gm1.NumEntries());
-    // for(int i = 0; i < gm1.NumEntries(); ++i) {
-    //     data.entries[i].header = gm1.EntryHeader(i);
-    //     try {
-    //         data.entries[i].surface = gm1.ReadEntry(i);
-    //     } catch(const std::exception &error) {
-    //         std::cerr << "read entry failed: " << error.what() << std::endl;
-    //         throw;
-    //     }
-    // }
-
-    // steady_clock::time_point endAt = steady_clock::now();
-    // std::clog << "Load " << path << ": " << duration_cast<milliseconds>(endAt - startAt).count() << "ms" << std::endl;
-    
-    // return data;
+    try {
+        Collection temp(gm1);
+        
+        steady_clock::time_point endAt = steady_clock::now();
+        milliseconds elapsed = duration_cast<milliseconds>(endAt - startAt);
+        std::clog << "Load " << path << ": " << elapsed.count() << "ms" << std::endl;
+        
+        return temp;
+    } catch(const std::exception &error) {
+        std::cerr << "read collection failed: what=" << error.what() << " (path=" << path << ")" << std::endl;
+        throw;
+    }
 }
 
 Surface LoadTGX(const fs::path &path)
@@ -102,7 +75,7 @@ Collection::Collection(const GM1::GM1Reader &reader)
         try {
             mEntries[n] = reader.ReadEntry(n);
         } catch(const std::exception &error) {
-            std::cerr << "read entry failed: what=" << error.what() << " entry=" << n << std::endl;
+            std::cerr << "read entry failed: what=" << error.what() << " (entry=" << n << ')' << std::endl;
             throw;
         }
         mHeaders[n] = reader.EntryHeader(n);

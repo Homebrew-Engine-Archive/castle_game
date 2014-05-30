@@ -47,7 +47,7 @@ namespace
         for(GM1::Palette::value_type &entry : palette) {
             uint16_t pixel;
             io::ReadLittle<uint16_t>(in, pixel);
-            entry = GetPixelColor(pixel, GM1::PalettePixelFormat);
+            entry = PixelToColor(pixel, GM1::PalettePixelFormat);
         }
         return in;
     }

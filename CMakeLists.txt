@@ -1,5 +1,5 @@
 project(stockade)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 ######################
 # C++ compiler flags #
@@ -32,13 +32,21 @@ cxx_set_flag ("-Wno-unused-parameter" CXX_NO_UNUSED_PARAMETER)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
-include (FindPkgConfig)
+include (FindSDL2)
+find_package (SDL2 REQUIRED)
+include_directories (${SDL2_INCLUDE_DIR})
 
-pkg_search_module (SDL2 REQUIRED sdl2)
-include_directories (${SDL2_INCLUDE_DIRS})
+include (FindSDL2_ttf)
+find_package (SDL2_ttf REQUIRED)
+include_directories (${SDL2TTF_INCLUDE_DIR})
 
-pkg_search_module (SDL2_TTF REQUIRED SDL2_ttf)
-include_directories (${SDL2_TTF_INCLUDE_DIRS})
+include (FindSDL2_gfx)
+find_package (SDL2_gfx REQUIRED)
+include_directories (${SDL2GFX_INCLUDE_DIR})
+
+include (FindSDL2_image)
+find_package (SDL2_image REQUIRED)
+include_directories (${SDL2IMAGE_INCLUDE_DIR})
 
 ## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)

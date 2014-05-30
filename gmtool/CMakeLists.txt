@@ -40,18 +40,15 @@ set(TARGET "gmtool.out")
 find_package (Boost 1.46 REQUIRED COMPONENTS program_options)
 set (BOOST_PROGRAM_OPTIONS boost_program_options)
 
-include (FindPkgConfig)
-pkg_search_module (SDL2_IMAGE SDL2_image)
-
-include_directories (${SDL2_IMAGE_INCLUDE_DIR})
-
 include (CheckCXXSourceRuns)
 
-set (CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES};${SDL2_IMAGE_LIBRARIES};${SDL2_LIBRARIES}")
+set (CMAKE_REQUIRED_FLAGS "${CMAKE_CXX_FLAGS}")
+set (CMAKE_REQUIRED_LIBRARIES "${SDL2IMAGE_LIBRARY};${SDL2_LIBRARY}")
+set (CMAKE_REQUIRED_INCLUDES "${SDL2IMAGE_INCLUDE_DIR};{SDL2_INCLUDE_DIR}")
 
 check_cxx_source_runs ("
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 int main() {
     unsigned char magic[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     SDL_RWops *src = SDL_RWFromConstMem(magic, sizeof(magic));
@@ -74,4 +71,4 @@ configure_file (
 
 add_executable (${TARGET} ${SRCS} ${SHARED} ${RENDERERS})
 
-target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})

@@ -42,14 +42,13 @@ namespace GM1
         };
 
         GM1Reader();
+        explicit GM1Reader(fs::path, Flags = NoFlags);
         virtual ~GM1Reader();
         
-        explicit GM1Reader(fs::path, Flags = NoFlags);
-        void SetBuffering(bool on);
         void Open(fs::path, Flags);
         bool IsOpened() const;
-        const Surface ReadEntry(int index) const;
         void Close();
+        const Surface ReadEntry(int index) const;
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;
