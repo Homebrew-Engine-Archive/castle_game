@@ -19,12 +19,12 @@ const Surface CreateSurfaceView(Surface &src, const Rect &clip)
             Normalized(clip),
             Rect(src));
 
-    char *const pixels = GetPixels(src)
-        + cropped.y * src->pitch
-        + cropped.x * src->format->BytesPerPixel;
+    char *const data = SurfaceData(src)
+        + cropped.y * SurfaceRowStride(src)
+        + cropped.x * SurfacePixelStride(src);
 
     Surface tmp;
-    tmp = CreateSurfaceFrom(pixels, cropped.w, cropped.h, src->pitch, *src->format);
+    tmp = CreateSurfaceFrom(data, cropped.w, cropped.h, SurfaceRowStride(src), SurfaceFormat(src));
     if(!tmp) {
         throw sdl_error();
     }

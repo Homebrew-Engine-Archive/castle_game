@@ -78,9 +78,9 @@ namespace Graphics
             throw std::invalid_argument("surface is null or invalid");
         }
 
-        const auto buffSize = std::max(dst->w, dst->h);
+        const auto buffSize = std::max(SurfaceWidth(dst),
+                                       SurfaceHeight(dst));
 
-        assert(dst->format != nullptr);
         ConvolveFunctor convolve(radius, *dst->format, buffSize);
     
         if(radius < 1 || radius > buffSize) {
@@ -88,21 +88,21 @@ namespace Graphics
         }
 
         const SurfaceLocker lock(dst);
-        char *const bytes = GetPixels(dst);
+        char *const dataBegin = SurfaceData(dst);
     
         /** Per row convolution **/
-        for(int y = 0; y < dst->h; ++y) {
-            char *const data = bytes + y * dst->pitch;
-            const auto count = dst->w;
-            const auto stride = dst->format->BytesPerPixel;
+        for(int y = 0; y < SurfaceHeight(dst); ++y) {
+            char *const data = dataBegin + SurfaceRowStride(dst) * y;
+            const auto count = SurfaceWidth(dst);
+            const auto stride = SurfacePixelStride(dst);
             convolve(data, count, stride);
         }
 
         /** Per column convolution **/
-        for(int x = 0; x < dst->w; ++x) {
-            const auto stride = dst->pitch;
-            const auto count = dst->h;
-            char *const data = bytes + x * dst->format->BytesPerPixel;
+        for(int x = 0; x < SurfaceWidth(dst); ++x) {
+            char *const data = dataBegin + SurfacePixelStride(dst) * x;
+            const auto count = SurfaceHeight(dst);
+            const auto stride = SurfaceRowStride(dst);
             convolve(data, count, stride);
         }
     }

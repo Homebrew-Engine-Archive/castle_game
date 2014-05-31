@@ -36,8 +36,6 @@ namespace Render
         Surface mBoundAlphaMap;
         const int mDefaultAlphaMod;
         int mAlphaMod;
-        const Color mDefaultColorMod;
-        Color mColorMod;
         
         bool ReallocationRequired(int width, int heigth, int format);
         void CreateScreenTexture(int width, int height, int format);
@@ -69,9 +67,6 @@ namespace Render
 
         void SetAlphaMod(int alpha);
         void UnsetAlphaMod();
-
-        void SetColorMod(const Color &color);
-        void UnsetColorMod();
         
         void UnbindPalette();
         void UnbindTexture();

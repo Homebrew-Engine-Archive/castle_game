@@ -212,15 +212,11 @@ namespace TGX
 
     std::ostream& EncodeSurface(std::ostream &out, const Surface &surface)
     {
-        assert(!surface.Null());
-        assert(surface->format != NULL);
-        assert(!out.fail());
-        assert(!out.bad());
-
         const SurfaceLocker lock(surface);
         
-        const char *pixelsPtr = GetPixels(surface);
-        const int bytesPerPixel = surface->format->BytesPerPixel;
+        const char *data = SurfaceData(surface);
+        const int pixelStride = SurfacePixelStride(surface);
+        const int rowStride = SurfaceRowStride(surface);
 
         uint32_t colorKey = 0;
         if(SDL_GetColorKey(surface, &colorKey) < 0) {
@@ -228,12 +224,11 @@ namespace TGX
             throw std::runtime_error("surface should be have color key");
         }
 
-        for(int row = 0; row < surface->h; ++row) {
-            EncodeLine(out, pixelsPtr, surface->w, bytesPerPixel, colorKey);
+        for(int y = 0; y < SurfaceHeight(surface); ++y) {
+            EncodeLine(out, data + rowStride * y, SurfaceWidth(surface), pixelStride, colorKey);
             if(!out) {
                 return out;
             }
-            pixelsPtr += surface->pitch;
         }
             
         return out;
@@ -242,8 +237,8 @@ namespace TGX
     std::ostream& WriteTGX(std::ostream &out, const Surface &surface)
     {
         Header header;
-        header.width = surface->w;
-        header.height = surface->h;
+        header.width = SurfaceWidth(surface);
+        header.height = SurfaceHeight(surface);
         WriteHeader(out, header);
         return EncodeSurface(out, surface);
     }
@@ -265,10 +260,10 @@ namespace TGX
         return surface;
     }
 
-    std::istream& DecodeLine(std::istream &in, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel)
+    std::istream& DecodeLine(std::istream &in, size_t numBytes, char *data, size_t width, size_t bytesPerPixel)
     {
         const std::streampos endPos = numBytes + in.tellg();
-        const char *dstEnd = dst + width * bytesPerPixel;
+        const char *const dataEnd = data + width * bytesPerPixel;
         
         while(in.tellg() < endPos) {
             token_t token;
@@ -287,7 +282,7 @@ namespace TGX
                     // \todo what if new dst value is equal to dstEnd? In that case
                     // we have no space for placing LineFeed. It is certainly an erroneous behavior.
                     // Should we report it here?
-                    if(dst + length * bytesPerPixel > dstEnd) {
+                    if(data + length * bytesPerPixel > dataEnd) {
                         throw std::overflow_error("token length exceeds available buffer size");
                     }
                 }
@@ -307,16 +302,16 @@ namespace TGX
                 
             case TokenType::Repeat:
                 {
-                    in.read(dst, bytesPerPixel);
+                    in.read(data, bytesPerPixel);
                     for(int n = 0; n < length; ++n) {
-                        std::copy(dst, dst + bytesPerPixel, dst + n * bytesPerPixel);
+                        std::copy(data, data + bytesPerPixel, data + n * bytesPerPixel);
                     }
                 }
                 break;
                 
             case TokenType::Stream:
                 {
-                    in.read(dst, length * bytesPerPixel);
+                    in.read(data, length * bytesPerPixel);
                 }
                 break;
                 
@@ -336,7 +331,7 @@ namespace TGX
                 throw std::runtime_error(strerror(errno));
             }
             
-            dst += length * bytesPerPixel;
+            data += length * bytesPerPixel;
         }
         
         return in;
@@ -346,20 +341,19 @@ namespace TGX
     {
         const SurfaceLocker lock(surface);
 
-        const int width = surface->w;
-        const int height = surface->h;
-        const int bytesPP = surface->format->BytesPerPixel;
-        const int pitch = surface->pitch;
+        const int width = SurfaceWidth(surface);
+        const int height = SurfaceHeight(surface);
+        const int pixelStride = SurfacePixelStride(surface);
+        const int rowStride = SurfaceRowStride(surface);
 
         const std::streampos endPos = numBytes + in.tellg();
         
-        char *dst = GetPixels(surface);
+        char *const data = SurfaceData(surface);
 
-        for(int row = 0; row < height; ++row) {
+        for(int y = 0; y < height; ++y) {
             if((in) && (in.tellg() < endPos)) {
                 size_t bytesLeft = endPos - in.tellg();
-                DecodeLine(in, bytesLeft, dst, width, bytesPP);
-                dst += pitch;
+                DecodeLine(in, bytesLeft, data + rowStride * y, width, pixelStride);
             }
         }
 

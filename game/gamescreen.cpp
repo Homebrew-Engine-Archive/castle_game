@@ -123,18 +123,20 @@ namespace UI
                 cellCenter.y,
                 mCamera.TileSize().x,
                 mCamera.TileSize().y);
-            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), surface->w, surface->h);
+            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), SurfaceWidth(surface), SurfaceHeight(surface));
 
             if(!mCamera.Flat()) {
                 cellBox.y -= map.Height(*i);
             }
 
             if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
-                if(selected == *i) {
-                    //renderer.SetColorMod(Color(255, 128, 128));
-                }
+                renderer.SetAlphaMod(rand() % 256);
                 renderer.BindTexture(surface);
                 renderer.BlitTexture(Rect(surface), cellBox);
+                renderer.UnsetAlphaMod();
+                if(selected == *i) {
+                    renderer.FillRhombus(cellBox, Colors::Red.Opaque(200));
+                }
             }
 
             if(mCamera.Flat() && Intersects(renderer.GetScreenRect(), tileRect)) {
@@ -150,9 +152,11 @@ namespace UI
             const Point spriteOffset = (mCamera.Flat()
                                         ? (Point(0, 0))
                                         : (Point(0, map.Height(*i))));
+            renderer.SetAlphaMod(rand() % 256);
             renderer.BindPalette(palette);
             renderer.BindTexture(sprite);
             renderer.BlitTexture(Rect(sprite), Translated(Rect(sprite), cellCenter - archer.Anchor() - spriteOffset + Point(16, 8)));
+            renderer.UnsetAlphaMod();
         }
     }    
 

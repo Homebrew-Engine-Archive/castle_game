@@ -20,6 +20,29 @@
 
 namespace
 {
+    std::string GetBlendModeName(SDL_BlendMode mode)
+    {
+#define CASE(x) case x: return #x
+        switch(mode) {
+            CASE(SDL_BLENDMODE_BLEND);
+            CASE(SDL_BLENDMODE_ADD);
+            CASE(SDL_BLENDMODE_MOD);
+            CASE(SDL_BLENDMODE_NONE);
+        default:
+            return "SDL_BLENDMODE_UNKNOWN";
+        }
+#undef CASE
+    }
+
+    SDL_BlendMode GetSurfaceBlendMode(const Surface &surface)
+    {
+        SDL_BlendMode mode;
+        if(SDL_GetSurfaceBlendMode(surface, &mode) < 0) {
+            throw sdl_error();
+        }
+        return mode;
+    }
+    
     const uint32_t ScreenPixelFormat = SDL_PIXELFORMAT_RGB888;
     const int WindowWidth = 1024;
     const int WindowHeight = 768;
@@ -66,8 +89,6 @@ namespace Render
         , mBoundAlphaMap()
         , mDefaultAlphaMod(255)
         , mAlphaMod(mDefaultAlphaMod)
-        , mDefaultColorMod(255, 255, 255, 255)
-        , mColorMod(mDefaultColorMod)
     {
         mWindow.reset(
             SDL_CreateWindow(WindowTitle,
@@ -121,13 +142,17 @@ namespace Render
         if(!temp) {
             throw sdl_error();
         }
+
+        if(SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE) < 0) {
+            throw sdl_error();
+        }
         
         mScreenSurface = temp;
     }
 
     bool Renderer::ReallocationRequired(int width, int height, int format)
     {
-        return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenHeight);
+        return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenFormat);
     }
     
     const Surface Renderer::BeginFrame()
@@ -174,7 +199,7 @@ namespace Render
     
     const Rect Renderer::GetScreenRect() const
     {
-        return Rect(mScreenSurface);
+        return Rect(mScreenWidth, mScreenHeight);
     }
 
     void Renderer::SetScreenMode(int width, int height, int format)
@@ -249,27 +274,6 @@ namespace Render
         mAlphaMod = mDefaultAlphaMod;
     }
 
-    void Renderer::SetColorMod(const Color &colorMod)
-    {
-        mColorMod = colorMod;
-    }
-
-    void Renderer::UnsetColorMod()
-    {
-        mColorMod = mDefaultColorMod;
-    }
-    
-    void Renderer::BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect)
-    {
-        SDL_SetSurfaceColorMod(mBoundTexture, mColorMod.r, mColorMod.g, mColorMod.b);
-
-        if(HasPalette(mBoundTexture) && IsRGB(*mScreenSurface->format)) {
-            SDL_SetSurfacePalette(mBoundTexture, &mBoundPalette.asSDLPalette());
-        }
-        
-        BlitSurface(mBoundTexture, textureSubRect, mScreenSurface, screenSubRect);
-    }
-
     void Renderer::FillRhombus(const Rect &bounds, const Color &bg)
     {
         Graphics::FillRhombus(mScreenSurface, bounds, bg);
@@ -288,5 +292,31 @@ namespace Render
     void Renderer::DrawFrame(const Rect &bounds, const Color &fg)
     {
         Graphics::DrawRhombus(mScreenSurface, bounds, fg);
+    }
+
+    void Renderer::BlitTexture(const Rect &textureSubRect, const Rect &screenSubRect)
+    {
+        const SDL_BlendMode blendMode = ((mAlphaMod == mDefaultAlphaMod)
+                                         ? (SDL_BLENDMODE_NONE)
+                                         : (SDL_BLENDMODE_BLEND));
+
+        SDL_SetSurfaceBlendMode(mBoundTexture, blendMode);
+        SDL_SetSurfaceAlphaMod(mBoundTexture, mAlphaMod);
+
+        if(HasPalette(mBoundTexture)) {
+            SDL_SetSurfacePalette(mBoundTexture, &mBoundPalette.asSDLPalette());
+        }
+
+        try {
+            BlitSurface(mBoundTexture, textureSubRect, mScreenSurface, screenSubRect);
+        } catch(const std::exception &error) {
+            std::cerr << "blit surface failed: " << error.what() << std::endl
+                      << "srcfmt: " << SDL_GetPixelFormatName(mBoundTexture->format->format) << std::endl
+                      << "dstfmt: " << SDL_GetPixelFormatName(mScreenSurface->format->format) << std::endl
+                      << "alphamod: " << mAlphaMod << std::endl
+                      << "srcblendmode: " << GetBlendModeName(GetSurfaceBlendMode(mBoundTexture)) << std::endl
+                      << "dstblendmode: " << GetBlendModeName(GetSurfaceBlendMode(mScreenSurface)) << std::endl;
+            throw;
+        }
     }
 } // namespace Render

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 
+#include <game/renderer.h>
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/fontmanager.h>
@@ -24,12 +25,13 @@ namespace UI
         , mClosed(false)
     { }
 
-    void Console::Draw(Surface &frame)
+    void Console::Render(Render::Renderer &renderer)
     {
-        const Rect consoleRect = Rect(frame->w, frame->h / 2);
-        Graphics::FillFrame(frame, consoleRect, Colors::Black.Opaque(200));
-        
-        Render::TextRenderer textRenderer(frame);
+        const Rect consoleRect = Rect(BottomRight(renderer.GetScreenRect()) / Point(1, 2));
+        renderer.FillFrame(consoleRect, Colors::Black.Opaque(200));
+
+        Surface surface = renderer.BeginFrame();
+        Render::TextRenderer textRenderer(surface);
         textRenderer.SetColor(Colors::Magenta);
         textRenderer.SetCursorPos(BottomLeft(consoleRect) - Point(0, 20));
         textRenderer.PutString(mText);

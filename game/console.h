@@ -23,7 +23,7 @@ namespace UI
         Console& operator=(Console const&) = delete;
 
         bool IsClosed() const;
-        void Draw(Surface &frame);
+        void Render(Render::Renderer &renderer);
         bool HandleEvent(const SDL_Event &event);
 
     protected:

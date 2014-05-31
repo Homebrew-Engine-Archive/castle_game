@@ -45,17 +45,6 @@ public:
 };
 
 
-class SurfaceColorModSetter final
-{
-    Surface surface;
-    uint8_t redMod, greenMod, blueMod;
-public:
-    SurfaceColorModSetter(const Surface &src, const Color &color);
-
-    void Rollback();
-    ~SurfaceColorModSetter();
-};
-
 class SurfaceAlphaModSetter final
 {
     Surface surface;
@@ -68,8 +57,17 @@ public:
 };
 
 bool HasPalette(const Surface &surface);
+bool IsIndexed(const SDL_PixelFormat &format);
 bool IsRGB(const SDL_PixelFormat &format);
 bool IsARGB(const SDL_PixelFormat &format);
+
+int SurfaceWidth(const Surface &surface);
+int SurfaceHeight(const Surface &surface);
+int SurfaceRowStride(const Surface &surface);
+int SurfacePixelStride(const Surface &surface);
+char const *SurfaceData(const Surface &surface);
+char *SurfaceData(Surface &surface);
+SDL_PixelFormat const& SurfaceFormat(const Surface &surface);
 
 const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format);
 const Surface CreateSurface(int width, int height, int format);
@@ -93,9 +91,5 @@ void TransformSurface(const Surface &surface, Color(Color const&));
 
 uint32_t ExtractPixel(const Surface &surface, const Point &coord);
 uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord);
-
-
-char* GetPixels(Surface &surface);
-char const* GetPixels(const Surface &surface);
 
 #endif

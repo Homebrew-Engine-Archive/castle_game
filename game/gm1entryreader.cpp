@@ -141,12 +141,12 @@ namespace
     {
         const SurfaceLocker lock(surface);
 
-        const size_t rowBytes = surface->w * surface->format->BytesPerPixel;
-        char *dst = GetPixels(surface);
+        const int stride = SurfaceRowStride(surface);
+        const size_t rowBytes = SurfaceWidth(surface) * SurfacePixelStride(surface);
+        char *const data = SurfaceData(surface);
 
-        while(numBytes >= rowBytes) {
-            in.read(dst, rowBytes);
-            dst += surface->pitch;
+        for(int i = 0; (numBytes >= rowBytes) && (i < SurfaceHeight(surface)); ++i) {
+            in.read(data + stride * i, rowBytes);
             numBytes -= rowBytes;
         }
     }
@@ -164,17 +164,17 @@ namespace
     {
         const SurfaceLocker lock(surface);
         
-        const int pitch = surface->pitch;
+        const int rowStride = SurfaceRowStride(surface);
         const int height = GM1::TileSpriteHeight;
         const int width = GM1::TileSpriteWidth;
-        const int bytesPerPixel = surface->format->BytesPerPixel;
-        char *dst = GetPixels(surface);
+        const int pixelStride = SurfacePixelStride(surface);
+        char *data = SurfaceData(surface);
     
         for(int y = 0; y < height; ++y) {
             const int length = GetTilePixelsPerRow(y);
             const int offset = (width - length) / 2;
-            in.read(dst + offset * bytesPerPixel, length * bytesPerPixel);
-            dst += pitch;
+            in.read(data + offset * pixelStride, length * pixelStride);
+            data += rowStride;
         }
     }
     
@@ -209,7 +209,7 @@ namespace GM1
         }
 
         const uint32_t colorkey = GetColorKey(format);
-        if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
+        if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
             throw sdl_error();
         }
         
@@ -230,18 +230,18 @@ namespace GM1
         boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
         ReadSurface(in, size, header, surface);
 
-        const uint32_t format = TargetPixelFormat();
-        if(!HasPalette(surface)) {
-            surface = ConvertSurface(surface, format);
-            if(!surface) {
-                throw sdl_error();
-            }
-        }
-
-        const uint32_t colorkey = GetColorKey(format);
-        if(SDL_SetColorKey(surface, SDL_RLEACCEL, colorkey) < 0) {
-            throw sdl_error();
-        }
+        // const uint32_t format = TargetPixelFormat();
+        // if(!HasPalette(surface) && format != SourcePixelFormat()) {
+        //     surface = ConvertSurface(surface, format);
+        //     if(!surface) {
+        //         throw sdl_error();
+        //     }
+        // }
+        
+        // const uint32_t colorkey = GetColorKey(format);
+        // if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
+        //     throw sdl_error();
+        // }
         
         if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
             throw sdl_error();

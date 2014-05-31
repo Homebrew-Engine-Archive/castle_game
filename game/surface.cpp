@@ -65,33 +65,6 @@ namespace
     };
 }
 
-SurfaceColorModSetter::SurfaceColorModSetter(const Surface &src, const Color &color)
-    : surface(src)
-{
-    if(SDL_GetSurfaceColorMod(surface, &redMod, &greenMod, &blueMod) < 0) {
-        throw sdl_error();
-    }
-    if(SDL_SetSurfaceColorMod(surface, color.r, color.g, color.b) < 0) {
-        throw sdl_error();
-    }
-}
-
-void SurfaceColorModSetter::Rollback()
-{
-    if(SDL_SetSurfaceColorMod(surface, redMod, greenMod, blueMod) < 0) {
-        throw sdl_error();
-    }
-}
-
-SurfaceColorModSetter::~SurfaceColorModSetter()
-{
-    try {
-        Rollback();
-    } catch(const std::exception &error) {
-        std::cerr << "unable recover color modifier: " << error.what() << std::endl;
-    }
-}
-
 SurfaceAlphaModSetter::SurfaceAlphaModSetter(const Surface &src, int newAlphaMod)
     : surface(src)
 {
@@ -275,6 +248,9 @@ const Surface CreateSurface(int width, int height, int format)
     
     Surface tmp;
     tmp = SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
+    if(!tmp) {
+        throw sdl_error();
+    }
     return tmp;
 }
 
@@ -285,9 +261,13 @@ const Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, 
     const uint32_t bmask = format.Bmask;
     const uint32_t amask = format.Amask;
     const int bpp = format.BitsPerPixel;
+    
     if(pixels != nullptr) {
         Surface tmp;
         tmp = SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+        if(!tmp) {
+            throw sdl_error();
+        }
         return tmp;
     }
     throw null_pixeldata_error();
@@ -308,6 +288,9 @@ const Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, 
         
         Surface tmp;
         tmp = SDL_CreateRGBSurfaceFrom(pixels, width, height, bpp, pitch, rmask, gmask, bmask, amask);
+        if(!tmp) {
+            throw sdl_error();
+        }
         return tmp;
     }
     throw null_pixeldata_error();
@@ -339,7 +322,7 @@ const Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &forma
 
 void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect)
 {
-    // SDL_BlitSurface demands non-const pointer to rect. For what!?
+    // tempRect would be modified by SDL_BlitSurface
     Rect tempRect(destRect);
     
     if(SDL_BlitSurface(source, &sourceRect, dest, &tempRect) < 0) {
@@ -356,22 +339,23 @@ void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &d
     }
 }
 
-void TransformSurface(Surface &dst, Color func(Color const&))
+void TransformSurface(Surface &surface, Color func(Color const&))
 {
-    if(!dst) {
+    if(!surface) {
         throw null_surface_error();
     }
     
-    const SurfaceLocker lock(dst);
-    char *const bytes = GetPixels(dst);
+    const SurfaceLocker lock(surface);
 
-    assert(dst->format != nullptr);
-    TransformFunctor transform(*dst->format, func);
+    const int width = SurfaceWidth(surface);
+    const int rowStride = SurfaceRowStride(surface);
+    char *const bytes = SurfaceData(surface);
+
+    TransformFunctor transform(SurfaceFormat(surface), func);
     
-    for(int i = 0; i < dst->h; ++i) {
-        char *const data = bytes + i * dst->pitch;
-        const auto count = dst->w;
-        transform(data, count);
+    for(int y = 0; y < SurfaceHeight(surface); ++y) {
+        char *const data = bytes + rowStride * y;
+        transform(data, width);
     }
 }
 
@@ -381,7 +365,7 @@ uint32_t ExtractPixel(const Surface &surface, const Point &coord)
         throw null_surface_error();
     }
 
-    if(coord.x < 0 || coord.y < 0 || coord.x >= surface->w || coord.y >= surface->h) {
+    if(coord.x < 0 || coord.y < 0 || coord.x >= SurfaceWidth(surface) || coord.y >= SurfaceHeight(surface)) {
         throw std::invalid_argument("coord out of surface bounds");
     }
     
@@ -391,7 +375,10 @@ uint32_t ExtractPixel(const Surface &surface, const Point &coord)
 
 uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord)
 {
-    return GetPackedPixel(GetPixels(surface) + coord.y * surface->pitch + coord.x * surface->format->BytesPerPixel, surface->format->BytesPerPixel);
+    return GetPackedPixel(
+        SurfaceData(surface)
+        + coord.y * SurfaceRowStride(surface)
+        + coord.x * SurfacePixelStride(surface), SurfacePixelStride(surface));
 }
 
 bool HasPalette(const Surface &surface)
@@ -399,25 +386,57 @@ bool HasPalette(const Surface &surface)
     if(!surface) {
         throw null_surface_error();
     }
-    return SDL_ISPIXELFORMAT_INDEXED(surface->format->format);
+    return IsIndexed(SurfaceFormat(surface));
+}
+
+bool IsIndexed(const SDL_PixelFormat &format)
+{
+    return SDL_ISPIXELFORMAT_INDEXED(format.format);
 }
 
 bool IsRGB(const SDL_PixelFormat &format)
 {
-    return (format.palette == NULL) && (format.Amask == 0);
+    return !SDL_ISPIXELFORMAT_ALPHA(format.format);
 }
 
 bool IsARGB(const SDL_PixelFormat &format)
 {
-    return (format.palette == NULL) && (format.Amask != 0);
+    return SDL_ISPIXELFORMAT_ALPHA(format.format);
 }
 
-char* GetPixels(Surface &surface)
+int SurfaceWidth(const Surface &surface)
 {
-    return reinterpret_cast<char*>(surface->pixels);
+    return surface->w;
 }
 
-char const* GetPixels(const Surface &surface)
+int SurfaceHeight(const Surface &surface)
+{
+    return surface->h;
+}
+
+SDL_PixelFormat const& SurfaceFormat(const Surface &surface)
+{
+    assert(surface->format != NULL);
+    return *surface->format;
+}
+
+int SurfaceRowStride(const Surface &surface)
+{
+    return surface->pitch;
+}
+
+int SurfacePixelStride(const Surface &surface)
+{
+    assert(surface->format != NULL);
+    return surface->format->BytesPerPixel;
+}
+
+char const* SurfaceData(const Surface &surface)
 {
     return reinterpret_cast<char const*>(surface->pixels);
+}
+
+char* SurfaceData(Surface &surface)
+{
+    return reinterpret_cast<char*>(surface->pixels);
 }
