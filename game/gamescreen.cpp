@@ -19,46 +19,6 @@
 #include <game/textrenderer.h>
 #include <game/simulationmanager.h>
 
-struct RenderMode
-{
-    virtual const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
-        {return cell;}
-    
-    virtual int Height(int height) const
-        {return height;}
-    
-    virtual const std::pair<std::string, int> TileTexture(const std::pair<std::string, int> &texture) const
-        {return texture;}
-};
-
-class RenderPipeline
-{
-    std::vector<RenderMode const*> mModes;
-public:
-    void PushRenderMode(const RenderMode &mode);
-    void PopRenderMode(const RenderMode &mode);
-    
-    void RenderCell(const Castle::GameMap::Cell &cell);
-};
-
-struct ZoomedOut : public RenderMode
-{
-    const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
-        {return cell * 0.5;}
-};
-
-struct CameraRotation : public RenderMode
-{
-    const Point Transform(const Rect &cameraRect, const Rect &mapRect, const Point &cell) const
-        {return cell;}
-};
-
-struct FlatRenderMode : public RenderMode
-{
-    int Height(int height) const
-        {return 0;}
-};
-
 namespace UI
 {
     GameScreen::~GameScreen() = default;
@@ -128,12 +88,28 @@ namespace UI
             if(!mCamera.Flat()) {
                 cellBox.y -= map.Height(*i);
             }
-
+            
             if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
-                renderer.SetAlphaMod(rand() % 256);
+                const Surface &cliff = cliffs.GetSurface(map.Height(*i) % cliffs.Count());
+
+                const Rect cliffSubRect(
+                    0,
+                    SurfaceHeight(cliff) - map.Height(*i),
+                    SurfaceWidth(cliff),
+                    map.Height(*i));
+                
+                const Rect tileCliffSubRect(
+                    cellBox.x,
+                    cellBox.y + 8,
+                    cliffSubRect.w,
+                    cliffSubRect.h);
+                
+                renderer.BindTexture(cliff);
+                renderer.BlitTexture(cliffSubRect, tileCliffSubRect);
+                
                 renderer.BindTexture(surface);
                 renderer.BlitTexture(Rect(surface), cellBox);
-                renderer.UnsetAlphaMod();
+
                 if(selected == *i) {
                     renderer.FillRhombus(cellBox, Colors::Red.Opaque(200));
                 }
@@ -147,16 +123,15 @@ namespace UI
                 renderer.DrawRhombus(tileRect, tileColor);
             }
 
+            continue;
             const Surface &sprite = archer.GetSurface(index);
             const GM1::Palette &palette = archer.GetPalette(PaletteName::Blue);
             const Point spriteOffset = (mCamera.Flat()
                                         ? (Point(0, 0))
                                         : (Point(0, map.Height(*i))));
-            renderer.SetAlphaMod(rand() % 256);
             renderer.BindPalette(palette);
             renderer.BindTexture(sprite);
             renderer.BlitTexture(Rect(sprite), Translated(Rect(sprite), cellCenter - archer.Anchor() - spriteOffset + Point(16, 8)));
-            renderer.UnsetAlphaMod();
         }
     }    
 

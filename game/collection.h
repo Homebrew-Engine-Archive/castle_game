@@ -49,6 +49,7 @@ public:
     Collection(const Collection &collection);
     Collection& operator=(const Collection &collection);
 
+    int Count() const;
     GM1::Header const& GetHeader() const;
     const Point Anchor() const;
     const Surface GetSurface(size_t index) const;

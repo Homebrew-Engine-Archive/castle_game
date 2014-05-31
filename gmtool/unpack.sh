@@ -2,6 +2,7 @@
 
 IFS=$'\n\t'
 
+TRANSPARENT="#ff00ff"
 PALETTE=0
 GMTOOL=./gmtool.out
 FILE="$*"
@@ -29,6 +30,6 @@ echo Unpacking into "$DIR"
 
 for I in `seq 0 $((NUMENTRIES-1))`;
 do
-    OUTPUT=`printf "$DIR/%.5d.$FTYPE" $I`
-    $GMTOOL render -f$FTYPE -i$I -p$PALETTE -o"$OUTPUT" -- "$FILE";
+    OUTPUT=`printf "$DIR/%.5d.$FTYPE" $I`;
+    $GMTOOL render -f$FTYPE -i$I -p$PALETTE -o"$OUTPUT" --transparent-color="${TRANSPARENT}" -- "$FILE";
 done;

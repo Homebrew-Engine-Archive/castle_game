@@ -3,7 +3,7 @@
 
 #include <game/modulo.h>
 
-const int ChevronsHeightThreshold = 20;
+const int CliffsHeightThreshold = 20;
 
 enum class Landscape : int {
     Pebbles,

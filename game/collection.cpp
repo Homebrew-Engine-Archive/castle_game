@@ -82,6 +82,11 @@ Collection::Collection(const GM1::GM1Reader &reader)
     }
 }
 
+int Collection::Count() const
+{
+    return mHeader.imageCount;
+}
+
 GM1::Header const& Collection::GetHeader() const
 {
     return mHeader;
