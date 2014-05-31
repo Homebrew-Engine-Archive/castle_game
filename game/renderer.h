@@ -21,6 +21,11 @@ namespace GM1
 
 namespace Render
 {
+    class TextRenderer;
+}
+
+namespace Render
+{
     class Renderer
     {
         RendererPtr mRenderer;
@@ -46,20 +51,17 @@ namespace Render
         Renderer(Renderer const&) = delete;
         Renderer& operator=(Renderer const&) = delete;
         
-        const Surface BeginFrame();
+        void BeginFrame();
         void EndFrame();
 
+        Surface GetScreenSurface();
+        TextRenderer GetTextRenderer();
+        
         const Point GetOutputSize() const;
         const Rect GetScreenRect() const;
         void SetScreenSize(int width, int height);
         void SetScreenFormat(int format);
         void SetScreenMode(int width, int height, int format);
-        
-        typedef PalettePtr Palette;
-        const Palette CreatePalette(const std::vector<SDL_Color> &colors);
-        
-        const Surface CreateImage(int width, int height, int format);
-        const Surface CreateImageFrom(int width, int height, int pitch, int format, char *data);
 
         void BindTexture(const Surface &surface);
         void BindPalette(const GM1::Palette &palette);

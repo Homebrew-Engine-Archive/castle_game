@@ -30,22 +30,23 @@ namespace UI
     class GameScreen : public Screen
     {
         UI::ScreenManager &mScreenManager;
-        Collection archer;
-        Collection swordsman;
-        Collection crossbowman;
-        Collection buildings1;
-        Collection buildings2;
-        Collection workshops;
-        Collection landset;
-        Collection seaset;
-        Collection rockset;
-        Collection cliffs;
+        Castle::Collection archer;
+        Castle::Collection swordsman;
+        Castle::Collection crossbowman;
+        Castle::Collection buildings1;
+        Castle::Collection buildings2;
+        Castle::Collection workshops;
+        Castle::Collection landset;
+        Castle::Collection seaset;
+        Castle::Collection rockset;
+        Castle::Collection cliffs;
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         std::map<SDL_Keycode, bool> mKeyState;
         Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
-        Collection const& GetTileSet(Landscape landscape) const;
+        
+        Castle::Collection const& GetTileSet(Landscape landscape) const;
         
     public:
         GameScreen(UI::ScreenManager &screenManager);
@@ -55,7 +56,7 @@ namespace UI
         virtual ~GameScreen();
 
         void Render(Render::Renderer &render);
-        bool TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const;
+        bool TileSelected(const Castle::GameMap::Cell &cell) const;
         bool HandleEvent(const SDL_Event &event);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);

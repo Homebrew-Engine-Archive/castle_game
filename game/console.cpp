@@ -20,7 +20,7 @@ namespace UI
         : mScreenManager(screenManager)
         , mText()
         , mFontName(Render::FontStronghold)
-        , mHistory()
+        , mCommandHistory()
         , mFontSize(10)
         , mClosed(false)
     { }
@@ -29,12 +29,17 @@ namespace UI
     {
         const Rect consoleRect = Rect(BottomRight(renderer.GetScreenRect()) / Point(1, 2));
         renderer.FillFrame(consoleRect, Colors::Black.Opaque(200));
-
-        Surface surface = renderer.BeginFrame();
-        Render::TextRenderer textRenderer(surface);
-        textRenderer.SetColor(Colors::Magenta);
+        
+        Render::TextRenderer textRenderer = renderer.GetTextRenderer();
+        textRenderer.SetColor(Colors::Gray);
         textRenderer.SetCursorPos(BottomLeft(consoleRect) - Point(0, 20));
         textRenderer.PutString(mText);
+    }
+
+    void Console::OnCommandEntered(const std::string &command)
+    {
+        mCommandHistory.push_back(command);
+        mConsoleBuffer << "> " << command << std::endl;
     }
     
     bool Console::HandleEvent(const SDL_Event &event)
@@ -61,7 +66,7 @@ namespace UI
             return true;
         case SDLK_RETURN:
             {
-                mHistory.push_back(mText);
+                OnCommandEntered(mText);
                 mText = std::string();
             }
             return true;

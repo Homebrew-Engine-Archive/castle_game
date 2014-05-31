@@ -17,7 +17,7 @@ namespace UI
 {
     LoadingScreen::LoadingScreen()
         : mBackground(
-            LoadTGX(
+            Castle::LoadTGX(
                 fs::TGXFilePath("frontend_loading")))
         , mProgressDone(0)
         , mProgressMax(1)

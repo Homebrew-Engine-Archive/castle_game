@@ -24,23 +24,23 @@ namespace UI
     GameScreen::~GameScreen() = default;
     GameScreen::GameScreen(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
-        , archer(LoadGM1(fs::GM1FilePath("body_archer")))
-        , swordsman(LoadGM1(fs::GM1FilePath("body_swordsman")))
-        , crossbowman(LoadGM1(fs::GM1FilePath("body_crossbowman")))
-        , buildings1(LoadGM1(fs::GM1FilePath("tile_buildings1")))
-        , buildings2(LoadGM1(fs::GM1FilePath("tile_buildings2")))
-        , workshops(LoadGM1(fs::GM1FilePath("tile_workshops")))
-        , landset(LoadGM1(fs::GM1FilePath("tile_land8")))
-        , seaset(LoadGM1(fs::GM1FilePath("tile_sea8")))
-        , rockset(LoadGM1(fs::GM1FilePath("tile_rocks8")))
-        , cliffs(LoadGM1(fs::GM1FilePath("tile_cliffs")))
+        , archer(Castle::LoadGM1(fs::GM1FilePath("body_archer")))
+        , swordsman(Castle::LoadGM1(fs::GM1FilePath("body_swordsman")))
+        , crossbowman(Castle::LoadGM1(fs::GM1FilePath("body_crossbowman")))
+        , buildings1(Castle::LoadGM1(fs::GM1FilePath("tile_buildings1")))
+        , buildings2(Castle::LoadGM1(fs::GM1FilePath("tile_buildings2")))
+        , workshops(Castle::LoadGM1(fs::GM1FilePath("tile_workshops")))
+        , landset(Castle::LoadGM1(fs::GM1FilePath("tile_land8")))
+        , seaset(Castle::LoadGM1(fs::GM1FilePath("tile_sea8")))
+        , rockset(Castle::LoadGM1(fs::GM1FilePath("tile_rocks8")))
+        , cliffs(Castle::LoadGM1(fs::GM1FilePath("tile_cliffs")))
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
     {
     }
     
-    Collection const& GameScreen::GetTileSet(Landscape landscape) const
+    Castle::Collection const& GameScreen::GetTileSet(Landscape landscape) const
     {
         switch(landscape) {
         case Landscape::Sea:
@@ -71,7 +71,7 @@ namespace UI
         const auto cellIters = map.Cells();
         for(auto i = cellIters.first; i != cellIters.second; ++i) {
             const Castle::GameMap::Cell cell = *i;
-            const Collection &tileset = GetTileSet(map.LandscapeType(*i));
+            const Castle::Collection &tileset = GetTileSet(map.LandscapeType(*i));
             
             const size_t index = map.Height(cell);
             const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
@@ -90,7 +90,9 @@ namespace UI
             }
             
             if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
-                const Surface &cliff = cliffs.GetSurface(map.Height(*i) % cliffs.Count());
+                const Surface &cliff = ((map.LandscapeType(*i) == Landscape::River)
+                                        ? (cliffs.GetSurface(34))
+                                        : (cliffs.GetSurface(index)));
 
                 const Rect cliffSubRect(
                     0,
@@ -102,7 +104,7 @@ namespace UI
                     cellBox.x,
                     cellBox.y + 8,
                     cliffSubRect.w,
-                    cliffSubRect.h);
+                    cliffSubRect.h + 8);
                 
                 renderer.BindTexture(cliff);
                 renderer.BlitTexture(cliffSubRect, tileCliffSubRect);
@@ -111,7 +113,7 @@ namespace UI
                 renderer.BlitTexture(Rect(surface), cellBox);
 
                 if(selected == *i) {
-                    renderer.FillRhombus(cellBox, Colors::Red.Opaque(200));
+                    renderer.FillRhombus(cellBox, Colors::Red.Opaque(100));
                 }
             }
 
@@ -125,7 +127,7 @@ namespace UI
 
             continue;
             const Surface &sprite = archer.GetSurface(index);
-            const GM1::Palette &palette = archer.GetPalette(PaletteName::Blue);
+            const GM1::Palette &palette = archer.GetPalette(Castle::PaletteName::Blue);
             const Point spriteOffset = (mCamera.Flat()
                                         ? (Point(0, 0))
                                         : (Point(0, map.Height(*i))));
@@ -246,9 +248,10 @@ namespace UI
         mLastCameraUpdate = steady_clock::now();
     }
 
-    bool GameScreen::TileSelected(const Castle::GameMap &map, const Castle::GameMap::Cell &cell) const
+    bool GameScreen::TileSelected(const Castle::GameMap::Cell &cell) const
     {
-        const Collection &tileset = GetTileSet(map.LandscapeType(cell));
+        const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
+        const Castle::Collection &tileset = GetTileSet(map.LandscapeType(cell));
         
         const size_t index = map.Height(cell);
         const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
@@ -276,7 +279,7 @@ namespace UI
         Castle::GameMap::Cell selected = map.NullCell();
         const auto cellsIters = map.Cells();
         for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
-            if(TileSelected(map, *i)) {
+            if(TileSelected(*i)) {
                 selected = *i;
             }
         }

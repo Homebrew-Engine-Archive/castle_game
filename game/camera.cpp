@@ -13,6 +13,7 @@ namespace Castle
         , mTileSize(Point(32, 16))
         , mRotation(0)
         , mDirection(Direction::North)
+        , mStartDirection(Direction::North)
         , mFlatView(true)
         , mScrollX(0)
         , mScrollY(0)
@@ -41,7 +42,12 @@ namespace Castle
     {
         return mFlatView;
     }
-    
+
+    double Camera::AngleRotation() const
+    {
+        return DirectionToRadians(mDirection) - DirectionToRadians(mStartDirection);
+    }
+
     void Camera::Dir(const Direction &dir)
     {
         mDirection = dir;

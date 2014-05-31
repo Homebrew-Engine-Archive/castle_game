@@ -134,31 +134,33 @@ namespace Castle
         // forward connections to simulation manager
         // forward data to simulation manager
     }
-
-    void DrawText(Surface frame, Render::TextRenderer &renderer, const std::string &text, int style, const Color &fg, const Color &bg)
-    {
-        renderer.SetFontStyle(style);
-        renderer.SetColor(fg);
-        const Rect textRect = renderer.CalculateTextRect(text);
-        Graphics::FillFrame(frame, textRect, bg);
-        renderer.PutString(text);
-    }
     
     void Engine::DrawFrame()
     {
-        Surface frame = mRenderer.BeginFrame();
-        //mScreenManager.DrawScreen(frame);
+        mRenderer.BeginFrame();
         mScreenManager.Render(mRenderer);
 
         std::ostringstream oss;
         oss.width(10);
         oss << mFpsAverage;
         
-        Render::TextRenderer textRenderer(frame);
+        Render::TextRenderer textRenderer = mRenderer.GetTextRenderer();
         textRenderer.SetCursorPos(Point(0, 20));
         textRenderer.SetFont(Render::FontStronghold, 13);
-        DrawText(frame, textRenderer, "(Your jam sir) FPS: ", Render::FontStyle_Italic, Colors::Red, Colors::Black.Opaque(150));
-        DrawText(frame, textRenderer, oss.str(), Render::FontStyle_Italic | Render::FontStyle_Underline, Colors::Red, Colors::Black.Opaque(150));
+
+        const Color bgColor = Colors::Black.Opaque(150);
+        
+        const std::string str1 = "Your fps, Sir: ";
+        textRenderer.SetFontStyle(Render::FontStyle_Normal);
+        textRenderer.SetColor(Colors::Red);
+        mRenderer.FillFrame(textRenderer.CalculateTextRect(str1), bgColor);
+        textRenderer.PutString(str1);
+
+        const std::string str2 = oss.str();
+        textRenderer.SetFontStyle(Render::FontStyle_Normal);
+        textRenderer.SetColor(Colors::Yellow);
+        mRenderer.FillFrame(textRenderer.CalculateTextRect(str2), bgColor);
+        textRenderer.PutString(str2);
 
         mRenderer.EndFrame();
     }
@@ -202,7 +204,7 @@ namespace Castle
                     mFrameCounter += 1;
                     prevFrame = now;
                     // try {
-                        DrawFrame();
+                    DrawFrame();
                     // } catch(const std::exception &error) {
                     //     std::cerr << "DrawFrame failed: " << error.what() << std::endl;
                     // }

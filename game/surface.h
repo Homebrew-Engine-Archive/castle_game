@@ -44,7 +44,6 @@ public:
     ~SurfaceLocker();
 };
 
-
 class SurfaceAlphaModSetter final
 {
     Surface surface;
@@ -65,8 +64,8 @@ int SurfaceWidth(const Surface &surface);
 int SurfaceHeight(const Surface &surface);
 int SurfaceRowStride(const Surface &surface);
 int SurfacePixelStride(const Surface &surface);
-char const *SurfaceData(const Surface &surface);
-char *SurfaceData(Surface &surface);
+char const* SurfaceData(const Surface &surface);
+char* SurfaceData(Surface &surface);
 SDL_PixelFormat const& SurfaceFormat(const Surface &surface);
 
 const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format);

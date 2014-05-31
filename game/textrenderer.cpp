@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include <SDL_ttf.h>
 #include <SDL.h>
 
 #include <game/point.h>
@@ -15,10 +16,10 @@ namespace Render
 {
     TextRenderer::TextRenderer(Surface &surface)
         : mSurface(surface)
-        , mColor(0, 0, 0, 0)
-        , mCursor(0, 0)
+        , mColor()
+        , mCursor()
         , mCursorMode(CursorMode::BaseLine)
-        , mClipBox(0, 0, 0, 0)
+        , mClipBox()
         , mFontStyle(FontStyle_Normal)
         , mFontName()
         , mFontSize()

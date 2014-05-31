@@ -5,8 +5,7 @@
 
 #include <cassert>
 
-#include <boost/algorithm/clamp.hpp>
-
+#include <game/clamp.h>
 #include <game/make_unique.h>
 
 #include <game/rect.h>
@@ -17,6 +16,7 @@
 #include <game/sdl_utils.h>
 #include <game/collection.h>
 #include <game/surface_drawing.h>
+#include <game/textrenderer.h>
 
 namespace
 {
@@ -66,12 +66,12 @@ namespace
 
     int AdjustWidth(int width)
     {
-        return boost::algorithm::clamp(width, MinScreenWidth, MaxScreenWidth);
+        return core::Clamp(width, MinScreenWidth, MaxScreenWidth);
     }
 
     int AdjustHeight(int height)
     {
-        return boost::algorithm::clamp(height, MinScreenHeight, MaxScreenHeight);
+        return core::Clamp(height, MinScreenHeight, MaxScreenHeight);
     }
 }
 
@@ -155,7 +155,7 @@ namespace Render
         return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenFormat);
     }
     
-    const Surface Renderer::BeginFrame()
+    void Renderer::BeginFrame()
     {
         if(!mScreenTexture) {
             CreateScreenTexture(mScreenWidth, mScreenHeight, mScreenFormat);
@@ -166,14 +166,19 @@ namespace Render
         }
         
         SDL_FillRect(mScreenSurface, NULL, 0);
-        
-        return mScreenSurface;
     }
 
+    Surface Renderer::GetScreenSurface()
+    {
+        return mScreenSurface;
+    }
+    
     void Renderer::EndFrame()
     {
         if(!mScreenSurface.Null()) {
-            if(SDL_UpdateTexture(mScreenTexture.get(), NULL, mScreenSurface->pixels, mScreenSurface->pitch) < 0) {
+            const SurfaceLocker lock(mScreenSurface);
+            
+            if(SDL_UpdateTexture(mScreenTexture.get(), NULL, SurfaceData(mScreenSurface), SurfaceRowStride(mScreenSurface)) < 0) {
                 throw sdl_error();
             }
 
@@ -186,6 +191,11 @@ namespace Render
         SDL_RenderPresent(mRenderer.get());
     }
 
+    TextRenderer Renderer::GetTextRenderer()
+    {
+        return TextRenderer(mScreenSurface);
+    }
+    
     const Point Renderer::GetOutputSize() const
     {
         Point size;
@@ -224,16 +234,6 @@ namespace Render
         SetScreenMode(newWidth, newHeight, mScreenFormat);
     }
     
-    const Surface Renderer::CreateImage(int width, int height, int format)
-    {
-        return CreateSurface(width, height, format);
-    }
-
-    const Surface Renderer::CreateImageFrom(int width, int height, int pitch, int format, char *data)
-    {
-        return CreateSurfaceFrom(data, width, height, pitch, format);
-    }
-
     void Renderer::BindTexture(const Surface &surface)
     {
         mBoundTexture = surface;

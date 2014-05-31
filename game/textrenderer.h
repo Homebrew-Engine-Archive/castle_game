@@ -50,7 +50,7 @@ namespace Render
         CursorMode mCursorMode = CursorMode::BaseLine;
         Rect mClipBox;
         int mFontStyle = FontStyle_Normal;
-        int mFontAlignment;
+        int mFontAlignment = TextAlignment_Left | TextAlignment_Up;
         std::string mFontName;
         int mFontSize;
         TTF_Font *mCurrentFont;
@@ -60,8 +60,6 @@ namespace Render
 
     public:
         explicit TextRenderer(Surface &surface);
-        TextRenderer(TextRenderer const&) = delete;
-        TextRenderer& operator=(TextRenderer const&) = delete;
 
         void PutString(const std::string &str);
 

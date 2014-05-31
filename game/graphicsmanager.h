@@ -4,14 +4,14 @@
 #include <SDL.h>
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
+#include <game/collection.h>
 #include <game/landscape.h>
-#include <game/surface.h>
 #include <game/filesystem.h>
-#include <game/point.h>
-#include <game/sdl_utils.h>
 #include <game/gm1palette.h>
+
+class Surface;
 
 namespace Render
 {

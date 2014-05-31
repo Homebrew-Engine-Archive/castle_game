@@ -14,105 +14,109 @@
 #include <game/gm1reader.h>
 #include <game/tgx.h>
 
-Collection LoadGM1(const fs::path &path)
+namespace Castle
 {
-    using namespace std::chrono;
-    steady_clock::time_point startAt = steady_clock::now();
     
-    GM1::GM1Reader gm1;
-    try {
-        gm1.Open(path, GM1::GM1Reader::Cached);
-    } catch(const std::exception &error) {
-        std::cerr << "open collection failed: " << error.what() << std::endl;
-        throw;
-    }
-
-    try {
-        Collection temp(gm1);
-        
-        steady_clock::time_point endAt = steady_clock::now();
-        milliseconds elapsed = duration_cast<milliseconds>(endAt - startAt);
-        std::clog << "Load " << path << ": " << elapsed.count() << "ms" << std::endl;
-        
-        return temp;
-    } catch(const std::exception &error) {
-        std::cerr << "read collection failed: what=" << error.what() << " (path=" << path << ")" << std::endl;
-        throw;
-    }
-}
-
-Surface LoadTGX(const fs::path &path)
-{
-    boost::filesystem::ifstream fin(path, std::ios_base::binary);
-
-    if(!fin.is_open()) {
-        std::cerr << "fail reading " << path << std::endl;
-        throw std::runtime_error(strerror(errno));
-    }
+    Collection LoadGM1(const fs::path &path)
+    {
+        using namespace std::chrono;
+        steady_clock::time_point startAt = steady_clock::now();
     
-    try {
-        return TGX::ReadTGX(fin);
-    } catch(const std::exception &error) {
-        std::cerr << "read image failed: " << error.what() << std::endl;
-        throw;
-    }
-}
-
-Collection::Collection(const Collection &collection) = default;
-
-Collection& Collection::operator=(const Collection &collection) = default;
-
-Collection::Collection(const GM1::GM1Reader &reader)
-    : mHeader(reader.Header())
-    , mPalettes(reader.NumPalettes())
-    , mEntries(reader.NumEntries())
-    , mHeaders(reader.NumEntries())
-{
-    for(int n = 0; n < reader.NumPalettes(); ++n) {
-        mPalettes[n] = reader.Palette(n);
-    }
-    for(int n = 0; n < reader.NumEntries(); ++n) {
+        GM1::GM1Reader gm1;
         try {
-            mEntries[n] = reader.ReadEntry(n);
+            gm1.Open(path, GM1::GM1Reader::Cached);
         } catch(const std::exception &error) {
-            std::cerr << "read entry failed: what=" << error.what() << " (entry=" << n << ')' << std::endl;
+            std::cerr << "open collection failed: " << error.what() << std::endl;
             throw;
         }
-        mHeaders[n] = reader.EntryHeader(n);
+
+        try {
+            Collection temp(gm1);
+        
+            steady_clock::time_point endAt = steady_clock::now();
+            milliseconds elapsed = duration_cast<milliseconds>(endAt - startAt);
+            std::clog << "Load " << path << ": " << elapsed.count() << "ms" << std::endl;
+        
+            return temp;
+        } catch(const std::exception &error) {
+            std::cerr << "read collection failed: what=" << error.what() << " (path=" << path << ")" << std::endl;
+            throw;
+        }
     }
-}
 
-int Collection::Count() const
-{
-    return mHeader.imageCount;
-}
+    Surface LoadTGX(const fs::path &path)
+    {
+        boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
-GM1::Header const& Collection::GetHeader() const
-{
-    return mHeader;
-}
+        if(!fin.is_open()) {
+            std::cerr << "fail reading " << path << std::endl;
+            throw std::runtime_error(strerror(errno));
+        }
+    
+        try {
+            return TGX::ReadTGX(fin);
+        } catch(const std::exception &error) {
+            std::cerr << "read image failed: " << error.what() << std::endl;
+            throw;
+        }
+    }
 
-const Point Collection::Anchor() const
-{
-    return Point(mHeader.anchorX, mHeader.anchorY);
-}
+    Collection::Collection(const Collection &collection) = default;
 
-const Surface Collection::GetSurface(size_t index) const
-{
-    return mEntries.at(index);
-}
+    Collection& Collection::operator=(const Collection &collection) = default;
 
-GM1::EntryHeader const& Collection::GetEntryHeader(size_t index) const
-{
-    return mHeaders.at(index);
-}
+    Collection::Collection(const GM1::GM1Reader &reader)
+        : mHeader(reader.Header())
+        , mPalettes(reader.NumPalettes())
+        , mEntries(reader.NumEntries())
+        , mHeaders(reader.NumEntries())
+    {
+        for(int n = 0; n < reader.NumPalettes(); ++n) {
+            mPalettes[n] = reader.Palette(n);
+        }
+        for(int n = 0; n < reader.NumEntries(); ++n) {
+            try {
+                mEntries[n] = reader.ReadEntry(n);
+            } catch(const std::exception &error) {
+                std::cerr << "read entry failed: what=" << error.what() << " (entry=" << n << ')' << std::endl;
+                throw;
+            }
+            mHeaders[n] = reader.EntryHeader(n);
+        }
+    }
 
-constexpr size_t GetPaletteIndexByName(PaletteName name)
-{
-    return static_cast<size_t>(name);
-}
+    int Collection::Count() const
+    {
+        return mHeader.imageCount;
+    }
 
-GM1::Palette const& Collection::GetPalette(PaletteName name) const
-{
-    return mPalettes.at(GetPaletteIndexByName(name));
-}
+    GM1::Header const& Collection::GetHeader() const
+    {
+        return mHeader;
+    }
+
+    const Point Collection::Anchor() const
+    {
+        return Point(mHeader.anchorX, mHeader.anchorY);
+    }
+
+    const Surface Collection::GetSurface(size_t index) const
+    {
+        return mEntries.at(index);
+    }
+
+    GM1::EntryHeader const& Collection::GetEntryHeader(size_t index) const
+    {
+        return mHeaders.at(index);
+    }
+
+    constexpr size_t GetPaletteIndexByName(PaletteName name)
+    {
+        return static_cast<size_t>(name);
+    }
+
+    GM1::Palette const& Collection::GetPalette(PaletteName name) const
+    {
+        return mPalettes.at(GetPaletteIndexByName(name));
+    }
+} // namespace Castle

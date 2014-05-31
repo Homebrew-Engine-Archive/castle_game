@@ -2,8 +2,16 @@
 
 IFS=$'\n\t'
 
-TRANSPARENT="#ff00ff"
-PALETTE=0
+if [ ! "$TRANSPARENT" ];
+then
+    TRANSPARENT="#ff00ff";
+fi;
+
+if [ ! "$PALETTE" ];
+then
+    PALETTE=0
+fi;
+
 GMTOOL=./gmtool.out
 FILE="$*"
 NUMPALETTES=`$GMTOOL palette --count "$FILE"`

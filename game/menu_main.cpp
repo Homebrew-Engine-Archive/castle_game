@@ -11,7 +11,7 @@ namespace UI
     MenuMain::MenuMain(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
         , mBackground(
-            LoadTGX(
+            Castle::LoadTGX(
                 fs::TGXFilePath("frontend_main2")))
     {
     }

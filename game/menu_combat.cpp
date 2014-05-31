@@ -12,7 +12,7 @@ namespace UI
     MenuCombat::MenuCombat(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
         , mBackground(
-            LoadTGX(
+            Castle::LoadTGX(
                 fs::TGXFilePath("frontend_combat")))
     {
     }

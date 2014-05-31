@@ -30,6 +30,7 @@ namespace Castle
         
         /** North direction **/
         Direction mDirection;
+        const Direction mStartDirection;
 
         bool mFlatView;
 
@@ -56,6 +57,8 @@ namespace Castle
         
         bool Flat() const;
         void Flat(bool yes);
+
+        double AngleRotation() const;
         
         Direction Dir() const;
         void Dir(const Direction &dir);

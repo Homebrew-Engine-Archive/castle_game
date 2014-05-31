@@ -3,7 +3,8 @@
 
 #include <SDL.h>
 
-#include <vector>
+#include <sstream>
+#include <deque>
 #include <string>
 
 #include <game/screen.h>
@@ -30,10 +31,13 @@ namespace UI
         UI::ScreenManager &mScreenManager;
         std::string mText;
         std::string mFontName;
-        std::vector<std::string> mHistory;
+        std::deque<std::string> mCommandHistory;
+        std::ostringstream mConsoleBuffer;
         int mFontSize;
         bool mClosed;
 
+        void OnCommandEntered(const std::string &text);
+        
         bool HandleKey(const SDL_KeyboardEvent &event);
         bool HandleTextInput(const SDL_TextInputEvent &text);
     };
