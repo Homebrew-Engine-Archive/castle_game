@@ -10,3 +10,4 @@ CMakeCache.txt
 *.cmake
 vgcore.*
 config*.h
+shaders
