@@ -5,11 +5,13 @@
 #include <SDL.h>
 
 /**
- * Constructing SDL_RWops from std::i/ostream!
- * It makes available to use boost::filesystem::wpath with SDL.
- */
+   Constructing SDL_RWops from std::i/ostream!
+   It made possible to use boost::filesystem::wpath with SDL.
+**/
 
-SDL_RWops* SDL_RWFromOutputStream(std::ostream&);
-SDL_RWops* SDL_RWFromInputStream(std::istream&);
+// \todo specialise for std::basic_iostream
+
+SDL_RWops* SDL_RWFromOutputStream(std::basic_ostream<char>&);
+SDL_RWops* SDL_RWFromInputStream(std::basic_istream<char>&);
 
 #endif // RW_H_

@@ -21,6 +21,11 @@ namespace GM1
             })
     {
     }
+
+    Palette::Palette(SDL_Palette *palette)
+        : mStorage(palette)
+    {
+    }
     
     Palette::value_type const& Palette::operator[](size_type index) const
     {

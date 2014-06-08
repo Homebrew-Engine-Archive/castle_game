@@ -56,14 +56,14 @@ namespace UI
         virtual ~GameScreen();
 
         void Render(Render::Renderer &render);
-        bool TileSelected(const Castle::GameMap::Cell &cell) const;
+        bool TileSelected(const Point &cursor, const Castle::GameMap::Cell &cell) const;
         bool HandleEvent(const SDL_Event &event);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);
-        void UpdateCamera(const Rect &screenRect);
+        void UpdateCamera(const Render::Renderer &renderer);
         void ToggleCameraMode();
         Castle::Camera& ActiveCamera();
-        Castle::GameMap::Cell FindSelectedTile();
+        Castle::GameMap::Cell FindSelectedTile(const Render::Renderer &renderer);
     };
 }
 

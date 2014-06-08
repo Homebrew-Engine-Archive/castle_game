@@ -5,7 +5,8 @@
 #include <SDL.h>
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/clamp.hpp>
+
+#include <game/clamp.h>
 
 #include <game/color.h>
 #include <game/rect.h>
@@ -52,7 +53,7 @@ namespace UI
     double LoadingScreen::GetCompleteRate() const
     {
         double done = static_cast<double>(mProgressDone) / mProgressMax;
-        return boost::algorithm::clamp(done, 0.0f, 1.0f);
+        return core::Clamp(done, 0.0f, 1.0f);
     }
     
     void LoadingScreen::Draw(Surface &frame)

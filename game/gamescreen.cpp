@@ -10,6 +10,7 @@
 #include <game/rect.h>
 #include <game/landscape.h>
 
+#include <game/fontmanager.h>
 #include <game/surface_drawing.h>
 #include <game/renderer.h>
 #include <game/filesystem.h>
@@ -18,6 +19,7 @@
 #include <game/gm1palette.h>
 #include <game/textrenderer.h>
 #include <game/simulationmanager.h>
+#include <game/screenmanager.h>
 
 namespace UI
 {
@@ -34,6 +36,7 @@ namespace UI
         , seaset(Castle::LoadGM1(fs::GM1FilePath("tile_sea8")))
         , rockset(Castle::LoadGM1(fs::GM1FilePath("tile_rocks8")))
         , cliffs(Castle::LoadGM1(fs::GM1FilePath("tile_cliffs")))
+        , mLastCameraUpdate(std::chrono::steady_clock::now())
         , mCursor()
         , mCursorInvalid(true)
         , mCamera()
@@ -63,33 +66,35 @@ namespace UI
 
     void GameScreen::Render(Render::Renderer &renderer)
     {
-        UpdateCamera(renderer.GetScreenRect());
+        UpdateCamera(renderer);
+
+        std::ostringstream oss;
+        oss << mCamera.ViewPoint();
+        mScreenManager.Console().LogMessage(oss.str());
         
-        const Castle::GameMap::Cell selected = FindSelectedTile();
+        const Castle::GameMap::Cell selected = FindSelectedTile(renderer);
         const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
 
         const auto cellIters = map.Cells();
         for(auto i = cellIters.first; i != cellIters.second; ++i) {
             const Castle::GameMap::Cell cell = *i;
             const Castle::Collection &tileset = GetTileSet(map.LandscapeType(*i));
-            
+
             const size_t index = map.Height(cell);
             const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
             const Surface &surface = tileset.GetSurface(index);
 
-            const Point cellCenter = mCamera.WorldToScreenCoords(*i);
-            const Rect tileRect(
-                cellCenter.x,
-                cellCenter.y,
-                mCamera.TileSize().x,
-                mCamera.TileSize().y);
-            Rect cellBox(cellCenter - Point(0, entryHeader.tileY), SurfaceWidth(surface), SurfaceHeight(surface));
+            const Point tileTopLeft = mCamera.WorldToScreenCoords(*i);
+            const Rect tileRect = FromPointAndSize(tileTopLeft, mCamera.TileSize());
 
-            if(!mCamera.Flat()) {
-                cellBox.y -= map.Height(*i);
-            }
+            const Point heightOffset = (mCamera.Flat()
+                                        ? (Point(0, 0))
+                                        : (Point(0, map.Height(*i))));
+
+            const Point tileTopLeftScreenSubrect = tileTopLeft - Point(0, entryHeader.tileY) - heightOffset;
+            const Rect tileSurfaceScreenSubrect = Translated(Rect(surface), tileTopLeftScreenSubrect);
             
-            if(!mCamera.Flat() && Intersects(renderer.GetScreenRect(), cellBox)) {
+            if(!mCamera.Flat()) {
                 const Surface &cliff = ((map.LandscapeType(*i) == Landscape::River)
                                         ? (cliffs.GetSurface(34))
                                         : (cliffs.GetSurface(index)));
@@ -98,26 +103,26 @@ namespace UI
                     0,
                     SurfaceHeight(cliff) - map.Height(*i),
                     SurfaceWidth(cliff),
-                    map.Height(*i));
-                
+                    map.Height(*i) + mCamera.TileSize().y / 2);
+
                 const Rect tileCliffSubRect(
-                    cellBox.x,
-                    cellBox.y + 8,
+                    tileSurfaceScreenSubrect.x,
+                    tileSurfaceScreenSubrect.y + mCamera.TileSize().y / 2,
                     cliffSubRect.w,
-                    cliffSubRect.h + 8);
+                    cliffSubRect.h);
+
+                renderer.BindSurface(cliff);
+                renderer.Blit(cliffSubRect, tileCliffSubRect);
                 
-                renderer.BindTexture(cliff);
-                renderer.BlitTexture(cliffSubRect, tileCliffSubRect);
-                
-                renderer.BindTexture(surface);
-                renderer.BlitTexture(Rect(surface), cellBox);
+                renderer.BindSurface(surface);
+                renderer.Blit(Rect(surface), tileSurfaceScreenSubrect);
 
                 if(selected == *i) {
-                    renderer.FillRhombus(cellBox, Colors::Red.Opaque(100));
+                    renderer.FillRhombus(tileSurfaceScreenSubrect, Colors::Red.Opaque(100));
                 }
             }
 
-            if(mCamera.Flat() && Intersects(renderer.GetScreenRect(), tileRect)) {
+            if(mCamera.Flat()) {
                 const Color tileColor =
                     ((selected.x == cell.x || selected.y == cell.y)
                      ? (Colors::Yellow)
@@ -128,12 +133,13 @@ namespace UI
             continue;
             const Surface &sprite = archer.GetSurface(index);
             const GM1::Palette &palette = archer.GetPalette(Castle::PaletteName::Blue);
-            const Point spriteOffset = (mCamera.Flat()
-                                        ? (Point(0, 0))
-                                        : (Point(0, map.Height(*i))));
+            const Rect spriteBox = Translated(Rect(sprite), tileTopLeft - archer.Anchor() - heightOffset + mCamera.TileSize() / 2);
+            renderer.Clip(spriteBox);
             renderer.BindPalette(palette);
-            renderer.BindTexture(sprite);
-            renderer.BlitTexture(Rect(sprite), Translated(Rect(sprite), cellCenter - archer.Anchor() - spriteOffset + Point(16, 8)));
+            renderer.BindSurface(sprite);
+            renderer.Blit(Rect(sprite), Rect(sprite));
+            renderer.Unclip();
+            //break;
         }
     }    
 
@@ -184,7 +190,6 @@ namespace UI
         mCursor.y = event.y;
         mCursorInvalid = false;
         if(event.button == SDL_BUTTON_LEFT && event.state == SDL_PRESSED) {
-            std::clog << "Pointed tile: " << FindSelectedTile() << std::endl;
             return true;
         }
         return false;
@@ -227,19 +232,23 @@ namespace UI
         return false;
     }
     
-    void GameScreen::UpdateCamera(const Rect &screenRect)
+    void GameScreen::UpdateCamera(const Render::Renderer &renderer)
     {
         constexpr const int EdgeWidth = 10;
-        if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && mCursor.x < EdgeWidth)) {
+
+        const Rect screenRect = renderer.GetScreenRect();
+        const Point projectedCursor = renderer.ClipPoint(mCursor);
+        
+        if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && projectedCursor.x < EdgeWidth)) {
             mCamera.Move(-1, 0);
         }
-        if(mKeyState[SDLK_RIGHT] || (!mCursorInvalid &&  mCursor.x > screenRect.w - EdgeWidth)) {
+        if(mKeyState[SDLK_RIGHT] || (!mCursorInvalid && projectedCursor.x > screenRect.w - EdgeWidth)) {
             mCamera.Move(1, 0);
         }
-        if(mKeyState[SDLK_UP] || (!mCursorInvalid && mCursor.y < EdgeWidth)) {
+        if(mKeyState[SDLK_UP] || (!mCursorInvalid && projectedCursor.y < EdgeWidth)) {
             mCamera.Move(0, -1);
         }
-        if(mKeyState[SDLK_DOWN] || (!mCursorInvalid && mCursor.y > screenRect.h - EdgeWidth)) {
+        if(mKeyState[SDLK_DOWN] || (!mCursorInvalid && projectedCursor.y > screenRect.h - EdgeWidth)) {
             mCamera.Move(0, 1);
         }
         
@@ -248,7 +257,7 @@ namespace UI
         mLastCameraUpdate = steady_clock::now();
     }
 
-    bool GameScreen::TileSelected(const Castle::GameMap::Cell &cell) const
+    bool GameScreen::TileSelected(const Point &cursor, const Castle::GameMap::Cell &cell) const
     {
         const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
         const Castle::Collection &tileset = GetTileSet(map.LandscapeType(cell));
@@ -257,11 +266,11 @@ namespace UI
         const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
         const Surface &surface = tileset.GetSurface(index);
             
-        Point cellCenter = mCamera.WorldToScreenCoords(cell);
-        Rect cellBox(cellCenter - Point(0, map.Height(cell)), surface->w, surface->h);
-        cellBox.y -= entryHeader.tileY;         // Offset to the top
-        if(PointInRect(cellBox, mCursor)) {
-            Point inside = ClipToRect(cellBox, mCursor);
+        const Point tileTopLeft = mCamera.WorldToScreenCoords(cell);
+        const Point tileTopLeftScreenSubrect = tileTopLeft - Point(0, map.Height(cell) - entryHeader.tileY);
+        const Rect tileSurfaceScreenSubrect = Translated(Rect(surface), tileTopLeftScreenSubrect);
+        if(PointInRect(tileSurfaceScreenSubrect, cursor)) {
+            Point inside = ClipToRect(tileSurfaceScreenSubrect, cursor);
             if(ExtractPixel(surface, inside) != 0) {
                 return true;
             }
@@ -269,17 +278,18 @@ namespace UI
         return false;
     }
     
-    Castle::GameMap::Cell GameScreen::FindSelectedTile()
+    Castle::GameMap::Cell GameScreen::FindSelectedTile(const Render::Renderer &renderer)
     {
+        const Point projectedCursor = renderer.ClipPoint(mCursor);
         if(mCamera.Flat()) {
-            return mCamera.ScreenToWorldCoords(mCursor);
+            return mCamera.ScreenToWorldCoords(projectedCursor);
         }
 
         Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
         Castle::GameMap::Cell selected = map.NullCell();
         const auto cellsIters = map.Cells();
         for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
-            if(TileSelected(*i)) {
+            if(TileSelected(projectedCursor, *i)) {
                 selected = *i;
             }
         }

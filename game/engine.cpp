@@ -1,5 +1,6 @@
 #include "engine.h"
 
+#include <iomanip>
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -9,18 +10,15 @@
 
 #include <SDL.h>
 
+#include <game/fontmanager.h>
 #include <game/make_unique.h>
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/point.h>
-
+#include <game/collection.h>
 #include <game/surface_drawing.h>
-#include <game/textrenderer.h>
 #include <game/gamescreen.h>
 #include <game/renderer.h>
-#include <game/menu_combat.h>
-#include <game/menu_main.h>
-#include <game/loadingscreen.h>
 #include <game/screen.h>
 #include <game/gamemap.h>
 
@@ -40,7 +38,13 @@ namespace Castle
         , mScreenManager()
         , mServer(mIO, mPort)
         , mGraphicsMgr()
-    { }
+        , mInfoArea()
+    {
+        mInfoArea.SetTextColor(Colors::Red);
+        mInfoArea.SetBackgroundColor(Colors::Black.Opaque(160));
+        mInfoArea.SetText("No FPS for you, Sir");
+        mInfoArea.SetMaxWidth(200);
+    }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
     {
@@ -49,7 +53,7 @@ namespace Castle
             {
                 const int width = window.data1;
                 const int height = window.data2;
-                mRenderer.SetScreenSize(width, height);
+                ResizeScreen(width, height);
             }
             return true;
         default:
@@ -63,7 +67,7 @@ namespace Castle
         case SDLK_ESCAPE:
             mClosed = true;
             return false;
-        case SDLK_q:
+        case SDLK_TAB:
             mScreenManager.ToggleConsole();
             return true;
         default:
@@ -85,15 +89,22 @@ namespace Castle
             return true;
         }
     }
+
+    void Engine::ResizeScreen(int width, int height)
+    {
+        mRenderer.SetScreenSize(width, height);
+    }
     
     void Engine::LoadFonts()
     {
-        const int sizes[] = {8, 9, 11, 13, 15, 17, 19, 23, 30, 45};
-        const std::string fontset = Render::FontStronghold;
+        const int minHeight = 8;
+        const int maxHeight = 42;
+        
+        const std::string family = Render::RegularFont;
 
-        for(int fsize : sizes) {
+        for(int h = minHeight; h <= maxHeight; ++h) {
             try {
-                Render::LoadFont(fontset, fsize);
+                mRenderer.GetFontManager().LoadFont(UI::Font(family, h));
             } catch(const std::exception &error) {
                 std::cerr << "Load font failed: " << error.what() << std::endl;
             }
@@ -138,30 +149,13 @@ namespace Castle
     void Engine::DrawFrame()
     {
         mRenderer.BeginFrame();
+        mRenderer.Clip(PadIn(mRenderer.GetScreenRect(), 100));
         mScreenManager.Render(mRenderer);
-
-        std::ostringstream oss;
-        oss.width(10);
-        oss << mFpsAverage;
-        
-        Render::TextRenderer textRenderer = mRenderer.GetTextRenderer();
-        textRenderer.SetCursorPos(Point(0, 20));
-        textRenderer.SetFont(Render::FontStronghold, 13);
-
-        const Color bgColor = Colors::Black.Opaque(150);
-        
-        const std::string str1 = "Your fps, Sir: ";
-        textRenderer.SetFontStyle(Render::FontStyle_Normal);
-        textRenderer.SetColor(Colors::Red);
-        mRenderer.FillFrame(textRenderer.CalculateTextRect(str1), bgColor);
-        textRenderer.PutString(str1);
-
-        const std::string str2 = oss.str();
-        textRenderer.SetFontStyle(Render::FontStyle_Normal);
-        textRenderer.SetColor(Colors::Yellow);
-        mRenderer.FillFrame(textRenderer.CalculateTextRect(str2), bgColor);
-        textRenderer.PutString(str2);
-
+        if(&mScreenManager.TopScreen() != &mScreenManager.Console()) {
+            mInfoArea.Render(mRenderer);
+        }
+        mRenderer.DrawFrame(mRenderer.GetScreenRect(), Colors::Gray);
+        mRenderer.Unclip();
         mRenderer.EndFrame();
     }
 
@@ -171,6 +165,10 @@ namespace Castle
         const double preciseFrameCounter = mFrameCounter * oneSecond.count();
         mFpsAverage = preciseFrameCounter / elapsed.count();
         mFrameCounter = 0;
+
+        std::ostringstream oss;
+        oss << "Your FPS, sir: " << std::setw(10) << mFpsAverage;
+        mInfoArea.SetText(oss.str());
     }
 
     constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs,

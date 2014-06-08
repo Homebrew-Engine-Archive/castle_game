@@ -81,7 +81,7 @@ namespace Graphics
         const auto buffSize = std::max(SurfaceWidth(dst),
                                        SurfaceHeight(dst));
 
-        ConvolveFunctor convolve(radius, *dst->format, buffSize);
+        ConvolveFunctor convolve(radius, SurfaceFormat(dst), buffSize);
     
         if(radius < 1 || radius > buffSize) {
             throw std::invalid_argument("inproper convolution radius");

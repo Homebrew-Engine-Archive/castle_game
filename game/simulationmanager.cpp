@@ -3,9 +3,9 @@
 namespace Castle
 {
     SimulationManager::SimulationManager()
-        : mEntities()
-        , mMap(nullptr)
+        : mMap(nullptr)
         , mBatchedCommands()
+        , mSimulationStep(0)
     {
 
     }
@@ -22,14 +22,24 @@ namespace Castle
     
     void SimulationManager::Update()
     {
-
+        mSimulationStep += 1;
     }
 
+    PlayerAvatar SimulationManager::GetLocalPlayerAvatar() const
+    {
+        return mLocalPlayer;
+    }
+
+    PlayerAvatar SimulationManager::GetHostPlayerAvatar() const
+    {
+        return mHostPlayer;
+    }
+    
     bool SimulationManager::HasUpdate(std::chrono::milliseconds elapsed)
     {
         return elapsed > std::chrono::milliseconds(100);
     }
-
+    
     SimulationManager& SimulationManager::Instance()
     {
         static SimulationManager simManager;

@@ -3,7 +3,8 @@
 
 #include <SDL.h>
 
-class Rect;
+#include <game/rect.h>
+
 class Point;
 class Color;
 
@@ -41,7 +42,7 @@ public:
     explicit SurfaceLocker(const Surface &surface);
     SurfaceLocker(SurfaceLocker const&) = delete;
     SurfaceLocker &operator=(SurfaceLocker const&) = delete;
-    ~SurfaceLocker();
+    ~SurfaceLocker() throw();
 };
 
 class SurfaceAlphaModSetter final
@@ -53,6 +54,16 @@ public:
 
     void Rollback();
     ~SurfaceAlphaModSetter();
+};
+
+class SurfaceClipper
+{
+    const Surface &mObject;
+    Rect mOldClip;
+    
+public:
+    SurfaceClipper(const Surface &surface, const Rect &cliprect);
+    ~SurfaceClipper() throw();
 };
 
 bool HasPalette(const Surface &surface);
@@ -80,6 +91,9 @@ const Surface CreateSurfaceFrom(void *pixels, int width, int height, int pitch, 
 void SetColorKey(Surface &surface, uint32_t *key);
 uint32_t GetColorKey(const Surface &surface);
 bool HasColorKey(const Surface &surface);
+
+const Rect GetClipRect(const Surface &surface);
+SDL_BlendMode GetSurfaceBlendMode(const Surface &surface);
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 

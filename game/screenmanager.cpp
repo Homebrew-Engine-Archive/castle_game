@@ -60,17 +60,6 @@ namespace UI
         }
     }
     
-    void ScreenManager::DrawScreen(Surface &frame)
-    {
-        for(UI::Screen *screen : mScreenStack) {
-            if(screen != nullptr) {
-                screen->Draw(frame);
-            } else {
-                throw std::runtime_error("null screen on stack");
-            }
-        }
-    }
-
     void ScreenManager::EnterGameScreen()
     {
         PushScreen(mGameScreen);

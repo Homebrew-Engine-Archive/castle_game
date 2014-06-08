@@ -3,8 +3,8 @@
 
 namespace core
 {
-    template<class T>
-    constexpr T Clamp(T value, T min, T max)
+    template<typename T, typename U>
+    constexpr T Clamp(T value, U min, U max)
     {
         return ((value < min)
                 ? min

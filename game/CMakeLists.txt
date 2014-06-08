@@ -8,6 +8,7 @@ set (SRCS
   direction.cpp
   engine.cpp
   filesystem.cpp
+  font.cpp
   fontmanager.cpp
   gamescreen.cpp
   gamemap.cpp
@@ -24,6 +25,7 @@ set (SRCS
   menu_main.cpp
   network.cpp
   point.cpp
+  range.cpp
   rect.cpp
   renderer.cpp
   screenmanager.cpp
@@ -33,6 +35,9 @@ set (SRCS
   surface_view.cpp
   surface_drawing.cpp
   surface_blur.cpp
+  textarea.cpp
+  textlayout.cpp
+  textlayoutitem.cpp
   textrenderer.cpp
   tgx.cpp
 )

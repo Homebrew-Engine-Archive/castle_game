@@ -5,8 +5,6 @@
 #include <memory>
 #include <SDL.h>
 
-class Surface;
-
 namespace Render
 {
     class Renderer;
@@ -19,12 +17,12 @@ namespace UI
     {
     public:
         virtual void Render(Render::Renderer &renderer) {}
-        virtual void Draw(Surface &frame) {}
 
         /**
          * \brief Check whether screen should be repainted.
          */
-        virtual bool IsClosed() { return false; }
+        virtual bool IsClosed()
+            {return false;}
 
         /**
          * \brief React on user input.
@@ -37,7 +35,8 @@ namespace UI
          * \param event
          * \return True if event was completely handled or false otherwise
          */
-        virtual bool HandleEvent(const SDL_Event &event) = 0;
+        virtual bool HandleEvent(const SDL_Event &event)
+            {return false;}
     };
 
     typedef std::unique_ptr<Screen> ScreenPtr;

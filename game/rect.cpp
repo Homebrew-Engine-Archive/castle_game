@@ -14,33 +14,10 @@ Rect& Rect::operator=(const SDL_Rect &that)
 
 Rect Normalized(const SDL_Rect &rect)
 {
-    Rect result = rect;
-    
-    if(result.w < 0) {
-        result.x += result.w;
-        result.w = -result.w;
-    }
-
-    if(result.h < 0) {
-        result.y += result.h;
-        result.h = -result.h;
-    }
-
-    return result;
-}
-
-Rect UnionRects(const SDL_Rect &lhs, const SDL_Rect &rhs)
-{
-    Rect result;
-    SDL_UnionRect(&lhs, &rhs, &result);
-    return result;
-}
-
-Rect IntersectRects(const SDL_Rect &lhs, const SDL_Rect &rhs)
-{
-    Rect result;
-    SDL_IntersectRect(&lhs, &rhs, &result);
-    return result;
+    return Rect(std::min(rect.x, rect.x + rect.w),
+                std::min(rect.y, rect.y + rect.h),
+                std::max(rect.x, rect.x + rect.w),
+                std::max(rect.y, rect.y + rect.h));
 }
 
 /**
@@ -85,7 +62,7 @@ Rect PadOut(const SDL_Rect &src, int pad)
 
 Rect PadIn(const SDL_Rect &src, int pad)
 {
-    Rect result;
+    Rect result = src;
     
     if((src.w >= (2 * pad)) && (src.h >= (2 * pad))) {
         result.x = src.x + pad;

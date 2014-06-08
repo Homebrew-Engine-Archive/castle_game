@@ -1,132 +1,316 @@
 #include "fontmanager.h"
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
+#include <vector>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <game/gm1palette.h>
+#include <game/font.h>
+#include <game/renderer.h>
+#include <game/surface.h>
+#include <game/rect.h>
+#include <game/color.h>
 #include <game/ttf_error.h>
 #include <game/sdl_utils.h>
+#include <game/ttf_utils.h>
 
-struct FontData
+namespace
 {
-    fs::path fontPath;
-    std::string name;
-    int fsize;
-    FontPtr font;
+    int GetFontHinting(const UI::Font &font)
+    {
+        return (font.Hinted() ? TTF_HINTING_NORMAL : TTF_HINTING_NONE);
+    }
 
-    FontData() = default;
+    int GetFontStyle(const UI::Font &font)
+    {
+        return (font.Bold() ? TTF_STYLE_BOLD : 0)
+            | (font.Italic() ? TTF_STYLE_ITALIC : 0)
+            | (font.Underline() ? TTF_STYLE_UNDERLINE : 0)
+            | (font.Strikethrough() ? TTF_STYLE_STRIKETHROUGH : 0);
+    }
+}
+
+class FontData
+{
+public:
+    FontData(const UI::Font &font, FontPtr ttfFont)
+        : mFont(font)
+        , mFontObject(std::move(ttfFont))
+        {}
+    
     FontData(FontData&&) = default;
+    FontData(const FontData &that) = delete;
+    FontData& operator=(const FontData &that) = delete;
+    ~FontData() = default;
+
+    UI::Font const& Font() const;
+    /**
+       Produces as result argb32 surface considered to be drawn on screen.
+     **/
+    Surface RenderBlended(const std::string &text, const Color &fg) const;
+
+    /**
+       Palettized surface with background
+     **/
+    Surface RenderShaded(const std::string &text, const Color &fg, const Color &bg) const;
+
+    /**
+       Cheap and fast
+     **/
+    Surface RenderSolid(const std::string &text, const Color &fg) const;
+    
+    bool HasGlyph(int character) const;
+    const Rect TextSize(const std::string &text) const;
+    void UpdateFontState(const UI::Font &font) const;
+    int LineSkip() const;
+    
+protected:
+    UI::Font mFont;
+
+    /**
+       UpdateFontState actually changes this object.
+     **/
+    mutable FontPtr mFontObject;
 };
+
+const Rect FontData::TextSize(const std::string &text) const
+{
+    int width;
+    int height;
+    if(TTF_SizeText(mFontObject.get(), text.c_str(), &width, &height) < 0) {
+        throw ttf_error();
+    }
+    return Rect(width, height);
+}
+
+const UI::Font& FontData::Font() const
+{
+    return mFont;
+}
+
+void FontData::UpdateFontState(const UI::Font &font) const
+{
+    TTF_Font *ttf_font = mFontObject.get();
+    TTF_SetFontStyle(ttf_font, GetFontStyle(font));
+    TTF_SetFontHinting(ttf_font, GetFontHinting(font));
+    TTF_SetFontOutline(ttf_font, font.Outline());
+    TTF_SetFontKerning(ttf_font, font.Kerning());
+}
+
+Surface FontData::RenderBlended(const std::string &text, const Color &fg) const
+{
+    return Surface(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
+}
+
+Surface FontData::RenderShaded(const std::string &text, const Color &fg, const Color &bg) const
+{
+    return Surface(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
+}
+
+Surface FontData::RenderSolid(const std::string &text, const Color &fg) const
+{
+    return Surface(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
+}
+
+bool FontData::HasGlyph(int character) const
+{
+    return (TTF_GlyphIsProvided(mFontObject.get(), character) == 0);
+}
+
+int FontData::LineSkip() const
+{
+    return TTF_FontLineSkip(mFontObject.get());
+}
+
+const FontData* GetBestMatch(const UI::Font &font, const FontData *lhs, const FontData *rhs)
+{
+    if(lhs == nullptr) {
+        return rhs;
+    }
+        
+    if(rhs == nullptr) {
+        return lhs;
+    }
+
+    const UI::Font &alice = lhs->Font();
+    const UI::Font &bob = rhs->Font();
+
+    if((alice.Family() == font.Family()) && (bob.Family() != font.Family())) {
+        return lhs;
+    }
+        
+    if((alice.Family() != font.Family()) && (bob.Family() == font.Family())) {
+        return rhs;
+    }
+
+    if(abs(alice.Height() - font.Height()) < abs(bob.Height() - font.Height())) {
+        return lhs;
+    } else {
+        return rhs;
+    }
+}
 
 namespace Render
 {
     FontManager::~FontManager() = default;
     
     FontManager::FontManager()
-        : mTTF_Init()
+        : mTTF_Init(new TTFInitializer)
         , mFontTable()
     {
-    }
+    }    
     
-    FontData* GetBestMatch(const std::string &name, int fsize, FontData *lhs, FontData *rhs)
+    const FontData& FontManager::LookupFont(const UI::Font &font) const
     {
-        if(lhs == nullptr) {
-            return rhs;
+        const FontData *result = nullptr;
+        for(const FontData &fd : mFontTable) {
+            result = GetBestMatch(font, result, &fd);
         }
-        
-        if(rhs == nullptr) {
-            return lhs;
+        if(result == nullptr) {
+            throw std::runtime_error("font lookup failed");
         }
-        
-        if((lhs->name == name) && (rhs->name != name)) {
-            return lhs;
-        }
-        
-        if((lhs->name != name) && (rhs->name == name)) {
-            return rhs;
-        }
-
-        if(abs(lhs->fsize - fsize) < abs(rhs->fsize - fsize)) {
-            return lhs;
-        } else {
-            return rhs;
-        }
+        return *result;
     }
-    
-    FontData* FontManager::LookupFontName(const std::string &name, int fsize)
+
+    std::vector<fs::path> FontManager::FontSearchPathsList(const UI::Font &font) const
     {
-        FontData *result = nullptr;
-        for(FontData &fd : mFontTable) {
-            result = GetBestMatch(name, fsize, result, &fd);
-        }
-        return result;
+        std::vector<fs::path> paths;
+
+        paths.push_back(fs::FontFilePath(font.Family()));
+        paths.push_back(fs::FontFilePath(
+                            boost::to_upper_copy(font.Family())));
+        paths.push_back(fs::FontFilePath(
+                            boost::to_lower_copy(font.Family())));
+        
+        return paths;
     }
-    
-    void FontManager::LoadFontFile(const std::string &name, int fsize)
+
+    FontData FontManager::LoadFontData(const fs::path &path, const UI::Font &font) const
     {
-        FontData *nearest = LookupFontName(name, fsize);
-        if((nearest != nullptr) && (nearest->name == name) && (nearest->fsize == fsize)) {
-            std::clog << "Loading font has already been loaded: " << name << ' ' << fsize << std::endl;
-            return;
-        }
-        
-        FontData fontData;
-        fontData.fontPath = fs::FontFilePath(name);
-        fontData.name = name;
-        fontData.fsize = fsize;
+        /**
+           TODO windows sucks with utf8 so much
+           see http://stackoverflow.com/questions/11352641/boostfilesystempath-and-fopen
+           so we must not use c_str().
+                
+           The desired solution is as follows
+                
+           boost::filesystem::ifstream fin(fontData.fontPath);
+           RWPtr rw(SDL_RWFromInputStream(fin));
+           TTF_Font *font = TTF_OpenFontRW(rw.get(), SDL_FALSE, fsize);
+                
+           ... but it gets a crash due to a bug in SDL_OpenFontRW
+           see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
+        **/
+        const char *c_fpath = path.string().c_str();
 
-        // TODO windows sucks with utf8 so much
-        // see http://stackoverflow.com/questions/11352641/boostfilesystempath-and-fopen
-        // so we must not use c_str().
-        
-        // The desired solution is as follows
-        //
-        // boost::filesystem::ifstream fin(fontData.fontPath);
-        // RWPtr rw(SDL_RWFromInputStream(fin));
-        // TTF_Font *font = TTF_OpenFontRW(rw.get(), SDL_FALSE, fsize);
-
-        // ... but it gets a crash due to a bug in SDL_OpenFontRW
-        // see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
-
-
-
-        TTF_Font *font = TTF_OpenFont(fontData.fontPath.string().c_str(), fsize);
-
-        if(font == NULL) {
+        FontPtr ttf_font(TTF_OpenFont(c_fpath, font.Height()));
+        if(!ttf_font) {
             throw ttf_error();
         }
-        fontData.font.reset(font);
-        
-        mFontTable.push_back(std::move(fontData));
+
+        return FontData(font, std::move(ttf_font));
     }
     
-    TTF_Font* FontManager::Font(const std::string &name, int fsize)
+    void FontManager::LoadFont(const UI::Font &font)
     {
-        const FontData *fd = LookupFontName(name, fsize);
-        if(fd != nullptr) {
-            return fd->font.get();
+        if(FontIsLoaded(font)) {
+            std::clog << "Font is already loaded: " << font << std::endl;
+            return;
         }
-        throw std::runtime_error("no font found");
+
+        std::vector<fs::path> paths = FontSearchPathsList(font);
+        for(const fs::path &path : paths) {
+            try {
+                FontData temp = LoadFontData(path, font);
+                AddFontData(std::move(temp));
+                return;
+            } catch(const ttf_error &error) {
+                std::clog << "Search font (" << font << ") in " << path << " failed: " << error.what() << std::endl;
+            }
+        }
+
+        throw std::runtime_error("font not found");
     }
 
-    FontManager& FontManager::Instance()
+    bool FontManager::FontIsLoaded(const UI::Font &font) const
     {
-        static FontManager manager;
-        return manager;
+        try {
+            const FontData& data = LookupFont(font);
+            return IsCopyOf(data.Font(), font);
+        } catch(const std::exception &error) {
+            return false;
+        }
+    }
+    
+    bool FontManager::CouldRender(const UI::Font &font, const std::string &text) const
+    {
+        try {
+            const FontData &fontData = LookupFont(font);
+            fontData.UpdateFontState(font);
+            for(auto character : text) {
+                if(!fontData.HasGlyph(character)) {
+                    return false;
+                }
+            }
+        } catch(const std::exception &error) {
+            return false;
+        }
+
+        return true;
     }
 
-    TTF_Font* FindFont(const std::string &fname, int fsize)
+    void FontManager::AddFontData(FontData fontdata)
     {
-        return FontManager::Instance().Font(fname, fsize);
+        mFontTable.push_back(std::move(fontdata));
+    }
+    
+    void FontManager::DrawText(Renderer &renderer, const UI::Font &font, const std::string &text, const Color &fg, const Color &bg) const
+    {
+        if(!text.empty()) {
+            const FontData &fontData = LookupFont(font);
+            fontData.UpdateFontState(font);
+            Surface textSurface;
+            if(bg.a == 0xff) {
+                textSurface = fontData.RenderShaded(text.c_str(), fg, bg);
+            } else if(font.Antialiased()) {
+                textSurface = fontData.RenderBlended(text.c_str(), fg);
+            } else {
+                textSurface = fontData.RenderSolid(text.c_str(), fg);
+            }
+            if(!textSurface.Null()) {
+                // \todo avoid conversion
+                if(SDL_ISPIXELFORMAT_INDEXED(SurfaceFormat(textSurface).format)) {
+                    textSurface = ConvertSurface(textSurface, SDL_PIXELFORMAT_ARGB8888);
+                }
+                renderer.Alpha(fg.a);
+                renderer.BindSurface(textSurface);
+                renderer.Blit(Rect(textSurface), Rect(textSurface));
+                renderer.UnbindSurface();
+                renderer.Unalpha();
+            } else {
+                throw ttf_error();
+            }
+        }
     }
 
-    void LoadFont(const std::string &fname, int fsize)
+    const Rect FontManager::TextSize(const UI::Font &font, const std::string &text) const
     {
-        FontManager::Instance().LoadFontFile(fname, fsize);
+        const FontData &fontData = LookupFont(font);
+        fontData.UpdateFontState(font);
+        return fontData.TextSize(text);
+    }
+
+    int FontManager::LineSkip(const UI::Font &font) const
+    {
+        const FontData &fontData = LookupFont(font);
+        fontData.UpdateFontState(font);
+        return fontData.LineSkip();
     }
 }

@@ -51,7 +51,6 @@ namespace UI
         Screen& PopScreen();
         void CloseScreen(Screen*);
         bool HandleEvent(SDL_Event const&);
-        void DrawScreen(Surface&);
         void Render(Render::Renderer &renderer);
     };
 } // namespace UI

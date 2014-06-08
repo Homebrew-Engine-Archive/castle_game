@@ -15,7 +15,7 @@ const Surface CreateSurfaceView(Surface &src, const Rect &clip)
     }
 
     const Rect cropped =
-        IntersectRects(
+        Intersection(
             Normalized(clip),
             Rect(src));
 

@@ -218,11 +218,11 @@ namespace TGX
         const int pixelStride = SurfacePixelStride(surface);
         const int rowStride = SurfaceRowStride(surface);
 
-        uint32_t colorKey = 0;
-        if(SDL_GetColorKey(surface, &colorKey) < 0) {
+        if(!HasColorKey(surface)) {
             // \todo this is not so
-            throw std::runtime_error("surface should be have color key");
+            throw std::runtime_error("surface should have color key");
         }
+        const uint32_t colorKey = GetColorKey(surface);
 
         for(int y = 0; y < SurfaceHeight(surface); ++y) {
             EncodeLine(out, data + rowStride * y, SurfaceWidth(surface), pixelStride, colorKey);
@@ -249,14 +249,15 @@ namespace TGX
         if(!ReadHeader(in, header)) {
             throw std::runtime_error(strerror(errno));
         }
-        Surface surface = CreateCompatibleSurface(header.width, header.height);
 
         const std::streampos origin = in.tellg();
         in.seekg(0, std::ios_base::end);
         const std::streampos fsize = in.tellg();
         in.seekg(origin);
-        
+
+        Surface surface = CreateCompatibleSurface(header.width, header.height);
         TGX::DecodeSurface(in, fsize - origin, surface);
+        
         return surface;
     }
 
@@ -269,7 +270,7 @@ namespace TGX
             token_t token;
             io::ReadLittle(in, token);
             // \note any io errors are just ignored if token has valid TokenType
-            // we handle them latter anyway
+            // but we handle them latter anyway
 
             const TokenType type = ExtractTokenType(token);
             const int length = ExtractTokenLength(token);

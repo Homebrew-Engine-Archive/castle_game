@@ -11,8 +11,8 @@
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 
+#include <game/textarea.h>
 #include <game/network.h>
-#include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/simulationmanager.h>
 #include <game/graphicsmanager.h>
@@ -35,7 +35,9 @@ namespace Castle
         UI::ScreenManager mScreenManager;
         Network::Server mServer;
         Graphics::GraphicsManager mGraphicsMgr;
+        UI::TextArea mInfoArea;
 
+        void ResizeScreen(int width, int height);
         bool HandleWindowEvent(SDL_WindowEvent const&);
         bool HandleKeyboardEvent(SDL_KeyboardEvent const&);
         bool HandleEvent(SDL_Event const&);

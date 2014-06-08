@@ -20,8 +20,14 @@ namespace Graphics
         >
     void CreateRendererAndPaint(Surface &surface, const Rect &rect, const Color &color, Painter painter)
     {
+        const Rect clipRect = GetClipRect(surface);
+        
         RendererPtr renderer(SDL_CreateSoftwareRenderer(surface));
         if(!renderer) {
+            throw sdl_error();
+        }
+        
+        if(SDL_RenderSetClipRect(renderer.get(), &clipRect) < 0) {
             throw sdl_error();
         }
 

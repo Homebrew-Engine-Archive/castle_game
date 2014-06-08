@@ -10,8 +10,6 @@ namespace UI
     public:
         InGameMenu();
         virtual ~InGameMenu();
-        
-        virtual void Draw(Surface &frame);
         virtual bool HandleEvent(const SDL_Event &event);
     };
 }

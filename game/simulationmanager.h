@@ -6,31 +6,34 @@
 #include <vector>
 #include <memory>
 
+#include <game/simulationcommand.h>
+#include <game/playeravatar.h>
 #include <game/gamemap.h>
 
 namespace Castle
 {
-    class SimulationCommand
-    { };
-    
     class SimulationManager
     {
-        std::vector<int> mEntities;
         std::unique_ptr<Castle::GameMap> mMap;
-        std::map<int, std::vector<SimulationCommand>> mBatchedCommands;
+        std::map<PlayerAvatar, std::vector<SimulationCommand>> mBatchedCommands;
+        int mSimulationStep;
+        PlayerAvatar mHostPlayer;
+        PlayerAvatar mLocalPlayer;
+        std::vector<PlayerAvatar> mPlayers;
 
     public:
         SimulationManager();
         static SimulationManager& Instance();
 
-        
-        
         Castle::GameMap& GetGameMap();
         void SetGameMap(std::unique_ptr<Castle::GameMap> map);
         
         void Update();
 
-        void InjectCommand(const SimulationCommand &command);
+        PlayerAvatar GetLocalPlayerAvatar() const;
+        PlayerAvatar GetHostPlayerAvatar() const;
+        
+        void InjectCommand(const PlayerAvatar &player, const SimulationCommand &command);
         
         bool HasUpdate(std::chrono::milliseconds elapsed);
     };

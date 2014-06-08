@@ -8,6 +8,7 @@
 #include <string>
 
 #include <game/screen.h>
+#include <game/textarea.h>
 
 namespace UI
 {
@@ -23,21 +24,20 @@ namespace UI
         Console(Console const&) = delete;
         Console& operator=(Console const&) = delete;
 
+        void LogMessage(const std::string &message);
         bool IsClosed() const;
         void Render(Render::Renderer &renderer);
         bool HandleEvent(const SDL_Event &event);
 
     protected:
-        UI::ScreenManager &mScreenManager;
-        std::string mText;
-        std::string mFontName;
+        ScreenManager &mScreenManager;
         std::deque<std::string> mCommandHistory;
         std::ostringstream mConsoleBuffer;
-        int mFontSize;
+        TextArea mPromptArea;
+        TextArea mLogArea;
         bool mClosed;
-
-        void OnCommandEntered(const std::string &text);
         
+        void OnCommandEntered(const std::string &text);        
         bool HandleKey(const SDL_KeyboardEvent &event);
         bool HandleTextInput(const SDL_TextInputEvent &text);
     };

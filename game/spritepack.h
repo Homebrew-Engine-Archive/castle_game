@@ -39,7 +39,6 @@ namespace Graphics
         GM1::Palette const& Get(PaletteName name) const;
     };
 
-    template<class>
     class SpritePack
     {
         std::vector<SpriteSurface> mSprites;

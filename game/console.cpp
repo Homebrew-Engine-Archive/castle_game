@@ -2,44 +2,64 @@
 
 #include <SDL.h>
 
+#include <cassert>
 #include <iostream>
 #include <string>
 
+#include <game/font.h>
+#include <game/alignment.h>
 #include <game/renderer.h>
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/surface.h>
-#include <game/textrenderer.h>
 #include <game/surface_drawing.h>
 
 namespace UI
 {
     Console::Console(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
-        , mText()
-        , mFontName(Render::FontStronghold)
         , mCommandHistory()
-        , mFontSize(10)
+        , mConsoleBuffer()
+        , mPromptArea()
+        , mLogArea()
         , mClosed(false)
-    { }
+    {
+        mPromptArea.SetAlignment(Alignment::Expanded, Alignment::Max);
+        mPromptArea.SetTextColor(Colors::Magenta);
+        mPromptArea.SetBackgroundColor(Colors::Blue.Opaque(50));
+
+        mLogArea.SetAlignment(Alignment::Expanded, Alignment::Min);
+        mLogArea.SetTextColor(Colors::Gray);
+        mLogArea.SetBackgroundColor(Colors::Black.Opaque(0));
+        mLogArea.SetTextAlignment(Alignment::Expanded, Alignment::Min);
+    }
 
     void Console::Render(Render::Renderer &renderer)
     {
         const Rect consoleRect = Rect(BottomRight(renderer.GetScreenRect()) / Point(1, 2));
         renderer.FillFrame(consoleRect, Colors::Black.Opaque(200));
+        renderer.Clip(consoleRect);
+
+        mPromptArea.SetMaxWidth(consoleRect.w);
+        const Rect promptRect = mPromptArea.FitToScreen(renderer);
         
-        Render::TextRenderer textRenderer = renderer.GetTextRenderer();
-        textRenderer.SetColor(Colors::Gray);
-        textRenderer.SetCursorPos(BottomLeft(consoleRect) - Point(0, 20));
-        textRenderer.PutString(mText);
+        renderer.Clip(ChopBottom(renderer.GetScreenRect(), promptRect.h));
+        mLogArea.SetMaxWidth(consoleRect.w);
+        
+        mLogArea.Render(renderer);
+        renderer.Unclip();
+
+        mPromptArea.Render(renderer);
+        renderer.Unclip();
     }
 
     void Console::OnCommandEntered(const std::string &command)
     {
         mCommandHistory.push_back(command);
         mConsoleBuffer << "> " << command << std::endl;
+        mLogArea.SetText(mConsoleBuffer.str());
     }
     
     bool Console::HandleEvent(const SDL_Event &event)
@@ -66,13 +86,17 @@ namespace UI
             return true;
         case SDLK_RETURN:
             {
-                OnCommandEntered(mText);
-                mText = std::string();
+                OnCommandEntered(mPromptArea.Text());
+                mPromptArea.SetText(std::string());
             }
             return true;
         case SDLK_BACKSPACE:
-            if(!mText.empty()) {
-                mText.erase(mText.size() - 1);
+            {
+                std::string text = mPromptArea.Text();
+                if(!text.empty()) {
+                    text.pop_back();
+                    mPromptArea.SetText(text);
+                }
             }
             return true;
         default:
@@ -80,9 +104,14 @@ namespace UI
         }
     }
 
-    bool Console::HandleTextInput(const SDL_TextInputEvent &text)
+    void Console::LogMessage(const std::string &message)
     {
-        mText += text.text;
+        //mConsoleBuffer << message << std::endl;
+    }
+    
+    bool Console::HandleTextInput(const SDL_TextInputEvent &event)
+    {
+        mPromptArea.SetText(mPromptArea.Text() + event.text);
         return true;
     }
 } // namespace UI

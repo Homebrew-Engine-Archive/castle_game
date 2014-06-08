@@ -34,6 +34,7 @@ namespace GM1
         typedef size_t            size_type;
 
         Palette();
+        explicit Palette(SDL_Palette *palette);
         virtual ~Palette() = default;
         
         value_type const& operator[](size_type index) const;

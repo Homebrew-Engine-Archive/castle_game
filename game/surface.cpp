@@ -92,6 +92,23 @@ SurfaceAlphaModSetter::~SurfaceAlphaModSetter()
     }
 }
 
+SurfaceClipper::SurfaceClipper(const Surface &surface, const Rect &cliprect)
+    : mObject(surface)
+    , mOldClip()
+{
+    if(!mObject.Null()) {
+        SDL_GetClipRect(mObject, &mOldClip);
+        SDL_SetClipRect(mObject, &cliprect);
+    }
+}
+
+SurfaceClipper::~SurfaceClipper() throw()
+{
+    if(!mObject.Null()) {
+        SDL_SetClipRect(mObject, &mOldClip);
+    }
+}
+
 SurfaceLocker::SurfaceLocker(const Surface &surface)
     : mObject(surface)
     , mLocked(false)
@@ -105,7 +122,7 @@ SurfaceLocker::SurfaceLocker(const Surface &surface)
     }
 }
 
-SurfaceLocker::~SurfaceLocker()
+SurfaceLocker::~SurfaceLocker() throw()
 {
     if(mLocked && !mObject.Null()) {
         SDL_UnlockSurface(mObject);
@@ -217,6 +234,11 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
             throw sdl_error();
         }
     }
+}
+
+const Rect GetClipRect(const Surface &surface)
+{
+    return Rect(surface->clip_rect);
 }
 
 const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format)
@@ -439,4 +461,13 @@ char const* SurfaceData(const Surface &surface)
 char* SurfaceData(Surface &surface)
 {
     return reinterpret_cast<char*>(surface->pixels);
+}
+
+SDL_BlendMode GetSurfaceBlendMode(const Surface &surface)
+{
+    SDL_BlendMode mode;
+    if(SDL_GetSurfaceBlendMode(surface, &mode) < 0) {
+        throw sdl_error();
+    }
+    return mode;
 }
