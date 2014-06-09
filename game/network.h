@@ -12,6 +12,7 @@ namespace Network
     class Connection
     {
         std::array<char, 256> mReadBuffer;
+        std::vector<char> mDataBuffer;
         boost::asio::ip::tcp::socket mSock;
         void StartReceive();
         void ReceiveHandler(const boost::system::error_code &e, size_t size);

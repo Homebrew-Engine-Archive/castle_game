@@ -1,10 +1,30 @@
 #include "textlayout.h"
 
+/**
+   to be done
+
+   expanded horizontal alignment
+   word wrap
+   vertical alignment
+   
+ **/
+
+#include <functional>
+#include <algorithm>
+#include <iterator>
+#include <locale>
+#include <stdexcept>
 #include <memory>
 #include <sstream>
 
 #include <game/fontmanager.h>
 #include <game/rect.h>
+#include <game/range.h>
+
+struct TextLayoutLine
+{
+    std::string text;
+};
 
 namespace UI
 {
@@ -23,68 +43,220 @@ namespace UI
 {    
     TextLayout::TextLayout()
         : mHorizontalAlignment(Alignment::Min)
-        , mVerticalAlignment(Alignment::Min)
-        , mMultiline(true)
         , mWidth(0)
-        , mHeight(0)
-        , mWordWrap(false)
         , mText()
         , mTextFont()
         , mItems()
+        , mInvalidated(true)
     {
     }
 
+    TextLayout::const_iterator TextLayout::begin() const
+    {
+        if(mInvalidated) {
+            throw layout_error("layout is invalid");
+        }
+        return mItems.begin();
+    }
+
+    TextLayout::const_iterator TextLayout::end() const
+    {
+        return mItems.end();
+    }
+
+    template<class Iter>
+    std::istream& ReadBlank(std::istream &in, Iter first)
+    {
+        while(in) {
+            const auto character = in.get();
+            if(!in) {
+                break;
+            }
+            if(!isblank(character)) {
+                break;
+            }
+            *first++ = character;
+        }
+        return in;
+    }
+    
+    const TextLayoutLine TextLayout::GetLayoutLine(const Render::FontManager &engine, std::istream &in)
+    {
+        std::string buffer;
+        while(in) {
+            const auto character = in.get();
+            if(!in) {
+                break;
+            }
+            if(character == '\n') {
+                break;
+            }
+            buffer += character;
+            const Rect bufferSize = engine.TextSize(mTextFont, buffer);
+            if(bufferSize.w > mWidth) {
+                if(isblank(character)) {
+                    in.unget();
+                    buffer.pop_back();
+                } else {
+                    while(!buffer.empty() && !isblank(buffer.back())) {
+                        in.unget();
+                        buffer.pop_back();
+                    }
+                    if(buffer.empty()) {
+                        throw layout_error("layout width too small");
+                    }
+                }
+                break;
+            }
+        }
+        
+        TextLayoutLine tmp;
+        tmp.text = std::move(buffer);
+        return tmp;
+    }
+    
+    bool TextLayout::UpdateLayout(const Render::FontManager &engine)
+    {
+        if(mInvalidated) {
+            mItems.clear();
+            mBoundingRect = Rect(0, 0, 0, 0);
+
+            std::vector<TextLayoutLine> lines;
+            std::istringstream iss(mText);
+            while(iss) {
+                const TextLayoutLine tmp = GetLayoutLine(engine, iss);
+                if(iss || !tmp.text.empty()) {
+                    lines.push_back(tmp);
+                }
+            }
+
+            switch(lines.size()) {
+            case 0:
+                break;
+                
+            case 1:
+                PushSingleLine(engine, lines[0]);
+                break;
+                
+            default:
+                {
+                    PushFirstLine(engine, lines[0]);
+                    for(size_t i = 1; i < lines.size() - 1; ++i) {
+                        PushLine(engine, lines[i]);
+                    }
+                    PushLastLine(engine, lines.back());
+                }
+                break;
+            }
+            
+            mInvalidated = false;
+            return true;
+        }
+
+        return false;
+    }
+    
+    void TextLayout::PushSingleLine(const Render::FontManager &engine, const TextLayoutLine &line)
+    {
+        if(mHorizontalAlignment == Alignment::Expanded) {
+            return PushShrinkedLine(engine, line);
+        } else {
+            return PushLine(engine, line);
+        }
+    }
+    
+    void TextLayout::PushFirstLine(const Render::FontManager &engine, const TextLayoutLine &line)
+    {
+        PushLine(engine, line);
+    }
+    
+    void TextLayout::PushLastLine(const Render::FontManager &engine, const TextLayoutLine &line)
+    {
+        PushSingleLine(engine, line);
+    }
+    
+    void TextLayout::PushLine(const Render::FontManager &engine, const TextLayoutLine &line)
+    {
+        const Rect lineSize = engine.TextSize(mTextFont, line.text);
+        switch(mHorizontalAlignment) {
+        case Alignment::Min:
+            PushShrinkedLine(engine, line, 0);
+            break;
+        case Alignment::Max:
+            PushShrinkedLine(engine, line, (mWidth - lineSize.w));
+            break;
+        case Alignment::Center:
+            PushShrinkedLine(engine, line, (mWidth - lineSize.w) / 2);
+            break;
+        case Alignment::Expanded:
+            PushExpandedLine(engine, line);
+            break;
+        default:
+            throw std::runtime_error("wrong alignment");
+        }
+        mBoundingRect.w = std::max<int>(mBoundingRect.w, lineSize.w);
+    }
+    
+    void TextLayout::PushShrinkedLine(const Render::FontManager &engine, const TextLayoutLine &line, int offset)
+    {
+        const int lineSkip = engine.LineSkip(mTextFont);
+        mBoundingRect.h += lineSkip;
+        mItems.emplace_back(line.text, 0, lineSkip, offset, 0);
+    }
+    
+    void TextLayout::PushExpandedLine(const Render::FontManager &engine, const TextLayoutLine &line)
+    {
+        PushShrinkedLine(engine, line, 0);
+    }
+    
     void TextLayout::SetText(const std::string &text)
     {
-        SetParamAndInvalidate(mText, text);
+        if(mText != text) {
+            mText = text;
+            InvalidateLayout();
+        }
     }
 
-    void TextLayout::AppendText(const std::string &text)
+    void TextLayout::Insert(size_t pos, const std::string &text)
     {
-        const std::string newText = mText + text;
-        SetParamAndInvalidate(mText, text);
+        if(!text.empty()) {
+            mText.insert(pos, text);
+            InvalidateLayout();
+        }
     }
 
-    void TextLayout::RemoveText(size_t text)
+    void TextLayout::Remove(size_t index, size_t count)
     {
-        
+        if(count != 0) {
+            mText.erase(index, count);
+            InvalidateLayout();
+        }
     }
     
     void TextLayout::SetFont(const UI::Font &font)
     {
-        SetParamAndInvalidate(mTextFont, font);
+        if(mTextFont != font) {
+            mTextFont = font;
+            InvalidateLayout();
+        }
     }
 
-    void TextLayout::SetWordWrap(bool wrap)
+    void TextLayout::SetAlignment(Alignment horizontal)
     {
-        SetParamAndInvalidate(mWordWrap, wrap);
-    }
-
-    void TextLayout::SetMultiline(bool multiline)
-    {
-        SetParamAndInvalidate(mMultiline, multiline);
-    }
-
-    void TextLayout::SetVerticalAlignment(Alignment vertical)
-    {
-        SetParamAndInvalidate(mVerticalAlignment, vertical);
-    }
-
-    void TextLayout::SetHorizontalAlignment(Alignment horizontal)
-    {
-        SetParamAndInvalidate(mHorizontalAlignment, horizontal);
+        if(mHorizontalAlignment != horizontal) {
+            mHorizontalAlignment = horizontal;
+            InvalidateLayout();
+        }
     }
 
     void TextLayout::SetWidth(int width)
     {
-        SetParamAndInvalidate(mWidth, width);
+        if(mWidth != width) {
+            mWidth = width;
+            InvalidateLayout();
+        }
     }
-    
-    void TextLayout::SetHeight(int height)
-    {
-        SetParamAndInvalidate(mHeight, height);
-    }
-    
+
     const Rect TextLayout::BoundingRect() const
     {
         return mBoundingRect;
@@ -92,116 +264,11 @@ namespace UI
     
     void TextLayout::InvalidateLayout()
     {
-        mItems.clear();
-        mBoundingRect = Rect(0, 0, 0, 0);
+        mInvalidated = true;
     }
 
-    void TextLayout::CommitLine(const Render::FontManager &engine, std::string block)
+    void TextLayout::ValidateLayout()
     {
-        const int lineSkip = engine.LineSkip(mTextFont);
-        const Rect blockSize = engine.TextSize(mTextFont, block);
-        mBoundingRect.w = std::max(mBoundingRect.w, blockSize.w);
-        mBoundingRect.h += lineSkip;
-
-        switch(mHorizontalAlignment) {
-        case Alignment::Min:
-            mItems.emplace_back(std::move(block), 0, lineSkip, 0, 0);
-            break;
-            
-        case Alignment::Max:
-            mItems.emplace_back(std::move(block), 0, lineSkip, mWidth - blockSize.w, 0);
-            break;
-
-        case Alignment::Expanded:
-            mItems.emplace_back(std::move(block), 0, lineSkip);
-            break;
-            
-        case Alignment::Center:
-            mItems.emplace_back(std::move(block), 0, lineSkip, (mWidth - blockSize.w) / 2, 0);
-            break;
-        
-            // case Alignment::Expanded:
-            break;
-        }
-    }
-    
-    bool TextLayout::UpdateLayout(const Render::FontManager &engine)
-    {
-        if(WasInvalidated()) {
-            switch(mHorizontalAlignment) {
-            case Alignment::Min:
-            case Alignment::Max:
-            case Alignment::Center:
-                CalculateShrinkedLayout(engine);
-                break;
-            case Alignment::Expanded:
-                CalculateExpandedLayout(engine);
-                break;
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    struct CharBlock
-    {
-        bool Append(char character)
-            {return true;}
-    };
-
-    struct WordBlock
-    {
-        bool Append(std::string word)
-            {return true;}
-    };
-    
-    void TextLayout::CalculateShrinkedLayout(const Render::FontManager &engine)
-    {
-        std::istringstream iss(mText);
-        std::string buffer;
-        
-        while(iss) {
-            const auto character = iss.get();
-            if(!iss) {
-                break;
-            }
-                
-            switch(character) {
-            case '\r':
-                break;
-            case '\n':
-                CommitLine(engine, std::move(buffer));
-                break;
-            case '\t':
-            case ' ':
-            default:
-                buffer += character;
-            }
-                
-            const Rect bufferSize = engine.TextSize(mTextFont, buffer);
-            if((mWidth > 0) && (bufferSize.w > mWidth)) {
-                buffer.pop_back();
-                iss.unget();
-                if(buffer.empty()) {
-                    throw layout_error("width too small - can't even place one single char");
-                }
-                CommitLine(engine, std::move(buffer));
-            }
-        }
-
-        if(!buffer.empty()) {
-            CommitLine(engine, std::move(buffer));
-        }
-    }
-
-    void TextLayout::CalculateExpandedLayout(const Render::FontManager &engine)
-    {
-        CalculateShrinkedLayout(engine);
-    }
-    
-    bool TextLayout::WasInvalidated() const
-    {
-        return !mText.empty() && mItems.empty();
+        mInvalidated = false;
     }
 }

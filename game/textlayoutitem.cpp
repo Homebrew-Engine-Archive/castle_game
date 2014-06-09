@@ -2,9 +2,8 @@
 
 namespace UI
 {
-
-    TextLayoutItem::TextLayoutItem(const std::string &text, int advanceX, int advanceY, int offsetX, int offsetY)
-        : mItemText(text)
+    TextLayoutItem::TextLayoutItem(std::string text, int advanceX, int advanceY, int offsetX, int offsetY)
+        : mItemText(std::move(text))
         , mAdvanceX(advanceX)
         , mAdvanceY(advanceY)
         , mOffsetX(offsetX)

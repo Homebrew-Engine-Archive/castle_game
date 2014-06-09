@@ -50,10 +50,9 @@ namespace UI
         mVerticalAlign = vertical;
     }    
 
-    void TextArea::SetTextAlignment(Alignment horizontal, Alignment vertical)
+    void TextArea::SetTextAlignment(Alignment horizontal)
     {
-        mTextLayout.SetHorizontalAlignment(horizontal);
-        mTextLayout.SetVerticalAlignment(vertical);
+        mTextLayout.SetAlignment(horizontal);
     }
 
     void TextArea::SetText(const std::string &text)
@@ -65,7 +64,7 @@ namespace UI
     void TextArea::AppendText(const std::string &text)
     {
         mText += text;
-        mTextLayout.AppendText(text);
+        mTextLayout.Insert(mText.size(), text);
     }
     
     std::string const& TextArea::Text() const
@@ -82,7 +81,6 @@ namespace UI
     void TextArea::SetMaxHeight(int maxHeight)
     {
         mMaxSize.h = maxHeight;
-        mTextLayout.SetHeight(mMaxSize.w);
     }
     
     void TextArea::SetMinWidth(int minWidth)

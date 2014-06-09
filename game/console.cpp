@@ -29,11 +29,12 @@ namespace UI
         mPromptArea.SetAlignment(Alignment::Expanded, Alignment::Max);
         mPromptArea.SetTextColor(Colors::Magenta);
         mPromptArea.SetBackgroundColor(Colors::Blue.Opaque(50));
+        mPromptArea.SetTextAlignment(Alignment::Max);
 
         mLogArea.SetAlignment(Alignment::Expanded, Alignment::Min);
         mLogArea.SetTextColor(Colors::Gray);
         mLogArea.SetBackgroundColor(Colors::Black.Opaque(0));
-        mLogArea.SetTextAlignment(Alignment::Expanded, Alignment::Min);
+        mLogArea.SetTextAlignment(Alignment::Center);
     }
 
     void Console::Render(Render::Renderer &renderer)

@@ -13,6 +13,7 @@ namespace Network
 {
     Connection::Connection(boost::asio::ip::tcp::socket socket)
         : mReadBuffer()
+        , mDataBuffer()
         , mSock(std::move(socket))
     {
         boost::asio::ip::tcp::endpoint peer = mSock.remote_endpoint();

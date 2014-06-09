@@ -31,7 +31,7 @@ namespace UI
         void SetMinHeight(int minHeight);
         void SetMultiline(bool ok);
         void SetAlignment(Alignment horizontal, Alignment vertical);
-        void SetTextAlignment(Alignment horizontal, Alignment vertical);
+        void SetTextAlignment(Alignment horizontal);
         void SetTextColor(const Color &textColor);
         void SetBackgroundColor(const Color &backColor);
         const Rect FitToScreen(Render::Renderer &renderer) const;
