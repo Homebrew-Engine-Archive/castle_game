@@ -7,6 +7,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+class ReaderEntryData;
 class Surface;
 
 namespace GM1
@@ -16,21 +17,16 @@ namespace GM1
 }
 
 namespace GM1
-{    
+{
     class GM1Reader
     {
         bool mIsOpened;
         fs::path mPath;
         uint32_t mFlags;
         std::streampos mDataOffset;
-        mutable boost::filesystem::ifstream mStream;
         GM1::Header mHeader;
-        std::vector<GM1::EntryHeader> mEntryHeaders;
         std::vector<GM1::Palette> mPalettes;
-        std::vector<uint32_t> mSizes;
-        std::vector<uint32_t> mOffsets;
-        std::vector<char> mBuffer;
-        mutable std::vector<std::vector<char>> mEntries;
+        std::vector<ReaderEntryData> mEntries;
         std::unique_ptr<GM1EntryReader> mEntryReader;
         
     public:

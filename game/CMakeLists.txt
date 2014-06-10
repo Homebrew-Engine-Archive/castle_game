@@ -28,6 +28,7 @@ set (SRCS
   range.cpp
   rect.cpp
   renderer.cpp
+  softwarerenderengine.cpp
   screenmanager.cpp
   simulationmanager.cpp
   sdl_utils.cpp

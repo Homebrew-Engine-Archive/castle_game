@@ -5,6 +5,11 @@
 #include <memory>
 #include <SDL.h>
 
+namespace Network
+{
+    class Connection;
+}
+
 namespace Render
 {
     class Renderer;
@@ -18,12 +23,8 @@ namespace UI
     public:
         virtual void Render(Render::Renderer &renderer) {}
 
-        /**
-         * \brief Check whether screen should be repainted.
-         */
-        virtual bool IsClosed()
-            {return false;}
-
+        virtual bool CanBeStacked() const
+            {return true;}
         /**
          * \brief React on user input.
          *
@@ -37,6 +38,21 @@ namespace UI
          */
         virtual bool HandleEvent(const SDL_Event &event)
             {return false;}
+
+        virtual void NewConnection(Network::Connection &connection)
+            {}
+
+        virtual void ConnectionData(Network::Connection &connection)
+            {}
+
+        virtual void ConnectionLost(Network::Connection &connection)
+            {}
+
+        virtual void EnterScreen(Screen *previous)
+            {}
+
+        virtual void LeaveScreen(Screen *next)
+            {}
     };
 
     typedef std::unique_ptr<Screen> ScreenPtr;

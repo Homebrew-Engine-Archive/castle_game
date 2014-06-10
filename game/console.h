@@ -25,7 +25,6 @@ namespace UI
         Console& operator=(Console const&) = delete;
 
         void LogMessage(const std::string &message);
-        bool IsClosed() const;
         void Render(Render::Renderer &renderer);
         bool HandleEvent(const SDL_Event &event);
 
@@ -35,8 +34,7 @@ namespace UI
         std::ostringstream mConsoleBuffer;
         TextArea mPromptArea;
         TextArea mLogArea;
-        bool mClosed;
-        
+         
         void OnCommandEntered(const std::string &text);        
         bool HandleKey(const SDL_KeyboardEvent &event);
         bool HandleTextInput(const SDL_TextInputEvent &text);

@@ -4,6 +4,7 @@
 #include <vector>
 #include <game/vmath.h>
 
+class Rect;
 class Color;
 class Surface;
 
@@ -14,50 +15,39 @@ namespace GM1
 
 namespace Render
 {
-    class FontManager;
     class Renderer;
 }
 
 namespace Render
 {
+    class ScenePrivate;
     class SceneItem;
     
     class Scene
     {
     public:
-        explicit Scene(FontManager&, Renderer&);
+        explicit Scene(Renderer&);
         Scene(const Scene &scene);
         Scene& operator=(const Scene &scene);
         ~Scene();
-        
-        void Translate(const core::Vec2i &delta);
-        void Untranslate();
-        
-        void Scale(const core::Vec2f &delta);
-        void Unscale();
-        
-        void Crop(const core::Vec2i &delta);
-        void Uncrop();
 
-        void Alpha(int alpha);
-        void Unalpha();
+        void Translated(const core::Vec2i &delta);
+        void Scaled(const core::Vec2f &delta);
+        void Clipped(const core::Vec2i &delta);
+        void Blended(int alpha);
 
+        void SetDrawColor(const Color &color);
+        void SetBackColor(const Color &color);
+        
         void DrawText(const std::string &text, const Color &color);
-        void DrawSprite(const Surface &surface, const GM1::Palette &palette);
-        void DrawSurface(const Surface &surface);
+        void DrawSprite(const Surface &surface, const GM1::Palette &palette, const Rect &subrect);
+        void DrawAlpha(const Surface &surface, const Surface &alphaMap, const Rect &subrect);
+        void DrawSurface(const Surface &surface, const Rect &subrect);
 
-        void Render();
+        void Render(Render::Renderer &renderer);
         
     protected:
-        std::vector<core::Vec2i> mTranslationStack;
-        core::Vec2i mTranslation;
-        std::vector<core::Vec2f> mScaleStack;
-        core::Vec2f mScale;
-        std::vector<float> mAlphaStack;
-        int mAlpha;
-        std::vector<core::Vec2i> mCropStack;
-        core::Vec2i mCrop;
-        std::vector<SceneItem> mSceneItems;
+        std::shared_ptr<ScenePrivate> pImpl;
     };
 }
 

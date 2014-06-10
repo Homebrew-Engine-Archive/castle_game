@@ -13,6 +13,14 @@
 #include <game/filesystem.h>
 #include <game/iohelpers.h>
 
+struct ReaderEntryData
+{
+    GM1::EntryHeader header;
+    uint32_t size;
+    uint32_t offset;
+    mutable std::vector<char> buffer;
+};
+
 namespace
 {
     std::istream& ReadHeader(std::istream &in, GM1::Header &header)
@@ -71,7 +79,6 @@ namespace
 
 namespace GM1
 {
-
     GM1Reader::~GM1Reader() = default;
     
     GM1Reader::GM1Reader()
@@ -83,11 +90,8 @@ namespace GM1
         , mPath(path)
         , mFlags()
         , mDataOffset(0)
-        , mStream()
         , mHeader()
-        , mEntryHeaders()
         , mPalettes()
-        , mBuffer()
         , mEntries()
         , mEntryReader()
     {
@@ -107,20 +111,20 @@ namespace GM1
         mIsOpened = false;
         mPath = std::move(path);
 
-        mStream.open(mPath, std::ios_base::binary);
-        if(!mStream.is_open()) {
+        boost::filesystem::ifstream fis(mPath, std::ios_base::binary);
+        if(!fis.is_open()) {
             throw std::runtime_error(strerror(errno));
         }
 
-        mStream.seekg(0, std::ios_base::end);
-        std::streampos fsize = mStream.tellg();
-        mStream.seekg(0);
+        fis.seekg(0, std::ios_base::end);
+        std::streampos fsize = fis.tellg();
+        fis.seekg(0);
         
         if(fsize < GM1::CollectionHeaderBytes) {
             throw std::logic_error("File too small to read header");
         }
         
-        if(!ReadHeader(mStream, mHeader)) {
+        if(!ReadHeader(fis, mHeader)) {
             throw std::runtime_error(strerror(errno));
         }
 
@@ -129,30 +133,28 @@ namespace GM1
         } 
         mPalettes.resize(GM1::CollectionPaletteCount);
         for(GM1::Palette &palette : mPalettes) {
-            if(!ReadPalette(mStream, palette)) {
+            if(!ReadPalette(fis, palette)) {
                 throw std::runtime_error(strerror(errno));
             }
         }
 
-        mOffsets.resize(mHeader.imageCount);
-        for(uint32_t &offset : mOffsets) {
-            io::ReadLittle(mStream, offset);
+        mEntries.resize(mHeader.imageCount);
+        for(ReaderEntryData &data : mEntries) {
+            io::ReadLittle(fis, data.offset);
         }
-        if(!mStream) {
+        if(!fis) {
             throw std::runtime_error(strerror(errno));
         }
         
-        mSizes.resize(mHeader.imageCount);
-        for(uint32_t &size : mSizes) {
-            io::ReadLittle(mStream, size);
+        for(ReaderEntryData &data : mEntries) {
+            io::ReadLittle(fis, data.size);
         }
-        if(!mStream) {
+        if(!fis) {
             throw std::runtime_error(strerror(errno));
         }
         
-        mEntryHeaders.resize(mHeader.imageCount);
-        for(GM1::EntryHeader &hdr : mEntryHeaders) {
-            if(!ReadEntryHeader(mStream, hdr)) {
+        for(ReaderEntryData &data : mEntries) {
+            if(!ReadEntryHeader(fis, data.header)) {
                 throw std::runtime_error(strerror(errno));
             }
         }
@@ -161,16 +163,16 @@ namespace GM1
             throw std::logic_error("File too small to read data");
         }
 
-        mDataOffset = mStream.tellg();
+        mDataOffset = fis.tellg();
         if(mFlags & Cached) {
-            mBuffer.resize(mHeader.dataSize);
-            mStream.read(mBuffer.data(), mBuffer.size());
-            if(!mStream) {
+            for(ReaderEntryData &entry : mEntries) {
+                fis.seekg(entry.offset + mDataOffset, std::ios_base::beg);
+                entry.buffer.resize(entry.size);
+                fis.read(entry.buffer.data(), entry.size);
+            }
+            if(!fis) {
                 throw std::runtime_error(strerror(errno));
             }
-            mStream.close();
-        } else {
-            mEntries.resize(mHeader.imageCount);
         }
 
         mEntryReader =
@@ -202,33 +204,39 @@ namespace GM1
     
     char const* GM1Reader::EntryData(size_t index) const
     {
-        if(mFlags & Cached) {
-            return mBuffer.data() + mOffsets.at(index);
-        } else {
-            std::vector<char> &entryData = mEntries.at(index);
-            uint32_t entrySize = mSizes.at(index);
-            uint32_t entryOffset = mOffsets.at(index);
-            if((entrySize > 0) && (entryData.empty())) {
-                mStream.seekg(entryOffset + mDataOffset);
-                entryData.resize(entrySize);
-                mStream.read(entryData.data(), entrySize);
-                if(!mStream) {
-                    throw std::runtime_error(strerror(errno));
-                }
-            }
-            // TODO what if it would have length about 0?
-            return entryData.data();
+        const ReaderEntryData &entry = mEntries.at(index);
+
+        if(!entry.buffer.empty() || (entry.size == 0)) {
+            return entry.buffer.data();
         }
+        
+        try {
+            boost::filesystem::ifstream fis(mPath, std::ios_base::binary);
+            if(!fis.is_open()) {
+                throw std::runtime_error(strerror(errno));
+            }
+            fis.seekg(entry.offset + mDataOffset);
+            entry.buffer.resize(entry.size);
+            fis.read(entry.buffer.data(), entry.size);
+            if(!fis) {
+                throw std::runtime_error(strerror(errno));
+            }
+        } catch(const std::exception &error) {
+            entry.buffer.clear();
+            throw;
+        }
+        
+        return entry.buffer.data();
     }
 
     size_t GM1Reader::EntrySize(size_t index) const
     {
-        return mSizes.at(index);
+        return mEntries.at(index).size;
     }
 
     size_t GM1Reader::EntryOffset(size_t index) const
     {
-        return mOffsets.at(index);
+        return mEntries.at(index).size;
     }
     
     GM1::Header const& GM1Reader::Header() const
@@ -238,7 +246,7 @@ namespace GM1
 
     GM1::EntryHeader const& GM1Reader::EntryHeader(size_t index) const
     {
-        return mEntryHeaders.at(index);
+        return mEntries.at(index).header;
     }
 
     GM1::Palette const& GM1Reader::Palette(size_t index) const
@@ -250,7 +258,7 @@ namespace GM1
     {
         return *mEntryReader;
     }
-
+    
     const Surface GM1Reader::ReadEntry(int index) const
     {
         return mEntryReader->Load(*this, index);

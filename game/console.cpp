@@ -24,7 +24,6 @@ namespace UI
         , mConsoleBuffer()
         , mPromptArea()
         , mLogArea()
-        , mClosed(false)
     {
         mPromptArea.SetAlignment(Alignment::Expanded, Alignment::Max);
         mPromptArea.SetTextColor(Colors::Magenta);

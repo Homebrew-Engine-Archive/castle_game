@@ -25,10 +25,6 @@ namespace Graphics
     public:
         GraphicsManager();
         virtual ~GraphicsManager();
-        
-        Surface const& GetSurface(const std::string &name) const;
-        Surface const& GetTile(const std::string &name) const;
-        GM1::Palette const& GetPalette(const std::string &name) const;
     };
 }
 

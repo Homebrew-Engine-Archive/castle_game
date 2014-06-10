@@ -48,12 +48,6 @@ namespace Castle
         void DrawFrame();
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 
-    protected:
-        void FrameStarted(std::chrono::milliseconds delta);
-        void IncommingConnection(Network::Connection &connection);
-        void ConnectionLost(Network::Connection &connection);
-        void ConnectionData(Network::Connection &connection);
-        
     public:
         Engine();
         

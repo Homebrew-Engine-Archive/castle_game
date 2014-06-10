@@ -149,13 +149,11 @@ namespace Castle
     void Engine::DrawFrame()
     {
         mRenderer.BeginFrame();
-        mRenderer.Clip(PadIn(mRenderer.GetScreenRect(), 100));
         mScreenManager.Render(mRenderer);
         if(&mScreenManager.TopScreen() != &mScreenManager.Console()) {
             mInfoArea.Render(mRenderer);
         }
         mRenderer.DrawFrame(mRenderer.GetScreenRect(), Colors::Gray);
-        mRenderer.Unclip();
         mRenderer.EndFrame();
     }
 
