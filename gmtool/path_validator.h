@@ -13,7 +13,6 @@ namespace boost
 {
     namespace filesystem
     {
-
         inline std::istream& operator>>(std::istream &is, path &path)
         {
             path::string_type str;

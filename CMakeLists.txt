@@ -18,13 +18,17 @@ macro (cxx_set_flag flag result)
   endif ()
 endmacro (cxx_set_flag)
 
-cxx_set_flag ("-O0" HAS_FLAG_OPTIMIZATION)
-cxx_set_flag ("-pedantic" HAS_FLAG_PEDANTIC_WARNINGS)
-cxx_set_flag ("-Wall" HAS_FLAG_WALL_WARNINGS)
+cxx_set_flag ("-Og" HAS_FLAG_OPTIMIZATION)
+if (NOT ${HAS_FLAG_OPTIMIZATION})
+  cxx_set_flag ("-O0" HAS_FLAG_OPTIMIZATION)
+endif ()
+
+cxx_set_flag ("-Wpedantic" HAS_FLAG_PEDANTIC_WARNINGS)
+cxx_set_flag ("-Wall" HAS_FLAG_ALL_WARNINGS)
 cxx_set_flag ("-Wextra" HAS_FLAG_EXTRA_WARNINGS)
 cxx_set_flag ("-Wunreachable-code" HAS_FLAG_UNREACHABLE_CODE)
 cxx_set_flag ("-fstrict-aliasing" HAS_FLAG_STRICT_ALIASING)
-cxx_set_flag ("-Wno-unused-parameter" CXX_NO_UNUSED_PARAMETER)
+cxx_set_flag ("-Wno-unused-parameter" HAS_NO_UNUSED_PARAMETER)
 
 ###################
 # Include section #

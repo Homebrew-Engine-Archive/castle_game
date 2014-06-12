@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+
 #include <game/gm1writer.h>
 #include <game/gm1reader.h>
 

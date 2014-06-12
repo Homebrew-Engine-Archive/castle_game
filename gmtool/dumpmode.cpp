@@ -1,13 +1,12 @@
 #include "dumpmode.h"
 
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
-#include <cstring>
 
-#include <boost/program_options.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
 
 #include <game/gm1entryreader.h>
 #include <game/gm1reader.h>

@@ -3,8 +3,15 @@
 
 #include <iosfwd>
 #include <memory>
-#include <boost/program_options.hpp>
-#include <boost/filesystem/path.hpp>
+
+namespace boost
+{
+    namespace program_options
+    {
+        class options_description;
+        class positional_options_description;
+    }
+}
 
 /**
    boost::filesystem::operator>> overload for boost::filesystem::path
