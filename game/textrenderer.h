@@ -22,14 +22,14 @@ namespace Render
     public:
         explicit TextRenderer(Surface &surface);
 
-        void SetFont(const UI::Font &font);
-        const UI::Font GetFont() const;
+        void SetFont(const core::Font &font);
+        const core::Font GetFont() const;
         const Rect TextSize(const std::string &str) const;
         void PutString(const std::string &str, const Rect &textArea, const Color &facecolor);
 
     protected:
         Surface &mSurface;
-        UI::Font mTextFont;
+        core::Font mTextFont;
         TTF_Font *mCurrentFont;
         
     };    

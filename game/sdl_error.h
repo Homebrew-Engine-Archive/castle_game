@@ -7,17 +7,24 @@
 
 class sdl_error : public std::exception
 {
-    const std::string mSDL_GetError;
-    
 public:
     sdl_error() throw()
-        : mSDL_GetError(SDL_GetError())
         { }
 
     char const* what() const throw()
     {
-        return mSDL_GetError.c_str();
+        return SDL_GetError();
     }
 };
+
+namespace
+{
+    void throw_sdl_error(int code)
+    {
+        if(code < 0) {
+            throw sdl_error();
+        }
+    }
+}
 
 #endif // SDL_ERROR_H_

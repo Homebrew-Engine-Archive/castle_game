@@ -3,6 +3,7 @@
 #include <iostream>
 #include <game/gm1.h>
 #include <game/modulo.h>
+#include <game/size.h>
 #include <game/point.h>
 
 namespace Castle
@@ -10,15 +11,15 @@ namespace Castle
     Camera::Camera()
         : mPosX(0.0f)
         , mPosY(0.0f)
-        , mTileSize(Point(32, 16))
+        , mTileSize(core::Size(32, 16))
         , mRotation(0)
-        , mDirection(Direction::North)
-        , mStartDirection(Direction::North)
-        , mFlatView(true)
+        , mDirection(core::Direction::North)
+        , mStartDirection(core::Direction::North)
+        , mFlatView(false)
         , mScrollX(0)
         , mScrollY(0)
-        , mVerticalScrollSpeed(1)
-        , mHorizontalScrollSpeed(2)
+        , mVerticalScrollSpeed(1.5)
+        , mHorizontalScrollSpeed(2.2)
         , mCameraMode(CameraMode::Staggered)
     {
     }
@@ -48,12 +49,12 @@ namespace Castle
         return DirectionToRadians(mDirection) - DirectionToRadians(mStartDirection);
     }
 
-    void Camera::Dir(const Direction &dir)
+    void Camera::Dir(const core::Direction &dir)
     {
         mDirection = dir;
     }
 
-    Direction Camera::Dir() const
+    core::Direction Camera::Dir() const
     {
         return mDirection;
     }
@@ -64,19 +65,19 @@ namespace Castle
         mPosY = viewpoint.y;
     }
     
-    Point Camera::ViewPoint() const
+    const Point Camera::ViewPoint() const
     {
         return Point(mPosX, mPosY);
     }
 
-    Point Camera::TileSize() const
+    const core::Size Camera::TileSize() const
     {
         return mTileSize;
     }
 
-    void Camera::TileSize(const Point &tileSize)
+    void Camera::TileSize(const core::Size &tileSize)
     {
-        mTileSize = tileSize;        
+        mTileSize = tileSize;
     }
     
     void Camera::Move(int dx, int dy)
@@ -104,25 +105,25 @@ namespace Castle
         mScrollY = 0.0f;
     }
     
-    GameMap::Cell Camera::ScreenToWorldCoords(const Point &cursor) const
+    const GameMap::Cell Camera::ScreenToWorldCoords(const Point &cursor) const
     {
         switch(mCameraMode) {
         case CameraMode::Staggered:
             {
                 /** stretched and unprojected cursor position **/
-                const double px = mPosX + cursor.x - mTileSize.x / 2;
-                const double py = (mPosY + cursor.y) * mTileSize.x / mTileSize.y - mTileSize.y;
+                const double px = mPosX + cursor.x - mTileSize.width / 2;
+                const double py = (mPosY + cursor.y) * mTileSize.height / mTileSize.height - mTileSize.height;
 
                 /** rotated counterclockwise by 45 degrees **/
                 const double rx = px + py;
                 const double ry = py - px;
 
                 /** coordinates in square-cell grid **/
-                const int x = round(rx / mTileSize.x);
-                const int y = round(ry / mTileSize.x);
+                const int x = round(rx / mTileSize.width);
+                const int y = round(ry / mTileSize.width);
 
                 /** rotated clockwise by 45 degrees **/
-                const int tx = floor((x - y) * mTileSize.y / double(mTileSize.x));
+                const int tx = floor((x - y) * mTileSize.height / static_cast<double>(mTileSize.width));
                 const int ty = x + y;
         
                 return GameMap::Cell(tx, ty);
@@ -130,9 +131,10 @@ namespace Castle
             
         case CameraMode::Diamond:
             {
-                const int h = mTileSize.y / 2;
-                const int w = mTileSize.x / 2;
-                const int q = mTileSize.x;
+                // \todo bring here original matrix and implement affine transformations
+                const int h = mTileSize.height / 2;
+                const int w = mTileSize.width / 2;
+                const int q = mTileSize.width;
                 const int r = 0;
                 const int x = cursor.x + mPosX;
                 const int y = cursor.y + mPosY;
@@ -144,18 +146,19 @@ namespace Castle
         case CameraMode::Ortho:
         default:
             {
-                return (ViewPoint() + cursor) / mTileSize;
+                return GameMap::Cell((ViewPoint().x + cursor.x) / mTileSize.width,
+                                     (ViewPoint().y + cursor.y) / mTileSize.height);
             }
         }
     }
     
-    Point Camera::WorldToScreenCoords(const GameMap::Cell &cell) const
+    const Point Camera::WorldToScreenCoords(const GameMap::Cell &cell) const
     {
         switch(mCameraMode) {
         case CameraMode::Staggered:
             {
-                const int w = mTileSize.x / 2;
-                const int h = mTileSize.y / 2;
+                const int w = mTileSize.width / 2;
+                const int h = mTileSize.height / 2;
                 return -ViewPoint() +
                     Point(2*w*cell.x + w*core::Mod(cell.y, 2),
                           h*cell.y);
@@ -163,9 +166,9 @@ namespace Castle
             
         case CameraMode::Diamond:
             {
-                const int w = mTileSize.x / 2;
-                const int h = mTileSize.y / 2;
-                const int q = mTileSize.x / 2;
+                const int w = mTileSize.width / 2;
+                const int h = mTileSize.height / 2;
+                const int q = mTileSize.width / 2;
                 const int r = 0;
                 return -ViewPoint() +
                     Point(w*cell.x - w*cell.y + q,
@@ -174,7 +177,9 @@ namespace Castle
 
         default:
         case CameraMode::Ortho:
-            return -ViewPoint() + mTileSize * cell;
+            return -ViewPoint() +
+                Point(mTileSize.width * cell.x,
+                      mTileSize.height * cell.y);
         }
     }
 }

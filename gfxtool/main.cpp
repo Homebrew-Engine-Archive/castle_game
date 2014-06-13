@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     if(argc < 2) {
         std::cout << "Use string, luke!" << std::endl;
     }
-
+    
     std::string name = argv[1];
 
     std::ifstream fin(name, std::ios_base::binary);

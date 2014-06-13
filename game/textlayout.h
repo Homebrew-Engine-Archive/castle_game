@@ -37,7 +37,7 @@ namespace UI
         void Remove(size_t pos, size_t count = 1);
         void SetText(const std::string &text);
         
-        void SetFont(const UI::Font &font);
+        void SetFont(const core::Font &font);
         void SetAlignment(Alignment align);
         void SetWidth(int width);
         
@@ -68,7 +68,7 @@ namespace UI
         Alignment mHorizontalAlignment;
         int mWidth;
         std::string mText;
-        UI::Font mTextFont;
+        core::Font mTextFont;
         std::vector<TextLayoutItem> mItems;
         Rect mBoundingRect;
         bool mInvalidated;

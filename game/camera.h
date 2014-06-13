@@ -5,10 +5,10 @@
 
 #include <SDL.h>
 
+#include <game/size.h>
 #include <game/gamemap.h>
 #include <game/direction.h>
 #include <game/rect.h>
-#include <game/point.h>
 
 namespace Castle
 {
@@ -24,13 +24,13 @@ namespace Castle
         double mPosY;
         
         /** 30x16 by default, 15x8 zoomed out **/
-        Point mTileSize;
+        core::Size mTileSize;
 
         int mRotation;
         
         /** North direction **/
-        Direction mDirection;
-        const Direction mStartDirection;
+        core::Direction mDirection;
+        const core::Direction mStartDirection;
 
         bool mFlatView;
 
@@ -52,25 +52,25 @@ namespace Castle
         void RotateLeft();
         void RotateRight();
         
-        Castle::GameMap::Cell ScreenToWorldCoords(const Point &cursor) const;
-        Point WorldToScreenCoords(const Castle::GameMap::Cell &cell) const;
+        const Castle::GameMap::Cell ScreenToWorldCoords(const Point &cursor) const;
+        const Point WorldToScreenCoords(const Castle::GameMap::Cell &cell) const;
         
         bool Flat() const;
         void Flat(bool yes);
 
         double AngleRotation() const;
         
-        Direction Dir() const;
-        void Dir(const Direction &dir);
+        core::Direction Dir() const;
+        void Dir(const core::Direction &dir);
 
         CameraMode Mode() const;
         void Mode(const CameraMode &mode);
         
-        Point ViewPoint() const;
+        const Point ViewPoint() const;
         void ViewPoint(const Point &point);
 
-        Point TileSize() const;
-        void TileSize(const Point &tileSize);
+        const core::Size TileSize() const;
+        void TileSize(const core::Size &tileSize);
     };
 }
 

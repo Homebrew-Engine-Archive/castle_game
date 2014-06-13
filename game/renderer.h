@@ -1,19 +1,24 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include <memory>
 #include <vector>
 
 #include <SDL.h>
 
+#include <game/font.h>
+#include <game/rect.h>
+#include <game/renderengine.h>
 #include <game/gm1palette.h>
-#include <game/color.h>
 #include <game/surface.h>
-#include <game/sdl_utils.h>
 #include <game/filesystem.h>
 
-class Rect;
+class Color;
 class Point;
+
+namespace core
+{
+    class Size;
+}
 
 namespace GM1
 {
@@ -29,63 +34,49 @@ namespace Render
 {
     class Renderer
     {
-        RendererPtr mRenderer;
-        int mScreenWidth;
-        int mScreenHeight;
-        int mScreenFormat;
-        TexturePtr mScreenTexture;
-        Surface mScreenSurface;
-        WindowPtr mWindow;
-        GM1::Palette mBoundPalette;
-        Surface mBoundSurface;
-        Surface mBoundAlphaMap;
-        std::vector<Rect> mClipStack;
-        std::vector<Rect> mScreenRectStack;
-        std::vector<float> mAlphaStack;
-        int mAlpha;
-        RendererPtr mPrimitiveRenderer;
-        std::unique_ptr<FontManager> mFontManager;
-
-        bool ReallocationRequired(int width, int heigth, int format) const;
-        void CreateScreenTexture(int width, int height, int format);
-        void CreateScreenSurface(int width, int height);
-        void CreatePrimitiveRenderer();
-        
     public:
-        Renderer();
-        Renderer(Renderer const&) = delete;
-        Renderer& operator=(Renderer const&) = delete;
+        explicit Renderer(RenderEngine &renderEngine, FontManager &fontEngine);
+        Renderer(Renderer const&);
+        Renderer& operator=(Renderer const&);
         ~Renderer();
 
         FontManager& GetFontManager();
         FontManager const& GetFontManager() const;
+
+        RenderEngine& GetRenderEngine();
+        RenderEngine const& GetRenderEngine() const;
         
         void BeginFrame();
         void EndFrame();
 
         const Point GetMaxOutputSize() const;
         const Point GetOutputSize() const;
-        void SetScreenSize(int width, int height);
+        void SetScreenWidth(int width);
+        void SetScreenHeight(int height);
         void SetScreenFormat(int format);
-        void SetScreenMode(int width, int height, int format);
 
-        void Alpha(int alpha);
-        void Unalpha();
+        void Opacity(int opacity);
+        void RestoreOpacity();
 
-        void Clip(const Rect &subrect);
-        void Unclip();
+        void ClipRect(const Rect &subrect);
+        void RestoreClipRect();
         const Rect GetScreenClipRect() const;
         const Rect GetScreenRect() const;
-        const Rect UnclipRect(const Rect &relative) const;
+
+        const Rect UnwindClipRect(const Rect &relative) const;
         const Point ClipPoint(const Point &point) const;
+
+        const core::Size TextSize(const core::Font &font, const std::string &text) const;
+        const Rect TextBoundingRect(const core::Font &font, const std::string &text) const;
+
+        void BindFont(const core::Font &font);
+        void DrawText(const std::string &text, const Color &color);
+        
+        const Color GetContextAlpha(const Color &color) const;
         
         void BindSurface(const Surface &surface);
         void BindPalette(const GM1::Palette &palette);
-        void BindAlphaMap(const Surface &surface);
-
-        void UnbindPalette();
-        void UnbindSurface();
-        void UnbindAlphaMap();
+        void BindAlphaChannel(const Surface &surface);
 
         void Blit(const Rect &textureSubRect, const Rect &screenSubRect);
         void BlitTiled(const Rect &textureSubRect, const Rect &screenSubRect);
@@ -96,6 +87,19 @@ namespace Render
 
         void DrawFrame(const Rect &bounds, const Color &fg);
         void FillFrame(const Rect &bounds, const Color &bg);
+        
+    protected:
+        RenderEngine &mRenderEngine;
+        FontManager &mFontManager;
+        GM1::Palette mBoundPalette;
+        Surface mBoundSurface;
+        Surface mBoundAlphaChannel;
+        std::vector<Rect> mClipStack;
+        std::vector<Rect> mScreenRectStack;
+        std::vector<float> mOpacityStack;
+        int mOpacity;
+        core::Font mBoundFont;
+
     };
     
 } // namespace Render

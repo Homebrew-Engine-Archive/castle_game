@@ -1,15 +1,11 @@
 #include "gm1palette.h"
 
-#include <SDL.h>
-
 #include <iostream>
-#include <algorithm>
-#include <vector>
+
+#include <SDL.h>
 
 #include <game/color.h>
 #include <game/modulo.h>
-#include <game/tgx.h>
-#include <game/sdl_utils.h>
 
 namespace GM1
 {

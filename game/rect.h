@@ -10,37 +10,56 @@
 class Rect final : public SDL_Rect
 {
 public:
-    constexpr Rect()
-        : Rect(0, 0, 0, 0) {}
-    
-    constexpr Rect(int w, int h)
-        : Rect(0, 0, w, h) {}
-    
-    constexpr Rect(int x, int y, int w, int h)
-        : SDL_Rect {x, y, w, h} {}
-    
-    constexpr Rect(const SDL_Point &lt, int w, int h)
-        : Rect(lt.x, lt.y, w, h) {}
-
-    constexpr explicit Rect(const SDL_Point &wh)
-        : Rect(wh.x, wh.y) {}
-    
-    constexpr Rect(int x, int y, const SDL_Point &br)
-        : Rect(x, y, br.x - x, br.y - y) {}
-    
-    constexpr Rect(const SDL_Point &lt, const SDL_Point &br)
-        : Rect(lt.x, lt.y, br.x - lt.x, br.y - lt.y) {}
-
-    constexpr Rect(const SDL_Rect &other)
-        : Rect(other.x, other.y, other.w, other.h) {}
-
+    constexpr Rect();
+    constexpr Rect(int w, int h);
+    constexpr Rect(int x, int y, int w, int h);
+    constexpr Rect(const SDL_Point &lt, int w, int h);
+    explicit constexpr Rect(const SDL_Point &wh);    
+    constexpr Rect(const SDL_Point &lt, const SDL_Point &br);
+    constexpr Rect(const SDL_Rect &other);
     constexpr Rect(const Rect &that) = default;
-
-    explicit constexpr Rect(const SDL_Surface *surface)
-        : Rect(surface->w, surface->h) {}
-
+    explicit constexpr Rect(const SDL_Surface *surface);
+    
     Rect& operator=(const SDL_Rect &that);
 };
+
+constexpr Rect::Rect(int x, int y, int w, int h)
+    : SDL_Rect {x, y, w, h}
+{
+}
+
+constexpr Rect::Rect(int w, int h)
+    : Rect(0, 0, w, h)
+{
+}
+
+constexpr Rect::Rect()
+    : Rect(0, 0, 0, 0)
+{
+}
+
+constexpr Rect::Rect(const SDL_Surface *surface)
+    : Rect(surface->w, surface->h)
+{
+}
+
+constexpr Rect::Rect(const SDL_Point &lt, int w, int h)
+    : Rect(lt.x, lt.y, w, h)
+{
+}
+
+constexpr Rect::Rect(const SDL_Point &lt, const SDL_Point &br)
+    : Rect(lt.x, lt.y, br.x - lt.x, br.y - lt.y)
+{}
+
+constexpr Rect::Rect(const SDL_Rect &other)
+    : Rect(other.x, other.y, other.w, other.h)
+{}
+
+constexpr Rect::Rect(const SDL_Point &wh)
+    : Rect(wh.x, wh.y)
+{
+}
 
 constexpr bool operator==(const SDL_Rect &lhs, const SDL_Rect &rhs)
 {
@@ -106,11 +125,6 @@ constexpr Rect ChopRight(const SDL_Rect &rect, int howmany)
                 rect.y,
                 Max(0, rect.w),
                 rect.h);
-}
-
-constexpr Rect FromPointAndSize(const SDL_Point &point, const SDL_Point &size)
-{
-    return Rect(point.x, point.y, size.x, size.y);
 }
 
 template<class T>

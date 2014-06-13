@@ -10,13 +10,13 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+#include <game/point.h>
 #include <game/gm1palette.h>
 #include <game/gm1reader.h>
 #include <game/tgx.h>
 
 namespace Castle
 {
-    
     Collection LoadGM1(const fs::path &path)
     {
         using namespace std::chrono;
@@ -61,8 +61,8 @@ namespace Castle
         }
     }
 
+    Collection::~Collection() = default;
     Collection::Collection(const Collection &collection) = default;
-
     Collection& Collection::operator=(const Collection &collection) = default;
 
     Collection::Collection(const GM1::GM1Reader &reader)
@@ -74,14 +74,15 @@ namespace Castle
         for(int n = 0; n < reader.NumPalettes(); ++n) {
             mPalettes[n] = reader.Palette(n);
         }
-        for(int n = 0; n < reader.NumEntries(); ++n) {
-            try {
+
+        try {
+            for(int n = 0; n < reader.NumEntries(); ++n) {
                 mEntries[n] = reader.ReadEntry(n);
-            } catch(const std::exception &error) {
-                std::cerr << "read entry failed: what=" << error.what() << " (entry=" << n << ')' << std::endl;
-                throw;
+                mHeaders[n] = reader.EntryHeader(n);
             }
-            mHeaders[n] = reader.EntryHeader(n);
+        } catch(const std::exception &error) {
+            std::cerr << "read entry failed: " << error.what() << std::endl;
+            throw;
         }
     }
 

@@ -1,11 +1,12 @@
 #ifndef GM1READER_H_
 #define GM1READER_H_
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
 #include <game/gm1.h>
 #include <game/filesystem.h>
-#include <game/point.h>
-
-#include <boost/filesystem/fstream.hpp>
 
 class ReaderEntryData;
 class Surface;
@@ -22,8 +23,7 @@ namespace GM1
     {
         bool mIsOpened;
         fs::path mPath;
-        uint32_t mFlags;
-        std::streampos mDataOffset;
+        std::streamoff mDataOffset;
         GM1::Header mHeader;
         std::vector<GM1::Palette> mPalettes;
         std::vector<ReaderEntryData> mEntries;
@@ -44,7 +44,7 @@ namespace GM1
         void Open(fs::path, Flags);
         bool IsOpened() const;
         void Close();
-        const Surface ReadEntry(int index) const;
+        const Surface ReadEntry(size_t index) const;
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;

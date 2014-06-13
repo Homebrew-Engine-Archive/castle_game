@@ -11,7 +11,7 @@ class Color;
 class Rect;
 class FontData;
 
-namespace UI
+namespace core
 {
     class Font;
 }
@@ -33,23 +33,23 @@ namespace Render
         FontManager& operator=(FontManager const&) = delete;
         virtual ~FontManager();
 
-        void DrawText(Renderer &renderer, const UI::Font &font, const std::string &text, const Color &fg, const Color &bg) const;
-        void DrawTextBoxed(Renderer &renderer, const UI::Font &font, const std::string &text, const Color &fg, const Color &bg) const;        
-        bool CouldRender(const UI::Font &font, const std::string &text) const;
-        void LoadFont(const UI::Font &font);
-        const Rect TextSize(const UI::Font &font, const std::string &text) const;
-        int LineSkip(const UI::Font &font) const;
+        void DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const Color &fg, const Color &bg) const;
+        bool CouldRender(const core::Font &font, const std::string &text) const;
+        bool LoadFont(const core::Font &font);
+        const Rect TextSize(const core::Font &font, const std::string &text) const;
+        int LineSkip(const core::Font &font) const;
 
-    private:
+    protected:
         std::unique_ptr<TTFInitializer> mTTF_Init;
         std::vector<FontData> mFontTable;
         
-    protected:
+    private:
         void AddFontData(FontData fontdata);
-        std::vector<fs::path> FontSearchPathsList(const UI::Font &font) const;
-        bool FontIsLoaded(const UI::Font &font) const;
-        const FontData& LookupFont(const UI::Font &font) const;
-        FontData LoadFontData(const fs::path &path, const UI::Font &font) const;
+        std::vector<fs::path> FontSearchPathsList(const core::Font &font) const;
+        FontData const* LookupFont(const core::Font &font) const;
+        bool HasFontLoaded(const core::Font &font) const;
+        bool HasExactMatch(const core::Font &font) const;
+        FontData LoadFontData(const fs::path &path, const core::Font &font) const;
     };
 }
 

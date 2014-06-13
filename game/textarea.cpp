@@ -33,13 +33,13 @@ namespace UI
         mTextColor = textColor;
     }
     
-    void TextArea::SetFont(const Font &font)
+    void TextArea::SetFont(const core::Font &font)
     {
         mTextFont = font;
         mTextLayout.SetFont(font);
     }
 
-    Font TextArea::GetFont() const
+    const core::Font TextArea::GetFont() const
     {
         return mTextFont;
     }
@@ -109,7 +109,7 @@ namespace UI
     void TextArea::Render(Render::Renderer &renderer)
     {
         const Rect widgetSubrect = FitToScreen(renderer);
-        renderer.Clip(widgetSubrect);
+        renderer.ClipRect(widgetSubrect);
         renderer.FillFrame(renderer.GetScreenRect(), mBackgroundColor);
 
         Render::FontManager &fontManager = renderer.GetFontManager();
@@ -119,7 +119,7 @@ namespace UI
         
         mTextLayout.UpdateLayout(fontManager);
         for(const TextLayoutItem &item : mTextLayout) {
-            renderer.Clip(drawArea);
+            renderer.ClipRect(drawArea);
             
             const int offsetX = item.GetHorizontalOffset();
             const int offsetY = item.GetVerticalOffset();
@@ -129,9 +129,9 @@ namespace UI
                 drawArea.w - offsetX,
                 drawArea.h - offsetY);
 
-            renderer.Clip(itemRect);
+            renderer.ClipRect(itemRect);
             fontManager.DrawText(renderer, mTextFont, item.GetItemText(), mTextColor, mBackgroundColor);
-            renderer.Unclip();
+            renderer.RestoreClipRect();
 
             const int advanceX = item.GetHorizontalAdvance();
             const int advanceY = item.GetVerticalAdvance();
@@ -139,9 +139,9 @@ namespace UI
             drawArea.y += advanceY;
             drawArea.w = std::max(0, textAreaSize.w - drawArea.x);
             drawArea.h = std::max(0, textAreaSize.h - drawArea.y);
-            renderer.Unclip();
+            renderer.RestoreClipRect();
         }
 
-        renderer.Unclip();
+        renderer.RestoreClipRect();
     }
 }

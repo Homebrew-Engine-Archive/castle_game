@@ -220,15 +220,15 @@ namespace GM1
         return surface;
     }
 
-    const Surface GM1EntryReader::Load(const GM1::GM1Reader &reader, size_t index) const
+    const Surface GM1EntryReader::Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
-        const GM1::EntryHeader &header = reader.EntryHeader(index);
+        //const GM1::EntryHeader &header = reader.EntryHeader(index);
         Surface surface = CreateCompatibleSurface(header);
 
-        const char *data = reader.EntryData(index);
-        const size_t size = reader.EntrySize(index);
-        boost::iostreams::stream<boost::iostreams::array_source> in(data, size);
-        ReadSurface(in, size, header, surface);
+        //const char *data = reader.EntryData(index);
+        //const size_t size = reader.EntrySize(index);
+        boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
+        ReadSurface(in, bytesCount, header, surface);
 
         // const uint32_t format = TargetPixelFormat();
         // if(!HasPalette(surface) && format != SourcePixelFormat()) {

@@ -1,8 +1,9 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
-#include <boost/filesystem.hpp>
 #include <string>
+
+#include <boost/filesystem/path.hpp>
 
 namespace fs
 {

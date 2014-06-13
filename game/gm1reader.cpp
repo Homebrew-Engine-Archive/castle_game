@@ -2,8 +2,8 @@
 
 #include <cerrno>
 #include <cstring>
-#include <sstream>
-#include <functional>
+
+#include <vector>
 
 #include <boost/filesystem/fstream.hpp>
 
@@ -82,13 +82,12 @@ namespace GM1
     GM1Reader::~GM1Reader() = default;
     
     GM1Reader::GM1Reader()
-        : GM1Reader {fs::path(), NoFlags}
+        : GM1Reader(fs::path(), NoFlags)
     { }
     
     GM1Reader::GM1Reader(fs::path path, Flags flags)
         : mIsOpened(false)
         , mPath(path)
-        , mFlags()
         , mDataOffset(0)
         , mHeader()
         , mPalettes()
@@ -107,11 +106,12 @@ namespace GM1
 
     void GM1Reader::Open(fs::path path, Flags flags)
     {
-        mFlags = flags;
         mIsOpened = false;
-        mPath = std::move(path);
-
-        boost::filesystem::ifstream fis(mPath, std::ios_base::binary);
+        mPalettes.resize(0);
+        mEntries.resize(0);
+        mDataOffset = 0;
+        
+        boost::filesystem::ifstream fis(path, std::ios_base::binary);
         if(!fis.is_open()) {
             throw std::runtime_error(strerror(errno));
         }
@@ -164,9 +164,9 @@ namespace GM1
         }
 
         mDataOffset = fis.tellg();
-        if(mFlags & Cached) {
+        if(flags & Cached) {
             for(ReaderEntryData &entry : mEntries) {
-                fis.seekg(entry.offset + mDataOffset, std::ios_base::beg);
+                fis.seekg(mDataOffset + entry.offset, std::ios_base::beg);
                 entry.buffer.resize(entry.size);
                 fis.read(entry.buffer.data(), entry.size);
             }
@@ -178,7 +178,8 @@ namespace GM1
         mEntryReader =
             std::move(
                 GM1::CreateEntryReader(Encoding()));
-        
+
+        mPath = std::move(path);
         mIsOpened = true;
     }
 
@@ -259,8 +260,11 @@ namespace GM1
         return *mEntryReader;
     }
     
-    const Surface GM1Reader::ReadEntry(int index) const
+    const Surface GM1Reader::ReadEntry(size_t index) const
     {
-        return mEntryReader->Load(*this, index);
+        const GM1::EntryHeader &header = EntryHeader(index);
+        const char *data = EntryData(index);
+        const size_t bytesCount = EntrySize(index);
+        return mEntryReader->Load(header, data, bytesCount);
     }
 }

@@ -10,23 +10,31 @@
 
 #include <SDL.h>
 
-#include <game/fontmanager.h>
-#include <game/make_unique.h>
-#include <game/color.h>
-#include <game/rect.h>
-#include <game/point.h>
 #include <game/collection.h>
-#include <game/surface_drawing.h>
+#include <game/color.h>
+#include <game/fontmanager.h>
+#include <game/gamemap.h>
 #include <game/gamescreen.h>
+#include <game/make_unique.h>
+#include <game/point.h>
+#include <game/rect.h>
+#include <game/renderengine.h>
 #include <game/renderer.h>
 #include <game/screen.h>
-#include <game/gamemap.h>
+#include <game/sdlrenderengine.h>
+#include <game/simulationmanager.h>
+#include <game/softwarerenderengine.h>
 
 namespace Castle
 {
+    Engine::Engine(Engine const&) = delete;
+    Engine& Engine::operator=(Engine const&) = delete;
+    
     Engine::Engine()
         : mSDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE)
-        , mRenderer()
+        , mRenderEngine(new Render::SDLRenderEngine)
+        , mFontManager()
+        , mRenderer(*mRenderEngine, mFontManager)
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
@@ -35,9 +43,8 @@ namespace Castle
         , mFpsLimited(false)
         , mIO()
         , mPort(4500)
-        , mScreenManager()
         , mServer(mIO, mPort)
-        , mGraphicsMgr()
+        , mScreenManager()
         , mInfoArea()
     {
         mInfoArea.SetTextColor(Colors::Red);
@@ -92,7 +99,8 @@ namespace Castle
 
     void Engine::ResizeScreen(int width, int height)
     {
-        mRenderer.SetScreenSize(width, height);
+        mRenderer.SetScreenWidth(width);
+        mRenderer.SetScreenHeight(height);
     }
     
     void Engine::LoadFonts()
@@ -104,7 +112,7 @@ namespace Castle
 
         for(int h = minHeight; h <= maxHeight; ++h) {
             try {
-                mRenderer.GetFontManager().LoadFont(UI::Font(family, h));
+                mRenderer.GetFontManager().LoadFont(core::Font(family, h));
             } catch(const std::exception &error) {
                 std::cerr << "Load font failed: " << error.what() << std::endl;
             }
@@ -212,7 +220,7 @@ namespace Castle
                 milliseconds sinceLastSim = Elapsed(prevSimulation, now);
                 if(SimulationManager::Instance().HasUpdate(sinceLastSim)) {
                     prevSimulation = now;
-                    SimulationManager::Instance().Update();
+                    SimulationManager::Instance().Update(sinceLastSim);
                 }
             }
 

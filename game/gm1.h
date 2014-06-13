@@ -1,9 +1,11 @@
 #ifndef GM1_H_
 #define GM1_H_
 
-#include <utility>
+#include <cstdint>
+
 #include <iosfwd>
-#include <array>
+#include <string>
+#include <utility>
 
 namespace GM1
 {

@@ -233,7 +233,7 @@ namespace UI
         }
     }
     
-    void TextLayout::SetFont(const UI::Font &font)
+    void TextLayout::SetFont(const core::Font &font)
     {
         if(mTextFont != font) {
             mTextFont = font;

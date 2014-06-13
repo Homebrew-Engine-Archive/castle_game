@@ -100,13 +100,13 @@ namespace Castle
     {
         // staggered iso map
         if(core::Even(mCell.y)) {
-            constexpr GameMap::Cell even[MaxDirCount] = {
+            constexpr GameMap::Cell even[core::MaxDirCount] = {
                 {0, 2}, {0, -2}, {-1, 0}, {1, 0},
                 {-1, -1}, {-1, 1}, {0, -1}, {0, 1}
             };
             return mCell + even[mDir];
         } else {
-            constexpr GameMap::Cell odd[MaxDirCount] = {
+            constexpr GameMap::Cell odd[core::MaxDirCount] = {
                 {0, 2}, {0, -2}, {-1, 0}, {1, 0},
                 {0, 1}, {0, -1}, {1, -1}, {1, 1}
             };
@@ -117,7 +117,7 @@ namespace Castle
     const std::pair<GameMap::AdjacencyIterator, GameMap::AdjacencyIterator> GameMap::AdjacentCells(GameMap::Cell cell) const
     {
         return std::make_pair(GameMap::AdjacencyIterator(*this, cell, 0),
-                              GameMap::AdjacencyIterator(*this, cell, MaxDirCount));
+                              GameMap::AdjacencyIterator(*this, cell, core::MaxDirCount));
     }
 
     const GameMap::CellIterator GameMap::CellIterator::operator++(int)

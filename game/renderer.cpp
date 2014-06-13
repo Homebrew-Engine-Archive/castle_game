@@ -1,215 +1,100 @@
 #include "renderer.h"
 
-#include <memory>
-#include <string>
-
 #include <cassert>
 
-#include <game/clamp.h>
-#include <game/make_unique.h>
-
+#include <game/outputmode.h>
 #include <game/rect.h>
 #include <game/point.h>
 #include <game/color.h>
 #include <game/gm1palette.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
-#include <game/collection.h>
-#include <game/surface_drawing.h>
 #include <game/fontmanager.h>
 
 namespace
 {
-    std::string GetBlendModeName(SDL_BlendMode mode)
+    const int MaxOpacity = 0xff;
+
+    /** dstA = srcA * opacity / MaxOpacity
+        srcA = dstA * MaxOpacity / opacity
+     **/
+    
+    constexpr int GetBlendedOpacity(int globalOpacity, int opacity)
     {
-#define CASE(x) case x: return #x
-        switch(mode) {
-            CASE(SDL_BLENDMODE_BLEND);
-            CASE(SDL_BLENDMODE_ADD);
-            CASE(SDL_BLENDMODE_MOD);
-            CASE(SDL_BLENDMODE_NONE);
-        default:
-            return "SDL_BLENDMODE_UNKNOWN";
-        }
-#undef CASE
-    }
-    
-    const uint32_t ScreenPixelFormat = SDL_PIXELFORMAT_RGB888;
-    const int WindowWidth = 1024;
-    const int WindowHeight = 768;
-
-    const int WindowXPos = SDL_WINDOWPOS_UNDEFINED;
-    const int WindowYPos = SDL_WINDOWPOS_UNDEFINED;
-
-    const char *WindowTitle = "Castle game";
-
-    const int WindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-
-    const int RendererIndex = -1;
-    const int RendererFlags = SDL_RENDERER_ACCELERATED;
-
-    const int MaxAlpha = 0xFF;
-    
-    const int MinScreenWidth = 0;
-    const int MinScreenHeight = 0;
-    
-    // TODO sync with driver's texture max width and height
-    const int MaxScreenWidth = 4096;
-    const int MaxScreenHeight = 4096;
-
-    int AdjustWidth(int width)
-    {
-        return core::Clamp(width, MinScreenWidth, MaxScreenWidth);
+        return (globalOpacity * opacity) / MaxOpacity;
     }
 
-    int AdjustHeight(int height)
+    constexpr int GetUnblendedOpacity(int globalOpacity, int opacity)
     {
-        return core::Clamp(height, MinScreenHeight, MaxScreenHeight);
+        return (globalOpacity * MaxOpacity) / opacity;
+    }
+
+    constexpr const Color BlendColor(const Color &color, int opacity)
+    {
+        return Color(color.r, color.g, color.b, GetBlendedOpacity(opacity, color.a));
     }
 }
 
 namespace Render
 {
+    Renderer::Renderer(Renderer const&) = delete;
+    Renderer& Renderer::operator=(Renderer const&) = delete;
+
     Renderer::~Renderer() = default;
     
-    Renderer::Renderer()
-        : mScreenWidth(WindowWidth)
-        , mScreenHeight(WindowHeight)
-        , mScreenFormat(ScreenPixelFormat)
-        , mScreenTexture(nullptr)
-        , mScreenSurface(nullptr)
+    Renderer::Renderer(RenderEngine &renderEngine, FontManager &fontEngine)
+        : mRenderEngine(renderEngine)
+        , mFontManager(fontEngine)
         , mBoundPalette()
         , mBoundSurface(nullptr)
-        , mBoundAlphaMap(nullptr)
+        , mBoundAlphaChannel(nullptr)
         , mClipStack()
-        , mAlphaStack()
-        , mAlpha(1.0f)
-        , mFontManager(std::make_unique<FontManager>())
+        , mOpacityStack()
+        , mOpacity(MaxOpacity)
+        , mBoundFont()
     {
-        mWindow.reset(
-            SDL_CreateWindow(WindowTitle,
-                             WindowXPos,
-                             WindowYPos,
-                             mScreenWidth,
-                             mScreenHeight,
-                             WindowFlags));
-        
-        if(!mWindow) {
-            throw sdl_error();
-        }
-        
-        mRenderer.reset(
-            SDL_CreateRenderer(mWindow.get(),
-                               RendererIndex,
-                               RendererFlags));
-        if(!mRenderer) {
-            throw sdl_error();
-        }
     }
 
     FontManager& Renderer::GetFontManager()
     {
-        return *mFontManager;
+        return mFontManager;
     }
     
     FontManager const& Renderer::GetFontManager() const
     {
-        return *mFontManager;
+        return mFontManager;
     }
 
-    void Renderer::CreateScreenTexture(int width, int height, int format)
+    RenderEngine& Renderer::GetRenderEngine()
     {
-        if((mScreenTexture) && (width == mScreenWidth) && (height == mScreenHeight) && (format == mScreenFormat)) {
-            return;
-        }
-
-        TexturePtr temp(
-            SDL_CreateTexture(
-                mRenderer.get(),
-                format,
-                SDL_TEXTUREACCESS_STREAMING,
-                width,
-                height));
-
-        // Let sdl check the size and the format for us
-        if(!temp) {
-            throw sdl_error();
-        }
-
-        mScreenTexture = std::move(temp);
-        mScreenFormat = format;
-        mScreenWidth = width;
-        mScreenHeight = height;
+        return mRenderEngine;
     }
-
-    void Renderer::CreateScreenSurface(int width, int height)
+    
+    RenderEngine const& Renderer::GetRenderEngine() const
     {
-        const Surface temp = CreateSurface(width, height, mScreenFormat);
-        if(!temp) {
-            throw sdl_error();
-        }
-
-        if(SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE) < 0) {
-            throw sdl_error();
-        }
+        return mRenderEngine;
+    }
         
-        mScreenSurface = temp;
-    }
-
-    void Renderer::CreatePrimitiveRenderer()
-    {
-        RendererPtr renderer(SDL_CreateSoftwareRenderer(mScreenSurface));
-        if(!renderer) {
-            throw sdl_error();
-        }
-
-        mPrimitiveRenderer = std::move(renderer);
-    }
-    
-    bool Renderer::ReallocationRequired(int width, int height, int format) const
-    {
-        return (width != mScreenWidth) || (height != mScreenHeight) || (format != mScreenFormat);
-    }
-    
     void Renderer::BeginFrame()
     {
-        if(!mScreenTexture) {
-            CreateScreenTexture(mScreenWidth, mScreenHeight, mScreenFormat);
-        }
-
-        if(!mScreenSurface) {
-            CreateScreenSurface(mScreenWidth, mScreenHeight);
-        }
-
-        if(!mPrimitiveRenderer) {
-            CreatePrimitiveRenderer();
-        }
-
-        SDL_SetClipRect(mScreenSurface, NULL);
-        SDL_FillRect(mScreenSurface, NULL, 0);
-
+        const OutputMode mode = mRenderEngine.GetOutputMode();
         mClipStack.clear();
+        mClipStack.push_back(
+            Rect(mode.Width(), mode.Height()));
+            
         mScreenRectStack.clear();
-        mAlphaStack.clear();
-        mAlpha = MaxAlpha;
+        mScreenRectStack.push_back(
+            Rect(mode.Width(), mode.Height()));
+        
+        mRenderEngine.BeginFrame();
+        mRenderEngine.ClearOutput(Colors::Black);
+
+        mOpacity = MaxOpacity;
     }
     
     void Renderer::EndFrame()
     {
-        if(!mScreenSurface.Null()) {
-            const SurfaceLocker lock(mScreenSurface);
-            
-            if(SDL_UpdateTexture(mScreenTexture.get(), NULL, SurfaceData(mScreenSurface), SurfaceRowStride(mScreenSurface)) < 0) {
-                throw sdl_error();
-            }
-
-            const Rect textureRect(mScreenSurface);
-            if(SDL_RenderCopy(mRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
-                throw sdl_error();
-            }
-        }
-        
-        SDL_RenderPresent(mRenderer.get());
+        mRenderEngine.EndFrame();
     }
 
     const Point Renderer::GetMaxOutputSize() const
@@ -219,31 +104,23 @@ namespace Render
     
     const Point Renderer::GetOutputSize() const
     {
-        Point size;
-        
-        if(SDL_GetRendererOutputSize(mRenderer.get(), &size.x, &size.y) < 0) {
-            throw sdl_error();
-        }
-        
-        return size;
+        const OutputMode mode = mRenderEngine.GetOutputMode();
+        return Point(mode.Width(), mode.Height());
     }
-
+    
     const Rect Renderer::GetScreenClipRect() const
     {
-        return (mClipStack.empty()
-                ? Rect(mScreenSurface)
-                : mClipStack.back());
+        assert(!mClipStack.empty());
+        return mClipStack.back();
     }
     
     const Rect Renderer::GetScreenRect() const
     {
-        return (mScreenRectStack.empty()
-                ? Rect(mScreenSurface)
-                : Rect(mScreenRectStack.back().w,
-                       mScreenRectStack.back().h));
+        assert(!mScreenRectStack.empty());
+        return Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
     }
 
-    void Renderer::Clip(const Rect &clipArea)
+    void Renderer::ClipRect(const Rect &clipArea)
     {
         if(RectEmpty(clipArea)) {
             mClipStack.push_back(Rect());
@@ -251,36 +128,39 @@ namespace Render
             return;
         }
         
-        const Rect unclippedArea = UnclipRect(clipArea);
+        const Rect unwindedArea = UnwindClipRect(clipArea);
         const Rect oldClipArea = GetScreenClipRect();
-        const Rect newClipArea = Intersection(oldClipArea, unclippedArea);
+        const Rect newClipArea = Intersection(oldClipArea, unwindedArea);
         mClipStack.push_back(newClipArea);
-        mScreenRectStack.push_back(unclippedArea);
+        mScreenRectStack.push_back(unwindedArea);
+
+        mRenderEngine.ClipRect(newClipArea);
     }
 
-    void Renderer::Unclip()
+    void Renderer::RestoreClipRect()
     {
-        if(mClipStack.empty()) {
-            throw std::runtime_error("clip stack is empty");
-        }
-
+        assert(!mScreenRectStack.empty());
+        assert(!mClipStack.empty());
         mScreenRectStack.pop_back();
         mClipStack.pop_back();
+        mRenderEngine.ClipRect(GetScreenClipRect());
     }
 
-    void Renderer::Alpha(int alpha)
+    void Renderer::Opacity(int opacity)
     {
-        mAlphaStack.push_back(mAlpha);
-        mAlpha = (alpha * mAlpha) / MaxAlpha;
+        mOpacityStack.push_back(mOpacity);
+        mOpacity = GetBlendedOpacity(mOpacity, opacity);
+        mRenderEngine.SetOpacityMod(mOpacity);
     }
 
-    void Renderer::Unalpha()
+    void Renderer::RestoreOpacity()
     {
-        mAlpha = mAlphaStack.back();
-        mAlphaStack.pop_back();
+        mOpacity = mOpacityStack.back();
+        mOpacityStack.pop_back();
+        mRenderEngine.SetOpacityMod(mOpacity);
     }
     
-    const Rect Renderer::UnclipRect(const Rect &rect) const
+    const Rect Renderer::UnwindClipRect(const Rect &rect) const
     {
         return Translated(rect, TopLeft(
                               (mScreenRectStack.empty()
@@ -293,30 +173,25 @@ namespace Render
         return point - TopLeft(GetScreenClipRect());
     }
     
-    void Renderer::SetScreenMode(int width, int height, int format)
+    void Renderer::SetScreenWidth(int width)
     {
-        if(ReallocationRequired(width, height, format)) {
-            mPrimitiveRenderer = nullptr;
-            mScreenSurface = nullptr;
-            mScreenTexture = nullptr;
-            mScreenWidth = width;
-            mScreenHeight = height;
-            mScreenFormat = format;
-        }
-    }
-
-    void Renderer::SetScreenFormat(int format)
-    {
-        SetScreenMode(mScreenWidth, mScreenHeight, format);
+        OutputMode mode = mRenderEngine.GetOutputMode();
+        mode.SetWidth(width);
+        mRenderEngine.SetOutputMode(mode);
     }
     
-    void Renderer::SetScreenSize(int width, int height)
+    void Renderer::SetScreenHeight(int height)
     {
-        // Cutting up and down texture height and width
-        const int newWidth = AdjustWidth(width);
-        const int newHeight = AdjustHeight(height);
-
-        SetScreenMode(newWidth, newHeight, mScreenFormat);
+        OutputMode mode = mRenderEngine.GetOutputMode();
+        mode.SetHeight(height);
+        mRenderEngine.SetOutputMode(mode);
+    }
+    
+    void Renderer::SetScreenFormat(int format)
+    {
+        OutputMode mode = mRenderEngine.GetOutputMode();
+        mode.SetFormat(format);
+        mRenderEngine.SetOutputMode(mode);
     }
     
     void Renderer::BindSurface(const Surface &surface)
@@ -329,115 +204,130 @@ namespace Render
         mBoundPalette = palette;
     }
     
-    void Renderer::BindAlphaMap(const Surface &surface)
+    void Renderer::BindAlphaChannel(const Surface &surface)
     {
-        mBoundAlphaMap = surface;
+        mBoundAlphaChannel = surface;
     }
 
-    void Renderer::UnbindSurface()
+    void Renderer::BindFont(const core::Font &font)
     {
-        mBoundSurface = nullptr;
+        mBoundFont = font;
     }
-
-    void Renderer::UnbindPalette()
+    
+    void PaintRhombus(RenderEngine &engine, const Rect &bounds, const Color &color, DrawMode mode)
     {
-        mBoundPalette = GM1::Palette();
-    }
+        const auto x1 = bounds.x;
+        const auto y1 = bounds.y;
+        const auto x2 = bounds.x + bounds.w;
+        const auto y2 = bounds.y + bounds.h;
 
-    void Renderer::UnbindAlphaMap()
-    {
-        mBoundAlphaMap = nullptr;
-    }
+        const auto centerX = (x1 + x2) / 2;
+        const auto centerY = (y1 + y2) / 2;
 
+        constexpr int NumPoints = 5;
+        const Point points[NumPoints] = {
+            {x1, centerY},
+            {centerX, y1},
+            {x2, centerY},
+            {centerX, y2},
+            {x1, centerY}
+        };
+
+        engine.DrawPolygon(&points[0], NumPoints, color, mode);
+    }
+    
     void Renderer::FillRhombus(const Rect &rect, const Color &color)
-    {        
-        const Rect unclippedRect = UnclipRect(rect);
-        const Rect clipRect = GetScreenClipRect();
-        if(Intersects(unclippedRect, clipRect)) {
-            SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &clipRect);
-            Render::FillRhombus(*mPrimitiveRenderer, unclippedRect, color);
-        }
+    {
+        const Rect translatedRect = UnwindClipRect(rect);
+        const Color blended = BlendColor(color, mOpacity);
+        PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Filled);
     }
 
     void Renderer::DrawRhombus(const Rect &rect, const Color &color)
-    {        
-        const Rect unclippedRect = UnclipRect(rect);
-        const Rect clipRect = GetScreenClipRect();
-        if(Intersects(unclippedRect, clipRect)) {
-            SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &clipRect);
-            Render::DrawRhombus(*mPrimitiveRenderer, unclippedRect, color);
-        }
+    {
+        const Rect translatedRect = UnwindClipRect(rect);
+        const Color blended = BlendColor(color, mOpacity);
+        PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Outline);
     }
 
     void Renderer::FillFrame(const Rect &rect, const Color &color)
     {        
-        const Rect unclippedRect = UnclipRect(rect);
-        const Rect clipRect = GetScreenClipRect();
-        if(Intersects(unclippedRect, clipRect)) {
-            SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &clipRect);
-            Render::FillFrame(*mPrimitiveRenderer, unclippedRect, color);
-        }
+        const Rect unclippedRect = UnwindClipRect(rect);
+        const Color blended = BlendColor(color, mOpacity);
+        mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Filled);
     }
 
     void Renderer::DrawFrame(const Rect &rect, const Color &color)
     {
-        const Rect unclippedRect = UnclipRect(rect);
-        const Rect clipRect = GetScreenClipRect();
-        if(Intersects(unclippedRect, clipRect)) {
-            SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &clipRect);
-            Render::DrawFrame(*mPrimitiveRenderer, unclippedRect, color);
+        const Rect unclippedRect = UnwindClipRect(rect);
+        const Color blended = BlendColor(color, mOpacity);
+        mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Outline);
+    }
+
+    void PaintPyramid(RenderEngine &engine, const Rect &top, const Rect &bottom, const Color &color, DrawMode mode)
+    {
+        // PaintRhombus(engine, bottom, color, mode);
+        // PaintRhombus(engine, top, color, mode);
+
+        const auto tx1 = top.x;
+        const auto ty1 = top.y;
+        const auto tx2 = top.x + top.w;
+        const auto ty2 = top.y + top.h;
+
+        const auto tcenterX = (tx1 + tx2) / 2;
+        const auto tcenterY = (ty1 + ty2) / 2;
+
+        const auto bx1 = bottom.x;
+        const auto by1 = bottom.y;
+        const auto bx2 = bottom.x + bottom.w;
+        const auto by2 = bottom.y + bottom.h;
+
+        const auto bcenterX = (bx1 + bx2) / 2;
+        const auto bcenterY = (by1 + by2) / 2;
+
+        {
+            constexpr int NumPoints = 5;
+            const Point points[NumPoints] = {
+                {tx1, tcenterY},
+                {tcenterX, ty2},
+                {bcenterX, by2},
+                {bx1, bcenterY},
+                {tx1, tcenterX}
+            };
+            engine.DrawPolygon(&points[0], NumPoints, color, mode);
+        }
+
+        {
+            constexpr int NumPoints = 5;
+            const Point points[NumPoints] = {
+                {tcenterX, ty2},
+                {tx2, tcenterY},
+                {bx2, bcenterY},
+                {bcenterX, by2},
+                {tcenterX, ty2}
+            };
+            engine.DrawPolygon(&points[0], NumPoints, color, mode);
         }
     }
     
     void Renderer::Blit(const Rect &textureSubRect, const Rect &screenSubRect)
-    {
-        /** Correct blend mode before blit is crucial **/
-        SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
+    {        
+        mRenderEngine.SetOpacityMod(mOpacity);
         
-        if(SDL_ISPIXELFORMAT_ALPHA(SurfaceFormat(mBoundSurface).format)) {
-            blendMode = SDL_BLENDMODE_BLEND;
-        } else if(mAlpha != MaxAlpha) {
-            blendMode = SDL_BLENDMODE_BLEND;
-        }
-
-        SDL_SetSurfaceBlendMode(mBoundSurface, blendMode);
-        SDL_SetSurfaceAlphaMod(mBoundSurface, mAlpha);
-
         if(SDL_ISPIXELFORMAT_INDEXED(SurfaceFormat(mBoundSurface).format)) {
             SDL_SetSurfacePalette(mBoundSurface, &mBoundPalette.asSDLPalette());
         }
 
-        /** will be modified by BlitSurface **/
-        Rect unclippedRect = UnclipRect(screenSubRect);
-        const Rect clipRect = GetScreenClipRect();
-        SDL_SetClipRect(mScreenSurface, &clipRect);
-
-        if(Intersects(unclippedRect, clipRect)) {
-            try {
-                if(SDL_BlitSurface(mBoundSurface, &textureSubRect, mScreenSurface, &unclippedRect) < 0) {
-                    throw sdl_error();
-                }
-            } catch(const std::exception &error) {
-                std::cerr << "Blit surface failed: " << error.what() << std::endl
-                          << "Source rect: "         << textureSubRect << std::endl
-                          << "Clipped dest rect: "   << screenSubRect << std::endl
-                          << "Unclipped dest rect: " << unclippedRect << std::endl
-                          << "Clip rect: "           << clipRect << std::endl
-                          << "Source format: "       << SDL_GetPixelFormatName(SurfaceFormat(mBoundSurface).format) << std::endl
-                          << "Destination format: "  << SDL_GetPixelFormatName(SurfaceFormat(mScreenSurface).format) << std::endl
-                          << "Alpha: "               << mAlpha << std::endl
-                          << "Source blend mode: "   << GetBlendModeName(GetSurfaceBlendMode(mBoundSurface)) << std::endl;       
-                throw;
-            }
-        }
+        const Rect unclippedRect = UnwindClipRect(screenSubRect);
+        mRenderEngine.DrawSurface(mBoundSurface, textureSubRect, unclippedRect);
     }
-
-    void Renderer::BlitTiled(const Rect &textureSubrect, const Rect &scrennSubRect)
+    
+    void Renderer::BlitTiled(const Rect &from, const Rect &to)
     {
         
     }
 
-    void Renderer::BlitScaled(const Rect &textureSubRect, const Rect &screenSubRect)
+    void Renderer::BlitScaled(const Rect &from, const Rect &to)
     {
 
     }

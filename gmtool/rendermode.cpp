@@ -109,14 +109,13 @@ namespace GMTool
         if(mPaletteIndex < 0 || mPaletteIndex >= reader.NumPalettes()) {
             throw std::logic_error("Palette index is out of range");
         }
-        
-        GM1::GM1EntryReader &entryReader = reader.EntryReader();
+
         if(DefaultTransparent() != mTransparentColor) {
             cfg.verbose << "Use transparent: " << mTransparentColor << std::endl;
-            entryReader.Transparent(mTransparentColor);
+            reader.EntryReader().Transparent(mTransparentColor);
         }
         
-        Surface entry = entryReader.Load(reader, mEntryIndex);
+        Surface entry = reader.ReadEntry(mEntryIndex);
 
         std::ostream *out = nullptr;
 

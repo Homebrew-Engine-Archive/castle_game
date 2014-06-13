@@ -49,12 +49,13 @@ namespace UI
         Castle::Collection const& GetTileSet(Landscape landscape) const;
         
     public:
-        GameScreen(UI::ScreenManager &screenManager);
+        explicit GameScreen(UI::ScreenManager &screenManager);
         
         GameScreen(GameScreen const&) = delete;
         GameScreen& operator=(GameScreen const&) = delete;
         virtual ~GameScreen();
 
+        void RenderTile(Render::Renderer &render, const Castle::GameMap::Cell &cell);
         void Render(Render::Renderer &render);
         bool TileSelected(const Point &cursor, const Castle::GameMap::Cell &cell) const;
         bool HandleEvent(const SDL_Event &event);

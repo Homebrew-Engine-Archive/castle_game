@@ -3,7 +3,7 @@
 
 #include <array>
 #include <vector>
-#include <boost/asio.hpp>
+
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -18,7 +18,7 @@ namespace Network
         void ReceiveHandler(const boost::system::error_code &e, size_t size);
     
     public:
-        Connection(boost::asio::ip::tcp::socket sock);
+        explicit Connection(boost::asio::ip::tcp::socket sock);
     };
 
     class Server
@@ -30,7 +30,7 @@ namespace Network
         boost::asio::ip::tcp::socket mSock;
         std::vector<Connection> mConnections;
     public:
-        Server(boost::asio::io_service &io, short port);
+        explicit Server(boost::asio::io_service &io, short port);
         void StartAccept();
         void AcceptHandler(const boost::system::error_code &e);
     };
@@ -42,7 +42,7 @@ namespace Network
         boost::asio::ip::tcp::endpoint mAddr;
         Connection mConnection;
     public:
-        Client(boost::asio::io_service &io, boost::asio::ip::tcp::endpoint addr, short port);
+        explicit Client(boost::asio::io_service &io, boost::asio::ip::tcp::endpoint addr, short port);
         void StartConnect();
         void EndConnect();
     };

@@ -1,28 +1,33 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
-#include <iostream>
-#include <sstream>
+#include <cstdint>
+#include <iosfwd>
 #include <memory>
 #include <chrono>
+
 #include <SDL.h>
 
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 
 #include <game/textarea.h>
 #include <game/network.h>
 #include <game/screenmanager.h>
-#include <game/simulationmanager.h>
-#include <game/graphicsmanager.h>
 #include <game/renderer.h>
+#include <game/fontmanager.h>
+
+namespace Render
+{
+    class RenderEngine;
+}
 
 namespace Castle
 {
     class Engine
     {
         SDLInitializer mSDL_Init;
+        std::unique_ptr<Render::RenderEngine> mRenderEngine;
+        Render::FontManager mFontManager;
         Render::Renderer mRenderer;
         double mFpsAverage;
         int mFrameCounter;
@@ -32,9 +37,8 @@ namespace Castle
         bool mFpsLimited;
         boost::asio::io_service mIO;
         int16_t mPort;
-        UI::ScreenManager mScreenManager;
         Network::Server mServer;
-        Graphics::GraphicsManager mGraphicsMgr;
+        UI::ScreenManager mScreenManager;
         UI::TextArea mInfoArea;
 
         void ResizeScreen(int width, int height);
@@ -49,11 +53,11 @@ namespace Castle
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 
     public:
-        Engine();
-        
-        Engine(Engine const&) = delete;
-        Engine& operator=(Engine const&) = delete;
-    
+        explicit Engine();
+
+        Engine(Engine const&);/* = delete */
+        Engine& operator=(Engine const&);/* = delete */
+
         int Exec();
     };
 }

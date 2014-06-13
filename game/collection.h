@@ -1,10 +1,9 @@
 #ifndef COLLECTION_H_
 #define COLLECTION_H_
 
-#include <SDL.h>
-#include <string>
 #include <vector>
-#include <memory>
+
+#include <SDL.h>
 
 #include <game/surface.h>
 #include <game/gm1.h>
@@ -41,6 +40,7 @@ namespace Castle
         explicit Collection(const GM1::GM1Reader &reader);
         Collection(const Collection &collection);
         Collection& operator=(const Collection &collection);
+        ~Collection();
 
         int Count() const;
         GM1::Header const& GetHeader() const;

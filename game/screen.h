@@ -2,7 +2,6 @@
 #define SCREEN_H_
 
 #include <cstdint>
-#include <memory>
 #include <SDL.h>
 
 namespace Network
@@ -53,10 +52,7 @@ namespace UI
 
         virtual void LeaveScreen(Screen *next)
             {}
-    };
-
-    typedef std::unique_ptr<Screen> ScreenPtr;
-    
+    };    
 }
 
 #endif

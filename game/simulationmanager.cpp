@@ -7,7 +7,6 @@ namespace Castle
         , mBatchedCommands()
         , mSimulationStep(0)
     {
-
     }
 
     Castle::GameMap& SimulationManager::GetGameMap()
@@ -20,7 +19,7 @@ namespace Castle
         mMap = std::move(map);
     }
     
-    void SimulationManager::Update()
+    void SimulationManager::Update(const std::chrono::milliseconds &elapsed)
     {
         mSimulationStep += 1;
     }
@@ -35,9 +34,18 @@ namespace Castle
         return mHostPlayer;
     }
     
-    bool SimulationManager::HasUpdate(std::chrono::milliseconds elapsed)
+    bool SimulationManager::HasUpdate(const std::chrono::milliseconds &elapsed)
     {
         return elapsed > std::chrono::milliseconds(100);
+    }
+
+    void SimulationManager::AddCreature(Creature creature)
+    {
+        mCreatures.push_back(std::move(creature));
+    }
+    
+    void SimulationManager::RemoveCreature(const Creature &creature)
+    {
     }
     
     SimulationManager& SimulationManager::Instance()

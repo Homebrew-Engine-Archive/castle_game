@@ -23,8 +23,8 @@ namespace UI
         std::string const& Text() const;
         void SetText(const std::string &text);
         void AppendText(const std::string &text);
-        void SetFont(const Font &font);
-        Font GetFont() const;
+        void SetFont(const core::Font &font);
+        const core::Font GetFont() const;
         void SetMaxWidth(int maxWidth);
         void SetMaxHeight(int maxHeight);
         void SetMinWidth(int minWidth);
@@ -46,7 +46,7 @@ namespace UI
         Color mBackgroundColor;
         Alignment mHorizontalAlign;
         Alignment mVerticalAlign;
-        Font mTextFont;
+        core::Font mTextFont;
     };
 }
 

@@ -32,6 +32,7 @@ set (SRCS
   screenmanager.cpp
   simulationmanager.cpp
   sdl_utils.cpp
+  sdlrenderengine.cpp
   surface.cpp
   surface_view.cpp
   surface_drawing.cpp

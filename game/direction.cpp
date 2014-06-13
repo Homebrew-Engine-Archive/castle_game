@@ -11,8 +11,16 @@
 
 namespace
 {
+    struct invalid_direction : public std::runtime_error
+    {
+        invalid_direction()
+            : std::runtime_error("invalid direction")
+            {}
+    };
+    
     void test()
     {
+        using namespace core;
         constexpr Direction E   = Direction::East;
         constexpr Direction NE  = Direction::NorthEast;
         constexpr Direction N   = Direction::North;
@@ -33,74 +41,77 @@ namespace
     }
 }
 
-Direction RadiansToDirection(double angle)
+namespace core
 {
-    // Avoid negative angles
-    double alpha = fmod(2 * M_PI + angle, 2 * M_PI);
+    Direction RadiansToDirection(double angle)
+    {
+        // Avoid negative angles
+        double alpha = fmod(2 * M_PI + angle, 2 * M_PI);
 
-    // Rotate by half of the direction's angle
-    double beta = (alpha - 1.0f / (2 * MaxDirCount));
+        // Rotate by half of the direction's angle
+        double beta = (alpha - 1.0f / (2 * MaxDirCount));
 
-    // scale down to range [0, 1)
-    double gamma = beta / (2 * M_PI);
+        // scale down to range [0, 1)
+        double gamma = beta / (2 * M_PI);
 
-    // and now avoid cyclic directions
-    int d = core::Mod<int>(gamma * MaxDirCount, MaxDirCount);
+        // and now avoid cyclic directions
+        int d = core::Mod<int>(gamma * MaxDirCount, MaxDirCount);
     
-    return static_cast<Direction>(d);
-}
-
-double DirectionToRadians(Direction dir)
-{
-    switch(dir) {
-    case Direction::East: return 0.0f;
-    case Direction::NorthEast: return M_PI / 4.0f;
-    case Direction::North: return M_PI / 2.0f;
-    case Direction::NorthWest: return 3.0f * M_PI / 4.0f;
-    case Direction::West: return M_PI;
-    case Direction::SouthWest: return M_PI + M_PI / 4.0f;
-    case Direction::South: return 3.0f * M_PI / 2.0f;
-    case Direction::SouthEast: return 3.0f * M_PI / 4.0f + M_PI;
+        return static_cast<Direction>(d);
     }
 
-    throw std::runtime_error("invalid direction");
-}
-
-Direction PointsDirection(const Point &lhs, const Point &rhs)
-{
-    return RadiansToDirection(atan2(lhs.x - rhs.x, lhs.y - rhs.y));
-}
-
-Direction ClosestDirection(const DirectionSet &set, const Direction &dir)
-{
-    Direction closest = dir;
-    int bestDist = std::numeric_limits<int>::max();
-    for(const Direction &d : set) {
-        int dist = MinRotates(d, dir);
-        if(bestDist > dist) {
-            closest = d;
-            bestDist = dist;
+    double DirectionToRadians(Direction dir)
+    {
+        switch(dir) {
+        case Direction::East: return 0.0f;
+        case Direction::NorthEast: return M_PI / 4.0f;
+        case Direction::North: return M_PI / 2.0f;
+        case Direction::NorthWest: return 3.0f * M_PI / 4.0f;
+        case Direction::West: return M_PI;
+        case Direction::SouthWest: return M_PI + M_PI / 4.0f;
+        case Direction::South: return 3.0f * M_PI / 2.0f;
+        case Direction::SouthEast: return 3.0f * M_PI / 4.0f + M_PI;
+        default:
+            throw invalid_direction();
         }
     }
-    return closest;
-}
 
-std::ostream &operator<<(std::ostream &out, const Direction &dir)
-{
-#define PRINT_IN_CASE(value) case (value): out << #value
-    switch(dir) {
-        PRINT_IN_CASE(Direction::East);
-        PRINT_IN_CASE(Direction::NorthEast);
-        PRINT_IN_CASE(Direction::North);
-        PRINT_IN_CASE(Direction::NorthWest);
-        PRINT_IN_CASE(Direction::West);
-        PRINT_IN_CASE(Direction::SouthWest);
-        PRINT_IN_CASE(Direction::South);
-        PRINT_IN_CASE(Direction::SouthEast);
-    default:
-        out << "Unknown direction";
+    Direction PointsDirection(const Point &lhs, const Point &rhs)
+    {
+        return RadiansToDirection(atan2(lhs.x - rhs.x, lhs.y - rhs.y));
     }
+
+    Direction ClosestDirection(const DirectionSet &set, const Direction &dir)
+    {
+        Direction closest = dir;
+        int bestDist = std::numeric_limits<int>::max();
+        for(const Direction &d : set) {
+            int dist = MinRotates(d, dir);
+            if(bestDist > dist) {
+                closest = d;
+                bestDist = dist;
+            }
+        }
+        return closest;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const Direction &dir)
+    {
+#define CASE(value) case (value): out << #value
+        switch(dir) {
+            CASE(Direction::East);
+            CASE(Direction::NorthEast);
+            CASE(Direction::North);
+            CASE(Direction::NorthWest);
+            CASE(Direction::West);
+            CASE(Direction::SouthWest);
+            CASE(Direction::South);
+            CASE(Direction::SouthEast);
+        default:
+            throw invalid_direction();
+        }
 #undef PRINT_IN_CASE
 
-    return out;
+        return out;
+    }
 }

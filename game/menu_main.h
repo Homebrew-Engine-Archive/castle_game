@@ -19,7 +19,7 @@ namespace UI
         Surface mBackground;
     
     public:
-        MenuMain(UI::ScreenManager &screenManager);
+        explicit MenuMain(UI::ScreenManager &screenManager);
         void Draw(Surface &frame);
         bool HandleEvent(const SDL_Event &event);
     };

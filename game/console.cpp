@@ -28,31 +28,31 @@ namespace UI
         mPromptArea.SetAlignment(Alignment::Expanded, Alignment::Max);
         mPromptArea.SetTextColor(Colors::Magenta);
         mPromptArea.SetBackgroundColor(Colors::Blue.Opaque(50));
-        mPromptArea.SetTextAlignment(Alignment::Max);
+        mPromptArea.SetTextAlignment(Alignment::Min);
 
         mLogArea.SetAlignment(Alignment::Expanded, Alignment::Min);
         mLogArea.SetTextColor(Colors::Gray);
         mLogArea.SetBackgroundColor(Colors::Black.Opaque(0));
-        mLogArea.SetTextAlignment(Alignment::Center);
+        mLogArea.SetTextAlignment(Alignment::Min);
     }
 
     void Console::Render(Render::Renderer &renderer)
     {
         const Rect consoleRect = Rect(BottomRight(renderer.GetScreenRect()) / Point(1, 2));
         renderer.FillFrame(consoleRect, Colors::Black.Opaque(200));
-        renderer.Clip(consoleRect);
+        renderer.ClipRect(consoleRect);
 
         mPromptArea.SetMaxWidth(consoleRect.w);
         const Rect promptRect = mPromptArea.FitToScreen(renderer);
         
-        renderer.Clip(ChopBottom(renderer.GetScreenRect(), promptRect.h));
+        renderer.ClipRect(ChopBottom(renderer.GetScreenRect(), promptRect.h));
         mLogArea.SetMaxWidth(consoleRect.w);
         
         mLogArea.Render(renderer);
-        renderer.Unclip();
+        renderer.RestoreClipRect();
 
         mPromptArea.Render(renderer);
-        renderer.Unclip();
+        renderer.RestoreClipRect();
     }
 
     void Console::OnCommandEntered(const std::string &command)

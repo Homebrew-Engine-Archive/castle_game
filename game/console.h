@@ -1,11 +1,11 @@
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
 
-#include <SDL.h>
-
 #include <sstream>
 #include <deque>
 #include <string>
+
+#include <SDL.h>
 
 #include <game/screen.h>
 #include <game/textarea.h>

@@ -29,11 +29,11 @@ namespace Render
         return Rect();
     }
     
-    void TextRenderer::SetFont(const UI::Font &font)
+    void TextRenderer::SetFont(const core::Font &font)
     {
     }
 
-    const UI::Font TextRenderer::GetFont() const
+    const core::Font TextRenderer::GetFont() const
     {
         return mTextFont;
     }

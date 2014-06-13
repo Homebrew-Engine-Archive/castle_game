@@ -6,13 +6,6 @@
 
 #include <SDL.h>
 
-#include <array>
-#include <vector>
-
-#include <game/sdl_utils.h>
-
-class Surface;
-
 namespace GM1
 {
     using palette_entry_t = uint16_t;

@@ -64,82 +64,36 @@ namespace UI
         }
     }
 
+    void GameScreen::RenderTile(Render::Renderer &renderer, const Castle::GameMap::Cell &cell)
+    {
+        const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
+
+        const int height = map.Height(cell);
+
+        const core::Size tileSize = mCamera.TileSize();
+
+        const Point heightOffset = Point(0, map.Height(cell));
+
+        const Point tileWorldPos = mCamera.WorldToScreenCoords(cell);
+
+        const Point tileTop = tileWorldPos - heightOffset;
+        const Point tileBottom = tileWorldPos;
+        
+        const Rect tileTopRect = Rect(tileTop.x, tileTop.y, tileSize.width, tileSize.height);
+        const Rect tileBottomRect = Rect(tileBottom.x, tileBottom.y, tileSize.width, tileSize.height);
+
+        renderer.DrawRhombus(tileBottomRect, Colors::Red.Opaque(100));
+    }
+    
     void GameScreen::Render(Render::Renderer &renderer)
     {
         UpdateCamera(renderer);
-
-        std::ostringstream oss;
-        oss << mCamera.ViewPoint();
-        mScreenManager.Console().LogMessage(oss.str());
         
-        const Castle::GameMap::Cell selected = FindSelectedTile(renderer);
         const Castle::GameMap &map = Castle::SimulationManager::Instance().GetGameMap();
 
         const auto cellIters = map.Cells();
         for(auto i = cellIters.first; i != cellIters.second; ++i) {
-            const Castle::GameMap::Cell cell = *i;
-            const Castle::Collection &tileset = GetTileSet(map.LandscapeType(*i));
-
-            const size_t index = map.Height(cell);
-            const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
-            const Surface &surface = tileset.GetSurface(index);
-
-            const Point tileTopLeft = mCamera.WorldToScreenCoords(*i);
-            const Rect tileRect = FromPointAndSize(tileTopLeft, mCamera.TileSize());
-
-            const Point heightOffset = (mCamera.Flat()
-                                        ? (Point(0, 0))
-                                        : (Point(0, map.Height(*i))));
-
-            const Point tileTopLeftScreenSubrect = tileTopLeft - Point(0, entryHeader.tileY) - heightOffset;
-            const Rect tileSurfaceScreenSubrect = Translated(Rect(surface), tileTopLeftScreenSubrect);
-            
-            if(!mCamera.Flat()) {
-                const Surface &cliff = ((map.LandscapeType(*i) == Landscape::River)
-                                        ? (cliffs.GetSurface(34))
-                                        : (cliffs.GetSurface(index)));
-
-                const Rect cliffSubRect(
-                    0,
-                    SurfaceHeight(cliff) - map.Height(*i),
-                    SurfaceWidth(cliff),
-                    map.Height(*i) + mCamera.TileSize().y / 2);
-
-                const Rect tileCliffSubRect(
-                    tileSurfaceScreenSubrect.x,
-                    tileSurfaceScreenSubrect.y + mCamera.TileSize().y / 2,
-                    cliffSubRect.w,
-                    cliffSubRect.h);
-
-                renderer.BindSurface(cliff);
-                renderer.Blit(cliffSubRect, tileCliffSubRect);
-                
-                renderer.BindSurface(surface);
-                renderer.Blit(Rect(surface), tileSurfaceScreenSubrect);
-
-                if(selected == *i) {
-                    renderer.FillRhombus(tileSurfaceScreenSubrect, Colors::Red.Opaque(100));
-                }
-            }
-
-            if(mCamera.Flat()) {
-                const Color tileColor =
-                    ((selected.x == cell.x || selected.y == cell.y)
-                     ? (Colors::Yellow)
-                     : (Colors::Red.Opaque(100)));
-                renderer.DrawRhombus(tileRect, tileColor);
-            }
-
-            continue;
-            const Surface &sprite = archer.GetSurface(index);
-            const GM1::Palette &palette = archer.GetPalette(Castle::PaletteName::Blue);
-            const Rect spriteBox = Translated(Rect(sprite), tileTopLeft - archer.Anchor() - heightOffset + mCamera.TileSize() / 2);
-            renderer.Clip(spriteBox);
-            renderer.BindPalette(palette);
-            renderer.BindSurface(sprite);
-            renderer.Blit(Rect(sprite), Rect(sprite));
-            renderer.Unclip();
-            //break;
+            RenderTile(renderer, *i);
         }
     }    
 

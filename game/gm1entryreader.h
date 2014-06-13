@@ -46,7 +46,7 @@ namespace GM1
         void Transparent(Color color);
         const Color Transparent() const;
 
-        const Surface Load(const GM1::GM1Reader &reader, size_t index) const;
+        const Surface Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };

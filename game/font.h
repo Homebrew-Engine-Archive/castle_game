@@ -4,7 +4,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace UI
+namespace core
 {
     class Font
     {        

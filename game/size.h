@@ -12,17 +12,25 @@ namespace core
         T height;
 
         constexpr SizeT(T w, T h)
-            : width(std::move(w))
-            , height(std::move(h))
+            : width(w)
+            , height(h)
             {}
 
         constexpr SizeT()
-            : SizeT(0, 0)
+            : SizeT(T(), T())
             {}
     };
 
-    using Size = SizeT<uint32_t>;
-    using Sizef = SizeT<float>;
+    struct Size : public SizeT<int>
+    {
+        /** Inheriting constructors require gcc-4.8 and newer **/
+        using SizeT::SizeT;
+    };
+
+    struct SizeF : public SizeT<double>
+    {
+        using SizeT::SizeT;
+    };
 
     constexpr Size RectSize(const SDL_Rect &rect)
     {

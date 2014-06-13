@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace UI
+namespace core
 {
     Font::Font()
         : Font(std::string(), 16)

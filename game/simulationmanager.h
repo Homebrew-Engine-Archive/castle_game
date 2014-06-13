@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include <game/creature.h>
 #include <game/simulationcommand.h>
 #include <game/playeravatar.h>
 #include <game/gamemap.h>
@@ -20,22 +21,22 @@ namespace Castle
         PlayerAvatar mHostPlayer;
         PlayerAvatar mLocalPlayer;
         std::vector<PlayerAvatar> mPlayers;
-
+        std::vector<Creature> mCreatures;
+        
     public:
         SimulationManager();
         static SimulationManager& Instance();
 
         Castle::GameMap& GetGameMap();
         void SetGameMap(std::unique_ptr<Castle::GameMap> map);
-        
-        void Update();
-
+        void Update(const std::chrono::milliseconds &elapsed);
         PlayerAvatar GetLocalPlayerAvatar() const;
         PlayerAvatar GetHostPlayerAvatar() const;
-        
         void InjectCommand(const PlayerAvatar &player, const SimulationCommand &command);
-        
-        bool HasUpdate(std::chrono::milliseconds elapsed);
+        bool HasUpdate(const std::chrono::milliseconds &elapsed);
+
+        void AddCreature(Creature creature);
+        void RemoveCreature(const Creature &creature);
     };
 }
 
