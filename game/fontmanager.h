@@ -29,8 +29,10 @@ namespace Render
     {
     public:
         FontManager();
-        FontManager(FontManager const&) = delete;
-        FontManager& operator=(FontManager const&) = delete;
+        FontManager(FontManager const&);
+        FontManager& operator=(FontManager const&);
+        FontManager(FontManager&&);
+        FontManager& operator=(FontManager&&);
         virtual ~FontManager();
 
         void DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const Color &fg, const Color &bg) const;
@@ -39,11 +41,11 @@ namespace Render
         const Rect TextSize(const core::Font &font, const std::string &text) const;
         int LineSkip(const core::Font &font) const;
 
-    protected:
+    private:
         std::unique_ptr<TTFInitializer> mTTF_Init;
         std::vector<FontData> mFontTable;
         
-    private:
+    protected:
         void AddFontData(FontData fontdata);
         std::vector<fs::path> FontSearchPathsList(const core::Font &font) const;
         FontData const* LookupFont(const core::Font &font) const;

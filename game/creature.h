@@ -3,17 +3,11 @@
 
 #include <memory>
 
+#include <game/creaturestate.h>
 #include <game/playeravatar.h>
 
 namespace Castle
-{
-    class CreatureState
-    {
-    public:
-        virtual double GetX() const = 0;
-        virtual double GetY() const = 0;
-    };
-    
+{    
     class Creature
     {
         PlayerAvatar mOwner;
@@ -21,15 +15,15 @@ namespace Castle
         std::unique_ptr<CreatureState> mState;
         
     public:
-        Creature(int identity, std::unique_ptr<CreatureState> state)
-            : mOwner()
-            , mIdentity(identity)
-            , mState(std::move(state))
-            {}
+        explicit Creature(int identity, std::unique_ptr<CreatureState> state);
 
         inline uint32_t Id() const;
-        inline CreatureState const* GetState() const;
-        inline CreatureState* GetState();
+        inline CreatureState const& GetState() const;
+        inline CreatureState& GetState();
+        
+        void SetState(std::unique_ptr<CreatureState> state);
+
+        void Update(const SimulationContext &context);
     };
 
     inline uint32_t Creature::Id() const
@@ -37,14 +31,14 @@ namespace Castle
         return mIdentity;
     }
 
-    inline CreatureState const* Creature::GetState() const
+    inline CreatureState const& Creature::GetState() const
     {
-        return mState.get();
+        return *mState;
     }
 
-    inline CreatureState* Creature::GetState()
+    inline CreatureState& Creature::GetState()
     {
-        return mState.get();
+        return *mState;
     }
     
     inline bool operator==(const Creature &alice, const Creature &bob)

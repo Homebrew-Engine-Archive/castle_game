@@ -166,6 +166,10 @@ const FontData* GetBestMatch(const core::Font &font, const FontData *lhs, const 
 
 namespace Render
 {
+    FontManager::FontManager(FontManager const&) = delete;
+    FontManager& FontManager::operator=(FontManager const&) = delete;
+    FontManager::FontManager(FontManager&&) = default;
+    FontManager& FontManager::operator=(FontManager&&) = delete;
     FontManager::~FontManager() = default;
     
     FontManager::FontManager()

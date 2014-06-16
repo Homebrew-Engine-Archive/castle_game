@@ -26,15 +26,13 @@
 #include <game/softwarerenderengine.h>
 
 namespace Castle
-{
-    Engine::Engine(Engine const&) = delete;
-    Engine& Engine::operator=(Engine const&) = delete;
-    
+{    
     Engine::Engine()
         : mSDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE)
-        , mRenderEngine(new Render::SDLRenderEngine)
+        , mRenderEngine(new Render::SoftwareRenderEngine)
         , mFontManager()
         , mRenderer(*mRenderEngine, mFontManager)
+        , mSimManager()
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
@@ -182,15 +180,27 @@ namespace Castle
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(rhs - lhs);
     }
+
+    void Engine::LoadSimulationContext()
+    {
+        std::unique_ptr<GameMap> testMap = std::make_unique<GameMap>(100);
+        GenerateRandomMap(*testMap);
+        
+        SimulationContext &context = mSimManager.PrimaryContext();
+        context.SetGameMap(std::move(testMap));
+        context.SetTurn(0);
+    }
     
     int Engine::Exec()
     {
         using namespace std::chrono;
-        
+
         LoadFonts();
         LoadGraphics();
-        SimulationManager::Instance().SetGameMap(std::make_unique<GameMap>(100));
-        GenerateRandomMap(SimulationManager::Instance().GetGameMap());
+        LoadSimulationContext();
+
+        mScreenManager.GameScreen().SetSimulationContext(mSimManager.PrimaryContext());
+
         mScreenManager.EnterGameScreen();
         mServer.StartAccept();
         
@@ -207,20 +217,16 @@ namespace Castle
                 if(!mFpsLimited || prevFrame + mFrameUpdateInterval < now) {
                     mFrameCounter += 1;
                     prevFrame = now;
-                    // try {
                     DrawFrame();
-                    // } catch(const std::exception &error) {
-                    //     std::cerr << "DrawFrame failed: " << error.what() << std::endl;
-                    // }
                 }
             }
 
             {
                 const steady_clock::time_point now = steady_clock::now();
-                milliseconds sinceLastSim = Elapsed(prevSimulation, now);
-                if(SimulationManager::Instance().HasUpdate(sinceLastSim)) {
+                const milliseconds sinceLastSim = Elapsed(prevSimulation, now);
+                if(mSimManager.HasUpdate(sinceLastSim)) {
                     prevSimulation = now;
-                    SimulationManager::Instance().Update(sinceLastSim);
+                    mSimManager.Update(sinceLastSim);
                 }
             }
 

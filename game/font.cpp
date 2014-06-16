@@ -4,6 +4,12 @@
 
 namespace core
 {
+    Font::Font(Font&&) = default;
+    Font::Font(Font const&) = default;
+    Font& Font::operator=(Font&&) = default;
+    Font& Font::operator=(Font const&) = default;
+    Font::~Font() = default;
+    
     Font::Font()
         : Font(std::string(), 16)
     {}

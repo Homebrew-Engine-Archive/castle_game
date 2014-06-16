@@ -27,7 +27,7 @@ namespace Render
         const Rect TextSize(const std::string &str) const;
         void PutString(const std::string &str, const Rect &textArea, const Color &facecolor);
 
-    protected:
+    private:
         Surface &mSurface;
         core::Font mTextFont;
         TTF_Font *mCurrentFont;

@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include <game/simulationcontext.h>
 #include <game/creature.h>
 #include <game/simulationcommand.h>
 #include <game/playeravatar.h>
@@ -15,28 +16,23 @@ namespace Castle
 {
     class SimulationManager
     {
-        std::unique_ptr<Castle::GameMap> mMap;
-        std::map<PlayerAvatar, std::vector<SimulationCommand>> mBatchedCommands;
-        int mSimulationStep;
-        PlayerAvatar mHostPlayer;
-        PlayerAvatar mLocalPlayer;
-        std::vector<PlayerAvatar> mPlayers;
-        std::vector<Creature> mCreatures;
+    private:
+        SimulationManager(SimulationManager const&) = delete;
+        SimulationManager& operator=(SimulationManager const&) = delete;
         
     public:
-        SimulationManager();
-        static SimulationManager& Instance();
+        explicit SimulationManager();
+        virtual ~SimulationManager();
 
-        Castle::GameMap& GetGameMap();
-        void SetGameMap(std::unique_ptr<Castle::GameMap> map);
         void Update(const std::chrono::milliseconds &elapsed);
-        PlayerAvatar GetLocalPlayerAvatar() const;
-        PlayerAvatar GetHostPlayerAvatar() const;
-        void InjectCommand(const PlayerAvatar &player, const SimulationCommand &command);
         bool HasUpdate(const std::chrono::milliseconds &elapsed);
+        void SetPrimaryContext(std::unique_ptr<SimulationContext> context);
+        SimulationContext& PrimaryContext();
 
-        void AddCreature(Creature creature);
-        void RemoveCreature(const Creature &creature);
+    protected:
+        std::vector<PlayerAvatar> mAvatars;
+        std::map<PlayerAvatar, int> mAvatarTurn;
+        std::unique_ptr<SimulationContext> mPrimaryContext;
     };
 }
 

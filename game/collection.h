@@ -49,7 +49,7 @@ namespace Castle
         GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
         GM1::Palette const& GetPalette(PaletteName name) const;
 
-    protected:
+    private:
         GM1::Header mHeader;
         std::vector<GM1::Palette> mPalettes;
         std::vector<Surface> mEntries;

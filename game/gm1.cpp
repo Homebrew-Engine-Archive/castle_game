@@ -131,13 +131,13 @@ namespace GM1
     SizeCategory ReadSizeCategory(std::istream &in)
     {
         uint32_t cat;
-        io::ReadLittle(in, cat);
+        core::ReadLittle(in, cat);
         return static_cast<SizeCategory>(cat);
     }
     
     std::ostream& WriteSizeCategory(std::ostream &out, SizeCategory cat)
     {
-        io::WriteLittle(out, static_cast<uint32_t>(cat));
+        core::WriteLittle(out, static_cast<uint32_t>(cat));
         return out;
     }
     
@@ -153,7 +153,7 @@ namespace GM1
         return SizeCategory::Undefined;
     }
     
-    std::pair<int, int> GetDimsBySizeCategory(SizeCategory cat)
+    const std::pair<int, int> GetDimsBySizeCategory(SizeCategory cat)
     {
         switch(cat) {
         case SizeCategory::Size30x30:

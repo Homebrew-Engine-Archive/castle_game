@@ -39,7 +39,8 @@ namespace Render
 {
     Renderer::Renderer(Renderer const&) = delete;
     Renderer& Renderer::operator=(Renderer const&) = delete;
-
+    Renderer::Renderer(Renderer&&) = default;
+    Renderer& Renderer::operator=(Renderer&&) = delete;
     Renderer::~Renderer() = default;
     
     Renderer::Renderer(RenderEngine &renderEngine, FontManager &fontEngine)

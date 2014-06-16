@@ -129,12 +129,15 @@ namespace
     }
 }
 
-SDL_RWops* SDL_RWFromInputStream(std::basic_istream<char> &is)
+namespace core
 {
-    return SDL_RWFromStream<std::basic_istream<char>>(is);
-}
+    SDL_RWops* SDL_RWFromInputStream(std::basic_istream<char> &is)
+    {
+        return SDL_RWFromStream<std::basic_istream<char>>(is);
+    }
 
-SDL_RWops* SDL_RWFromOutputStream(std::basic_ostream<char> &os)
-{
-    return SDL_RWFromStream<std::basic_ostream<char>>(os);
+    SDL_RWops* SDL_RWFromOutputStream(std::basic_ostream<char> &os)
+    {
+        return SDL_RWFromStream<std::basic_ostream<char>>(os);
+    }
 }

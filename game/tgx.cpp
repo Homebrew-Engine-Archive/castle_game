@@ -84,15 +84,15 @@ namespace
     
     std::istream& ReadHeader(std::istream &in, Header &header)
     {
-        io::ReadLittle(in, header.width);
-        io::ReadLittle(in, header.height);
+        core::ReadLittle(in, header.width);
+        core::ReadLittle(in, header.height);
         return in;
     }
 
     std::ostream& WriteHeader(std::ostream &out, const Header &header)
     {
-        io::WriteLittle(out, header.width);
-        io::WriteLittle(out, header.height);
+        core::WriteLittle(out, header.width);
+        core::WriteLittle(out, header.height);
         return out;
     }
     
@@ -124,7 +124,7 @@ namespace
     std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
         if(numPixels > 0) {
-            io::WriteLittle(out, MakeStreamToken(numPixels));
+            core::WriteLittle(out, MakeStreamToken(numPixels));
             return out.write(pixels, numPixels * bytesPerPixel);
         }
 
@@ -133,13 +133,13 @@ namespace
 
     std::ostream& WriteLineFeed(std::ostream &out)
     {
-        return io::WriteLittle(out, MakeLineFeedToken());
+        return core::WriteLittle(out, MakeLineFeedToken());
     }
 
     std::ostream& WriteTransparentToken(std::ostream &out, int numPixels)
     {
         if(numPixels > 0) {
-            return io::WriteLittle(out, MakeTransparentToken(numPixels));
+            return core::WriteLittle(out, MakeTransparentToken(numPixels));
         }
 
         return out;
@@ -147,7 +147,7 @@ namespace
     std::ostream& WriteRepeatToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)
     {
         if(numPixels > 0) {
-            io::WriteLittle(out, MakeRepeatToken(numPixels));
+            core::WriteLittle(out, MakeRepeatToken(numPixels));
             return out.write(pixels, bytesPerPixel);
         }
 
@@ -268,7 +268,7 @@ namespace TGX
         
         while(in.tellg() < endPos) {
             token_t token;
-            io::ReadLittle(in, token);
+            core::ReadLittle(in, token);
             // \note any io errors are just ignored if token has valid TokenType
             // but we handle them latter anyway
 

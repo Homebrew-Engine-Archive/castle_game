@@ -16,7 +16,7 @@ namespace UI
         int GetHorizontalAdvance() const;
         int GetVerticalAdvance() const;
         
-    protected:
+    private:
         std::string mItemText;
         int mAdvanceX;
         int mAdvanceY;

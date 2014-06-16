@@ -1,19 +1,22 @@
 #include "gamemap.h"
 
-#include <random>
 #include <algorithm>
-
-#include <iostream>
-#include <set>
-#include <random>
 #include <deque>
+#include <iostream>
+#include <random>
+#include <set>
 
 #include <game/modulo.h>
-#include <game/gm1.h>
 #include <game/landscape.h>
 
 namespace Castle
 {
+    GameMap::GameMap(const GameMap &map) = default;
+    GameMap& GameMap::operator=(GameMap const&) = default;
+    GameMap::GameMap(GameMap&&) = default;
+    GameMap& GameMap::operator=(GameMap&&) = default;
+    GameMap::~GameMap() = default;
+    
     GameMap::GameMap(int size)
         : mSize(size)
         , mCellsCount(mSize * mSize)
@@ -54,9 +57,9 @@ namespace Castle
         return cell.y * mSize + cell.x;
     }
 
-    GameMap::Cell GameMap::IndexToCell(int index) const
+    const GameMap::Cell GameMap::IndexToCell(int index) const
     {
-        return Cell(index % mSize, index / mSize);
+        return Cell(core::Mod(index, mSize), index / mSize);
     }
     
     bool GameMap::HasCell(const Cell &cell) const

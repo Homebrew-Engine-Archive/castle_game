@@ -28,13 +28,14 @@ namespace UI
         void Render(Render::Renderer &renderer);
         bool HandleEvent(const SDL_Event &event);
 
-    protected:
+    private:
         ScreenManager &mScreenManager;
         std::deque<std::string> mCommandHistory;
         std::ostringstream mConsoleBuffer;
         TextArea mPromptArea;
         TextArea mLogArea;
-         
+
+    protected:
         void OnCommandEntered(const std::string &text);        
         bool HandleKey(const SDL_KeyboardEvent &event);
         bool HandleTextInput(const SDL_TextInputEvent &text);

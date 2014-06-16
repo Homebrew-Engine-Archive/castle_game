@@ -38,6 +38,8 @@ namespace Render
         explicit Renderer(RenderEngine &renderEngine, FontManager &fontEngine);
         Renderer(Renderer const&);
         Renderer& operator=(Renderer const&);
+        Renderer(Renderer&&);
+        Renderer& operator=(Renderer&&);
         ~Renderer();
 
         FontManager& GetFontManager();

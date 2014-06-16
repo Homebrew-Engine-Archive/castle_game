@@ -37,7 +37,7 @@ namespace UI
         const Rect FitToScreen(Render::Renderer &renderer) const;
         void Render(Render::Renderer &renderer);
         
-    protected:
+    private:
         mutable TextLayout mTextLayout;
         std::string mText;
         Rect mMaxSize;

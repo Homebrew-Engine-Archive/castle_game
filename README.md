@@ -53,6 +53,7 @@ namespace NS
 * `auto` is unwelcome. `auto&` and `auto*` either.
 * Use anonymous namespaces for your static methods, types and constants.
 * Look at `constexpr`. It's better than simply inline your functions.
+* Provide both default and deleted constructors and assignment operators.
 
 1.5. Namespaces
 --------------

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <SDL_endian.h>
 
-namespace Endian
+namespace core
 {
     template<class T> T SwapBig(T big);
     template<class T> T SwapLittle(T little);

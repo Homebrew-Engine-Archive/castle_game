@@ -6,7 +6,7 @@ namespace Castle
     class SimulationCommand
     {
     public:
-        
+        explicit SimulationCommand() {}
     };
 }
 

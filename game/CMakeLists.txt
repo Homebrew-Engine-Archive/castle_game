@@ -5,6 +5,8 @@ set (SRCS
   collection.cpp
   color.cpp
   console.cpp
+  creature.cpp
+  creaturestate.cpp
   direction.cpp
   engine.cpp
   filesystem.cpp
@@ -31,6 +33,7 @@ set (SRCS
   softwarerenderengine.cpp
   screenmanager.cpp
   simulationmanager.cpp
+  simulationcontext.cpp
   sdl_utils.cpp
   sdlrenderengine.cpp
   surface.cpp

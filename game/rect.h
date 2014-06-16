@@ -17,8 +17,13 @@ public:
     explicit constexpr Rect(const SDL_Point &wh);    
     constexpr Rect(const SDL_Point &lt, const SDL_Point &br);
     constexpr Rect(const SDL_Rect &other);
-    constexpr Rect(const Rect &that) = default;
     explicit constexpr Rect(const SDL_Surface *surface);
+    
+    constexpr Rect(const Rect &that) = default;
+    constexpr Rect(Rect&&) = default;
+
+    Rect& operator=(const Rect &that) = default;
+    Rect& operator=(Rect&&) = default;
     
     Rect& operator=(const SDL_Rect &that);
 };

@@ -14,9 +14,14 @@ namespace Castle
         ~PlayerAvatar() = default;
     };
 
-    constexpr bool operator==(const PlayerAvatar &lhs, const PlayerAvatar &rhs)
+    inline bool operator==(const PlayerAvatar &lhs, const PlayerAvatar &rhs)
     {
-        return true;
+        return &lhs == &rhs;
+    }
+
+    inline bool operator<(const PlayerAvatar &lhs, const PlayerAvatar &rhs)
+    {
+        return &lhs < &rhs;
     }
 }
 

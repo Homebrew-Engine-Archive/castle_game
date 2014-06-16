@@ -25,28 +25,28 @@ namespace
 {
     std::istream& ReadHeader(std::istream &in, GM1::Header &header)
     {
-        io::ReadLittle(in, header.u1);
-        io::ReadLittle(in, header.u2);
-        io::ReadLittle(in, header.u3);
-        io::ReadLittle(in, header.imageCount);
-        io::ReadLittle(in, header.u4);
-        io::ReadLittle(in, header.dataClass);
-        io::ReadLittle(in, header.u5);
-        io::ReadLittle(in, header.u6);
-        io::ReadLittle(in, header.sizeCategory);
-        io::ReadLittle(in, header.u7);
-        io::ReadLittle(in, header.u8);
-        io::ReadLittle(in, header.u9);
-        io::ReadLittle(in, header.width);
-        io::ReadLittle(in, header.height);
-        io::ReadLittle(in, header.u10);
-        io::ReadLittle(in, header.u11);
-        io::ReadLittle(in, header.u12);
-        io::ReadLittle(in, header.u13);
-        io::ReadLittle(in, header.anchorX);
-        io::ReadLittle(in, header.anchorY);
-        io::ReadLittle(in, header.dataSize);
-        io::ReadLittle(in, header.u14);
+        core::ReadLittle(in, header.u1);
+        core::ReadLittle(in, header.u2);
+        core::ReadLittle(in, header.u3);
+        core::ReadLittle(in, header.imageCount);
+        core::ReadLittle(in, header.u4);
+        core::ReadLittle(in, header.dataClass);
+        core::ReadLittle(in, header.u5);
+        core::ReadLittle(in, header.u6);
+        core::ReadLittle(in, header.sizeCategory);
+        core::ReadLittle(in, header.u7);
+        core::ReadLittle(in, header.u8);
+        core::ReadLittle(in, header.u9);
+        core::ReadLittle(in, header.width);
+        core::ReadLittle(in, header.height);
+        core::ReadLittle(in, header.u10);
+        core::ReadLittle(in, header.u11);
+        core::ReadLittle(in, header.u12);
+        core::ReadLittle(in, header.u13);
+        core::ReadLittle(in, header.anchorX);
+        core::ReadLittle(in, header.anchorY);
+        core::ReadLittle(in, header.dataSize);
+        core::ReadLittle(in, header.u14);
         return in;
     }
 
@@ -54,7 +54,7 @@ namespace
     {
         for(GM1::Palette::value_type &entry : palette) {
             uint16_t pixel;
-            io::ReadLittle<uint16_t>(in, pixel);
+            core::ReadLittle<uint16_t>(in, pixel);
             entry = PixelToColor(pixel, GM1::PalettePixelFormat);
         }
         return in;
@@ -62,17 +62,17 @@ namespace
 
     std::istream& ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
     {
-        io::ReadLittle(in, header.width);
-        io::ReadLittle(in, header.height);
-        io::ReadLittle(in, header.posX);
-        io::ReadLittle(in, header.posY);
-        io::ReadLittle(in, header.group);
-        io::ReadLittle(in, header.groupSize);
-        io::ReadLittle(in, header.tileY);
-        io::ReadLittle(in, header.tileOrient);
-        io::ReadLittle(in, header.hOffset);
-        io::ReadLittle(in, header.boxWidth);
-        io::ReadLittle(in, header.flags);
+        core::ReadLittle(in, header.width);
+        core::ReadLittle(in, header.height);
+        core::ReadLittle(in, header.posX);
+        core::ReadLittle(in, header.posY);
+        core::ReadLittle(in, header.group);
+        core::ReadLittle(in, header.groupSize);
+        core::ReadLittle(in, header.tileY);
+        core::ReadLittle(in, header.tileOrient);
+        core::ReadLittle(in, header.hOffset);
+        core::ReadLittle(in, header.boxWidth);
+        core::ReadLittle(in, header.flags);
         return in;
     }
 }
@@ -140,14 +140,14 @@ namespace GM1
 
         mEntries.resize(mHeader.imageCount);
         for(ReaderEntryData &data : mEntries) {
-            io::ReadLittle(fis, data.offset);
+            core::ReadLittle(fis, data.offset);
         }
         if(!fis) {
             throw std::runtime_error(strerror(errno));
         }
         
         for(ReaderEntryData &data : mEntries) {
-            io::ReadLittle(fis, data.size);
+            core::ReadLittle(fis, data.size);
         }
         if(!fis) {
             throw std::runtime_error(strerror(errno));

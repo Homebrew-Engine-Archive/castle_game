@@ -11,6 +11,11 @@ namespace core
     public:
         Font();
         explicit Font(const std::string &family, int height);
+        Font(Font&&);                                    // = default
+        Font(Font const&);                               // = default
+        Font& operator=(Font&&);                         // = default
+        Font& operator=(Font const&);                    // = default
+        virtual ~Font();                                 // = default
 
         const std::string Family() const;
         int Height() const;
@@ -34,7 +39,7 @@ namespace core
         Font& Strikethrough(bool strikethrough);
         Font& Underline(bool underline);
         
-    protected:
+    private:
         std::string mFontFamily;
         int mFontHeight;
         bool mFontAntialiased;

@@ -57,7 +57,7 @@ std::istream& operator>>(std::istream &in, SDL_Color &color)
     in >> std::hex >> value;
 
     /** 0x11223344 has ALPHA 0x11, RED 0x22, GREEN 0x33, BLUE 0x44 **/
-    value = Endian::SwapLittle<uint32_t>(value);
+    value = core::SwapLittle<uint32_t>(value);
 
     color.a = (value & 0xff000000) >> 24;
     color.r = (value & 0x00ff0000) >> 16;
@@ -75,7 +75,7 @@ uint32_t GetPackedPixel(const char *data, int bytesPerPixel)
     case 2:
         return *reinterpret_cast<uint16_t const*>(data);
     case 3:
-        return Endian::SwapBig<uint32_t>(data[2] + (data[1] << 8) + (data[0] << 16));
+        return core::SwapBig<uint32_t>(data[2] + (data[1] << 8) + (data[0] << 16));
     case 4:
         return *reinterpret_cast<uint32_t const*>(data);
     default:

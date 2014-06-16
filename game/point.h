@@ -9,8 +9,13 @@ class Point final : public SDL_Point
 public:
     constexpr Point();
     constexpr Point(int x, int y);
-    constexpr Point(const Point &that) = default;
     constexpr Point(const SDL_Point &that);
+    
+    constexpr Point(const Point &that) = default;
+    constexpr Point(Point&&) = default;
+    
+    Point& operator=(Point const&) = default;
+    Point& operator=(Point&&) = default;
     
     Point& operator=(const SDL_Point &that);
     Point& operator+=(int v);
@@ -29,13 +34,11 @@ constexpr Point::Point()
 
 constexpr Point::Point(int x, int y)
     : SDL_Point {x, y}
-{
-}
+{}
 
 constexpr Point::Point(const SDL_Point &that)
     : Point(that.x, that.y)
-{
-}
+{}
 
 constexpr Point operator-(const SDL_Point &point)
 {

@@ -142,7 +142,7 @@ namespace GM1
     std::string GetSizeCategoryName(SizeCategory cat);
     
     SizeCategory GetSizeCategoryByDims(int width, int height);
-    std::pair<int, int> GetDimsBySizeCategory(SizeCategory);
+    const std::pair<int, int> GetDimsBySizeCategory(SizeCategory);
     
 } // namespace GM1
 

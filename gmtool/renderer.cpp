@@ -40,7 +40,7 @@ namespace GMTool
     
     void Renderer::RenderToStream(std::ostream &out, const Surface &surface)
     {
-        RWPtr rw(SDL_RWFromOutputStream(out));
+        RWPtr rw(core::SDL_RWFromOutputStream(out));
         if(rw) {
             RenderTo_SDL_RWops(rw.get(), surface);
         } else {
