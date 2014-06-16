@@ -18,7 +18,7 @@ namespace Castle {
             mSimTurn = turn;
         }
     
-        void SimulationContext::SetGameMap(std::unique_ptr<GameMap> map)
+        void SimulationContext::SetMap(std::unique_ptr<Map> map)
         {
             mMap = std::move(map);
         }

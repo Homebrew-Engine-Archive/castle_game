@@ -64,9 +64,9 @@ namespace UI
         }
     }
 
-    void GameScreen::RenderTile(Render::Renderer &renderer, const Castle::GameMap::Cell &cell)
+    void GameScreen::RenderTile(Render::Renderer &renderer, const Castle::World::Map::Cell &cell)
     {
-        const Castle::GameMap &map = mSimContext->GetGameMap();
+        const Castle::World::Map &map = mSimContext->GetMap();
 
         const core::Size tileSize(mCamera.TileSize());
         const core::Point heightOffset(0, map.Height(cell));
@@ -92,7 +92,7 @@ namespace UI
         
         UpdateCamera(renderer);
 
-        const Castle::GameMap &map = mSimContext->GetGameMap();
+        const Castle::World::Map &map = mSimContext->GetMap();
 
         const auto cells = map.Cells();
         for(auto i = cells.first; i != cells.second; ++i) {
@@ -103,15 +103,15 @@ namespace UI
     void GameScreen::ToggleCameraMode()
     {
         switch(mCamera.Mode()) {
-        case Castle::CameraMode::Staggered:
-            mCamera.Mode(Castle::CameraMode::Diamond);
+        case Castle::World::CameraMode::Staggered:
+            mCamera.Mode(Castle::World::CameraMode::Diamond);
             break;
-        case Castle::CameraMode::Diamond:
-            mCamera.Mode(Castle::CameraMode::Ortho);
+        case Castle::World::CameraMode::Diamond:
+            mCamera.Mode(Castle::World::CameraMode::Ortho);
             break;
         default:
-        case Castle::CameraMode::Ortho:
-            mCamera.Mode(Castle::CameraMode::Staggered);
+        case Castle::World::CameraMode::Ortho:
+            mCamera.Mode(Castle::World::CameraMode::Staggered);
             break;
         }
     }
@@ -214,9 +214,9 @@ namespace UI
         mLastCameraUpdate = steady_clock::now();
     }
 
-    bool GameScreen::TileSelected(const core::Point &cursor, const Castle::GameMap::Cell &cell) const
+    bool GameScreen::TileSelected(const core::Point &cursor, const Castle::World::Map::Cell &cell) const
     {
-        const Castle::GameMap &map = mSimContext->GetGameMap();
+        const Castle::World::Map &map = mSimContext->GetMap();
         const Castle::Collection &tileset = GetTileSet(map.LandscapeType(cell));
         
         const size_t index = map.Height(cell);
@@ -235,15 +235,15 @@ namespace UI
         return false;
     }
     
-    Castle::GameMap::Cell GameScreen::FindSelectedTile(const Render::Renderer &renderer)
+    Castle::World::Map::Cell GameScreen::FindSelectedTile(const Render::Renderer &renderer)
     {
         const core::Point projectedCursor = renderer.ClipPoint(mCursor);
         if(mCamera.Flat()) {
             return mCamera.ScreenToWorldCoords(projectedCursor);
         }
 
-        const Castle::GameMap &map = mSimContext->GetGameMap();
-        Castle::GameMap::Cell selected = map.NullCell();
+        const Castle::World::Map &map = mSimContext->GetMap();
+        Castle::World::Map::Cell selected = map.NullCell();
         const auto cellsIters = map.Cells();
         for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
             if(TileSelected(projectedCursor, *i)) {
@@ -254,7 +254,7 @@ namespace UI
         return selected;
     }
     
-    Castle::Camera& GameScreen::ActiveCamera()
+    Castle::World::Camera& GameScreen::ActiveCamera()
     {
         return mCamera;
     }

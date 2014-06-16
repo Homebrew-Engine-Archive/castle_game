@@ -13,16 +13,23 @@ namespace core
         T min;
         T max;
 
-        constexpr Range()
-            : Range(0, 0)
-            {}
-    
-        constexpr Range(T mn, T mx)
-            : min(mn)
-            , max(mx)
-            {}
+        explicit constexpr Range();
+        explicit constexpr Range(T mn, T mx);
     };
 
+    template<class T>
+    constexpr Range<T>::Range()
+        : Range(T(), T())
+    {
+    }
+
+    template<class T>
+    constexpr Range<T>::Range(T mini, T maxi)
+        : min(mini)
+        , max(maxi)
+    {
+    }
+    
     template<class T>
     Range<T> AlignRange(const Range<T> &src, const Range<T> &dst, Alignment align)
     {

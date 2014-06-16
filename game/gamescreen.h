@@ -51,19 +51,19 @@ namespace UI
         std::map<SDL_Keycode, bool> mKeyState;
         core::Point mCursor;
         bool mCursorInvalid;
-        Castle::Camera mCamera;
+        Castle::World::Camera mCamera;
         Castle::World::SimulationContext *mSimContext;
 
     protected:
-        void RenderTile(Render::Renderer &render, const Castle::GameMap::Cell &cell);
+        void RenderTile(Render::Renderer &render, const Castle::World::Map::Cell &cell);
         void RenderCreature(Render::Renderer &renderer, const Castle::World::Creature &creature);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);
         void UpdateCamera(const Render::Renderer &renderer);
         void ToggleCameraMode();
-        Castle::Camera& ActiveCamera();
-        bool TileSelected(const core::Point &cursor, const Castle::GameMap::Cell &cell) const;
-        Castle::GameMap::Cell FindSelectedTile(const Render::Renderer &renderer);
+        Castle::World::Camera& ActiveCamera();
+        bool TileSelected(const core::Point &cursor, const Castle::World::Map::Cell &cell) const;
+        Castle::World::Map::Cell FindSelectedTile(const Render::Renderer &renderer);
         Castle::Collection const& GetTileSet(Landscape landscape) const;
         
     public:

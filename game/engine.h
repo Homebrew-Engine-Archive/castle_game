@@ -42,14 +42,14 @@ namespace Castle
         std::unique_ptr<Render::RenderEngine> mRenderEngine;
         std::unique_ptr<Render::FontManager> mFontManager;
         std::unique_ptr<Render::Renderer> mRenderer;
-        std::unique_ptr<Castle::World::SimulationManager> mSimManager;
-        double mFpsAverage;
-        int mFrameCounter;
-        bool mClosed;
+        std::unique_ptr<World::SimulationManager> mSimManager;
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
         int16_t mPort;
+        double mFpsAverage;
+        int mFrameCounter;
+        bool mClosed;
         std::unique_ptr<Network::Server> mServer;
         std::unique_ptr<UI::ScreenManager> mScreenManager;
         std::unique_ptr<UI::TextArea> mInfoArea;

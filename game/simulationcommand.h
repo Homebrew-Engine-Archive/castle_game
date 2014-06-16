@@ -3,11 +3,14 @@
 
 namespace Castle
 {
-    class SimulationCommand
+    namespace World
     {
-    public:
-        explicit SimulationCommand() {}
-    };
+        class SimulationCommand
+        {
+        public:
+            explicit SimulationCommand() {}
+        };
+    }
 }
 
 #endif // SIMULATIONCOMMAND_H_

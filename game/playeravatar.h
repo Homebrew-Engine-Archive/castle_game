@@ -6,12 +6,12 @@ namespace Castle {
         class PlayerAvatar
         {
         public:
-            PlayerAvatar() = default;
+            explicit PlayerAvatar() = default;
         
             PlayerAvatar(PlayerAvatar const&) = default;
             PlayerAvatar& operator=(PlayerAvatar const&) = default;
 
-            ~PlayerAvatar() = default;
+            virtual ~PlayerAvatar() = default;
         };
 
         inline bool operator==(const PlayerAvatar &lhs, const PlayerAvatar &rhs)

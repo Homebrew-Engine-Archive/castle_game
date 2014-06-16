@@ -16,6 +16,5 @@ namespace
         static_assert(RangeEmpty(Intersection(a, b)), "intersection a and b is empty");
         static_assert(RangeEmpty(Intersection(a, c)), "intersection a and c is empty");
         static_assert(RangeEmpty(Intersection(b, c)), "intersection b and c is empty");
-
     }
 }

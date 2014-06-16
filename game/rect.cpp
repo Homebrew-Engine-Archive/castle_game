@@ -23,17 +23,17 @@ namespace core
     }
 
 /**
- * \brief Calculate layout rect for src in dst
- *
- * One assumed that src is smaller and dst is larger.
- * The area of dst is mapped onto two-dimensional plane with bounds [-1..1] by x and y.
- *
- * \param src       Inner rect (only width and height matter).
- * \param dst       Outer rect.
- * \param x         Relative x-pos of src center
- * \param y         Relative y-pos of src center
- *
- */
+   \brief Calculate layout rect for src in dst
+
+   One assumed that src is smaller and dst is larger.
+   The area of dst is mapped onto two-dimensional plane with bounds [-1..1] by x and y.
+
+   \param src       Inner rect (only width and height matter).
+   \param dst       Outer rect.
+   \param x         Relative x-pos of src center
+   \param y         Relative y-pos of src center
+
+**/
 
     Rect PutIn(const SDL_Rect &src, const SDL_Rect &dst, double x, double y)
     {

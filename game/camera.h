@@ -12,66 +12,69 @@
 
 namespace Castle
 {
-    enum class CameraMode : int {
-        Staggered,
-        Diamond,
-        Ortho
-    };
-    
-    class Camera
+    namespace World
     {
-        double mPosX;
-        double mPosY;
+        enum class CameraMode : int {
+            Staggered,
+            Diamond,
+            Ortho
+        };
+    
+        class Camera
+        {
+            double mPosX;
+            double mPosY;
         
-        /** 30x16 by default, 15x8 zoomed out **/
-        core::Size mTileSize;
+            /** 30x16 by default, 15x8 zoomed out **/
+            core::Size mTileSize;
 
-        int mRotation;
+            int mRotation;
         
-        /** North direction **/
-        core::Direction mDirection;
-        const core::Direction mStartDirection;
+            /** North direction **/
+            core::Direction mDirection;
+            const core::Direction mStartDirection;
 
-        bool mFlatView;
+            bool mFlatView;
 
-        double mScrollX;
-        double mScrollY;
+            double mScrollX;
+            double mScrollY;
 
-        double mVerticalScrollSpeed;
-        double mHorizontalScrollSpeed;
+            double mVerticalScrollSpeed;
+            double mHorizontalScrollSpeed;
 
-        CameraMode mCameraMode;
+            CameraMode mCameraMode;
 
-    public:
-        Camera();
+        public:
+            Camera();
 
-        void Update(std::chrono::milliseconds delta);
+            void Update(std::chrono::milliseconds delta);
         
-        void Move(int dx, int dy);
+            void Move(int dx, int dy);
         
-        void RotateLeft();
-        void RotateRight();
+            void RotateLeft();
+            void RotateRight();
         
-        const Castle::GameMap::Cell ScreenToWorldCoords(const core::Point &cursor) const;
-        const core::Point WorldToScreenCoords(const Castle::GameMap::Cell &cell) const;
+            const Map::Cell ScreenToWorldCoords(const core::Point &cursor) const;
+            const core::Point WorldToScreenCoords(const Map::Cell &cell) const;
         
-        bool Flat() const;
-        void Flat(bool yes);
+            bool Flat() const;
+            void Flat(bool yes);
 
-        double AngleRotation() const;
+            double AngleRotation() const;
         
-        core::Direction Dir() const;
-        void Dir(const core::Direction &dir);
+            core::Direction Dir() const;
+            void Dir(const core::Direction &dir);
 
-        CameraMode Mode() const;
-        void Mode(const CameraMode &mode);
+            CameraMode Mode() const;
+            void Mode(const CameraMode &mode);
         
-        const core::Point ViewPoint() const;
-        void ViewPoint(const core::Point &point);
+            const core::Point ViewPoint() const;
+            void ViewPoint(const core::Point &point);
 
-        const core::Size TileSize() const;
-        void TileSize(const core::Size &tileSize);
-    };
+            const core::Size TileSize() const;
+            void TileSize(const core::Size &tileSize);
+        };
+    }
 }
 
 #endif // CAMERA_H_

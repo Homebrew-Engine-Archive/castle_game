@@ -38,13 +38,13 @@ namespace Castle
         , mFontManager(new Render::FontManager)
         , mRenderer(new Render::Renderer(*mRenderEngine, *mFontManager))
         , mSimManager(new World::SimulationManager)
-        , mFpsAverage(0.0f)
-        , mFrameCounter(0)
-        , mClosed(false)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
         , mPort(4500)
+        , mFpsAverage(0.0f)
+        , mFrameCounter(0)
+        , mClosed(false)
         , mServer(new Network::Server(mPort))
         , mScreenManager(new UI::ScreenManager)
         , mInfoArea(new UI::TextArea)
@@ -187,11 +187,11 @@ namespace Castle
 
     void Engine::LoadSimulationContext()
     {
-        std::unique_ptr<GameMap> testMap = std::make_unique<GameMap>(100);
+        std::unique_ptr<World::Map> testMap = std::make_unique<World::Map>(100);
         GenerateRandomMap(*testMap);
         
         World::SimulationContext &context = mSimManager->PrimaryContext();
-        context.SetGameMap(std::move(testMap));
+        context.SetMap(std::move(testMap));
         context.SetTurn(0);
     }
     

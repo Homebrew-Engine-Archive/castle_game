@@ -12,8 +12,10 @@
 #include <game/playeravatar.h>
 #include <game/gamemap.h>
 
-namespace Castle {
-    namespace World {
+namespace Castle
+{
+    namespace World
+    {
         class SimulationManager
         {
         private:
