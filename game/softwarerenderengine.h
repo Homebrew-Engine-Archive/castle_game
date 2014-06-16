@@ -1,7 +1,6 @@
 #ifndef SOFTWARERENDERENGINE_H_
 #define SOFTWARERENDERENGINE_H_
 
-#include <game/texture.h>
 #include <game/rect.h>
 #include <game/outputmode.h>
 #include <game/sdl_utils.h>

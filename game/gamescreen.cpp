@@ -13,13 +13,11 @@
 #include <game/simulationcontext.h>
 #include <game/creature.h>
 #include <game/fontmanager.h>
-#include <game/surface_drawing.h>
 #include <game/renderer.h>
 #include <game/filesystem.h>
 #include <game/surface.h>
 #include <game/gm1.h>
 #include <game/gm1palette.h>
-#include <game/textrenderer.h>
 #include <game/simulationmanager.h>
 #include <game/screenmanager.h>
 

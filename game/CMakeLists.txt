@@ -42,7 +42,6 @@ set (SRCS
   textarea.cpp
   textlayout.cpp
   textlayoutitem.cpp
-  textrenderer.cpp
   tgx.cpp
 )
 

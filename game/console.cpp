@@ -14,7 +14,6 @@
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/surface.h>
-#include <game/surface_drawing.h>
 
 namespace UI
 {
