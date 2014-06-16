@@ -8,40 +8,50 @@
 
 #include <SDL.h>
 
-#include <boost/asio/io_service.hpp>
+class SDLInitializer;
 
-#include <game/textarea.h>
-#include <game/network.h>
-#include <game/screenmanager.h>
-#include <game/renderer.h>
-#include <game/fontmanager.h>
-#include <game/simulationmanager.h>
+namespace Network
+{
+    class Server;
+}
+
+namespace UI
+{
+    class ScreenManager;
+    class TextArea;
+}
 
 namespace Render
 {
     class RenderEngine;
+    class Renderer;
+    class FontManager;
+}
+
+namespace Castle
+{
+    class SimulationManager;
 }
 
 namespace Castle
 {
     class Engine
     {
-        SDLInitializer mSDL_Init;
+        std::unique_ptr<SDLInitializer> mSDL_Init;
         std::unique_ptr<Render::RenderEngine> mRenderEngine;
-        Render::FontManager mFontManager;
-        Render::Renderer mRenderer;
-        Castle::SimulationManager mSimManager;
+        std::unique_ptr<Render::FontManager> mFontManager;
+        std::unique_ptr<Render::Renderer> mRenderer;
+        std::unique_ptr<Castle::SimulationManager> mSimManager;
         double mFpsAverage;
         int mFrameCounter;
         bool mClosed;
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
-        boost::asio::io_service mIO;
         int16_t mPort;
-        Network::Server mServer;
-        UI::ScreenManager mScreenManager;
-        UI::TextArea mInfoArea;
+        std::unique_ptr<Network::Server> mServer;
+        std::unique_ptr<UI::ScreenManager> mScreenManager;
+        std::unique_ptr<UI::TextArea> mInfoArea;
 
     private:
         void ResizeScreen(int width, int height);
@@ -63,6 +73,8 @@ namespace Castle
         Engine& operator=(Engine const&) = delete;
         Engine(Engine&&) = delete;
         Engine& operator=(Engine&&) = delete;
+
+        virtual ~Engine();
 
         int Exec();
     };

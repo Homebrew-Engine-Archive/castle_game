@@ -19,19 +19,29 @@ namespace Network
     
     public:
         explicit Connection(boost::asio::ip::tcp::socket sock);
+        Connection(Connection const&) = delete;
+        Connection& operator=(Connection const&) = delete;
+        Connection& operator=(Connection&&) = default;
+        Connection(Connection&&) = default;
+        virtual ~Connection() = default;
     };
 
     class Server
     {
-        boost::asio::io_service &mIO;
+        boost::asio::io_service mIO;
         short mPort;
         boost::asio::ip::tcp::endpoint mAddr;
         boost::asio::ip::tcp::acceptor mAccept;
         boost::asio::ip::tcp::socket mSock;
         std::vector<Connection> mConnections;
     public:
-        explicit Server(boost::asio::io_service &io, short port);
+        explicit Server(short port);
+        Server(Server const&) = delete;
+        Server& operator=(Server const&) = delete;
+        virtual ~Server() = default;
+        
         void StartAccept();
+        void Poll();
         void AcceptHandler(const boost::system::error_code &e);
     };
 
@@ -41,8 +51,12 @@ namespace Network
         short mPort;
         boost::asio::ip::tcp::endpoint mAddr;
         Connection mConnection;
+
     public:
         explicit Client(boost::asio::io_service &io, boost::asio::ip::tcp::endpoint addr, short port);
+        Client(Client const&) = delete;
+        Client& operator=(Client const&) = delete;
+        virtual ~Client() = default;
         void StartConnect();
         void EndConnect();
     };

@@ -9,8 +9,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <SDL.h>
-
 #include <game/color.h>
 #include <game/iohelpers.h>
 #include <game/surface.h>

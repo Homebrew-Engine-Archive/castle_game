@@ -19,7 +19,7 @@ public:
 
 namespace
 {
-    void throw_sdl_error(int code)
+    inline void throw_sdl_error(int code)
     {
         if(code < 0) {
             throw sdl_error();

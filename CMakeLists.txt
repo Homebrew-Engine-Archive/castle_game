@@ -29,6 +29,7 @@ cxx_set_flag ("-Wextra" HAS_FLAG_EXTRA_WARNINGS)
 cxx_set_flag ("-Wunreachable-code" HAS_FLAG_UNREACHABLE_CODE)
 cxx_set_flag ("-fstrict-aliasing" HAS_FLAG_STRICT_ALIASING)
 cxx_set_flag ("-Wno-unused-parameter" HAS_NO_UNUSED_PARAMETER)
+cxx_set_flag ("-Wno-unused-function" HAS_NO_UNUSED_FUNCTION)
 
 ###################
 # Include section #

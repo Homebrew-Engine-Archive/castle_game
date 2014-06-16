@@ -7,12 +7,11 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <game/clamp.h>
-
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/filesystem.h>
+#include <game/renderer.h>
 #include <game/collection.h>
-#include <game/surface_drawing.h>
 
 namespace UI
 {
@@ -56,24 +55,7 @@ namespace UI
         return core::Clamp(done, 0.0f, 1.0f);
     }
     
-    void LoadingScreen::Draw(Surface &frame)
+    void LoadingScreen::Render(Render::Renderer &renderer)
     {
-        double rate = GetCompleteRate();
-        
-        Rect frameRect(frame);
-        Rect bgRect(mBackground);
-
-        Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
-        BlitSurface(mBackground, bgRect, frame, bgAligned);
-    
-        Rect barOuter(300, 25);
-        Rect barOuterAligned = PutIn(barOuter, bgAligned, 0, 0.8f);
-        Graphics::FillFrame(frame, barOuterAligned, Colors::Black.Opaque(100));
-        Graphics::DrawFrame(frame, barOuterAligned, Colors::Black);
-
-        Rect barOuterPadded = PadIn(barOuterAligned, 5);
-        Rect barInner(barOuterPadded.w * rate, barOuterPadded.h);
-        Rect barInnerAligned = PutIn(barInner, barOuterPadded, -1.0f, 0);
-        Graphics::FillFrame(frame, barInnerAligned, Colors::Black);
     }   
 } // namespace UI

@@ -43,8 +43,8 @@ namespace Network
         }
     }
 
-    Server::Server(boost::asio::io_service &io, short port)
-        : mIO(io)
+    Server::Server(short port)
+        : mIO()
         , mPort(port)
         , mAddr(boost::asio::ip::tcp::v4(), port)
         , mAccept(mIO, mAddr)
@@ -59,6 +59,11 @@ namespace Network
             boost::bind(&Server::AcceptHandler, this, boost::asio::placeholders::error));
     }
 
+    void Server::Poll()
+    {
+        mIO.poll();
+    }
+    
     void Server::AcceptHandler(const boost::system::error_code &code)
     {
         if(!code) {

@@ -6,6 +6,11 @@
 #include <game/surface.h>
 #include <game/screen.h>
 
+namespace Render
+{
+    class Renderer;
+}
+
 namespace UI
 {
     class LoadingScreen : public UI::Screen
@@ -22,7 +27,7 @@ namespace UI
         void IncreaseDone(int delta = 1);
         void SetProgressLabel(std::string const&);
         double GetCompleteRate() const;
-        void Draw(Surface &surface);
+        void Render(Render::Renderer &renderer);
         bool HandleEvent(SDL_Event const&);
     };
 }

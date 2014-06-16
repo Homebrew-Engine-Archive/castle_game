@@ -10,6 +10,7 @@
 
 #include <SDL.h>
 
+#include <game/sdl_utils.h>
 #include <game/collection.h>
 #include <game/color.h>
 #include <game/fontmanager.h>
@@ -24,31 +25,35 @@
 #include <game/sdlrenderengine.h>
 #include <game/simulationmanager.h>
 #include <game/softwarerenderengine.h>
+#include <game/network.h>
+#include <game/fontmanager.h>
+#include <game/screenmanager.h>
+#include <game/textarea.h>
 
 namespace Castle
-{    
+{
+    Engine::~Engine() = default;
     Engine::Engine()
-        : mSDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE)
+        : mSDL_Init(new SDLInitializer(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE))
         , mRenderEngine(new Render::SoftwareRenderEngine)
-        , mFontManager()
-        , mRenderer(*mRenderEngine, mFontManager)
-        , mSimManager()
+        , mFontManager(new Render::FontManager)
+        , mRenderer(new Render::Renderer(*mRenderEngine, *mFontManager))
+        , mSimManager(new Castle::SimulationManager)
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
-        , mIO()
         , mPort(4500)
-        , mServer(mIO, mPort)
-        , mScreenManager()
-        , mInfoArea()
+        , mServer(new Network::Server(mPort))
+        , mScreenManager(new UI::ScreenManager)
+        , mInfoArea(new UI::TextArea)
     {
-        mInfoArea.SetTextColor(Colors::Red);
-        mInfoArea.SetBackgroundColor(Colors::Black.Opaque(160));
-        mInfoArea.SetText("No FPS for you, Sir");
-        mInfoArea.SetMaxWidth(200);
+        mInfoArea->SetTextColor(Colors::Red);
+        mInfoArea->SetBackgroundColor(Colors::Black.Opaque(160));
+        mInfoArea->SetText("No FPS for you, Sir");
+        mInfoArea->SetMaxWidth(200);
     }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -73,7 +78,7 @@ namespace Castle
             mClosed = true;
             return false;
         case SDLK_TAB:
-            mScreenManager.ToggleConsole();
+            mScreenManager->ToggleConsole();
             return true;
         default:
             return true;
@@ -97,8 +102,8 @@ namespace Castle
 
     void Engine::ResizeScreen(int width, int height)
     {
-        mRenderer.SetScreenWidth(width);
-        mRenderer.SetScreenHeight(height);
+        mRenderer->SetScreenWidth(width);
+        mRenderer->SetScreenHeight(height);
     }
     
     void Engine::LoadFonts()
@@ -110,7 +115,7 @@ namespace Castle
 
         for(int h = minHeight; h <= maxHeight; ++h) {
             try {
-                mRenderer.GetFontManager().LoadFont(core::Font(family, h));
+                mFontManager->LoadFont(core::Font(family, h));
             } catch(const std::exception &error) {
                 std::cerr << "Load font failed: " << error.what() << std::endl;
             }
@@ -127,7 +132,7 @@ namespace Castle
         try {
             SDL_Event event;
             while(SDL_PollEvent(&event)) {
-                if(!mScreenManager.TopScreen().HandleEvent(event)) {
+                if(!mScreenManager->TopScreen().HandleEvent(event)) {
                     HandleEvent(event);
                 }
             }
@@ -141,7 +146,7 @@ namespace Castle
     void Engine::PollNetwork()
     {
         try {
-            mIO.poll();
+            mServer->Poll();
         } catch(const std::exception &error) {
             std::cerr << "exception on polling network: " << error.what() << std::endl;
         } catch(...) {
@@ -154,13 +159,13 @@ namespace Castle
     
     void Engine::DrawFrame()
     {
-        mRenderer.BeginFrame();
-        mScreenManager.Render(mRenderer);
-        if(&mScreenManager.TopScreen() != &mScreenManager.Console()) {
-            mInfoArea.Render(mRenderer);
+        mRenderer->BeginFrame();
+        mScreenManager->Render(*mRenderer);
+        if(&mScreenManager->TopScreen() != &mScreenManager->Console()) {
+            mInfoArea->Render(*mRenderer);
         }
-        mRenderer.DrawFrame(mRenderer.GetScreenRect(), Colors::Gray);
-        mRenderer.EndFrame();
+        mRenderer->DrawFrame(mRenderer->GetScreenRect(), Colors::Gray);
+        mRenderer->EndFrame();
     }
 
     void Engine::UpdateFrameCounter(std::chrono::milliseconds elapsed)
@@ -172,7 +177,7 @@ namespace Castle
 
         std::ostringstream oss;
         oss << "Your FPS, sir: " << std::setw(10) << mFpsAverage;
-        mInfoArea.SetText(oss.str());
+        mInfoArea->SetText(oss.str());
     }
 
     constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs,
@@ -186,7 +191,7 @@ namespace Castle
         std::unique_ptr<GameMap> testMap = std::make_unique<GameMap>(100);
         GenerateRandomMap(*testMap);
         
-        SimulationContext &context = mSimManager.PrimaryContext();
+        SimulationContext &context = mSimManager->PrimaryContext();
         context.SetGameMap(std::move(testMap));
         context.SetTurn(0);
     }
@@ -199,10 +204,10 @@ namespace Castle
         LoadGraphics();
         LoadSimulationContext();
 
-        mScreenManager.GameScreen().SetSimulationContext(mSimManager.PrimaryContext());
+        mScreenManager->GameScreen().SetSimulationContext(mSimManager->PrimaryContext());
 
-        mScreenManager.EnterGameScreen();
-        mServer.StartAccept();
+        mScreenManager->EnterGameScreen();
+        mServer->StartAccept();
         
         steady_clock::time_point prevSimulation = steady_clock::now();
         steady_clock::time_point prevFrame = steady_clock::now();
@@ -224,9 +229,9 @@ namespace Castle
             {
                 const steady_clock::time_point now = steady_clock::now();
                 const milliseconds sinceLastSim = Elapsed(prevSimulation, now);
-                if(mSimManager.HasUpdate(sinceLastSim)) {
+                if(mSimManager->HasUpdate(sinceLastSim)) {
                     prevSimulation = now;
-                    mSimManager.Update(sinceLastSim);
+                    mSimManager->Update(sinceLastSim);
                 }
             }
 

@@ -38,7 +38,6 @@ set (SRCS
   sdlrenderengine.cpp
   surface.cpp
   surface_view.cpp
-  surface_drawing.cpp
   surface_blur.cpp
   textarea.cpp
   textlayout.cpp
