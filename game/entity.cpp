@@ -10,27 +10,27 @@ namespace
     {
         std::string name;
         size_t size;
-        DirectionSet dirs;
+        core::DirectionSet dirs;
     };    
 }
 
 namespace Entities
 {
     std::vector<AnimationGroup> BodyArcherInfo = {
-        {"walk", 16, EightDirs},
-        {"run", 16, EightDirs},
-        {"shot", 24, EightDirs},
-        {"shotdown", 12, EightDirs},
-        {"shotup", 12, EightDirs},
-        {"tilt", 12, FourDirs},
-        {"aware", 16, SingleDir},
-        {"idle", 16, SingleDir},
-        {"deatharrow", 24, SingleDir},
-        {"deathmelee1", 24, SingleDir},
-        {"deathmelee2", 24, SingleDir},
-        {"attack", 12, EightDirs},
-        {"climb", 12, EightDirs},
-        {"fall", 8, EightDirs},
-        {"dig", 16, EightDirs}
+        {"walk", 16, core::EightDirs},
+        {"run", 16, core::EightDirs},
+        {"shot", 24, core::EightDirs},
+        {"shotdown", 12, core::EightDirs},
+        {"shotup", 12, core::EightDirs},
+        {"tilt", 12, core::FourDirs},
+        {"aware", 16, core::SingleDir},
+        {"idle", 16, core::SingleDir},
+        {"deatharrow", 24, core::SingleDir},
+        {"deathmelee1", 24, core::SingleDir},
+        {"deathmelee2", 24, core::SingleDir},
+        {"attack", 12, core::EightDirs},
+        {"climb", 12, core::EightDirs},
+        {"fall", 8, core::EightDirs},
+        {"dig", 16, core::EightDirs}
     };
 }
