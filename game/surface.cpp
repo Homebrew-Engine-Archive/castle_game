@@ -37,10 +37,10 @@ namespace
     class TransformFunctor
     {
         const SDL_PixelFormat &mFormat;
-        std::function<Color(Color const&)> mFunc;
+        std::function<core::Color(core::Color const&)> mFunc;
 
     public:
-        TransformFunctor(const SDL_PixelFormat &format, Color func(Color const&))
+        TransformFunctor(const SDL_PixelFormat &format, core::Color func(core::Color const&))
             : mFormat(format)
             , mFunc(func)
             { }
@@ -50,14 +50,14 @@ namespace
             const char *end = bytes + size * mFormat.BytesPerPixel;
         
             while(bytes != end) {
-                const uint32_t origPixel = GetPackedPixel(bytes, mFormat.BytesPerPixel);
+                const uint32_t origPixel = core::GetPackedPixel(bytes, mFormat.BytesPerPixel);
 
-                Color color;
+                core::Color color;
                 SDL_GetRGBA(origPixel, &mFormat, &color.r, &color.g, &color.b, &color.a);
 
-                const Color result = mFunc(color);
+                const core::Color result = mFunc(color);
                 const uint32_t pixel = SDL_MapRGBA(&mFormat, result.r, result.g, result.b, result.a);
-                SetPackedPixel(bytes, pixel, mFormat.BytesPerPixel);
+                core::SetPackedPixel(bytes, pixel, mFormat.BytesPerPixel);
 
                 bytes += mFormat.BytesPerPixel;
             }
@@ -92,7 +92,7 @@ SurfaceAlphaModSetter::~SurfaceAlphaModSetter()
     }
 }
 
-SurfaceClipper::SurfaceClipper(const Surface &surface, const Rect &cliprect)
+SurfaceClipper::SurfaceClipper(const Surface &surface, const core::Rect &cliprect)
     : mObject(surface)
     , mOldClip()
 {
@@ -236,9 +236,9 @@ void CopyColorKey(SDL_Surface *src, SDL_Surface *dst)
     }
 }
 
-const Rect GetClipRect(const Surface &surface)
+const core::Rect GetClipRect(const Surface &surface)
 {
-    return Rect(surface->clip_rect);
+    return core::Rect(surface->clip_rect);
 }
 
 const Surface CreateSurface(int width, int height, const SDL_PixelFormat &format)
@@ -342,26 +342,26 @@ const Surface ConvertSurface(const Surface &source, const SDL_PixelFormat &forma
     return tmp;
 }
 
-void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect)
+void BlitSurface(const Surface &source, const core::Rect &sourceRect, Surface &dest, const core::Rect &destRect)
 {
     // tempRect would be modified by SDL_BlitSurface
-    Rect tempRect(destRect);
+    core::Rect tempRect(destRect);
     
     if(SDL_BlitSurface(source, &sourceRect, dest, &tempRect) < 0) {
         throw sdl_error();
     }
 }
 
-void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect)
+void BlitSurfaceScaled(const Surface &source, const core::Rect &sourceRect, Surface &dest, const core::Rect &destRect)
 {
     // see BlitSurface
-    Rect tempRect(destRect);
+    core::Rect tempRect(destRect);
     if(SDL_BlitScaled(source, &sourceRect, dest, &tempRect) < 0) {
         throw sdl_error();
     }
 }
 
-void TransformSurface(Surface &surface, Color func(Color const&))
+void TransformSurface(Surface &surface, core::Color func(core::Color const&))
 {
     if(!surface) {
         throw null_surface_error();
@@ -381,7 +381,7 @@ void TransformSurface(Surface &surface, Color func(Color const&))
     }
 }
 
-uint32_t ExtractPixel(const Surface &surface, const Point &coord)
+uint32_t ExtractPixel(const Surface &surface, const core::Point &coord)
 {
     if(!surface) {
         throw null_surface_error();
@@ -395,9 +395,9 @@ uint32_t ExtractPixel(const Surface &surface, const Point &coord)
     return ExtractPixelLocked(surface, coord);
 }
 
-uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord)
+uint32_t ExtractPixelLocked(const Surface &surface, const core::Point &coord)
 {
-    return GetPackedPixel(
+    return core::GetPackedPixel(
         SurfaceData(surface)
         + coord.y * SurfaceRowStride(surface)
         + coord.x * SurfacePixelStride(surface), SurfacePixelStride(surface));

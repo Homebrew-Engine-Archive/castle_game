@@ -59,15 +59,15 @@ namespace Castle
         return mDirection;
     }
 
-    void Camera::ViewPoint(const Point &viewpoint)
+    void Camera::ViewPoint(const core::Point &viewpoint)
     {
         mPosX = viewpoint.x;
         mPosY = viewpoint.y;
     }
     
-    const Point Camera::ViewPoint() const
+    const core::Point Camera::ViewPoint() const
     {
-        return Point(mPosX, mPosY);
+        return core::Point(mPosX, mPosY);
     }
 
     const core::Size Camera::TileSize() const
@@ -105,7 +105,7 @@ namespace Castle
         mScrollY = 0.0f;
     }
     
-    const GameMap::Cell Camera::ScreenToWorldCoords(const Point &cursor) const
+    const GameMap::Cell Camera::ScreenToWorldCoords(const core::Point &cursor) const
     {
         switch(mCameraMode) {
         case CameraMode::Staggered:
@@ -152,7 +152,7 @@ namespace Castle
         }
     }
     
-    const Point Camera::WorldToScreenCoords(const GameMap::Cell &cell) const
+    const core::Point Camera::WorldToScreenCoords(const GameMap::Cell &cell) const
     {
         switch(mCameraMode) {
         case CameraMode::Staggered:
@@ -160,8 +160,8 @@ namespace Castle
                 const int w = mTileSize.width / 2;
                 const int h = mTileSize.height / 2;
                 return -ViewPoint() +
-                    Point(2*w*cell.x + w*core::Mod(cell.y, 2),
-                          h*cell.y);
+                    core::Point(2*w*cell.x + w*core::Mod(cell.y, 2),
+                                h*cell.y);
             }
             
         case CameraMode::Diamond:
@@ -171,15 +171,15 @@ namespace Castle
                 const int q = mTileSize.width / 2;
                 const int r = 0;
                 return -ViewPoint() +
-                    Point(w*cell.x - w*cell.y + q,
-                          h*cell.x + h*cell.y + r);
+                    core::Point(w*cell.x - w*cell.y + q,
+                                h*cell.x + h*cell.y + r);
             }
 
         default:
         case CameraMode::Ortho:
             return -ViewPoint() +
-                Point(mTileSize.width * cell.x,
-                      mTileSize.height * cell.y);
+                core::Point(mTileSize.width * cell.x,
+                            mTileSize.height * cell.y);
         }
     }
 }

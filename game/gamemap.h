@@ -20,7 +20,7 @@ namespace Castle
         bool mVerticalWrapping;
 
     public:
-        typedef Point Cell;
+        using Cell = core::Point;
         
     private:
         int CellToIndex(const Cell &cell) const;

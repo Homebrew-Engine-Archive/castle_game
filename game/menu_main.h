@@ -16,12 +16,12 @@ namespace UI
     class MenuMain : public Screen
     {
         UI::ScreenManager &mScreenManager;
-        Surface mBackground;
     
     public:
         explicit MenuMain(UI::ScreenManager &screenManager);
-        void Draw(Surface &frame);
-        bool HandleEvent(const SDL_Event &event);
+
+        virtual void Render(Render::Renderer &renderer);
+        virtual bool HandleEvent(const SDL_Event &event);
     };
 }
 

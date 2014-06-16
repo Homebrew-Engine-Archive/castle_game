@@ -15,20 +15,20 @@ namespace UI
         , mText()
         , mMaxSize()
         , mMinSize()
-        , mTextColor(Colors::Black)
-        , mBackgroundColor(Colors::White)
-        , mHorizontalAlign(Alignment::Min)
-        , mVerticalAlign(Alignment::Min)
+        , mTextColor(core::colors::Black)
+        , mBackgroundColor(core::colors::White)
+        , mHorizontalAlign(core::Alignment::Min)
+        , mVerticalAlign(core::Alignment::Min)
         , mTextFont()
     {
     }
 
-    void TextArea::SetBackgroundColor(const Color &backgroundColor)
+    void TextArea::SetBackgroundColor(const core::Color &backgroundColor)
     {
         mBackgroundColor = backgroundColor;
     }
 
-    void TextArea::SetTextColor(const Color &textColor)
+    void TextArea::SetTextColor(const core::Color &textColor)
     {
         mTextColor = textColor;
     }
@@ -44,13 +44,13 @@ namespace UI
         return mTextFont;
     }
     
-    void TextArea::SetAlignment(Alignment horizontal, Alignment vertical)
+    void TextArea::SetAlignment(core::Alignment horizontal, core::Alignment vertical)
     {
         mHorizontalAlign = horizontal;
         mVerticalAlign = vertical;
     }    
 
-    void TextArea::SetTextAlignment(Alignment horizontal)
+    void TextArea::SetTextAlignment(core::Alignment horizontal)
     {
         mTextLayout.SetAlignment(horizontal);
     }
@@ -93,29 +93,29 @@ namespace UI
         mMinSize.h = minHeight;
     }
     
-    const Rect TextArea::FitToScreen(Render::Renderer &renderer) const
+    const core::Rect TextArea::FitToScreen(Render::Renderer &renderer) const
     {
         mTextLayout.UpdateLayout(renderer.GetFontManager());
 
-        const Rect screenRect = renderer.GetScreenRect();
-        const Rect textBoundingRect = mTextLayout.BoundingRect();
-        const Rect textDrawRect = Union(mMinSize, textBoundingRect);
+        const core::Rect screenRect = renderer.GetScreenRect();
+        const core::Rect textBoundingRect = mTextLayout.BoundingRect();
+        const core::Rect textDrawRect = Union(mMinSize, textBoundingRect);
                     
-        return CombineRect(
+        return core::CombineRect(
             AlignRange(AxisX(textDrawRect), AxisX(screenRect), mHorizontalAlign),
             AlignRange(AxisY(textDrawRect), AxisY(screenRect), mVerticalAlign));
     }
     
     void TextArea::Render(Render::Renderer &renderer)
     {
-        const Rect widgetSubrect = FitToScreen(renderer);
+        const core::Rect widgetSubrect = FitToScreen(renderer);
         renderer.ClipRect(widgetSubrect);
         renderer.FillFrame(renderer.GetScreenRect(), mBackgroundColor);
 
         Render::FontManager &fontManager = renderer.GetFontManager();
 
-        const Rect textAreaSize = renderer.GetScreenRect();
-        Rect drawArea = textAreaSize;
+        const core::Rect textAreaSize = renderer.GetScreenRect();
+        core::Rect drawArea = textAreaSize;
         
         mTextLayout.UpdateLayout(fontManager);
         for(const TextLayoutItem &item : mTextLayout) {
@@ -123,7 +123,7 @@ namespace UI
             
             const int offsetX = item.GetHorizontalOffset();
             const int offsetY = item.GetVerticalOffset();
-            const Rect itemRect(
+            const core::Rect itemRect(
                 offsetX,
                 offsetY,
                 drawArea.w - offsetX,

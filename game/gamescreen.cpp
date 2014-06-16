@@ -2,24 +2,23 @@
 
 #include <sstream>
 
-#include <game/make_unique.h>
-
-#include <game/modulo.h>
-#include <game/direction.h>
 #include <game/color.h>
-#include <game/rect.h>
-#include <game/landscape.h>
-
-#include <game/simulationcontext.h>
 #include <game/creature.h>
-#include <game/fontmanager.h>
-#include <game/renderer.h>
+#include <game/direction.h>
 #include <game/filesystem.h>
-#include <game/surface.h>
+#include <game/fontmanager.h>
 #include <game/gm1.h>
 #include <game/gm1palette.h>
-#include <game/simulationmanager.h>
+#include <game/landscape.h>
+#include <game/make_unique.h>
+#include <game/modulo.h>
+#include <game/point.h>
+#include <game/rect.h>
+#include <game/renderer.h>
 #include <game/screenmanager.h>
+#include <game/simulationcontext.h>
+#include <game/simulationmanager.h>
+#include <game/surface.h>
 
 namespace UI
 {
@@ -70,17 +69,17 @@ namespace UI
         const Castle::GameMap &map = mSimContext->GetGameMap();
 
         const core::Size tileSize(mCamera.TileSize());
-        const Point heightOffset(0, map.Height(cell));
-        const Point tileWorldPos(mCamera.WorldToScreenCoords(cell));
-        const Point tileTop(tileWorldPos - heightOffset);
-        const Point tileBottom(tileWorldPos);
-        const Rect tileTopRect(tileTop.x, tileTop.y, tileSize.width, tileSize.height);
-        const Rect tileBottomRect(tileBottom.x, tileBottom.y, tileSize.width, tileSize.height);
+        const core::Point heightOffset(0, map.Height(cell));
+        const core::Point tileWorldPos(mCamera.WorldToScreenCoords(cell));
+        const core::Point tileTop(tileWorldPos - heightOffset);
+        const core::Point tileBottom(tileWorldPos);
+        const core::Rect tileTopRect(tileTop.x, tileTop.y, tileSize.width, tileSize.height);
+        const core::Rect tileBottomRect(tileBottom.x, tileBottom.y, tileSize.width, tileSize.height);
 
-        renderer.DrawRhombus(tileBottomRect, Colors::Red.Opaque(100));
+        renderer.DrawRhombus(tileBottomRect, core::colors::Red.Opaque(100));
     }
     
-    void GameScreen::RenderCreature(Render::Renderer &renderer, const Castle::Creature &creature)
+    void GameScreen::RenderCreature(Render::Renderer &renderer, const Castle::World::Creature &creature)
     {
         
     }
@@ -194,8 +193,8 @@ namespace UI
     {
         constexpr const int EdgeWidth = 10;
 
-        const Rect screenRect = renderer.GetScreenRect();
-        const Point projectedCursor = renderer.ClipPoint(mCursor);
+        const core::Rect screenRect = renderer.GetScreenRect();
+        const core::Point projectedCursor = renderer.ClipPoint(mCursor);
         
         if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && projectedCursor.x < EdgeWidth)) {
             mCamera.Move(-1, 0);
@@ -215,7 +214,7 @@ namespace UI
         mLastCameraUpdate = steady_clock::now();
     }
 
-    bool GameScreen::TileSelected(const Point &cursor, const Castle::GameMap::Cell &cell) const
+    bool GameScreen::TileSelected(const core::Point &cursor, const Castle::GameMap::Cell &cell) const
     {
         const Castle::GameMap &map = mSimContext->GetGameMap();
         const Castle::Collection &tileset = GetTileSet(map.LandscapeType(cell));
@@ -224,11 +223,11 @@ namespace UI
         const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
         const Surface &surface = tileset.GetSurface(index);
             
-        const Point tileTopLeft = mCamera.WorldToScreenCoords(cell);
-        const Point tileTopLeftScreenSubrect = tileTopLeft - Point(0, map.Height(cell) - entryHeader.tileY);
-        const Rect tileSurfaceScreenSubrect = Translated(Rect(surface), tileTopLeftScreenSubrect);
-        if(PointInRect(tileSurfaceScreenSubrect, cursor)) {
-            Point inside = ClipToRect(tileSurfaceScreenSubrect, cursor);
+        const core::Point tileTopLeft = mCamera.WorldToScreenCoords(cell);
+        const core::Point tileTopLeftScreenSubrect = tileTopLeft - core::Point(0, map.Height(cell) - entryHeader.tileY);
+        const core::Rect tileSurfaceScreenSubrect = Translated(core::Rect(surface), tileTopLeftScreenSubrect);
+        if(core::PointInRect(tileSurfaceScreenSubrect, cursor)) {
+            core::Point inside = core::ClipToRect(tileSurfaceScreenSubrect, cursor);
             if(ExtractPixel(surface, inside) != 0) {
                 return true;
             }
@@ -238,7 +237,7 @@ namespace UI
     
     Castle::GameMap::Cell GameScreen::FindSelectedTile(const Render::Renderer &renderer)
     {
-        const Point projectedCursor = renderer.ClipPoint(mCursor);
+        const core::Point projectedCursor = renderer.ClipPoint(mCursor);
         if(mCamera.Flat()) {
             return mCamera.ScreenToWorldCoords(projectedCursor);
         }
@@ -260,7 +259,7 @@ namespace UI
         return mCamera;
     }
 
-    void GameScreen::SetSimulationContext(Castle::SimulationContext &context)
+    void GameScreen::SetSimulationContext(Castle::World::SimulationContext &context)
     {
         mSimContext = &context; 
     }

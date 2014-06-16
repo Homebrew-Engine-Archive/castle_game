@@ -52,8 +52,8 @@ namespace Castle
         void RotateLeft();
         void RotateRight();
         
-        const Castle::GameMap::Cell ScreenToWorldCoords(const Point &cursor) const;
-        const Point WorldToScreenCoords(const Castle::GameMap::Cell &cell) const;
+        const Castle::GameMap::Cell ScreenToWorldCoords(const core::Point &cursor) const;
+        const core::Point WorldToScreenCoords(const Castle::GameMap::Cell &cell) const;
         
         bool Flat() const;
         void Flat(bool yes);
@@ -66,8 +66,8 @@ namespace Castle
         CameraMode Mode() const;
         void Mode(const CameraMode &mode);
         
-        const Point ViewPoint() const;
-        void ViewPoint(const Point &point);
+        const core::Point ViewPoint() const;
+        void ViewPoint(const core::Point &point);
 
         const core::Size TileSize() const;
         void TileSize(const core::Size &tileSize);

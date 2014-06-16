@@ -28,9 +28,10 @@ namespace Render
     class FontManager;
 }
 
-namespace Castle
-{
-    class SimulationManager;
+namespace Castle {
+    namespace World {
+        class SimulationManager;
+    }
 }
 
 namespace Castle
@@ -41,7 +42,7 @@ namespace Castle
         std::unique_ptr<Render::RenderEngine> mRenderEngine;
         std::unique_ptr<Render::FontManager> mFontManager;
         std::unique_ptr<Render::Renderer> mRenderer;
-        std::unique_ptr<Castle::SimulationManager> mSimManager;
+        std::unique_ptr<Castle::World::SimulationManager> mSimManager;
         double mFpsAverage;
         int mFrameCounter;
         bool mClosed;

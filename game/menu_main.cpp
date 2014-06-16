@@ -1,18 +1,12 @@
 #include "menu_main.h"
 
 #include <game/menu_combat.h>
-#include <game/filesystem.h>
-#include <game/sdl_utils.h>
 #include <game/screenmanager.h>
-#include <game/collection.h>
 
 namespace UI
 {
     MenuMain::MenuMain(UI::ScreenManager &screenManager)
         : mScreenManager(screenManager)
-        , mBackground(
-            Castle::LoadTGX(
-                fs::TGXFilePath("frontend_main2")))
     {
     }
 
@@ -20,13 +14,8 @@ namespace UI
     {
         return false;
     }
-    
-    void MenuMain::Draw(Surface &frame)
-    {
-        Rect frameRect(frame);
-        Rect bgRect(mBackground);
-        Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
-        BlitSurface(mBackground, bgRect, frame, bgAligned);
+    void MenuMain::Render(Render::Renderer &renderer)
+    {
     }
 } // namespace UI

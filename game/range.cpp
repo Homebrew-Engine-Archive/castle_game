@@ -4,6 +4,7 @@ namespace
 {
     void test()
     {
+        using namespace core;
         constexpr const Range<int> a = Range<int>(-1,-1);
         constexpr const Range<int> b = Range<int>(0,3);
         constexpr const Range<int> c = Range<int>(7,7);

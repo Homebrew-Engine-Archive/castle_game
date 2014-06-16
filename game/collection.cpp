@@ -96,9 +96,9 @@ namespace Castle
         return mHeader;
     }
 
-    const Point Collection::Anchor() const
+    const core::Point Collection::Anchor() const
     {
-        return Point(mHeader.anchorX, mHeader.anchorY);
+        return core::Point(mHeader.anchorX, mHeader.anchorY);
     }
 
     const Surface Collection::GetSurface(size_t index) const

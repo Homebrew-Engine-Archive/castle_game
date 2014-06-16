@@ -42,7 +42,7 @@ namespace UI
 namespace UI
 {    
     TextLayout::TextLayout()
-        : mHorizontalAlignment(Alignment::Min)
+        : mHorizontalAlignment(core::Alignment::Min)
         , mWidth(0)
         , mText()
         , mTextFont()
@@ -92,7 +92,7 @@ namespace UI
                 break;
             }
             buffer += character;
-            const Rect bufferSize = engine.TextSize(mTextFont, buffer);
+            const core::Rect bufferSize = engine.TextSize(mTextFont, buffer);
             if(bufferSize.w > mWidth) {
                 if(isblank(character)) {
                     in.unget();
@@ -119,7 +119,7 @@ namespace UI
     {
         if(mInvalidated) {
             mItems.clear();
-            mBoundingRect = Rect(0, 0, 0, 0);
+            mBoundingRect = core::Rect(0, 0, 0, 0);
 
             std::vector<TextLayoutLine> lines;
             std::istringstream iss(mText);
@@ -158,7 +158,7 @@ namespace UI
     
     void TextLayout::PushSingleLine(const Render::FontManager &engine, const TextLayoutLine &line)
     {
-        if(mHorizontalAlignment == Alignment::Expanded) {
+        if(mHorizontalAlignment == core::Alignment::Expanded) {
             return PushShrinkedLine(engine, line);
         } else {
             return PushLine(engine, line);
@@ -177,18 +177,18 @@ namespace UI
     
     void TextLayout::PushLine(const Render::FontManager &engine, const TextLayoutLine &line)
     {
-        const Rect lineSize = engine.TextSize(mTextFont, line.text);
+        const core::Rect lineSize = engine.TextSize(mTextFont, line.text);
         switch(mHorizontalAlignment) {
-        case Alignment::Min:
+        case core::Alignment::Min:
             PushShrinkedLine(engine, line, 0);
             break;
-        case Alignment::Max:
+        case core::Alignment::Max:
             PushShrinkedLine(engine, line, (mWidth - lineSize.w));
             break;
-        case Alignment::Center:
+        case core::Alignment::Center:
             PushShrinkedLine(engine, line, (mWidth - lineSize.w) / 2);
             break;
-        case Alignment::Expanded:
+        case core::Alignment::Expanded:
             PushExpandedLine(engine, line);
             break;
         default:
@@ -241,7 +241,7 @@ namespace UI
         }
     }
 
-    void TextLayout::SetAlignment(Alignment horizontal)
+    void TextLayout::SetAlignment(core::Alignment horizontal)
     {
         if(mHorizontalAlignment != horizontal) {
             mHorizontalAlignment = horizontal;
@@ -257,7 +257,7 @@ namespace UI
         }
     }
 
-    const Rect TextLayout::BoundingRect() const
+    const core::Rect TextLayout::BoundingRect() const
     {
         return mBoundingRect;
     }

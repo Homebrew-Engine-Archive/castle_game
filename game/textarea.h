@@ -30,22 +30,22 @@ namespace UI
         void SetMinWidth(int minWidth);
         void SetMinHeight(int minHeight);
         void SetMultiline(bool ok);
-        void SetAlignment(Alignment horizontal, Alignment vertical);
-        void SetTextAlignment(Alignment horizontal);
-        void SetTextColor(const Color &textColor);
-        void SetBackgroundColor(const Color &backColor);
-        const Rect FitToScreen(Render::Renderer &renderer) const;
+        void SetAlignment(core::Alignment horizontal, core::Alignment vertical);
+        void SetTextAlignment(core::Alignment horizontal);
+        void SetTextColor(const core::Color &textColor);
+        void SetBackgroundColor(const core::Color &backColor);
+        const core::Rect FitToScreen(Render::Renderer &renderer) const;
         void Render(Render::Renderer &renderer);
         
     private:
         mutable TextLayout mTextLayout;
         std::string mText;
-        Rect mMaxSize;
-        Rect mMinSize;
-        Color mTextColor;
-        Color mBackgroundColor;
-        Alignment mHorizontalAlign;
-        Alignment mVerticalAlign;
+        core::Rect mMaxSize;
+        core::Rect mMinSize;
+        core::Color mTextColor;
+        core::Color mBackgroundColor;
+        core::Alignment mHorizontalAlign;
+        core::Alignment mVerticalAlign;
         core::Font mTextFont;
     };
 }

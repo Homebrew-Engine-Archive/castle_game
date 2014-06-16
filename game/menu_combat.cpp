@@ -19,9 +19,9 @@ namespace UI
 
     void MenuCombat::Draw(Surface &frame)
     {
-        Rect frameRect(frame);
-        Rect bgRect(mBackground);
-        Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
+        const core::Rect frameRect(frame);
+        const core::Rect bgRect(mBackground);
+        const core::Rect bgAligned = PutIn(bgRect, frameRect, 0, 0);
 
         BlitSurface(mBackground, bgRect, frame, bgAligned);
     }

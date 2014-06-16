@@ -132,7 +132,7 @@ namespace Render
         }
 
         mFrameOutputMode = mOutputMode;
-        mClipRect = Rect(mFrameOutputMode.Width(),
+        mClipRect = core::Rect(mFrameOutputMode.Width(),
                          mFrameOutputMode.Height());
     }
     
@@ -148,7 +148,7 @@ namespace Render
             throw sdl_error();
         }
 
-        const Rect textureRect(mScreenSurface);
+        const core::Rect textureRect(mScreenSurface);
         if(SDL_RenderCopy(mScreenRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
             throw sdl_error();
         }
@@ -176,14 +176,14 @@ namespace Render
         return core::Size(info.max_texture_width, info.max_texture_height);
     }
 
-    void SoftwareRenderEngine::UpdateClipRect(const Rect &rect)
+    void SoftwareRenderEngine::UpdateClipRect(const core::Rect &rect)
     {
         if(SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &rect) < 0) {
             throw sdl_error();
         }
     }
 
-    void SoftwareRenderEngine::UpdateDrawColor(const Color &color)
+    void SoftwareRenderEngine::UpdateDrawColor(const core::Color &color)
     {
         SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
         if(color.a == 0xff) {
@@ -198,7 +198,7 @@ namespace Render
         }
     }
     
-    void SoftwareRenderEngine::DrawPoints(const Point *points, size_t count, const Color &color)
+    void SoftwareRenderEngine::DrawPoints(const core::Point *points, size_t count, const core::Color &color)
     {
         UpdateDrawColor(color);
         UpdateClipRect(mClipRect);
@@ -207,7 +207,7 @@ namespace Render
         }
     }
     
-    void SoftwareRenderEngine::DrawRects(const Rect *rects, size_t count, const Color &color, DrawMode mode)
+    void SoftwareRenderEngine::DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode)
     {
         UpdateDrawColor(color);
         UpdateClipRect(mClipRect);
@@ -228,7 +228,7 @@ namespace Render
         }
     }
     
-    void SoftwareRenderEngine::DrawLines(const core::Line *lines, size_t count, const Color &color)
+    void SoftwareRenderEngine::DrawLines(const core::Line *lines, size_t count, const core::Color &color)
     {
         UpdateClipRect(mClipRect);
         UpdateDrawColor(color);
@@ -244,7 +244,7 @@ namespace Render
         }
     }
     
-    void SoftwareRenderEngine::DrawPolygon(const Point *points, size_t count, const Color &color, DrawMode mode)
+    void SoftwareRenderEngine::DrawPolygon(const core::Point *points, size_t count, const core::Color &color, DrawMode mode)
     {
         if(count == 0) {
             return;
@@ -276,7 +276,7 @@ namespace Render
         }
     }    
 
-    void SoftwareRenderEngine::DrawSurface(const Surface &image, const Rect &subrect, const Rect &destRect)
+    void SoftwareRenderEngine::DrawSurface(const Surface &image, const core::Rect &subrect, const core::Rect &destRect)
     {
         assert(mScreenSurface != nullptr);
         SDL_SetClipRect(mScreenSurface, &mClipRect);
@@ -294,24 +294,24 @@ namespace Render
         SDL_SetSurfaceBlendMode(image, oldBlendMode);
     }
 
-    void SoftwareRenderEngine::DrawSurfaceTiled(const Surface &image, const Rect &source, const Rect &target)
+    void SoftwareRenderEngine::DrawSurfaceTiled(const Surface &image, const core::Rect &source, const core::Rect &target)
     {
         
     }
     
-    void SoftwareRenderEngine::DrawSurfaceScaled(const Surface &image, const Rect &source, const Rect &target)
+    void SoftwareRenderEngine::DrawSurfaceScaled(const Surface &image, const core::Rect &source, const core::Rect &target)
     {
     }
     
-    void SoftwareRenderEngine::ClipRect(const Rect &rect)
+    void SoftwareRenderEngine::ClipRect(const core::Rect &rect)
     {
         mClipRect = rect;
     }
 
-    void SoftwareRenderEngine::ClearOutput(const Color &color)
+    void SoftwareRenderEngine::ClearOutput(const core::Color &color)
     {
         assert(mScreenSurface != nullptr);
-        const auto pixel = ColorToPixel(color, mFrameOutputMode.Format());
+        const auto pixel = core::ColorToPixel(color, mFrameOutputMode.Format());
         SDL_SetClipRect(mScreenSurface, NULL);
         SDL_FillRect(mScreenSurface, NULL, pixel);
     }

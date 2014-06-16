@@ -128,8 +128,8 @@ namespace
 
         // Here we just ignore original color information. What we are really
         // interested in is green channel
-        // auto swap_green_alpha = [](const Color &color) {
-        //     return Color(color.r, 255, color.b, color.g);
+        // auto swap_green_alpha = [](const core::Color &color) {
+        //     return core::Color(color.r, 255, color.b, color.g);
         // };
     
         // TransformSurface(tmp, swap_green_alpha);
@@ -180,11 +180,11 @@ namespace
     
     void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
     {
-        const Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
+        const core::Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
         SurfaceView tile(surface, tilerect);
         ReadTile(in, tile.View());
         
-        const Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
+        const core::Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         SurfaceView box(surface, boxrect);
         TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box.View());
     }
@@ -283,12 +283,12 @@ namespace GM1
         return color;
     }
 
-    const Color GM1EntryReader::Transparent() const
+    const core::Color GM1EntryReader::Transparent() const
     {
         return mTransparentColor;
     }
 
-    void GM1EntryReader::Transparent(Color color)
+    void GM1EntryReader::Transparent(core::Color color)
     {
         mTransparentColor = std::move(color);
     }

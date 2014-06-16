@@ -10,24 +10,23 @@
 
 #include <SDL.h>
 
-#include <game/sdl_utils.h>
 #include <game/collection.h>
 #include <game/color.h>
 #include <game/fontmanager.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
 #include <game/make_unique.h>
+#include <game/network.h>
 #include <game/point.h>
 #include <game/rect.h>
 #include <game/renderengine.h>
 #include <game/renderer.h>
 #include <game/screen.h>
+#include <game/screenmanager.h>
+#include <game/sdl_utils.h>
 #include <game/sdlrenderengine.h>
 #include <game/simulationmanager.h>
 #include <game/softwarerenderengine.h>
-#include <game/network.h>
-#include <game/fontmanager.h>
-#include <game/screenmanager.h>
 #include <game/textarea.h>
 
 namespace Castle
@@ -38,7 +37,7 @@ namespace Castle
         , mRenderEngine(new Render::SoftwareRenderEngine)
         , mFontManager(new Render::FontManager)
         , mRenderer(new Render::Renderer(*mRenderEngine, *mFontManager))
-        , mSimManager(new Castle::SimulationManager)
+        , mSimManager(new World::SimulationManager)
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
@@ -50,8 +49,8 @@ namespace Castle
         , mScreenManager(new UI::ScreenManager)
         , mInfoArea(new UI::TextArea)
     {
-        mInfoArea->SetTextColor(Colors::Red);
-        mInfoArea->SetBackgroundColor(Colors::Black.Opaque(160));
+        mInfoArea->SetTextColor(core::colors::Red);
+        mInfoArea->SetBackgroundColor(core::colors::Black.Opaque(160));
         mInfoArea->SetText("No FPS for you, Sir");
         mInfoArea->SetMaxWidth(200);
     }
@@ -164,7 +163,7 @@ namespace Castle
         if(&mScreenManager->TopScreen() != &mScreenManager->Console()) {
             mInfoArea->Render(*mRenderer);
         }
-        mRenderer->DrawFrame(mRenderer->GetScreenRect(), Colors::Gray);
+        mRenderer->DrawFrame(mRenderer->GetScreenRect(), core::colors::Gray);
         mRenderer->EndFrame();
     }
 
@@ -191,7 +190,7 @@ namespace Castle
         std::unique_ptr<GameMap> testMap = std::make_unique<GameMap>(100);
         GenerateRandomMap(*testMap);
         
-        SimulationContext &context = mSimManager->PrimaryContext();
+        World::SimulationContext &context = mSimManager->PrimaryContext();
         context.SetGameMap(std::move(testMap));
         context.SetTurn(0);
     }

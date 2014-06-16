@@ -14,6 +14,7 @@
 #include <game/fontmanager.h>
 #include <game/screenmanager.h>
 #include <game/surface.h>
+#include <game/point.h>
 
 namespace UI
 {
@@ -24,25 +25,26 @@ namespace UI
         , mPromptArea()
         , mLogArea()
     {
-        mPromptArea.SetAlignment(Alignment::Expanded, Alignment::Max);
-        mPromptArea.SetTextColor(Colors::Magenta);
-        mPromptArea.SetBackgroundColor(Colors::Blue.Opaque(50));
-        mPromptArea.SetTextAlignment(Alignment::Min);
+        using namespace core::colors;
+        mPromptArea.SetAlignment(core::Alignment::Expanded, core::Alignment::Max);
+        mPromptArea.SetTextColor(Magenta);
+        mPromptArea.SetBackgroundColor(Blue.Opaque(50));
+        mPromptArea.SetTextAlignment(core::Alignment::Min);
 
-        mLogArea.SetAlignment(Alignment::Expanded, Alignment::Min);
-        mLogArea.SetTextColor(Colors::Gray);
-        mLogArea.SetBackgroundColor(Colors::Black.Opaque(0));
-        mLogArea.SetTextAlignment(Alignment::Min);
+        mLogArea.SetAlignment(core::Alignment::Expanded, core::Alignment::Min);
+        mLogArea.SetTextColor(Gray);
+        mLogArea.SetBackgroundColor(Black.Opaque(0));
+        mLogArea.SetTextAlignment(core::Alignment::Min);
     }
 
     void Console::Render(Render::Renderer &renderer)
     {
-        const Rect consoleRect = Rect(BottomRight(renderer.GetScreenRect()) / Point(1, 2));
-        renderer.FillFrame(consoleRect, Colors::Black.Opaque(200));
+        const core::Rect consoleRect = core::Rect(core::BottomRight(renderer.GetScreenRect()) / core::Point(1, 2));
+        renderer.FillFrame(consoleRect, core::colors::Black.Opaque(200));
         renderer.ClipRect(consoleRect);
 
         mPromptArea.SetMaxWidth(consoleRect.w);
-        const Rect promptRect = mPromptArea.FitToScreen(renderer);
+        const core::Rect promptRect = mPromptArea.FitToScreen(renderer);
         
         renderer.ClipRect(ChopBottom(renderer.GetScreenRect(), promptRect.h));
         mLogArea.SetMaxWidth(consoleRect.w);

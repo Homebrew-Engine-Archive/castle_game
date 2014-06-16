@@ -3,7 +3,10 @@
 
 #include <game/surface.h>
 
-class Rect;
+namespace core
+{
+    class Rect;
+}
 
 /**
    \brief Region-Of-Interest of surface object
@@ -25,8 +28,8 @@ class SurfaceView final
     const Surface &mParentRef;
     
 public:
-    SurfaceView(const Surface &src, const Rect &clip);
-    SurfaceView(Surface &src, const Rect &clip);
+    SurfaceView(const Surface &src, const core::Rect &clip);
+    SurfaceView(Surface &src, const core::Rect &clip);
 
     inline Surface& View()
     {

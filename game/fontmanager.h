@@ -7,12 +7,12 @@
 #include <game/filesystem.h>
 
 class TTFInitializer;
-class Color;
-class Rect;
 class FontData;
 
 namespace core
 {
+    class Color;
+    class Rect;
     class Font;
 }
 
@@ -28,17 +28,17 @@ namespace Render
     class FontManager
     {
     public:
-        FontManager();
+        explicit FontManager();
         FontManager(FontManager const&);
         FontManager& operator=(FontManager const&);
         FontManager(FontManager&&);
         FontManager& operator=(FontManager&&);
         virtual ~FontManager();
 
-        void DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const Color &fg, const Color &bg) const;
+        void DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const;
         bool CouldRender(const core::Font &font, const std::string &text) const;
         bool LoadFont(const core::Font &font);
-        const Rect TextSize(const core::Font &font, const std::string &text) const;
+        const core::Rect TextSize(const core::Font &font, const std::string &text) const;
         int LineSkip(const core::Font &font) const;
 
     private:

@@ -10,7 +10,10 @@
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
 
-class Point;
+namespace core
+{
+    class Point;
+}
 
 namespace GM1
 {
@@ -44,7 +47,7 @@ namespace Castle
 
         int Count() const;
         GM1::Header const& GetHeader() const;
-        const Point Anchor() const;
+        const core::Point Anchor() const;
         const Surface GetSurface(size_t index) const;
         GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
         GM1::Palette const& GetPalette(PaletteName name) const;

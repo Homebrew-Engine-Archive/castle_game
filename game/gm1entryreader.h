@@ -20,7 +20,7 @@ namespace GM1
 {
     class GM1EntryReader
     {
-        Color mTransparentColor;
+        core::Color mTransparentColor;
 
     private:
         Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
@@ -43,8 +43,8 @@ namespace GM1
         GM1EntryReader();
         virtual ~GM1EntryReader() = default;
         
-        void Transparent(Color color);
-        const Color Transparent() const;
+        void Transparent(core::Color color);
+        const core::Color Transparent() const;
 
         const Surface Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const;
 

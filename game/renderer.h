@@ -12,12 +12,11 @@
 #include <game/surface.h>
 #include <game/filesystem.h>
 
-class Color;
-class Point;
-
 namespace core
 {
     class Size;
+    class Point;
+    class Color;
 }
 
 namespace GM1
@@ -51,8 +50,8 @@ namespace Render
         void BeginFrame();
         void EndFrame();
 
-        const Point GetMaxOutputSize() const;
-        const Point GetOutputSize() const;
+        const core::Point GetMaxOutputSize() const;
+        const core::Point GetOutputSize() const;
         void SetScreenWidth(int width);
         void SetScreenHeight(int height);
         void SetScreenFormat(int format);
@@ -60,35 +59,35 @@ namespace Render
         void Opacity(int opacity);
         void RestoreOpacity();
 
-        void ClipRect(const Rect &subrect);
+        void ClipRect(const core::Rect &subrect);
         void RestoreClipRect();
-        const Rect GetScreenClipRect() const;
-        const Rect GetScreenRect() const;
+        const core::Rect GetScreenClipRect() const;
+        const core::Rect GetScreenRect() const;
 
-        const Rect UnwindClipRect(const Rect &relative) const;
-        const Point ClipPoint(const Point &point) const;
+        const core::Rect UnwindClipRect(const core::Rect &relative) const;
+        const core::Point ClipPoint(const core::Point &point) const;
 
         const core::Size TextSize(const core::Font &font, const std::string &text) const;
-        const Rect TextBoundingRect(const core::Font &font, const std::string &text) const;
+        const core::Rect TextBoundingRect(const core::Font &font, const std::string &text) const;
 
         void BindFont(const core::Font &font);
-        void DrawText(const std::string &text, const Color &color);
+        void DrawText(const std::string &text, const core::Color &color);
         
-        const Color GetContextAlpha(const Color &color) const;
+        const core::Color GetContextAlpha(const core::Color &color) const;
         
         void BindSurface(const Surface &surface);
         void BindPalette(const GM1::Palette &palette);
         void BindAlphaChannel(const Surface &surface);
 
-        void Blit(const Rect &textureSubRect, const Rect &screenSubRect);
-        void BlitTiled(const Rect &textureSubRect, const Rect &screenSubRect);
-        void BlitScaled(const Rect &textureSubRect, const Rect &screenSubRect);
+        void Blit(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
+        void BlitTiled(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
+        void BlitScaled(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
 
-        void DrawRhombus(const Rect &bounds, const Color &fg);
-        void FillRhombus(const Rect &bounds, const Color &bg);
+        void DrawRhombus(const core::Rect &bounds, const core::Color &fg);
+        void FillRhombus(const core::Rect &bounds, const core::Color &bg);
 
-        void DrawFrame(const Rect &bounds, const Color &fg);
-        void FillFrame(const Rect &bounds, const Color &bg);
+        void DrawFrame(const core::Rect &bounds, const core::Color &fg);
+        void FillFrame(const core::Rect &bounds, const core::Color &bg);
         
     protected:
         RenderEngine &mRenderEngine;
@@ -96,8 +95,8 @@ namespace Render
         GM1::Palette mBoundPalette;
         Surface mBoundSurface;
         Surface mBoundAlphaChannel;
-        std::vector<Rect> mClipStack;
-        std::vector<Rect> mScreenRectStack;
+        std::vector<core::Rect> mClipStack;
+        std::vector<core::Rect> mScreenRectStack;
         std::vector<float> mOpacityStack;
         int mOpacity;
         core::Font mBoundFont;

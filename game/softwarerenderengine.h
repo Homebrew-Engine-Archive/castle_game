@@ -11,6 +11,7 @@ namespace core
 {
     class Size;
     class Line;
+    class Point;
 }
 
 namespace Render
@@ -26,7 +27,7 @@ namespace Render
         OutputMode mOutputMode;
         OutputMode mFrameOutputMode;
 
-        Rect mClipRect;
+        core::Rect mClipRect;
         Surface mScreenSurface;
         TexturePtr mScreenTexture;
         RendererPtr mPrimitiveRenderer;
@@ -41,21 +42,21 @@ namespace Render
         virtual void SetOutputMode(const OutputMode &mode);
         virtual const OutputMode GetOutputMode() const;
         virtual const core::Size GetMaxOutputSize() const;
-        virtual void DrawPoints(const Point *points, size_t count, const Color &color);
-        virtual void DrawRects(const Rect *rects, size_t count, const Color &color, DrawMode mode);
-        virtual void DrawLines(const core::Line *lines, size_t count, const Color &color);
-        virtual void DrawPolygon(const Point *points, size_t count, const Color &color, DrawMode mode);
-        virtual void DrawSurface(const Surface &image, const Rect &subrect, const Rect &screen);
-        virtual void DrawSurfaceTiled(const Surface &image, const Rect &source, const Rect &target);
-        virtual void DrawSurfaceScaled(const Surface &image, const Rect &source, const Rect &target);
+        virtual void DrawPoints(const core::Point *points, size_t count, const core::Color &color);
+        virtual void DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode);
+        virtual void DrawLines(const core::Line *lines, size_t count, const core::Color &color);
+        virtual void DrawPolygon(const core::Point *points, size_t count, const core::Color &color, DrawMode mode);
+        virtual void DrawSurface(const Surface &image, const core::Rect &subrect, const core::Rect &screen);
+        virtual void DrawSurfaceTiled(const Surface &image, const core::Rect &source, const core::Rect &target);
+        virtual void DrawSurfaceScaled(const Surface &image, const core::Rect &source, const core::Rect &target);
         virtual void SetOpacityMod(int opacity);
-        virtual void ClipRect(const Rect &rect);
-        virtual void ClearOutput(const Color &color);
+        virtual void ClipRect(const core::Rect &rect);
+        virtual void ClearOutput(const core::Color &color);
 
     private:
         bool ReallocationRequired(const OutputMode &mode) const;
-        void UpdateDrawColor(const Color &color);
-        void UpdateClipRect(const Rect &clipRect);
+        void UpdateDrawColor(const core::Color &color);
+        void UpdateClipRect(const core::Rect &clipRect);
     };
 }
 

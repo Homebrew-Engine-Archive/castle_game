@@ -38,7 +38,7 @@ namespace
             uint32_t blueAccum = 0;
 
             for(int i = 0; i < length; ++i) {
-                const uint32_t pixel = GetPackedPixel(bytes + i * stride, mFormat.BytesPerPixel);
+                const uint32_t pixel = core::GetPackedPixel(bytes + i * stride, mFormat.BytesPerPixel);
 
                 uint8_t r;
                 uint8_t g;
@@ -64,7 +64,7 @@ namespace
                 const uint32_t count = maxIndex - minIndex;
 
                 const uint32_t pixel = SDL_MapRGB(&mFormat, red / count, green / count, blue / count);
-                SetPackedPixel(bytes + i * stride, pixel, mFormat.BytesPerPixel);
+                core::SetPackedPixel(bytes + i * stride, pixel, mFormat.BytesPerPixel);
             }
         }
     };

@@ -107,19 +107,19 @@ namespace Render
         return core::Size(mOutputMode.Width(), mOutputMode.Height());
     }
 
-    void SDLRenderEngine::UpdateClipRect(const Rect &rect)
+    void SDLRenderEngine::UpdateClipRect(const core::Rect &rect)
     {
         const int code = SDL_RenderSetClipRect(mRenderer.get(), &rect);
         throw_sdl_error(code);
     }
 
-    void SDLRenderEngine::UpdateDrawColor(const Color &color)
+    void SDLRenderEngine::UpdateDrawColor(const core::Color &color)
     {
         SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
         if(color.a == 0xff) {
             blendMode = SDL_BLENDMODE_NONE;
         }
-
+        
         {
             const int code = SDL_SetRenderDrawBlendMode(mRenderer.get(), blendMode);
             throw_sdl_error(code);
@@ -131,14 +131,14 @@ namespace Render
         }
     }
     
-    void SDLRenderEngine::DrawPoints(const Point *points, size_t count, const Color &color)
+    void SDLRenderEngine::DrawPoints(const core::Point *points, size_t count, const core::Color &color)
     {
         UpdateClipRect(mClipRect);
         UpdateDrawColor(color);
         SDL_RenderDrawPoints(mRenderer.get(), points, count);
     }
     
-    void SDLRenderEngine::DrawRects(const Rect *rects, size_t count, const Color &color, DrawMode mode)
+    void SDLRenderEngine::DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode)
     {
         UpdateClipRect(mClipRect);
         UpdateDrawColor(color);
@@ -160,7 +160,7 @@ namespace Render
         }
     }
     
-    void SDLRenderEngine::DrawLines(const core::Line *lines, size_t count, const Color &color)
+    void SDLRenderEngine::DrawLines(const core::Line *lines, size_t count, const core::Color &color)
     {
         UpdateClipRect(mClipRect);
         UpdateDrawColor(color);
@@ -175,7 +175,7 @@ namespace Render
         }
     }
 
-    void SDLRenderEngine::DrawPolygon(const Point *points, size_t count, const Color &color, DrawMode mode)
+    void SDLRenderEngine::DrawPolygon(const core::Point *points, size_t count, const core::Color &color, DrawMode mode)
     {
         if(count == 0) {
             return;
@@ -207,7 +207,7 @@ namespace Render
         }
     }
     
-    void SDLRenderEngine::DrawSurface(const Surface &image, const Rect &textureRect, const Rect &screenRect)
+    void SDLRenderEngine::DrawSurface(const Surface &image, const core::Rect &textureRect, const core::Rect &screenRect)
     {
         if(Intersects(screenRect, mClipRect)) {
             UpdateClipRect(mClipRect);
@@ -218,20 +218,20 @@ namespace Render
         }
     }
 
-    void SDLRenderEngine::DrawSurfaceTiled(const Surface &image, const Rect &source, const Rect &target)
+    void SDLRenderEngine::DrawSurfaceTiled(const Surface &image, const core::Rect &source, const core::Rect &target)
     {
     }
     
-    void SDLRenderEngine::DrawSurfaceScaled(const Surface &image, const Rect &source, const Rect &target)
+    void SDLRenderEngine::DrawSurfaceScaled(const Surface &image, const core::Rect &source, const core::Rect &target)
     {
     }
     
-    void SDLRenderEngine::ClipRect(const Rect &rect)
+    void SDLRenderEngine::ClipRect(const core::Rect &rect)
     {
         mClipRect = rect;
     }
     
-    void SDLRenderEngine::ClearOutput(const Color &color)
+    void SDLRenderEngine::ClearOutput(const core::Color &color)
     {
         SDL_RenderSetClipRect(mRenderer.get(), NULL);
         SDL_SetRenderDrawColor(mRenderer.get(), color.r, color.g, color.b, color.a);

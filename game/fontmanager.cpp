@@ -61,20 +61,20 @@ public:
     /**
        Produces as result argb32 surface considered to be drawn on screen.
      **/
-    Surface RenderBlended(const std::string &text, const Color &fg) const;
+    Surface RenderBlended(const std::string &text, const core::Color &fg) const;
 
     /**
        Palettized surface with background
      **/
-    Surface RenderShaded(const std::string &text, const Color &fg, const Color &bg) const;
+    Surface RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const;
 
     /**
        Cheap and fast
      **/
-    Surface RenderSolid(const std::string &text, const Color &fg) const;
+    Surface RenderSolid(const std::string &text, const core::Color &fg) const;
     
     bool HasGlyph(int character) const;
-    const Rect TextSize(const std::string &text) const;
+    const core::Rect TextSize(const std::string &text) const;
     void UpdateFontState(const core::Font &font) const;
     int LineSkip() const;
     
@@ -87,14 +87,14 @@ protected:
     mutable FontPtr mFontObject;
 };
 
-const Rect FontData::TextSize(const std::string &text) const
+const core::Rect FontData::TextSize(const std::string &text) const
 {
     int width;
     int height;
     if(TTF_SizeText(mFontObject.get(), text.c_str(), &width, &height) < 0) {
         throw ttf_error();
     }
-    return Rect(width, height);
+    return core::Rect(width, height);
 }
 
 const core::Font& FontData::Font() const
@@ -111,17 +111,17 @@ void FontData::UpdateFontState(const core::Font &font) const
     TTF_SetFontKerning(ttf_font, font.Kerning());
 }
 
-Surface FontData::RenderBlended(const std::string &text, const Color &fg) const
+Surface FontData::RenderBlended(const std::string &text, const core::Color &fg) const
 {
     return Surface(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
 }
 
-Surface FontData::RenderShaded(const std::string &text, const Color &fg, const Color &bg) const
+Surface FontData::RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const
 {
     return Surface(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
 }
 
-Surface FontData::RenderSolid(const std::string &text, const Color &fg) const
+Surface FontData::RenderSolid(const std::string &text, const core::Color &fg) const
 {
     return Surface(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
 }
@@ -281,7 +281,7 @@ namespace Render
         mFontTable.push_back(std::move(fontdata));
     }
     
-    void FontManager::DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const Color &fg, const Color &bg) const
+    void FontManager::DrawText(Renderer &renderer, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const
     {
         if(!text.empty()) {
             const FontData *fontData = LookupFont(font);
@@ -305,7 +305,7 @@ namespace Render
                 }
                 renderer.Opacity(fg.a);
                 renderer.BindSurface(textSurface);
-                renderer.Blit(Rect(textSurface), Rect(textSurface));
+                renderer.Blit(core::Rect(textSurface), core::Rect(textSurface));
                 renderer.RestoreOpacity();
             } else {
                 throw ttf_error();
@@ -313,7 +313,7 @@ namespace Render
         }
     }
 
-    const Rect FontManager::TextSize(const core::Font &font, const std::string &text) const
+    const core::Rect FontManager::TextSize(const core::Font &font, const std::string &text) const
     {
         const FontData *fontData = LookupFont(font);
         if(fontData == nullptr) {

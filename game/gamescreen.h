@@ -11,15 +11,20 @@
 #include <game/collection.h>
 #include <game/camera.h>
 
-class Rect;
+namespace core
+{
+    class Rect;
+}
+
 class Surface;
 enum class Landscape;
 
-namespace Castle
-{
-    class Creature;
-    class SimulationManager;
-    class SimulationContext;
+namespace Castle {
+    namespace World {
+        class Creature;
+        class SimulationManager;
+        class SimulationContext;
+    }
 }
 
 namespace UI
@@ -44,20 +49,20 @@ namespace UI
         Castle::Collection cliffs;
         std::chrono::steady_clock::time_point mLastCameraUpdate;
         std::map<SDL_Keycode, bool> mKeyState;
-        Point mCursor;
+        core::Point mCursor;
         bool mCursorInvalid;
         Castle::Camera mCamera;
-        Castle::SimulationContext *mSimContext;
+        Castle::World::SimulationContext *mSimContext;
 
     protected:
         void RenderTile(Render::Renderer &render, const Castle::GameMap::Cell &cell);
-        void RenderCreature(Render::Renderer &renderer, const Castle::Creature &creature);
+        void RenderCreature(Render::Renderer &renderer, const Castle::World::Creature &creature);
         bool HandleKeyPress(const SDL_KeyboardEvent &event);
         bool HandleMouseButton(const SDL_MouseButtonEvent &event);
         void UpdateCamera(const Render::Renderer &renderer);
         void ToggleCameraMode();
         Castle::Camera& ActiveCamera();
-        bool TileSelected(const Point &cursor, const Castle::GameMap::Cell &cell) const;
+        bool TileSelected(const core::Point &cursor, const Castle::GameMap::Cell &cell) const;
         Castle::GameMap::Cell FindSelectedTile(const Render::Renderer &renderer);
         Castle::Collection const& GetTileSet(Landscape landscape) const;
         
@@ -67,7 +72,7 @@ namespace UI
         GameScreen& operator=(GameScreen const&) = delete;
         virtual ~GameScreen();
 
-        void SetSimulationContext(Castle::SimulationContext &context);
+        void SetSimulationContext(Castle::World::SimulationContext &context);
         
         void Render(Render::Renderer &render);
         bool HandleEvent(const SDL_Event &event);

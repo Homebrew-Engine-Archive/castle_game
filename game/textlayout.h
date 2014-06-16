@@ -38,7 +38,7 @@ namespace UI
         void SetText(const std::string &text);
         
         void SetFont(const core::Font &font);
-        void SetAlignment(Alignment align);
+        void SetAlignment(core::Alignment align);
         void SetWidth(int width);
         
         void InvalidateLayout();
@@ -46,7 +46,7 @@ namespace UI
 
         typedef std::vector<TextLayoutItem>::const_iterator const_iterator;
         
-        const Rect BoundingRect() const;
+        const core::Rect BoundingRect() const;
         const_iterator begin() const;
         const_iterator end() const;
 
@@ -65,12 +65,12 @@ namespace UI
         const TextLayoutLine GetLayoutLine(const Render::FontManager &engine, std::istream &in);
         
     protected:
-        Alignment mHorizontalAlignment;
+        core::Alignment mHorizontalAlignment;
         int mWidth;
         std::string mText;
         core::Font mTextFont;
         std::vector<TextLayoutItem> mItems;
-        Rect mBoundingRect;
+        core::Rect mBoundingRect;
         bool mInvalidated;
 
     };

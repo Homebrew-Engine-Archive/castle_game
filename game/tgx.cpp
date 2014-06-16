@@ -116,7 +116,7 @@ namespace
 
     bool PixelTransparent(const char *pixels, uint32_t colorKey, int bytesPerPixel)
     {
-        return GetPackedPixel(pixels, bytesPerPixel) == colorKey;
+        return core::GetPackedPixel(pixels, bytesPerPixel) == colorKey;
     }
     
     std::ostream& WriteStreamToken(std::ostream &out, const char *pixels, int numPixels, int bytesPerPixel)

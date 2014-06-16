@@ -5,8 +5,11 @@
 
 #include <game/rect.h>
 
-class Point;
-class Color;
+namespace core
+{
+    class Point;
+    class Color;
+}
 
 /**
  * \brief Wrapper for SDL_Surface with reference counting
@@ -59,10 +62,10 @@ public:
 class SurfaceClipper
 {
     const Surface &mObject;
-    Rect mOldClip;
+    core::Rect mOldClip;
     
 public:
-    SurfaceClipper(const Surface &surface, const Rect &cliprect);
+    SurfaceClipper(const Surface &surface, const core::Rect &cliprect);
     ~SurfaceClipper() throw();
 };
 
@@ -92,17 +95,17 @@ void SetColorKey(Surface &surface, uint32_t *key);
 uint32_t GetColorKey(const Surface &surface);
 bool HasColorKey(const Surface &surface);
 
-const Rect GetClipRect(const Surface &surface);
+const core::Rect GetClipRect(const Surface &surface);
 SDL_BlendMode GetSurfaceBlendMode(const Surface &surface);
 
 void CopyColorKey(SDL_Surface *src, SDL_Surface *dst);
 
-void BlitSurface(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
-void BlitSurfaceScaled(const Surface &source, const Rect &sourceRect, Surface &dest, const Rect &destRect);
+void BlitSurface(const Surface &source, const core::Rect &sourceRect, Surface &dest, const core::Rect &destRect);
+void BlitSurfaceScaled(const Surface &source, const core::Rect &sourceRect, Surface &dest, const core::Rect &destRect);
 
-void TransformSurface(const Surface &surface, Color(Color const&));
+void TransformSurface(const Surface &surface, core::Color(core::Color const&));
 
-uint32_t ExtractPixel(const Surface &surface, const Point &coord);
-uint32_t ExtractPixelLocked(const Surface &surface, const Point &coord);
+uint32_t ExtractPixel(const Surface &surface, const core::Point &coord);
+uint32_t ExtractPixelLocked(const Surface &surface, const core::Point &coord);
 
 #endif

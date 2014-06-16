@@ -29,9 +29,9 @@ namespace
         return (globalOpacity * MaxOpacity) / opacity;
     }
 
-    constexpr const Color BlendColor(const Color &color, int opacity)
+    constexpr const core::Color BlendColor(const core::Color &color, int opacity)
     {
-        return Color(color.r, color.g, color.b, GetBlendedOpacity(opacity, color.a));
+        return core::Color(color.r, color.g, color.b, GetBlendedOpacity(opacity, color.a));
     }
 }
 
@@ -81,14 +81,14 @@ namespace Render
         const OutputMode mode = mRenderEngine.GetOutputMode();
         mClipStack.clear();
         mClipStack.push_back(
-            Rect(mode.Width(), mode.Height()));
+            core::Rect(mode.Width(), mode.Height()));
             
         mScreenRectStack.clear();
         mScreenRectStack.push_back(
-            Rect(mode.Width(), mode.Height()));
+            core::Rect(mode.Width(), mode.Height()));
         
         mRenderEngine.BeginFrame();
-        mRenderEngine.ClearOutput(Colors::Black);
+        mRenderEngine.ClearOutput(core::colors::Black);
 
         mOpacity = MaxOpacity;
     }
@@ -98,40 +98,40 @@ namespace Render
         mRenderEngine.EndFrame();
     }
 
-    const Point Renderer::GetMaxOutputSize() const
+    const core::Point Renderer::GetMaxOutputSize() const
     {
         return GetOutputSize();
     }
     
-    const Point Renderer::GetOutputSize() const
+    const core::Point Renderer::GetOutputSize() const
     {
         const OutputMode mode = mRenderEngine.GetOutputMode();
-        return Point(mode.Width(), mode.Height());
+        return core::Point(mode.Width(), mode.Height());
     }
     
-    const Rect Renderer::GetScreenClipRect() const
+    const core::Rect Renderer::GetScreenClipRect() const
     {
         assert(!mClipStack.empty());
         return mClipStack.back();
     }
     
-    const Rect Renderer::GetScreenRect() const
+    const core::Rect Renderer::GetScreenRect() const
     {
         assert(!mScreenRectStack.empty());
-        return Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
+        return core::Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
     }
 
-    void Renderer::ClipRect(const Rect &clipArea)
+    void Renderer::ClipRect(const core::Rect &clipArea)
     {
-        if(RectEmpty(clipArea)) {
-            mClipStack.push_back(Rect());
-            mScreenRectStack.push_back(Rect());
+        if(core::RectEmpty(clipArea)) {
+            mClipStack.push_back(core::Rect());
+            mScreenRectStack.push_back(core::Rect());
             return;
         }
         
-        const Rect unwindedArea = UnwindClipRect(clipArea);
-        const Rect oldClipArea = GetScreenClipRect();
-        const Rect newClipArea = Intersection(oldClipArea, unwindedArea);
+        const core::Rect unwindedArea = UnwindClipRect(clipArea);
+        const core::Rect oldClipArea = GetScreenClipRect();
+        const core::Rect newClipArea = Intersection(oldClipArea, unwindedArea);
         mClipStack.push_back(newClipArea);
         mScreenRectStack.push_back(unwindedArea);
 
@@ -161,17 +161,17 @@ namespace Render
         mRenderEngine.SetOpacityMod(mOpacity);
     }
     
-    const Rect Renderer::UnwindClipRect(const Rect &rect) const
+    const core::Rect Renderer::UnwindClipRect(const core::Rect &rect) const
     {
-        return Translated(rect, TopLeft(
+        return Translated(rect, core::TopLeft(
                               (mScreenRectStack.empty()
-                               ? Rect()
+                               ? core::Rect()
                                : mScreenRectStack.back())));
     }
 
-    const Point Renderer::ClipPoint(const Point &point) const
+    const core::Point Renderer::ClipPoint(const core::Point &point) const
     {
-        return point - TopLeft(GetScreenClipRect());
+        return point - core::TopLeft(GetScreenClipRect());
     }
     
     void Renderer::SetScreenWidth(int width)
@@ -215,7 +215,7 @@ namespace Render
         mBoundFont = font;
     }
     
-    void PaintRhombus(RenderEngine &engine, const Rect &bounds, const Color &color, DrawMode mode)
+    void PaintRhombus(RenderEngine &engine, const core::Rect &bounds, const core::Color &color, DrawMode mode)
     {
         const auto x1 = bounds.x;
         const auto y1 = bounds.y;
@@ -226,7 +226,7 @@ namespace Render
         const auto centerY = (y1 + y2) / 2;
 
         constexpr int NumPoints = 5;
-        const Point points[NumPoints] = {
+        const core::Point points[NumPoints] = {
             {x1, centerY},
             {centerX, y1},
             {x2, centerY},
@@ -237,35 +237,35 @@ namespace Render
         engine.DrawPolygon(&points[0], NumPoints, color, mode);
     }
     
-    void Renderer::FillRhombus(const Rect &rect, const Color &color)
+    void Renderer::FillRhombus(const core::Rect &rect, const core::Color &color)
     {
-        const Rect translatedRect = UnwindClipRect(rect);
-        const Color blended = BlendColor(color, mOpacity);
+        const core::Rect translatedRect = UnwindClipRect(rect);
+        const core::Color blended = BlendColor(color, mOpacity);
         PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Filled);
     }
 
-    void Renderer::DrawRhombus(const Rect &rect, const Color &color)
+    void Renderer::DrawRhombus(const core::Rect &rect, const core::Color &color)
     {
-        const Rect translatedRect = UnwindClipRect(rect);
-        const Color blended = BlendColor(color, mOpacity);
+        const core::Rect translatedRect = UnwindClipRect(rect);
+        const core::Color blended = BlendColor(color, mOpacity);
         PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Outline);
     }
 
-    void Renderer::FillFrame(const Rect &rect, const Color &color)
+    void Renderer::FillFrame(const core::Rect &rect, const core::Color &color)
     {        
-        const Rect unclippedRect = UnwindClipRect(rect);
-        const Color blended = BlendColor(color, mOpacity);
+        const core::Rect unclippedRect = UnwindClipRect(rect);
+        const core::Color blended = BlendColor(color, mOpacity);
         mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Filled);
     }
 
-    void Renderer::DrawFrame(const Rect &rect, const Color &color)
+    void Renderer::DrawFrame(const core::Rect &rect, const core::Color &color)
     {
-        const Rect unclippedRect = UnwindClipRect(rect);
-        const Color blended = BlendColor(color, mOpacity);
+        const core::Rect unclippedRect = UnwindClipRect(rect);
+        const core::Color blended = BlendColor(color, mOpacity);
         mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Outline);
     }
 
-    void PaintPyramid(RenderEngine &engine, const Rect &top, const Rect &bottom, const Color &color, DrawMode mode)
+    void PaintPyramid(RenderEngine &engine, const core::Rect &top, const core::Rect &bottom, const core::Color &color, DrawMode mode)
     {
         // PaintRhombus(engine, bottom, color, mode);
         // PaintRhombus(engine, top, color, mode);
@@ -288,7 +288,7 @@ namespace Render
 
         {
             constexpr int NumPoints = 5;
-            const Point points[NumPoints] = {
+            const core::Point points[NumPoints] = {
                 {tx1, tcenterY},
                 {tcenterX, ty2},
                 {bcenterX, by2},
@@ -300,7 +300,7 @@ namespace Render
 
         {
             constexpr int NumPoints = 5;
-            const Point points[NumPoints] = {
+            const core::Point points[NumPoints] = {
                 {tcenterX, ty2},
                 {tx2, tcenterY},
                 {bx2, bcenterY},
@@ -311,7 +311,7 @@ namespace Render
         }
     }
     
-    void Renderer::Blit(const Rect &textureSubRect, const Rect &screenSubRect)
+    void Renderer::Blit(const core::Rect &textureSubRect, const core::Rect &screenSubRect)
     {        
         mRenderEngine.SetOpacityMod(mOpacity);
         
@@ -319,16 +319,16 @@ namespace Render
             SDL_SetSurfacePalette(mBoundSurface, &mBoundPalette.asSDLPalette());
         }
 
-        const Rect unclippedRect = UnwindClipRect(screenSubRect);
+        const core::Rect unclippedRect = UnwindClipRect(screenSubRect);
         mRenderEngine.DrawSurface(mBoundSurface, textureSubRect, unclippedRect);
     }
     
-    void Renderer::BlitTiled(const Rect &from, const Rect &to)
+    void Renderer::BlitTiled(const core::Rect &from, const core::Rect &to)
     {
         
     }
 
-    void Renderer::BlitScaled(const Rect &from, const Rect &to)
+    void Renderer::BlitScaled(const core::Rect &from, const core::Rect &to)
     {
 
     }
