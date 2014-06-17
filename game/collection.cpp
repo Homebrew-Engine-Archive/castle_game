@@ -44,7 +44,7 @@ namespace Castle
         }
     }
 
-    Surface LoadTGX(const fs::path &path)
+    Image LoadTGX(const fs::path &path)
     {
         boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
@@ -101,7 +101,7 @@ namespace Castle
         return core::Point(mHeader.anchorX, mHeader.anchorY);
     }
 
-    const Surface Collection::GetSurface(size_t index) const
+    const Image Collection::GetImage(size_t index) const
     {
         return mEntries.at(index);
     }

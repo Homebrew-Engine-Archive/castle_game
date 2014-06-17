@@ -23,7 +23,6 @@ namespace Castle
             std::chrono::milliseconds mTurnLength;
             float mTurnLengthMultiplier;
             std::vector<std::unique_ptr<Creature>> mCreatures;
-            
         
         public:
             explicit SimulationContext();

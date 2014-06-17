@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstring>
 
+#include <functional>
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -11,8 +12,7 @@
 
 #include <game/color.h>
 #include <game/iohelpers.h>
-#include <game/surface.h>
-#include <game/sdl_error.h>
+#include <game/image.h>
 
 namespace
 {
@@ -94,14 +94,9 @@ namespace
         return out;
     }
     
-    Surface CreateCompatibleSurface(int width, int height)
+    Castle::Image CreateCompatibleImage(int width, int height)
     {
-        Surface surface = CreateSurface(width, height, TGX::PixelFormat);
-        if(!surface) {
-            throw sdl_error();
-        }
-
-        return surface;
+        return Castle::CreateImage(width, height, TGX::PixelFormat);
     }
     
     bool PixelsEqual(const char *lhs, const char *rhs, int bytesPerPixel)
@@ -155,8 +150,8 @@ namespace
 
 namespace TGX
 {
-
-    std::ostream& EncodeLine(std::ostream &out, const char *pixels, int width, int bytesPP, uint32_t colorKey)
+    template<class TransparencyPred>
+    std::ostream& EncodeLine(std::ostream &out, const char *pixels, int width, int bytesPP, TransparencyPred transparent)
     {
         const char *end = pixels + width * bytesPP;
 
@@ -165,7 +160,7 @@ namespace TGX
             {
                 const char *mark = pixels;
                 while((pixels != end) &&
-                      (PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      (transparent(pixels)) &&
                       (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
                     pixels += bytesPP;
                 }
@@ -176,7 +171,7 @@ namespace TGX
             {
                 const char *mark = pixels;
                 while((pixels != end) && 
-                      (!PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      (!transparent(pixels)) &&
                       (PixelsEqual(pixels, mark, bytesPP)) && 
                       (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
                     pixels += bytesPP;
@@ -192,12 +187,12 @@ namespace TGX
             {
                 const char *mark = pixels;
                 while((pixels != end) && 
-                      (!PixelTransparent(pixels, colorKey, bytesPP)) &&
+                      (!transparent(pixels)) &&
                       ((pixels == mark) || (!PixelsEqual(pixels, pixels - bytesPP, bytesPP))) &&
                       (PixelsCount(mark, pixels, bytesPP) < MaxTokenLength)) {
                     pixels += bytesPP;
                 }
-                if((pixels != mark) && (PixelsEqual(pixels, pixels - bytesPP, bytesPP))) {
+                if((pixels != end) && (pixels != mark) && (PixelsEqual(pixels, pixels - bytesPP, bytesPP))) {
                     pixels -= bytesPP;
                 }
 
@@ -208,22 +203,27 @@ namespace TGX
         return WriteLineFeed(out);
     }    
 
-    std::ostream& EncodeSurface(std::ostream &out, const Surface &surface)
+    std::ostream& EncodeImage(std::ostream &out, const Castle::Image &image)
     {
-        const SurfaceLocker lock(surface);
+        const Castle::ImageLocker lock(image);
         
-        const char *data = SurfaceData(surface);
-        const int pixelStride = SurfacePixelStride(surface);
-        const int rowStride = SurfaceRowStride(surface);
+        const char *data = lock.Data();
+        const auto pixelStride = image.PixelStride();
+        const auto rowStride = image.RowStride();
 
-        if(!HasColorKey(surface)) {
-            // \todo this is not so
-            throw std::runtime_error("surface should have color key");
+        std::function<bool(const char*)> transparencyPredicate = [](const char *pixel) {
+            return false;
+        };
+
+        if(image.HasColorKey()) {
+            const uint32_t colorKey = image.GetColorKey().ConvertTo(Castle::ImageFormat(image));
+            transparencyPredicate = [pixelStride, colorKey](const char *pixel) {
+                return PixelTransparent(pixel, colorKey, pixelStride);
+            };
         }
-        const uint32_t colorKey = GetColorKey(surface);
 
-        for(int y = 0; y < SurfaceHeight(surface); ++y) {
-            EncodeLine(out, data + rowStride * y, SurfaceWidth(surface), pixelStride, colorKey);
+        for(size_t y = 0; y < image.Height(); ++y) {
+            EncodeLine(out, data + rowStride * y, image.Width(), pixelStride, transparencyPredicate);
             if(!out) {
                 return out;
             }
@@ -232,16 +232,16 @@ namespace TGX
         return out;
     }
     
-    std::ostream& WriteTGX(std::ostream &out, const Surface &surface)
+    std::ostream& WriteTGX(std::ostream &out, const Castle::Image &surface)
     {
         Header header;
-        header.width = SurfaceWidth(surface);
-        header.height = SurfaceHeight(surface);
+        header.width = surface.Width();
+        header.height = surface.Height();
         WriteHeader(out, header);
-        return EncodeSurface(out, surface);
+        return EncodeImage(out, surface);
     }
     
-    const Surface ReadTGX(std::istream &in)
+    const Castle::Image ReadTGX(std::istream &in)
     {
         Header header;
         if(!ReadHeader(in, header)) {
@@ -253,8 +253,8 @@ namespace TGX
         const std::streampos fsize = in.tellg();
         in.seekg(origin);
 
-        Surface surface = CreateCompatibleSurface(header.width, header.height);
-        TGX::DecodeSurface(in, fsize - origin, surface);
+        Castle::Image surface = CreateCompatibleImage(header.width, header.height);
+        TGX::DecodeImage(in, fsize - origin, surface);
         
         return surface;
     }
@@ -336,18 +336,18 @@ namespace TGX
         return in;
     }
     
-    std::istream& DecodeSurface(std::istream &in, size_t numBytes, Surface &surface)
+    std::istream& DecodeImage(std::istream &in, size_t numBytes, Castle::Image &image)
     {
-        const SurfaceLocker lock(surface);
+        Castle::ImageLocker lock(image);
 
-        const int width = SurfaceWidth(surface);
-        const int height = SurfaceHeight(surface);
-        const int pixelStride = SurfacePixelStride(surface);
-        const int rowStride = SurfaceRowStride(surface);
+        const int width = image.Width();
+        const int height = image.Height();
+        const int pixelStride = image.PixelStride();
+        const int rowStride = image.RowStride();
 
         const std::streampos endPos = numBytes + in.tellg();
         
-        char *const data = SurfaceData(surface);
+        char *const data = lock.Data();
 
         for(int y = 0; y < height; ++y) {
             if((in) && (in.tellg() < endPos)) {
@@ -364,13 +364,13 @@ namespace TGX
         return in;
     }
     
-    std::istream& ReadSurfaceHeader(std::istream &in, Surface &surface)
+    std::istream& ReadImageHeader(std::istream &in, Castle::Image &surface)
     {
         Header header;
         if(!ReadHeader(in, header)) {
             throw std::runtime_error(strerror(errno));
         }
-        surface = CreateCompatibleSurface(header.width, header.height);
+        surface = CreateCompatibleImage(header.width, header.height);
         return in;
     }
     

@@ -3,12 +3,15 @@
 
 #include <game/screen.h>
 
-namespace UI
+namespace Castle
 {
-    class MenuBuilder : public Screen
+    namespace UI
     {
-
-    };
+        class MenuBuilder : public Screen
+        {
+        public:
+        };
+    }
 }
 
 #endif  // MENU_BUILDER_H_

@@ -3,13 +3,16 @@
 
 #include <gmtool/renderer.h>
 
-class Surface;
+namespace Castle
+{
+    class Image;
+}
 
 namespace GMTool
 {
     struct TGXRenderer : public Renderer
     {
-        virtual void RenderToStream(std::ostream &out, const Surface &surface);
+        virtual void RenderToStream(std::ostream &out, const Castle::Image &surface);
     };
 }
 

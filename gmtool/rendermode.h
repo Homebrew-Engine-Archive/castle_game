@@ -12,7 +12,10 @@
 
 #include <game/color.h>
 
-class Surface;
+namespace Castle
+{
+    class Image;
+}
 
 namespace GM1
 {
@@ -33,15 +36,15 @@ namespace GMTool
         std::string mFormat;
         int mEntryIndex = 0;
         int mPaletteIndex = 0;
-        Color mTransparentColor;
+        core::Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
         bool mApproxSize = false;
 
-        Color DefaultTransparent() const;
+        const core::Color DefaultTransparent() const;
         
-        void SetupFormat(Surface &surface, uint32_t format);
-        void SetupPalette(Surface &surface, const GM1::Palette &palette);
-        void SetupTransparentColor(Surface &surface, const Color &color);
+        void SetupFormat(Castle::Image &surface, uint32_t format);
+        void SetupPalette(Castle::Image &surface, const GM1::Palette &palette);
+        void SetupTransparentColor(Castle::Image &surface, const core::Color &color);
         
     public:
         RenderMode();

@@ -5,7 +5,7 @@
 
 #include <SDL.h>
 
-#include <game/surface.h>
+#include <game/image.h>
 #include <game/gm1.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
@@ -48,18 +48,18 @@ namespace Castle
         int Count() const;
         GM1::Header const& GetHeader() const;
         const core::Point Anchor() const;
-        const Surface GetSurface(size_t index) const;
+        const Image GetImage(size_t index) const;
         GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
         GM1::Palette const& GetPalette(PaletteName name) const;
 
     private:
         GM1::Header mHeader;
         std::vector<GM1::Palette> mPalettes;
-        std::vector<Surface> mEntries;
+        std::vector<Image> mEntries;
         std::vector<GM1::EntryHeader> mHeaders;
     };
 
-    Surface LoadTGX(const fs::path &filename);
+    Image LoadTGX(const fs::path &filename);
     Collection LoadGM1(const fs::path &filename);
 }
 

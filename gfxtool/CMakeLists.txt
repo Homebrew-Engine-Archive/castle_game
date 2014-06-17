@@ -8,7 +8,7 @@ set (SRCS
 
 set (SHARED
   ../game/tgx.cpp
-  ../game/surface.cpp
+  ../game/image.cpp
   ../game/sdl_utils.cpp
   ../game/rect.cpp
   ../game/point.cpp

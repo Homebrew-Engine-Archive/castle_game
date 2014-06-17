@@ -10,36 +10,45 @@
 #include <game/screen.h>
 #include <game/textarea.h>
 
-namespace UI
+namespace Castle
 {
-    class ScreenManager;
-}
-
-namespace UI
-{
-    class Console : public Screen
+    namespace Render
     {
-    public:
-        Console(UI::ScreenManager &screenManager);
-        Console(Console const&) = delete;
-        Console& operator=(Console const&) = delete;
+        class Renderer;
+    }
+    
+    namespace UI
+    {
+        class ScreenManager;
+    }
 
-        void LogMessage(const std::string &message);
-        void Render(Render::Renderer &renderer);
-        bool HandleEvent(const SDL_Event &event);
+    namespace UI
+    {
+        class Console : public Screen
+        {
+        public:
+            explicit Console(ScreenManager &screenManager);
+            Console(Console const&) = delete;
+            Console& operator=(Console const&) = delete;
+            virtual ~Console() = default;
 
-    private:
-        ScreenManager &mScreenManager;
-        std::deque<std::string> mCommandHistory;
-        std::ostringstream mConsoleBuffer;
-        TextArea mPromptArea;
-        TextArea mLogArea;
+            void LogMessage(const std::string &message);
+            void Render(Render::Renderer &renderer);
+            bool HandleEvent(const SDL_Event &event);
 
-    protected:
-        void OnCommandEntered(const std::string &text);        
-        bool HandleKey(const SDL_KeyboardEvent &event);
-        bool HandleTextInput(const SDL_TextInputEvent &text);
-    };
+        private:
+            ScreenManager &mScreenManager;
+            std::deque<std::string> mCommandHistory;
+            std::ostringstream mConsoleBuffer;
+            TextArea mPromptArea;
+            TextArea mLogArea;
+
+        protected:
+            void OnCommandEntered(const std::string &text);        
+            bool HandleKey(const SDL_KeyboardEvent &event);
+            bool HandleTextInput(const SDL_TextInputEvent &text);
+        };
+    }
 }
 
 #endif  // CONSOLE_H_

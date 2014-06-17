@@ -11,8 +11,8 @@
 #include <game/gm1palette.h>
 #include <game/gm1.h>
 #include <game/tgx.h>
-#include <game/surface.h>
-#include <game/surface_view.h>
+#include <game/image.h>
+#include <game/imageview.h>
 
 namespace
 {    
@@ -33,7 +33,7 @@ namespace
             return SourcePixelFormat();
         }
         
-        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
 
     /**
@@ -47,13 +47,13 @@ namespace
     class TGX16 : public GM1::GM1EntryReader
     {
     protected:
-        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
 
     class FontReader : public GM1::GM1EntryReader
     {
     protected:
-        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
     
     /**
@@ -76,7 +76,7 @@ namespace
         //     return GM1::TileSpriteHeight + header.tileY;
         // }
     
-        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
 
     /**
@@ -90,22 +90,22 @@ namespace
             return header.height - 7;
         }
     
-        void ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
     
-    void TGX8::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    void TGX8::ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const
     {
-        TGX::DecodeSurface(in, numBytes, surface);
+        TGX::DecodeImage(in, numBytes, surface);
     }
 
-    void TGX16::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    void TGX16::ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const
     {
-        TGX::DecodeSurface(in, numBytes, surface);
+        TGX::DecodeImage(in, numBytes, surface);
     }
 
-    void FontReader::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    void FontReader::ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const
     {
-        TGX::DecodeSurface(in, numBytes, surface);
+        TGX::DecodeImage(in, numBytes, surface);
 
         // Originally I found that just color-keying of an image
         // doesn't work properly. After skipping all fully-transparent
@@ -116,10 +116,7 @@ namespace
 
         // TODO is there a better way to do so?
         // uint32_t destFormat = SDL_PIXELFORMAT_ARGB8888;
-        // Surface tmp = ConvertSurface(surface, destFormat);
-        // if(!tmp) {
-        //     throw sdl_error();
-        // }
+        // Castle::Image tmp = Castle::ConvertImage(surface, destFormat);
 
         // uint32_t colorkey = GetColorKey(destFormat);
         // if(SDL_SetColorKey(tmp, SDL_TRUE, colorkey) < 0) {
@@ -132,20 +129,20 @@ namespace
         //     return core::Color(color.r, 255, color.b, color.g);
         // };
     
-        // TransformSurface(tmp, swap_green_alpha);
+        // Castle::TransformImage(tmp, swap_green_alpha);
 
         // surface = tmp;
     }
     
-    void Bitmap::ReadSurface(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Surface &surface) const
+    void Bitmap::ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const
     {
-        const SurfaceLocker lock(surface);
+        Castle::ImageLocker lock(surface);
 
-        const int stride = SurfaceRowStride(surface);
-        const size_t rowBytes = SurfaceWidth(surface) * SurfacePixelStride(surface);
-        char *const data = SurfaceData(surface);
+        const auto stride = surface.RowStride();
+        const auto rowBytes = surface.Width() * surface.PixelStride();
+        char *const data = lock.Data();
 
-        for(int i = 0; (numBytes >= rowBytes) && (i < SurfaceHeight(surface)); ++i) {
+        for(size_t i = 0; (numBytes >= rowBytes) && (i < surface.Height()); ++i) {
             in.read(data + stride * i, rowBytes);
             numBytes -= rowBytes;
         }
@@ -160,33 +157,33 @@ namespace
         return PerRow[row];
     }
 
-    void ReadTile(std::istream &in, Surface &surface)
+    void ReadTile(std::istream &in, Castle::Image &image)
     {
-        const SurfaceLocker lock(surface);
+        Castle::ImageLocker lock(image);
         
-        const int rowStride = SurfaceRowStride(surface);
-        const int height = GM1::TileSpriteHeight;
-        const int width = GM1::TileSpriteWidth;
-        const int pixelStride = SurfacePixelStride(surface);
-        char *data = SurfaceData(surface);
+        const auto rowStride = image.RowStride();
+        const auto height = GM1::TileSpriteHeight;
+        const auto width = GM1::TileSpriteWidth;
+        const auto pixelStride = image.PixelStride();
+        char *data = lock.Data();
     
-        for(int y = 0; y < height; ++y) {
-            const int length = GetTilePixelsPerRow(y);
-            const int offset = (width - length) / 2;
+        for(size_t y = 0; y < height; ++y) {
+            const auto length = GetTilePixelsPerRow(y);
+            const auto offset = (width - length) / 2;
             in.read(data + offset * pixelStride, length * pixelStride);
             data += rowStride;
         }
     }
     
-    void TileObject::ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const
+    void TileObject::ReadImage(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Castle::Image &surface) const
     {
         const core::Rect tilerect(0, header.tileY, Width(header), GM1::TileSpriteHeight);
-        SurfaceView tile(surface, tilerect);
-        ReadTile(in, tile.View());
+        Castle::ImageView tile(surface, tilerect);
+        ReadTile(in, tile.GetView());
         
         const core::Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
-        SurfaceView box(surface, boxrect);
-        TGX::DecodeSurface(in, numBytes - GM1::TileBytes, box.View());
+        Castle::ImageView box(surface, boxrect);
+        TGX::DecodeImage(in, numBytes - GM1::TileBytes, box.GetView());
     }
 }
 
@@ -197,16 +194,13 @@ namespace GM1
     {
     }
     
-    Surface GM1EntryReader::CreateCompatibleSurface(const GM1::EntryHeader &header) const
+    Castle::Image GM1EntryReader::CreateCompatibleImage(const GM1::EntryHeader &header) const
     {
         const int width = Width(header);
         const int height = Height(header);
         const uint32_t format = SourcePixelFormat();
         
-        Surface surface = CreateSurface(width, height, format);
-        if(!surface) {
-            throw sdl_error();
-        }
+        Castle::Image surface = Castle::CreateImage(width, height, format);
 
         const uint32_t colorkey = GetColorKey(format);
         if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
@@ -220,19 +214,16 @@ namespace GM1
         return surface;
     }
 
-    const Surface GM1EntryReader::Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const
+    const Castle::Image GM1EntryReader::Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
-        //const GM1::EntryHeader &header = reader.EntryHeader(index);
-        Surface surface = CreateCompatibleSurface(header);
+        Castle::Image surface = CreateCompatibleImage(header);
 
-        //const char *data = reader.EntryData(index);
-        //const size_t size = reader.EntrySize(index);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
-        ReadSurface(in, bytesCount, header, surface);
+        ReadImage(in, bytesCount, header, surface);
 
         // const uint32_t format = TargetPixelFormat();
         // if(!HasPalette(surface) && format != SourcePixelFormat()) {
-        //     surface = ConvertSurface(surface, format);
+        //     surface = Castle::ConvertImage(surface, format);
         //     if(!surface) {
         //         throw sdl_error();
         //     }
@@ -316,5 +307,4 @@ namespace GM1
             throw std::runtime_error("Unknown encoding");
         }
     }
-
 }

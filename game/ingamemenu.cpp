@@ -1,12 +1,15 @@
 #include "ingamemenu.h"
 
-namespace UI
+namespace Castle
 {
-    InGameMenu::InGameMenu() = default;
-    InGameMenu::~InGameMenu() = default;
-    
-    bool InGameMenu::HandleEvent(const SDL_Event &event)
+    namespace UI
     {
-        return true;
+        InGameMenu::InGameMenu() = default;
+        InGameMenu::~InGameMenu() = default;
+    
+        bool InGameMenu::HandleEvent(const SDL_Event &event)
+        {
+            return true;
+        }
     }
 }

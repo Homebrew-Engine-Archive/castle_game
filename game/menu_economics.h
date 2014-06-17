@@ -3,11 +3,14 @@
 
 #include <game/screen.h>
 
-namespace UI
+namespace Castle
 {
-    class MenuEconomics : public Screen
+    namespace UI
     {
-    };
+        class MenuEconomics : public Screen
+        {
+        };
+    }
 }
 
 #endif

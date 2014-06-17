@@ -4,25 +4,28 @@
 #include <SDL.h>
 
 #include <game/screen.h>
-#include <game/surface.h>
 
-namespace UI
+namespace Castle
 {
-    class ScreenManager;
-}
-
-namespace UI
-{
-    class MenuMain : public Screen
+    namespace UI
     {
-        UI::ScreenManager &mScreenManager;
-    
-    public:
-        explicit MenuMain(UI::ScreenManager &screenManager);
+        class ScreenManager;
+    }
 
-        virtual void Render(Render::Renderer &renderer);
-        virtual bool HandleEvent(const SDL_Event &event);
-    };
+    namespace UI
+    {
+        class MenuMain : public Screen
+        {
+            ScreenManager &mScreenManager;
+    
+        public:
+            explicit MenuMain(ScreenManager &screenManager);
+            virtual ~MenuMain() = default;
+
+            virtual void Render(Render::Renderer &renderer);
+            virtual bool HandleEvent(const SDL_Event &event);
+        };
+    }
 }
 
 #endif

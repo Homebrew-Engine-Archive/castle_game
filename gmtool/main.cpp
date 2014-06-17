@@ -17,7 +17,6 @@
 
 #include <game/gm1reader.h>
 #include <game/sdl_utils.h>
-#include <game/surface.h>
 #include <game/gm1.h>
 
 #include <gmtool/headermode.h>

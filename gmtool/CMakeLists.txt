@@ -27,8 +27,8 @@ set (SHARED
   ../game/gm1writer.cpp
   ../game/gm1entryreader.cpp
   ../game/gm1palette.cpp
-  ../game/surface.cpp
-  ../game/surface_view.cpp
+  ../game/image.cpp
+  ../game/imageview.cpp
   ../game/color.cpp
   ../game/rect.cpp
   ../game/tgx.cpp

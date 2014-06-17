@@ -10,27 +10,28 @@
 
 class SDLInitializer;
 
-namespace Network
+namespace Castle
 {
-    class Server;
-}
-
-namespace UI
-{
-    class ScreenManager;
-    class TextArea;
-}
-
-namespace Render
-{
-    class RenderEngine;
-    class Renderer;
-    class FontManager;
-}
-
-namespace Castle {
-    namespace World {
+    namespace World
+    {
         class SimulationManager;
+    }
+    
+    namespace Network
+    {
+        class Server;
+    }
+
+    namespace Render
+    {
+        class RenderEngine;
+        class Renderer;
+        class FontEngine;
+    }
+    
+    namespace UI
+    {
+        class ScreenManager;
     }
 }
 
@@ -39,8 +40,6 @@ namespace Castle
     class Engine
     {
         std::unique_ptr<SDLInitializer> mSDL_Init;
-        std::unique_ptr<Render::RenderEngine> mRenderEngine;
-        std::unique_ptr<Render::FontManager> mFontManager;
         std::unique_ptr<Render::Renderer> mRenderer;
         std::unique_ptr<World::SimulationManager> mSimManager;
         std::chrono::milliseconds mFrameUpdateInterval;
@@ -52,7 +51,6 @@ namespace Castle
         bool mClosed;
         std::unique_ptr<Network::Server> mServer;
         std::unique_ptr<UI::ScreenManager> mScreenManager;
-        std::unique_ptr<UI::TextArea> mInfoArea;
 
     private:
         void ResizeScreen(int width, int height);
@@ -69,12 +67,10 @@ namespace Castle
 
     public:
         explicit Engine();
-
         Engine(Engine const&) = delete;
         Engine& operator=(Engine const&) = delete;
         Engine(Engine&&) = delete;
         Engine& operator=(Engine&&) = delete;
-
         virtual ~Engine();
 
         int Exec();

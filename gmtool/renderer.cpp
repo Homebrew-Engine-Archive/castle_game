@@ -33,12 +33,12 @@ namespace GMTool
         };
     }
 
-    void Renderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Surface &surface)
+    void Renderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface)
     {
         throw std::runtime_error("You should implement Renderer::RenderTo_SDL_RWops()");
     }
     
-    void Renderer::RenderToStream(std::ostream &out, const Surface &surface)
+    void Renderer::RenderToStream(std::ostream &out, const Castle::Image &surface)
     {
         RWPtr rw(core::SDL_RWFromOutputStream(out));
         if(rw) {

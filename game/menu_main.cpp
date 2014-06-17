@@ -3,19 +3,22 @@
 #include <game/menu_combat.h>
 #include <game/screenmanager.h>
 
-namespace UI
+namespace Castle
 {
-    MenuMain::MenuMain(UI::ScreenManager &screenManager)
-        : mScreenManager(screenManager)
+    namespace UI
     {
-    }
+        MenuMain::MenuMain(ScreenManager &screenManager)
+            : mScreenManager(screenManager)
+        {
+        }
 
-    bool MenuMain::HandleEvent(const SDL_Event &event)
-    {
-        return false;
-    }
+        bool MenuMain::HandleEvent(const SDL_Event &event)
+        {
+            return false;
+        }
 
-    void MenuMain::Render(Render::Renderer &renderer)
-    {
-    }
-} // namespace UI
+        void MenuMain::Render(Render::Renderer &renderer)
+        {
+        }
+    } // namespace UI
+}

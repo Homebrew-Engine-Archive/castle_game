@@ -6,36 +6,44 @@
 
 namespace core
 {
-    class Color final : public SDL_Color
+    class Color : public SDL_Color
     {
-      public:
-        constexpr Color()
-            : Color(0, 0, 0, 0) {}
-    
-        constexpr Color(uint8_t r, uint8_t g, uint8_t b)
-            : Color(r, g, b, 255) {}
-    
-        constexpr Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-            : SDL_Color {r, g, b, a} {}
+    public:
+        constexpr Color();
+        constexpr Color(uint8_t r, uint8_t g, uint8_t b);
+        constexpr Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+        constexpr Color(const Color &that);
+        constexpr Color(const SDL_Color &that);
+        
+        constexpr Color Opaque(int alpha) const;
 
-        constexpr Color(const Color &that) = default;
-
-        constexpr Color(const SDL_Color &that)
-            : Color(that.r, that.g, that.b, that.a) {}
-
-        constexpr Color Opaque(int alpha) const {
-            return Color(r, g, b, alpha);
-        }
-
-        constexpr Color Darken(double factor) const {
-            return Color(r / factor, g / factor, b / factor, a);
-        }
-
-        constexpr Color Lighten(double factor) const {
-            return Color(r * factor, g * factor, b * factor, a);
-        }
+        uint32_t ConvertTo(uint32_t format) const;
+        uint32_t ConvertTo(const SDL_PixelFormat &format) const;
     };
 
+    constexpr Color::Color()
+        : Color(0, 0, 0, 0)
+    {}
+
+    constexpr Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+        : SDL_Color {r, g, b, a}
+    {}
+
+    constexpr Color::Color(uint8_t r, uint8_t g, uint8_t b)
+        : Color(r, g, b, 255)
+    {}
+
+    constexpr Color::Color(const Color &that) = default;
+
+    constexpr Color::Color(const SDL_Color &that)
+        : Color(that.r, that.g, that.b, that.a)
+    {}
+
+    constexpr Color Color::Opaque(int alpha) const
+    {
+        return Color(r, g, b, alpha);
+    }
+    
     namespace colors
     {
         constexpr Color Black = Color(0, 0, 0);
@@ -80,9 +88,6 @@ namespace core
 
     const Color PixelToColor(uint32_t pixel, uint32_t format);
     const Color PixelToColor(uint32_t pixel, const SDL_PixelFormat &format);
-
-    uint32_t ColorToPixel(const Color &color, uint32_t format);
-    uint32_t ColorToPixel(const Color &color, const SDL_PixelFormat &format);
 
     uint32_t GetPackedPixel(const char *data, int bytesPerPixel);
     void SetPackedPixel(char *data, uint32_t pixel, int bytesPerPixel);

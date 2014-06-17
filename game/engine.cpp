@@ -12,7 +12,6 @@
 
 #include <game/collection.h>
 #include <game/color.h>
-#include <game/fontmanager.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
 #include <game/make_unique.h>
@@ -24,19 +23,14 @@
 #include <game/screen.h>
 #include <game/screenmanager.h>
 #include <game/sdl_utils.h>
-#include <game/sdlrenderengine.h>
 #include <game/simulationmanager.h>
-#include <game/softwarerenderengine.h>
-#include <game/textarea.h>
 
 namespace Castle
 {
     Engine::~Engine() = default;
     Engine::Engine()
         : mSDL_Init(new SDLInitializer(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE))
-        , mRenderEngine(new Render::SoftwareRenderEngine)
-        , mFontManager(new Render::FontManager)
-        , mRenderer(new Render::Renderer(*mRenderEngine, *mFontManager))
+        , mRenderer(new Render::Renderer)
         , mSimManager(new World::SimulationManager)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
@@ -47,12 +41,8 @@ namespace Castle
         , mClosed(false)
         , mServer(new Network::Server(mPort))
         , mScreenManager(new UI::ScreenManager)
-        , mInfoArea(new UI::TextArea)
     {
-        mInfoArea->SetTextColor(core::colors::Red);
-        mInfoArea->SetBackgroundColor(core::colors::Black.Opaque(160));
-        mInfoArea->SetText("No FPS for you, Sir");
-        mInfoArea->SetMaxWidth(200);
+        mScreenManager->SetTestString("No FPS for you, Sir");
     }
 
     bool Engine::HandleWindowEvent(const SDL_WindowEvent &window)
@@ -110,11 +100,11 @@ namespace Castle
         const int minHeight = 8;
         const int maxHeight = 42;
         
-        const std::string family = Render::RegularFont;
+        const std::string family = "DejaVuSans";
 
         for(int h = minHeight; h <= maxHeight; ++h) {
             try {
-                mFontManager->LoadFont(core::Font(family, h));
+                mRenderer->LoadFont(core::Font(family, h));
             } catch(const std::exception &error) {
                 std::cerr << "Load font failed: " << error.what() << std::endl;
             }
@@ -160,10 +150,8 @@ namespace Castle
     {
         mRenderer->BeginFrame();
         mScreenManager->Render(*mRenderer);
-        if(&mScreenManager->TopScreen() != &mScreenManager->Console()) {
-            mInfoArea->Render(*mRenderer);
-        }
-        mRenderer->DrawFrame(mRenderer->GetScreenRect(), core::colors::Gray);
+        mRenderer->SetDrawColor(core::colors::Gray);
+        mRenderer->DrawFrame(mRenderer->GetScreenRect());
         mRenderer->EndFrame();
     }
 
@@ -176,7 +164,7 @@ namespace Castle
 
         std::ostringstream oss;
         oss << "Your FPS, sir: " << std::setw(10) << mFpsAverage;
-        mInfoArea->SetText(oss.str());
+        mScreenManager->SetTestString(oss.str());
     }
 
     constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs,
@@ -188,7 +176,7 @@ namespace Castle
     void Engine::LoadSimulationContext()
     {
         std::unique_ptr<World::Map> testMap = std::make_unique<World::Map>(100);
-        GenerateRandomMap(*testMap);
+        GenerateTestMap(*testMap);
         
         World::SimulationContext &context = mSimManager->PrimaryContext();
         context.SetMap(std::move(testMap));
@@ -203,7 +191,7 @@ namespace Castle
         LoadGraphics();
         LoadSimulationContext();
 
-        mScreenManager->GameScreen().SetSimulationContext(mSimManager->PrimaryContext());
+        mScreenManager->GetGameScreen().SetSimulationContext(mSimManager->PrimaryContext());
 
         mScreenManager->EnterGameScreen();
         mServer->StartAccept();

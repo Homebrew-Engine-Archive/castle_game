@@ -6,8 +6,10 @@
 #include <game/creature.h>
 #include <game/simulationcontext.h>
 
-namespace Castle {
-    namespace World {
+namespace Castle
+{
+    namespace World
+    {
         SimulationManager::~SimulationManager() = default;
     
         SimulationManager::SimulationManager()

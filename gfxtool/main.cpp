@@ -11,7 +11,7 @@
 #include <SDL.h>
 
 #include <game/sdl_utils.h>
-#include <game/surface.h>
+#include <game/image.h>
 #include <game/tgx.h>
 
 int main(int argc, char *argv[])
@@ -24,24 +24,25 @@ int main(int argc, char *argv[])
 
     std::ifstream fin(name, std::ios_base::binary);
     if(!fin.is_open()) {
-        throw std::runtime_error(strerror(errno));
+        std::ostringstream oss;
+        oss << "can't open file: " << strerror(errno);
+        throw std::runtime_error(oss.str());
     }
     
-    Surface surf;
-    TGX::ReadSurfaceHeader(fin, surf);
-    //SDL_FillRect(surf, NULL, 0);
+    Castle::Image surf;
+    TGX::ReadImageHeader(fin, surf);
 
     std::streampos origin = fin.tellg();
     fin.seekg(0, std::ios_base::end);
     std::streampos fsize = fin.tellg();
     fin.seekg(origin);
     
-    TGX::DecodeSurface(fin, fsize, surf);
+    TGX::DecodeImage(fin, fsize, surf);
     
-    return ShowSurface(surf);
+    return ShowImage(surf);
 }
 
-int ShowSurface(const Surface &surface)
+int ShowImage(const Castle::Image &surface)
 {
     SDLInitializer init();
 

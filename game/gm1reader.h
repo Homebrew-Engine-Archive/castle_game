@@ -9,7 +9,11 @@
 #include <game/filesystem.h>
 
 class ReaderEntryData;
-class Surface;
+
+namespace Castle
+{
+    class Image;
+}
 
 namespace GM1
 {
@@ -44,7 +48,7 @@ namespace GM1
         void Open(fs::path, Flags);
         bool IsOpened() const;
         void Close();
-        const Surface ReadEntry(size_t index) const;
+        const Castle::Image ReadEntry(size_t index) const;
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
         GM1::Palette const& Palette(size_t index) const;

@@ -1,6 +1,7 @@
 #ifndef TEXTLAYOUT_H_
 #define TEXTLAYOUT_H_
 
+#include <memory>
 #include <iosfwd>
 #include <exception>
 #include <vector>
@@ -11,69 +12,78 @@
 #include <game/alignment.h>
 #include <game/textlayoutitem.h>
 
-namespace Render
+namespace Castle
 {
-    class FontManager;
-}
-
-class TextLayoutLine;
-
-namespace UI
-{
-    struct layout_error : std::exception
+    namespace Render
     {
-        layout_error(std::string message) throw();
-        const char* what() const throw();
-    protected:
-        const std::string mMessage;
-    };
+        class FontEngine;
+    }
+
+    namespace Render
+    {
+        struct TextLayoutLine
+        {
+            std::string text;
+        };
+        
+        struct layout_error : std::exception
+        {
+            layout_error(std::string message) throw();
+            const char* what() const throw();
+        private:
+            const std::string mMessage;
+        };
     
-    class TextLayout
-    {
-    public:
-        explicit TextLayout();
+        class TextLayout
+        {
+        public:
+            explicit TextLayout();
+            TextLayout(TextLayout const&);
+            TextLayout& operator=(TextLayout const&);
+            TextLayout(TextLayout&&);
+            TextLayout& operator=(TextLayout&&);
+            virtual ~TextLayout();
 
-        void Insert(size_t pos, const std::string &text);
-        void Remove(size_t pos, size_t count = 1);
-        void SetText(const std::string &text);
+            void Insert(size_t pos, const std::string &text);
+            void Remove(size_t pos, size_t count = 1);
+            void SetText(const std::string &text);
+            void SetFont(const core::Font &font);
+            void SetAlignment(core::Alignment align);
+            void SetWidth(int width);
+            void InvalidateLayout();
+            bool UpdateLayout(const FontEngine &fontEngine);
+
+            typedef std::vector<TextLayoutItem>::const_iterator const_iterator;
         
-        void SetFont(const core::Font &font);
-        void SetAlignment(core::Alignment align);
-        void SetWidth(int width);
+            const core::Rect BoundingRect() const;
+            const_iterator begin() const;
+            const_iterator end() const;
+
+        private:        
+            void ValidateLayout();        
+            void CommitLine(const FontEngine &engine, std::string line);
+
+            void PushSingleLine(const FontEngine &engine, const TextLayoutLine &line);
+            void PushFirstLine(const FontEngine &engine, const TextLayoutLine &line);
+            void PushLastLine(const FontEngine &engine, const TextLayoutLine &line);
+            void PushLine(const FontEngine &engine, const TextLayoutLine &line);
         
-        void InvalidateLayout();
-        bool UpdateLayout(const Render::FontManager &fontManager);
+            void PushShrinkedLine(const FontEngine &engine, const TextLayoutLine &line, int offset = 0);
+            void PushExpandedLine(const FontEngine &engine, const TextLayoutLine &line);
 
-        typedef std::vector<TextLayoutItem>::const_iterator const_iterator;
+            const TextLayoutLine GetLayoutLine(const FontEngine &engine, std::istream &in);
         
-        const core::Rect BoundingRect() const;
-        const_iterator begin() const;
-        const_iterator end() const;
+        protected:
+            core::Alignment mHorizontalAlignment;
+            int mWidth;
+            std::string mText;
+            core::Font mTextFont;
+            std::vector<TextLayoutItem> mItems;
+            core::Rect mBoundingRect;
+            bool mInvalidated;
 
-    private:        
-        void ValidateLayout();        
-        void CommitLine(const Render::FontManager &engine, std::string line);
-
-        void PushSingleLine(const Render::FontManager &engine, const TextLayoutLine &line);
-        void PushFirstLine(const Render::FontManager &engine, const TextLayoutLine &line);
-        void PushLastLine(const Render::FontManager &engine, const TextLayoutLine &line);
-        void PushLine(const Render::FontManager &engine, const TextLayoutLine &line);
-        
-        void PushShrinkedLine(const Render::FontManager &engine, const TextLayoutLine &line, int offset = 0);
-        void PushExpandedLine(const Render::FontManager &engine, const TextLayoutLine &line);
-
-        const TextLayoutLine GetLayoutLine(const Render::FontManager &engine, std::istream &in);
-        
-    protected:
-        core::Alignment mHorizontalAlignment;
-        int mWidth;
-        std::string mText;
-        core::Font mTextFont;
-        std::vector<TextLayoutItem> mItems;
-        core::Rect mBoundingRect;
-        bool mInvalidated;
-
-    };
+        };
+    }
 }
 
 #endif // TEXTLAYOUT_H_

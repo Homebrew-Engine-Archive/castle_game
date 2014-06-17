@@ -3,20 +3,18 @@
 
 #include <vector>
 
-#include <SDL.h>
-
 #include <game/font.h>
 #include <game/rect.h>
 #include <game/renderengine.h>
 #include <game/gm1palette.h>
-#include <game/surface.h>
+#include <game/image.h>
 #include <game/filesystem.h>
+#include <game/color.h>
 
 namespace core
 {
     class Size;
     class Point;
-    class Color;
 }
 
 namespace GM1
@@ -24,85 +22,94 @@ namespace GM1
     class Palette;
 }
 
-namespace Render
+namespace Castle
 {
-    class FontManager;
-}
-
-namespace Render
-{
-    class Renderer
+    namespace Render
     {
-    public:
-        explicit Renderer(RenderEngine &renderEngine, FontManager &fontEngine);
-        Renderer(Renderer const&);
-        Renderer& operator=(Renderer const&);
-        Renderer(Renderer&&);
-        Renderer& operator=(Renderer&&);
-        ~Renderer();
+        class FontEngine;
+    }
 
-        FontManager& GetFontManager();
-        FontManager const& GetFontManager() const;
+    namespace Render
+    {
+        class Renderer
+        {
+        public:
+            explicit Renderer();
+            Renderer(Renderer const&);
+            Renderer& operator=(Renderer const&);
+            Renderer(Renderer&&);
+            Renderer& operator=(Renderer&&);
+            virtual ~Renderer();
 
-        RenderEngine& GetRenderEngine();
-        RenderEngine const& GetRenderEngine() const;
+            FontEngine const& GetFontEngine() const;
+            
+            void BeginFrame();
+            void EndFrame();
+
+            const core::Point GetMaxOutputSize() const;
+            const core::Point GetOutputSize() const;
+            void SetScreenWidth(int width);
+            void SetScreenHeight(int height);
+            void SetScreenFormat(int format);
+
+            void Opacity(int opacity);
+            void RestoreOpacity();
+
+            void SetViewport(const core::Rect &subrect);
+            const core::Rect GetViewport() const;
+            void RestoreViewport();
+
+            const core::Size GetScreenSize() const;
+            const core::Point GetScreenOrigin() const;
+            const core::Rect GetScreenRect() const;
+
+            const core::Rect ToScreenCoords(const core::Rect &relative) const;
+            const core::Point ToScreenCoords(const core::Point &relative) const;
+            
+            const core::Rect ToViewportCoords(const core::Rect &relative) const;
+            const core::Point ToViewportCoords(const core::Point &relative) const;
+
+            const core::Size TextSize(const core::Font &font, const std::string &text) const;
+            const core::Rect TextBoundingRect(const core::Font &font, const std::string &text) const;
+
+            void SetDrawColor(core::Color color);
+            void SetBackColor(core::Color color);
+            
+            void LoadFont(const core::Font &font);
+            void BindFont(const core::Font &font);
+            void DrawText(const std::string &text);
         
-        void BeginFrame();
-        void EndFrame();
+            void BindImage(const Image &surface);
+            void BindPalette(const GM1::Palette &palette);
+            void BindAlphaChannel(const Image &surface);
 
-        const core::Point GetMaxOutputSize() const;
-        const core::Point GetOutputSize() const;
-        void SetScreenWidth(int width);
-        void SetScreenHeight(int height);
-        void SetScreenFormat(int format);
+            void Blit(const core::Rect &source, const core::Point &target);
+            void BlitTiled(const core::Rect &source, const core::Rect &target);
+            void BlitScaled(const core::Rect &source, const core::Rect &target);
 
-        void Opacity(int opacity);
-        void RestoreOpacity();
+            void DrawRhombus(const core::Rect &target);
+            void FillRhombus(const core::Rect &target);
 
-        void ClipRect(const core::Rect &subrect);
-        void RestoreClipRect();
-        const core::Rect GetScreenClipRect() const;
-        const core::Rect GetScreenRect() const;
-
-        const core::Rect UnwindClipRect(const core::Rect &relative) const;
-        const core::Point ClipPoint(const core::Point &point) const;
-
-        const core::Size TextSize(const core::Font &font, const std::string &text) const;
-        const core::Rect TextBoundingRect(const core::Font &font, const std::string &text) const;
-
-        void BindFont(const core::Font &font);
-        void DrawText(const std::string &text, const core::Color &color);
+            void DrawFrame(const core::Rect &target);
+            void FillFrame(const core::Rect &target);
         
-        const core::Color GetContextAlpha(const core::Color &color) const;
-        
-        void BindSurface(const Surface &surface);
-        void BindPalette(const GM1::Palette &palette);
-        void BindAlphaChannel(const Surface &surface);
+        protected:
+            std::unique_ptr<RenderEngine> mRenderEngine;
+            std::unique_ptr<FontEngine> mFontEngine;
+            GM1::Palette mBoundPalette;
+            Image mBoundImage;
+            Image mBoundAlphaChannel;
+            std::vector<core::Rect> mClipStack;
+            std::vector<core::Rect> mScreenRectStack;
+            std::vector<float> mOpacityStack;
+            int mOpacity;
+            core::Font mBoundFont;
+            core::Color mDrawColor;
+            core::Color mBackColor;
 
-        void Blit(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
-        void BlitTiled(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
-        void BlitScaled(const core::Rect &textureSubRect, const core::Rect &screenSubRect);
-
-        void DrawRhombus(const core::Rect &bounds, const core::Color &fg);
-        void FillRhombus(const core::Rect &bounds, const core::Color &bg);
-
-        void DrawFrame(const core::Rect &bounds, const core::Color &fg);
-        void FillFrame(const core::Rect &bounds, const core::Color &bg);
-        
-    protected:
-        RenderEngine &mRenderEngine;
-        FontManager &mFontManager;
-        GM1::Palette mBoundPalette;
-        Surface mBoundSurface;
-        Surface mBoundAlphaChannel;
-        std::vector<core::Rect> mClipStack;
-        std::vector<core::Rect> mScreenRectStack;
-        std::vector<float> mOpacityStack;
-        int mOpacity;
-        core::Font mBoundFont;
-
-    };
+        };
     
-} // namespace Render
+    } // namespace Render
+}
 
 #endif

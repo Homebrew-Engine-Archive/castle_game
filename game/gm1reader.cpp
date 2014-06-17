@@ -8,7 +8,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <game/gm1palette.h>
-#include <game/surface.h>
+#include <game/image.h>
 #include <game/gm1entryreader.h>
 #include <game/filesystem.h>
 #include <game/iohelpers.h>
@@ -260,7 +260,7 @@ namespace GM1
         return *mEntryReader;
     }
     
-    const Surface GM1Reader::ReadEntry(size_t index) const
+    const Castle::Image GM1Reader::ReadEntry(size_t index) const
     {
         const GM1::EntryHeader &header = EntryHeader(index);
         const char *data = EntryData(index);

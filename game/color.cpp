@@ -23,19 +23,19 @@ namespace core
         SDL_GetRGBA(pixel, &format, &temp.r, &temp.g, &temp.b, &temp.a);
         return temp;
     }
-
-    uint32_t ColorToPixel(const Color &color, uint32_t format)
+    
+    uint32_t Color::ConvertTo(uint32_t format) const
     {
         const PixelFormatPtr fmt(SDL_AllocFormat(format));
         if(!fmt) {
             throw sdl_error();
         }
-        return ColorToPixel(color, *fmt);
+        return ConvertTo(*fmt);
     }
 
-    uint32_t ColorToPixel(const Color &color, const SDL_PixelFormat &format)
+    uint32_t Color::ConvertTo(const SDL_PixelFormat &format) const
     {
-        return SDL_MapRGBA(&format, color.r, color.g, color.b, color.a);
+        return SDL_MapRGBA(&format, this->r, this->g, this->b, this->a);
     }
     
     uint32_t GetPackedPixel(const char *data, int bytesPerPixel)

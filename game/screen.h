@@ -4,55 +4,60 @@
 #include <cstdint>
 #include <SDL.h>
 
-namespace Network
+namespace Castle
 {
-    class Connection;
-}
-
-namespace Render
-{
-    class Renderer;
-}
-
-namespace UI
-{
-
-    class Screen
+    namespace Render
     {
-    public:
-        virtual void Render(Render::Renderer &renderer) {}
+        class Renderer;
+    }
 
-        virtual bool CanBeStacked() const
-            {return true;}
-        /**
-         * \brief React on user input.
-         *
-         * Only one screen at time can handle event. If it returns true, then
-         * the rest screens have not any chance to handle this event too.
-         *
-         * It can handle even SDL_QUIT.
-         *
-         * \param event
-         * \return True if event was completely handled or false otherwise
-         */
-        virtual bool HandleEvent(const SDL_Event &event)
-            {return false;}
+    namespace Network
+    {
+        class Connection;
+    }
+}
 
-        virtual void NewConnection(Network::Connection &connection)
-            {}
+namespace Castle
+{
+    namespace UI
+    {
+        class Screen
+        {
+        public:
+            virtual void Render(Render::Renderer &renderer) {}
 
-        virtual void ConnectionData(Network::Connection &connection)
-            {}
+            virtual bool CanBeStacked() const
+                {return true;}
+            /**
+             * \brief React on user input.
+             *
+             * Only one screen at time can handle event. If it returns true, then
+             * the rest screens have not any chance to handle this event too.
+             *
+             * It can handle even SDL_QUIT.
+             *
+             * \param event
+             * \return True if event was completely handled or false otherwise
+             */
+            virtual bool HandleEvent(const SDL_Event &event)
+                {return false;}
 
-        virtual void ConnectionLost(Network::Connection &connection)
-            {}
+            virtual void NewConnection(Network::Connection &connection)
+                {}
 
-        virtual void EnterScreen(Screen *previous)
-            {}
+            virtual void ConnectionData(Network::Connection &connection)
+                {}
 
-        virtual void LeaveScreen(Screen *next)
-            {}
-    };    
+            virtual void ConnectionLost(Network::Connection &connection)
+                {}
+
+            virtual void EnterScreen(Screen *previous)
+                {}
+
+            virtual void LeaveScreen(Screen *next)
+                {}
+        };    
+    }
 }
 
 #endif

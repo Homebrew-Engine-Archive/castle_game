@@ -1,13 +1,14 @@
 #include "pngrenderer.h"
 
-#include <game/surface.h>
-
 #include <stdexcept>
+
+#include <game/image.h>
+
 #include <SDL_image.h>
 
 namespace GMTool
 {
-    void PNGRenderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Surface &surface)
+    void PNGRenderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface)
     {
         IMG_Init(IMG_INIT_PNG);
         

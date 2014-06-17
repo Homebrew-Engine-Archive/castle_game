@@ -1,13 +1,15 @@
-#ifndef SURFACE_VIEW_H_
-#define SURFACE_VIEW_H_
+#ifndef IMAGEVIEW_H_
+#define IMAGEVIEW_H_
 
-#include <game/surface.h>
+#include <game/image.h>
 
 namespace core
 {
     class Rect;
 }
 
+namespace Castle
+{
 /**
    \brief Region-Of-Interest of surface object
  
@@ -22,24 +24,28 @@ namespace core
    \todo This class is not intended to work together with RLE accel. Can we deal with it?
 **/
 
-class SurfaceView final
-{
-    Surface mSurface;
-    const Surface &mParentRef;
-    
-public:
-    SurfaceView(const Surface &src, const core::Rect &clip);
-    SurfaceView(Surface &src, const core::Rect &clip);
-
-    inline Surface& View()
+    class ImageView final
     {
-        return mSurface;
-    }
+        Image mImage;
+        const Image &mParentRef;
     
-    inline Surface const& View() const
-    {
-        return mSurface;
-    }
-};
+      public:
+        ImageView(const Image &src, const core::Rect &clip);
+        ImageView(Image &src, const core::Rect &clip);
 
-#endif // SURFACE_VIEW_H_
+        inline Image& GetView();
+        inline Image const& GetView() const;
+    };
+
+    inline Image& ImageView::GetView()
+    {
+        return mImage;
+    }
+
+    inline Image const& ImageView::GetView() const
+    {
+        return mImage;
+    }
+}
+
+#endif // IMAGEVIEW_H_

@@ -39,7 +39,8 @@ namespace GM1
     std::ostream& WritePalette(std::ostream &out, const GM1::Palette &palette)
     {
         for(const GM1::Palette::value_type &entry : palette) {
-            GM1::palette_entry_t pixel = core::ColorToPixel(entry, GM1::PalettePixelFormat);
+            const core::Color color(entry);
+            const GM1::palette_entry_t pixel = color.ConvertTo(GM1::PalettePixelFormat);
             core::WriteLittle(out, pixel);
         }
         return out;

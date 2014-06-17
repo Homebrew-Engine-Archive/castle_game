@@ -14,7 +14,10 @@ namespace GM1
     enum class Encoding;
 }
 
-class Surface;
+namespace Castle
+{
+    class Image;
+}
 
 namespace GM1
 {
@@ -23,11 +26,11 @@ namespace GM1
         core::Color mTransparentColor;
 
     private:
-        Surface CreateCompatibleSurface(const GM1::EntryHeader &header) const;
+        Castle::Image CreateCompatibleImage(const GM1::EntryHeader &header) const;
         uint32_t GetColorKey(uint32_t format) const;
         
     protected:
-        virtual void ReadSurface(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Surface &surface) const = 0;
+        virtual void ReadImage(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Castle::Image &surface) const = 0;
 
         virtual int Width(GM1::EntryHeader const&) const;
         virtual int Height(GM1::EntryHeader const&) const;
@@ -46,7 +49,7 @@ namespace GM1
         void Transparent(core::Color color);
         const core::Color Transparent() const;
 
-        const Surface Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const;
+        const Castle::Image Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };

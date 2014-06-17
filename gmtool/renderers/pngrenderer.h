@@ -7,7 +7,7 @@ namespace GMTool
 {
     struct PNGRenderer : public Renderer
     {
-        void RenderTo_SDL_RWops(SDL_RWops *dst, const Surface &surface);
+        void RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface);
     };
 }
 

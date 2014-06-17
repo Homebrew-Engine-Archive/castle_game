@@ -3,15 +3,18 @@
 
 #include <game/screen.h>
 
-namespace UI
+namespace Castle
 {
-    class InGameMenu : public Screen
+    namespace UI
     {
-    public:
-        InGameMenu();
-        virtual ~InGameMenu();
-        virtual bool HandleEvent(const SDL_Event &event);
-    };
+        class InGameMenu : public Screen
+        {
+        public:
+            explicit InGameMenu();
+            virtual ~InGameMenu();
+            virtual bool HandleEvent(const SDL_Event &event);
+        };
+    }
 }
 
 #endif // INGAMEMENU_H_

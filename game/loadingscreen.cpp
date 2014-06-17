@@ -13,49 +13,50 @@
 #include <game/renderer.h>
 #include <game/collection.h>
 
-namespace UI
+namespace Castle
 {
-    LoadingScreen::LoadingScreen()
-        : mBackground(
-            Castle::LoadTGX(
-                fs::TGXFilePath("frontend_loading")))
-        , mProgressDone(0)
-        , mProgressMax(1)
+    namespace UI
     {
-    }
+        LoadingScreen::~LoadingScreen() = default;
+        LoadingScreen::LoadingScreen()
+            : mProgressDone(0)
+            , mProgressMax(1)
+        {
+        }
 
-    bool LoadingScreen::HandleEvent(SDL_Event const&)
-    {
-        return false;
-    }
+        bool LoadingScreen::HandleEvent(SDL_Event const&)
+        {
+            return false;
+        }
 
-    void LoadingScreen::IncreaseDone(int delta)
-    {
-        mProgressDone += delta;
-    }
+        void LoadingScreen::IncreaseDone(int delta)
+        {
+            mProgressDone += delta;
+        }
     
-    void LoadingScreen::SetProgressDone(int done)
-    {
-        mProgressDone = done;
-    }
+        void LoadingScreen::SetProgressDone(int done)
+        {
+            mProgressDone = done;
+        }
 
-    void LoadingScreen::SetProgressMax(int max)
-    {
-        mProgressMax = max;
-    }
+        void LoadingScreen::SetProgressMax(int max)
+        {
+            mProgressMax = max;
+        }
 
-    void LoadingScreen::SetProgressLabel(const std::string &text)
-    {
-        mStage = text;
-    }
+        void LoadingScreen::SetProgressLabel(const std::string &text)
+        {
+            mStage = text;
+        }
     
-    double LoadingScreen::GetCompleteRate() const
-    {
-        double done = static_cast<double>(mProgressDone) / mProgressMax;
-        return core::Clamp(done, 0.0f, 1.0f);
-    }
+        double LoadingScreen::GetCompleteRate() const
+        {
+            double done = static_cast<double>(mProgressDone) / mProgressMax;
+            return core::Clamp(done, 0.0f, 1.0f);
+        }
     
-    void LoadingScreen::Render(Render::Renderer &renderer)
-    {
-    }   
-} // namespace UI
+        void LoadingScreen::Render(Render::Renderer &renderer)
+        {
+        }   
+    } // namespace UI
+}

@@ -6,8 +6,7 @@
 namespace Castle {
     namespace World {
         Creature::Creature(int identity, std::unique_ptr<CreatureState> state)
-            : mOwner()
-            , mIdentity(identity)
+            : mIdentity(identity)
             , mState(std::move(state))
         {}
     

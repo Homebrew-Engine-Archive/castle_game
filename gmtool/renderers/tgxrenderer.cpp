@@ -6,8 +6,8 @@
 
 namespace GMTool
 {
-    void TGXRenderer::RenderToStream(std::ostream &out, const Surface &surface)
+    void TGXRenderer::RenderToStream(std::ostream &out, const Castle::Image &image)
     {
-        TGX::WriteTGX(out, surface);
+        TGX::WriteTGX(out, image);
     }
 }

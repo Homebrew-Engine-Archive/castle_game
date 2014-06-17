@@ -20,7 +20,7 @@ ENCODING=`$GMTOOL header --encoding "$FILE"`
 FILENAME=`basename "$FILE"`
 OUTDIR=gm
 DIR="$OUTDIR/$FILENAME"
-FTYPE=png
+FTYPE=tgx
 
 if [ ! -d "$OUTDIR" ];
 then

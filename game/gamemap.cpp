@@ -180,7 +180,7 @@ namespace Castle
             }
         }
     
-        void GenerateRandomMap(Map &map)
+        void GenerateTestMap(Map &map)
         {
             std::default_random_engine rnd((int)&map);
             std::uniform_int_distribution<> heightDist(0, 20);

@@ -41,7 +41,10 @@
  *
  */
 
-class Surface;
+namespace Castle
+{
+    class Image;
+}
 
 namespace TGX
 {
@@ -76,11 +79,11 @@ namespace TGX
     
     std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     
-    std::istream& DecodeSurface(std::istream&, size_t numBytes, Surface &surface);
+    std::istream& DecodeImage(std::istream&, size_t numBytes, Castle::Image &surface);
 
-    std::istream& ReadSurfaceHeader(std::istream&, Surface &surface);
+    std::istream& ReadImageHeader(std::istream&, Castle::Image &surface);
 
-    const Surface ReadTGX(std::istream&);
+    const Castle::Image ReadTGX(std::istream&);
 
     /**
      * \brief Low level TGX-encoding function.
@@ -92,14 +95,14 @@ namespace TGX
      * \param colorKey      Pixel which we would treat as transparent.
      *
      * \note Input buffer must have real size of width * bytesPerPixel bytes.
-     */
-    std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
+     **/
+    // std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     
-    std::ostream& EncodeSurface(std::ostream&, const Surface &surface);
+    std::ostream& EncodeImage(std::ostream&, const Castle::Image &surface);
 
-    std::ostream& WriteSurfaceHeader(std::ostream&, const Surface &surface);
+    std::ostream& WriteImageHeader(std::ostream&, const Castle::Image &surface);
 
-    std::ostream& WriteTGX(std::ostream&, const Surface &surface);
+    std::ostream& WriteTGX(std::ostream&, const Castle::Image &surface);
     
 } // namespace TGX
 

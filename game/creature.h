@@ -6,11 +6,12 @@
 #include <game/creaturestate.h>
 #include <game/playeravatar.h>
  
-namespace Castle {
-    namespace World {
+namespace Castle
+{
+    namespace World
+    {
         class Creature
         {
-            PlayerAvatar mOwner;
             uint32_t mIdentity;
             std::unique_ptr<CreatureState> mState;
         
@@ -25,7 +26,7 @@ namespace Castle {
 
             void Update(const SimulationContext &context);
         };
-
+        
         inline uint32_t Creature::Id() const
         {
             return mIdentity;

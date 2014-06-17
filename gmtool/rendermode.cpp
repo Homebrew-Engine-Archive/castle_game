@@ -17,7 +17,7 @@
 #include <game/gm1reader.h>
 #include <game/gm1palette.h>
 #include <game/gm1entryreader.h>
-#include <game/surface.h>
+#include <game/image.h>
 #include <game/color.h>
 #include <game/rw.h>
 
@@ -63,12 +63,12 @@ namespace GMTool
         }
     }
 
-    Color RenderMode::DefaultTransparent() const
+    const core::Color RenderMode::DefaultTransparent() const
     {
-        return Color(240, 0, 255, 0);
+        return core::Color(240, 0, 255, 0);
     }
     
-    void RenderMode::SetupPalette(Surface &surface, const GM1::Palette &palette)
+    void RenderMode::SetupPalette(Castle::Image &surface, const GM1::Palette &palette)
     {
         if(HasPalette(surface)) {
             GM1::Palette copied = palette;
@@ -78,18 +78,18 @@ namespace GMTool
         }
     }
 
-    void RenderMode::SetupFormat(Surface &surface, uint32_t format)
+    void RenderMode::SetupFormat(Castle::Image &surface, uint32_t format)
     {
         if(HasPalette(surface)) {
             if(format != surface->format->format) {
-                surface = ConvertSurface(surface, format);
+                surface = Castle::ConvertImage(surface, format);
             }
         }
     }
 
-    void RenderMode::SetupTransparentColor(Surface &surface, const Color &color)
+    void RenderMode::SetupTransparentColor(Castle::Image &surface, const core::Color &color)
     {
-        uint32_t colorkey = SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
+        const uint32_t colorkey = SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
         if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
             throw sdl_error();
         }
@@ -115,7 +115,7 @@ namespace GMTool
             reader.EntryReader().Transparent(mTransparentColor);
         }
         
-        Surface entry = reader.ReadEntry(mEntryIndex);
+        Castle::Image entry = reader.ReadEntry(mEntryIndex);
 
         std::ostream *out = nullptr;
 
@@ -145,6 +145,7 @@ namespace GMTool
         cfg.verbose << "Setting up transparency" << std::endl;
         SetupTransparentColor(entry, mTransparentColor);
 
+        cfg.verbose << "Find appropriate format" << std::endl;
         const RenderFormat *result = nullptr;
         for(const RenderFormat &format : mFormats) {
             if(format.name == mFormat)
@@ -155,8 +156,11 @@ namespace GMTool
             throw std::logic_error("No format with such name");
         }
 
+        cfg.verbose << "Do render" << std::endl;
         result->renderer->RenderToStream(*out, entry);
+
         if(mApproxSize) {
+            cfg.verbose << "Printing size" << std::endl;
             out->seekp(0, std::ios_base::end);
             cfg.stdout << out->tellp() << std::endl;
         }

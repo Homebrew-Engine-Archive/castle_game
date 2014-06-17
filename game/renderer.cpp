@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include <game/size.h>
 #include <game/outputmode.h>
 #include <game/rect.h>
 #include <game/point.h>
@@ -9,7 +10,9 @@
 #include <game/gm1palette.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
-#include <game/fontmanager.h>
+#include <game/fontengine.h>
+#include <game/softwarerenderengine.h>
+#include <game/sdlrenderengine.h>
 
 namespace
 {
@@ -17,7 +20,7 @@ namespace
 
     /** dstA = srcA * opacity / MaxOpacity
         srcA = dstA * MaxOpacity / opacity
-     **/
+    **/
     
     constexpr int GetBlendedOpacity(int globalOpacity, int opacity)
     {
@@ -35,302 +38,357 @@ namespace
     }
 }
 
-namespace Render
+namespace Castle
 {
-    Renderer::Renderer(Renderer const&) = delete;
-    Renderer& Renderer::operator=(Renderer const&) = delete;
-    Renderer::Renderer(Renderer&&) = default;
-    Renderer& Renderer::operator=(Renderer&&) = delete;
-    Renderer::~Renderer() = default;
-    
-    Renderer::Renderer(RenderEngine &renderEngine, FontManager &fontEngine)
-        : mRenderEngine(renderEngine)
-        , mFontManager(fontEngine)
-        , mBoundPalette()
-        , mBoundSurface(nullptr)
-        , mBoundAlphaChannel(nullptr)
-        , mClipStack()
-        , mOpacityStack()
-        , mOpacity(MaxOpacity)
-        , mBoundFont()
+    namespace Render
     {
-    }
+        Renderer::Renderer(Renderer const&) = delete;
+        Renderer& Renderer::operator=(Renderer const&) = delete;
+        Renderer::Renderer(Renderer&&) = default;
+        Renderer& Renderer::operator=(Renderer&&) = delete;
+        Renderer::~Renderer() = default;
+    
+        Renderer::Renderer()
+            : mRenderEngine(new SoftwareRenderEngine)
+            , mFontEngine(new FontEngine)
+            , mBoundPalette()
+            , mBoundImage(nullptr)
+            , mBoundAlphaChannel(nullptr)
+            , mClipStack()
+            , mOpacityStack()
+            , mOpacity(MaxOpacity)
+            , mBoundFont()
+        {
+        }
 
-    FontManager& Renderer::GetFontManager()
-    {
-        return mFontManager;
-    }
-    
-    FontManager const& Renderer::GetFontManager() const
-    {
-        return mFontManager;
-    }
+        void Renderer::LoadFont(const core::Font &font)
+        {
+            mFontEngine->LoadFont(font);
+        }
 
-    RenderEngine& Renderer::GetRenderEngine()
-    {
-        return mRenderEngine;
-    }
-    
-    RenderEngine const& Renderer::GetRenderEngine() const
-    {
-        return mRenderEngine;
-    }
+        void Renderer::DrawText(const std::string &text)
+        {
+            mFontEngine->DrawText(*this, GetScreenOrigin(), mBoundFont, text, mDrawColor, mBackColor);
+        }
+
+        const core::Size Renderer::TextSize(const core::Font &font, const std::string &text) const
+        {
+            return mFontEngine->TextSize(mBoundFont, text);
+        }
         
-    void Renderer::BeginFrame()
-    {
-        const OutputMode mode = mRenderEngine.GetOutputMode();
-        mClipStack.clear();
-        mClipStack.push_back(
-            core::Rect(mode.Width(), mode.Height()));
+        const core::Rect Renderer::TextBoundingRect(const core::Font &font, const std::string &text) const
+        {
+            const core::Point screenOrigin = GetScreenOrigin();
+            const core::Size textSize = mFontEngine->TextSize(font, text);
             
-        mScreenRectStack.clear();
-        mScreenRectStack.push_back(
-            core::Rect(mode.Width(), mode.Height()));
-        
-        mRenderEngine.BeginFrame();
-        mRenderEngine.ClearOutput(core::colors::Black);
-
-        mOpacity = MaxOpacity;
-    }
-    
-    void Renderer::EndFrame()
-    {
-        mRenderEngine.EndFrame();
-    }
-
-    const core::Point Renderer::GetMaxOutputSize() const
-    {
-        return GetOutputSize();
-    }
-    
-    const core::Point Renderer::GetOutputSize() const
-    {
-        const OutputMode mode = mRenderEngine.GetOutputMode();
-        return core::Point(mode.Width(), mode.Height());
-    }
-    
-    const core::Rect Renderer::GetScreenClipRect() const
-    {
-        assert(!mClipStack.empty());
-        return mClipStack.back();
-    }
-    
-    const core::Rect Renderer::GetScreenRect() const
-    {
-        assert(!mScreenRectStack.empty());
-        return core::Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
-    }
-
-    void Renderer::ClipRect(const core::Rect &clipArea)
-    {
-        if(core::RectEmpty(clipArea)) {
-            mClipStack.push_back(core::Rect());
-            mScreenRectStack.push_back(core::Rect());
-            return;
+            return core::Rect(
+                screenOrigin.x, screenOrigin.y,
+                textSize.width, textSize.height);
         }
         
-        const core::Rect unwindedArea = UnwindClipRect(clipArea);
-        const core::Rect oldClipArea = GetScreenClipRect();
-        const core::Rect newClipArea = Intersection(oldClipArea, unwindedArea);
-        mClipStack.push_back(newClipArea);
-        mScreenRectStack.push_back(unwindedArea);
-
-        mRenderEngine.ClipRect(newClipArea);
-    }
-
-    void Renderer::RestoreClipRect()
-    {
-        assert(!mScreenRectStack.empty());
-        assert(!mClipStack.empty());
-        mScreenRectStack.pop_back();
-        mClipStack.pop_back();
-        mRenderEngine.ClipRect(GetScreenClipRect());
-    }
-
-    void Renderer::Opacity(int opacity)
-    {
-        mOpacityStack.push_back(mOpacity);
-        mOpacity = GetBlendedOpacity(mOpacity, opacity);
-        mRenderEngine.SetOpacityMod(mOpacity);
-    }
-
-    void Renderer::RestoreOpacity()
-    {
-        mOpacity = mOpacityStack.back();
-        mOpacityStack.pop_back();
-        mRenderEngine.SetOpacityMod(mOpacity);
-    }
-    
-    const core::Rect Renderer::UnwindClipRect(const core::Rect &rect) const
-    {
-        return Translated(rect, core::TopLeft(
-                              (mScreenRectStack.empty()
-                               ? core::Rect()
-                               : mScreenRectStack.back())));
-    }
-
-    const core::Point Renderer::ClipPoint(const core::Point &point) const
-    {
-        return point - core::TopLeft(GetScreenClipRect());
-    }
-    
-    void Renderer::SetScreenWidth(int width)
-    {
-        OutputMode mode = mRenderEngine.GetOutputMode();
-        mode.SetWidth(width);
-        mRenderEngine.SetOutputMode(mode);
-    }
-    
-    void Renderer::SetScreenHeight(int height)
-    {
-        OutputMode mode = mRenderEngine.GetOutputMode();
-        mode.SetHeight(height);
-        mRenderEngine.SetOutputMode(mode);
-    }
-    
-    void Renderer::SetScreenFormat(int format)
-    {
-        OutputMode mode = mRenderEngine.GetOutputMode();
-        mode.SetFormat(format);
-        mRenderEngine.SetOutputMode(mode);
-    }
-    
-    void Renderer::BindSurface(const Surface &surface)
-    {
-        mBoundSurface = surface;
-    }
-    
-    void Renderer::BindPalette(const GM1::Palette &palette)
-    {
-        mBoundPalette = palette;
-    }
-    
-    void Renderer::BindAlphaChannel(const Surface &surface)
-    {
-        mBoundAlphaChannel = surface;
-    }
-
-    void Renderer::BindFont(const core::Font &font)
-    {
-        mBoundFont = font;
-    }
-    
-    void PaintRhombus(RenderEngine &engine, const core::Rect &bounds, const core::Color &color, DrawMode mode)
-    {
-        const auto x1 = bounds.x;
-        const auto y1 = bounds.y;
-        const auto x2 = bounds.x + bounds.w;
-        const auto y2 = bounds.y + bounds.h;
-
-        const auto centerX = (x1 + x2) / 2;
-        const auto centerY = (y1 + y2) / 2;
-
-        constexpr int NumPoints = 5;
-        const core::Point points[NumPoints] = {
-            {x1, centerY},
-            {centerX, y1},
-            {x2, centerY},
-            {centerX, y2},
-            {x1, centerY}
-        };
-
-        engine.DrawPolygon(&points[0], NumPoints, color, mode);
-    }
-    
-    void Renderer::FillRhombus(const core::Rect &rect, const core::Color &color)
-    {
-        const core::Rect translatedRect = UnwindClipRect(rect);
-        const core::Color blended = BlendColor(color, mOpacity);
-        PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Filled);
-    }
-
-    void Renderer::DrawRhombus(const core::Rect &rect, const core::Color &color)
-    {
-        const core::Rect translatedRect = UnwindClipRect(rect);
-        const core::Color blended = BlendColor(color, mOpacity);
-        PaintRhombus(mRenderEngine, translatedRect, blended, DrawMode::Outline);
-    }
-
-    void Renderer::FillFrame(const core::Rect &rect, const core::Color &color)
-    {        
-        const core::Rect unclippedRect = UnwindClipRect(rect);
-        const core::Color blended = BlendColor(color, mOpacity);
-        mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Filled);
-    }
-
-    void Renderer::DrawFrame(const core::Rect &rect, const core::Color &color)
-    {
-        const core::Rect unclippedRect = UnwindClipRect(rect);
-        const core::Color blended = BlendColor(color, mOpacity);
-        mRenderEngine.DrawRects(&unclippedRect, 1, blended, DrawMode::Outline);
-    }
-
-    void PaintPyramid(RenderEngine &engine, const core::Rect &top, const core::Rect &bottom, const core::Color &color, DrawMode mode)
-    {
-        // PaintRhombus(engine, bottom, color, mode);
-        // PaintRhombus(engine, top, color, mode);
-
-        const auto tx1 = top.x;
-        const auto ty1 = top.y;
-        const auto tx2 = top.x + top.w;
-        const auto ty2 = top.y + top.h;
-
-        const auto tcenterX = (tx1 + tx2) / 2;
-        const auto tcenterY = (ty1 + ty2) / 2;
-
-        const auto bx1 = bottom.x;
-        const auto by1 = bottom.y;
-        const auto bx2 = bottom.x + bottom.w;
-        const auto by2 = bottom.y + bottom.h;
-
-        const auto bcenterX = (bx1 + bx2) / 2;
-        const auto bcenterY = (by1 + by2) / 2;
-
+        FontEngine const& Renderer::GetFontEngine() const
         {
+            return *mFontEngine;
+        }
+        
+        void Renderer::BindFont(const core::Font &font)
+        {
+            mBoundFont = font;
+        }
+        
+        void Renderer::BeginFrame()
+        {
+            const OutputMode mode = mRenderEngine->GetOutputMode();
+            mClipStack.clear();
+            mClipStack.push_back(
+                core::Rect(mode.Width(), mode.Height()));
+            
+            mScreenRectStack.clear();
+            mScreenRectStack.push_back(
+                core::Rect(mode.Width(), mode.Height()));
+        
+            mRenderEngine->BeginFrame();
+            mRenderEngine->ClearOutput(core::colors::Black);
+
+            mOpacity = MaxOpacity;
+        }
+    
+        void Renderer::EndFrame()
+        {
+            mRenderEngine->EndFrame();
+        }
+
+        const core::Point Renderer::GetMaxOutputSize() const
+        {
+            return GetOutputSize();
+        }
+    
+        const core::Point Renderer::GetOutputSize() const
+        {
+            const OutputMode mode = mRenderEngine->GetOutputMode();
+            return core::Point(mode.Width(), mode.Height());
+        }
+    
+        const core::Rect Renderer::GetViewport() const
+        {
+            assert(!mClipStack.empty());
+            return mClipStack.back();
+        }
+    
+        const core::Rect Renderer::GetScreenRect() const
+        {
+            assert(!mScreenRectStack.empty());
+            return core::Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
+        }
+
+        const core::Size Renderer::GetScreenSize() const
+        {
+            assert(!mScreenRectStack.empty());
+            return core::Size(mScreenRectStack.back().w, mScreenRectStack.back().h);
+        }
+
+        const core::Point Renderer::GetScreenOrigin() const
+        {
+            assert(!mScreenRectStack.empty());
+            return core::Point(mScreenRectStack.back().x, mScreenRectStack.back().y);
+        }
+        
+        void Renderer::SetViewport(const core::Rect &clipArea)
+        {
+            if(core::RectEmpty(clipArea)) {
+                mClipStack.push_back(core::Rect());
+                mScreenRectStack.push_back(core::Rect());
+                return;
+            }
+        
+            const core::Rect unwindedArea = ToScreenCoords(clipArea);
+            const core::Rect oldClipArea = GetViewport();
+            const core::Rect newClipArea = core::Intersection(oldClipArea, unwindedArea);
+            mClipStack.push_back(newClipArea);
+            mScreenRectStack.push_back(unwindedArea);
+
+            mRenderEngine->SetViewport(newClipArea);
+        }
+
+        void Renderer::RestoreViewport()
+        {
+            assert(!mScreenRectStack.empty());
+            assert(!mClipStack.empty());
+            mScreenRectStack.pop_back();
+            mClipStack.pop_back();
+            mRenderEngine->SetViewport(GetViewport());
+        }
+
+        void Renderer::Opacity(int opacity)
+        {
+            mOpacityStack.push_back(mOpacity);
+            mOpacity = GetBlendedOpacity(mOpacity, opacity);
+            mRenderEngine->SetOpacityMod(mOpacity);
+        }
+
+        void Renderer::RestoreOpacity()
+        {
+            mOpacity = mOpacityStack.back();
+            mOpacityStack.pop_back();
+            mRenderEngine->SetOpacityMod(mOpacity);
+        }
+    
+        const core::Rect Renderer::ToScreenCoords(const core::Rect &relative) const
+        {
+            return Translated(relative, core::TopLeft(mScreenRectStack.back()));
+        }
+
+        const core::Point Renderer::ToScreenCoords(const core::Point &relative) const
+        {
+            return relative + core::TopLeft(mScreenRectStack.back());
+        }
+
+        const core::Rect Renderer::ToViewportCoords(const core::Rect &relative) const
+        {
+            return Translated(relative, -core::TopLeft(mScreenRectStack.back()));
+        }
+        
+        const core::Point Renderer::ToViewportCoords(const core::Point &relative) const
+        {
+            return relative - core::TopLeft(GetViewport());
+        }
+        
+        void Renderer::SetScreenWidth(int width)
+        {
+            OutputMode mode = mRenderEngine->GetOutputMode();
+            mode.SetWidth(width);
+            mRenderEngine->SetOutputMode(mode);
+        }
+    
+        void Renderer::SetScreenHeight(int height)
+        {
+            OutputMode mode = mRenderEngine->GetOutputMode();
+            mode.SetHeight(height);
+            mRenderEngine->SetOutputMode(mode);
+        }
+    
+        void Renderer::SetScreenFormat(int format)
+        {
+            OutputMode mode = mRenderEngine->GetOutputMode();
+            mode.SetFormat(format);
+            mRenderEngine->SetOutputMode(mode);
+        }
+
+        void Renderer::SetDrawColor(core::Color color)
+        {
+            mDrawColor = std::move(color);
+        }
+        
+        void Renderer::SetBackColor(core::Color color)
+        {
+            mBackColor = std::move(color);
+        }
+        
+        void Renderer::BindImage(const Image &surface)
+        {
+            mBoundImage = surface;
+        }
+    
+        void Renderer::BindPalette(const GM1::Palette &palette)
+        {
+            mBoundPalette = palette;
+        }
+    
+        void Renderer::BindAlphaChannel(const Image &surface)
+        {
+            mBoundAlphaChannel = surface;
+        }
+    
+        void PaintRhombus(RenderEngine &engine, const core::Rect &bounds, const core::Color &color, DrawMode mode)
+        {
+            const auto x1 = bounds.x;
+            const auto y1 = bounds.y;
+            const auto x2 = bounds.x + bounds.w;
+            const auto y2 = bounds.y + bounds.h;
+
+            const auto centerX = (x1 + x2) / 2;
+            const auto centerY = (y1 + y2) / 2;
+
             constexpr int NumPoints = 5;
             const core::Point points[NumPoints] = {
-                {tx1, tcenterY},
-                {tcenterX, ty2},
-                {bcenterX, by2},
-                {bx1, bcenterY},
-                {tx1, tcenterX}
+                {x1, centerY},
+                {centerX, y1},
+                {x2, centerY},
+                {centerX, y2},
+                {x1, centerY}
             };
+
             engine.DrawPolygon(&points[0], NumPoints, color, mode);
         }
-
+    
+        void Renderer::FillRhombus(const core::Rect &rect)
         {
-            constexpr int NumPoints = 5;
-            const core::Point points[NumPoints] = {
-                {tcenterX, ty2},
-                {tx2, tcenterY},
-                {bx2, bcenterY},
-                {bcenterX, by2},
-                {tcenterX, ty2}
-            };
-            engine.DrawPolygon(&points[0], NumPoints, color, mode);
-        }
-    }
-    
-    void Renderer::Blit(const core::Rect &textureSubRect, const core::Rect &screenSubRect)
-    {        
-        mRenderEngine.SetOpacityMod(mOpacity);
-        
-        if(SDL_ISPIXELFORMAT_INDEXED(SurfaceFormat(mBoundSurface).format)) {
-            SDL_SetSurfacePalette(mBoundSurface, &mBoundPalette.asSDLPalette());
+            const core::Rect translatedRect = ToScreenCoords(rect);
+            const core::Color blended = BlendColor(mDrawColor, mOpacity);
+            PaintRhombus(*mRenderEngine, translatedRect, blended, DrawMode::Filled);
         }
 
-        const core::Rect unclippedRect = UnwindClipRect(screenSubRect);
-        mRenderEngine.DrawSurface(mBoundSurface, textureSubRect, unclippedRect);
-    }
+        void Renderer::DrawRhombus(const core::Rect &rect)
+        {
+            const core::Rect translatedRect = ToScreenCoords(rect);
+            const core::Color blended = BlendColor(mDrawColor, mOpacity);
+            PaintRhombus(*mRenderEngine, translatedRect, blended, DrawMode::Outline);
+        }
+
+        void Renderer::FillFrame(const core::Rect &rect)
+        {        
+            const core::Rect unclippedRect = ToScreenCoords(rect);
+            const core::Color blended = BlendColor(mDrawColor, mOpacity);
+            mRenderEngine->DrawRects(&unclippedRect, 1, blended, DrawMode::Filled);
+        }
+
+        void Renderer::DrawFrame(const core::Rect &rect)
+        {
+            const core::Rect unclippedRect = ToScreenCoords(rect);
+            const core::Color blended = BlendColor(mDrawColor, mOpacity);
+            mRenderEngine->DrawRects(&unclippedRect, 1, blended, DrawMode::Outline);
+        }
+
+        void PaintPyramid(RenderEngine &engine, const core::Rect &top, const core::Rect &bottom, const core::Color &color, DrawMode mode)
+        {
+            PaintRhombus(engine, bottom, color, mode);
+            PaintRhombus(engine, top, color, mode);
+
+            const auto tx1 = top.x;
+            const auto ty1 = top.y;
+            const auto tx2 = top.x + top.w;
+            const auto ty2 = top.y + top.h;
+
+            const auto tcenterX = (tx1 + tx2) / 2;
+            const auto tcenterY = (ty1 + ty2) / 2;
+
+            const auto bx1 = bottom.x;
+            const auto by1 = bottom.y;
+            const auto bx2 = bottom.x + bottom.w;
+            const auto by2 = bottom.y + bottom.h;
+
+            const auto bcenterX = (bx1 + bx2) / 2;
+            const auto bcenterY = (by1 + by2) / 2;
+
+            {
+                constexpr int NumPoints = 5;
+                const core::Point points[NumPoints] = {
+                    {tx1, tcenterY},
+                    {tcenterX, ty2},
+                    {bcenterX, by2},
+                    {bx1, bcenterY},
+                    {tx1, tcenterX}
+                };
+                engine.DrawPolygon(&points[0], NumPoints, color, mode);
+            }
+
+            {
+                constexpr int NumPoints = 5;
+                const core::Point points[NumPoints] = {
+                    {tcenterX, ty2},
+                    {tx2, tcenterY},
+                    {bx2, bcenterY},
+                    {bcenterX, by2},
+                    {tcenterX, ty2}
+                };
+                engine.DrawPolygon(&points[0], NumPoints, color, mode);
+            }
+        }
     
-    void Renderer::BlitTiled(const core::Rect &from, const core::Rect &to)
-    {
+        void Renderer::Blit(const core::Rect &source, const core::Point &target)
+        {        
+            mRenderEngine->SetOpacityMod(mOpacity);
         
-    }
+            if(IsPalettized(mBoundImage)) {
+                mBoundImage.AttachPalette(mBoundPalette);
+            }
 
-    void Renderer::BlitScaled(const core::Rect &from, const core::Rect &to)
-    {
+            const core::Point screenCoords = ToScreenCoords(target);
+            mRenderEngine->DrawImage(mBoundImage, source, screenCoords);
+        }
+    
+        void Renderer::BlitTiled(const core::Rect &source, const core::Rect &target)
+        {
+            mRenderEngine->SetOpacityMod(mOpacity);
 
-    }
+            if(IsPalettized(mBoundImage)) {
+                mBoundImage.AttachPalette(mBoundPalette);
+            }
 
-} // namespace Render
+            const core::Rect screenCoords = ToScreenCoords(target);
+            mRenderEngine->DrawImageTiled(mBoundImage, source, screenCoords);
+        }
+
+        void Renderer::BlitScaled(const core::Rect &source, const core::Rect &target)
+        {
+            mRenderEngine->SetOpacityMod(mOpacity);
+
+            if(IsPalettized(mBoundImage)) {
+                mBoundImage.AttachPalette(mBoundPalette);
+            }
+
+            const core::Rect screenCoords = ToScreenCoords(target);
+            mRenderEngine->DrawImageScaled(mBoundImage, source, screenCoords);
+        }
+    } // namespace Render
+}

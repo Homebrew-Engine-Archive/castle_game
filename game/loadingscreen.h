@@ -3,7 +3,6 @@
 
 #include <string>
 
-#include <game/surface.h>
 #include <game/screen.h>
 
 namespace Render
@@ -11,25 +10,29 @@ namespace Render
     class Renderer;
 }
 
-namespace UI
+namespace Castle
 {
-    class LoadingScreen : public UI::Screen
+    namespace UI
     {
-        Surface mBackground;
-        int mProgressDone;
-        int mProgressMax;
-        std::string mStage;
+        class LoadingScreen : public Screen
+        {
+            int mProgressDone;
+            int mProgressMax;
+            std::string mStage;
 
-    public:
-        LoadingScreen();
-        void SetProgressDone(int done);
-        void SetProgressMax(int max);
-        void IncreaseDone(int delta = 1);
-        void SetProgressLabel(std::string const&);
-        double GetCompleteRate() const;
-        void Render(Render::Renderer &renderer);
-        bool HandleEvent(SDL_Event const&);
-    };
+        public:
+            explicit LoadingScreen();
+            virtual ~LoadingScreen();
+            
+            void SetProgressDone(int done);
+            void SetProgressMax(int max);
+            void IncreaseDone(int delta = 1);
+            void SetProgressLabel(std::string const&);
+            double GetCompleteRate() const;
+            void Render(Render::Renderer &renderer);
+            bool HandleEvent(SDL_Event const&);
+        };
+    }
 }
 
 #endif  // LOADINGSCREEN_H_

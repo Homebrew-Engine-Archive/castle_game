@@ -90,7 +90,7 @@ namespace Castle
         constexpr static int TileWidth = 32;
         constexpr static int TileHeight = 16;
     
-        void GenerateRandomMap(Map &map);
+        void GenerateTestMap(Map &map);
     }
 }
 
