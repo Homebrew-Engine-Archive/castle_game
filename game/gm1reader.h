@@ -13,11 +13,11 @@ class ReaderEntryData;
 namespace Castle
 {
     class Image;
+    class Palette;
 }
 
 namespace GM1
 {
-    class Palette;
     class GM1EntryReader;
 }
 
@@ -29,7 +29,7 @@ namespace GM1
         fs::path mPath;
         std::streamoff mDataOffset;
         GM1::Header mHeader;
-        std::vector<GM1::Palette> mPalettes;
+        std::vector<Castle::Palette> mPalettes;
         std::vector<ReaderEntryData> mEntries;
         std::unique_ptr<GM1EntryReader> mEntryReader;
         
@@ -51,7 +51,7 @@ namespace GM1
         const Castle::Image ReadEntry(size_t index) const;
         
         GM1::EntryHeader const& EntryHeader(size_t index) const;
-        GM1::Palette const& Palette(size_t index) const;
+        Castle::Palette const& Palette(size_t index) const;
         GM1::Header const& Header() const;
         GM1::Encoding Encoding() const;
         char const* EntryData(size_t index) const;

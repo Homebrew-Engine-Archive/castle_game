@@ -8,7 +8,7 @@
 #include <game/rect.h>
 #include <game/sdl_utils.h>
 #include <game/gm1reader.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/gm1.h>
 #include <game/tgx.h>
 #include <game/image.h>

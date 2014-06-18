@@ -11,7 +11,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <game/point.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/gm1reader.h>
 #include <game/tgx.h>
 
@@ -67,12 +67,12 @@ namespace Castle
 
     Collection::Collection(const GM1::GM1Reader &reader)
         : mHeader(reader.Header())
-        , mPalettes(reader.NumPalettes())
         , mEntries(reader.NumEntries())
         , mHeaders(reader.NumEntries())
     {
+        mPalettes.reserve(reader.NumPalettes());
         for(int n = 0; n < reader.NumPalettes(); ++n) {
-            mPalettes[n] = reader.Palette(n);
+            mPalettes.push_back(reader.Palette(n));
         }
 
         try {
@@ -86,7 +86,7 @@ namespace Castle
         }
     }
 
-    int Collection::Count() const
+    size_t Collection::Count() const
     {
         return mHeader.imageCount;
     }
@@ -116,7 +116,7 @@ namespace Castle
         return static_cast<size_t>(name);
     }
 
-    GM1::Palette const& Collection::GetPalette(PaletteName name) const
+    const Palette& Collection::GetPalette(PaletteName name) const
     {
         return mPalettes.at(GetPaletteIndexByName(name));
     }

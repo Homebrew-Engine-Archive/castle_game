@@ -11,7 +11,7 @@ namespace core
     class Color;
 }
 
-namespace GM1
+namespace Castle
 {
     class Palette;
 }
@@ -57,7 +57,7 @@ namespace Castle
         BlendMode GetBlendMode() const;
         void SetBlendMode(BlendMode mode);
 
-        void AttachPalette(GM1::Palette &palette);
+        void AttachPalette(Palette &palette);
     };
 
     inline size_t Image::Width() const

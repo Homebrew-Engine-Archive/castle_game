@@ -15,10 +15,6 @@
 namespace Castle
 {
     class Image;
-}
-
-namespace GM1
-{
     class Palette;
 }
 
@@ -43,7 +39,7 @@ namespace GMTool
         const core::Color DefaultTransparent() const;
         
         void SetupFormat(Castle::Image &surface, uint32_t format);
-        void SetupPalette(Castle::Image &surface, const GM1::Palette &palette);
+        void SetupPalette(Castle::Image &surface, const Castle::Palette &palette);
         void SetupTransparentColor(Castle::Image &surface, const core::Color &color);
         
     public:

@@ -8,6 +8,8 @@
 #include <game/fontengine.h>
 #include <game/renderer.h>
 #include <game/range.h>
+#include <game/point.h>
+#include <game/size.h>
 
 namespace Castle
 {
@@ -121,36 +123,29 @@ namespace Castle
             renderer.SetDrawColor(mBackgroundColor);
             renderer.FillFrame(widgetSubrect);
             renderer.SetViewport(widgetSubrect);
-            
+
             renderer.BindFont(mTextFont);
             renderer.SetDrawColor(mTextColor);
             renderer.SetBackColor(mBackgroundColor);
 
-            const core::Rect textAreaSize = renderer.GetScreenRect();
-            core::Rect drawArea = textAreaSize;
-        
             mTextLayout->UpdateLayout(renderer.GetFontEngine());
+
+            const core::Size widgetSize = renderer.GetScreenSize();
+            core::Rect drawArea = renderer.GetScreenRect();
             for(const Render::TextLayoutItem &item : *mTextLayout) {
                 renderer.SetViewport(drawArea);
-            
+
                 const int offsetX = item.GetHorizontalOffset();
                 const int offsetY = item.GetVerticalOffset();
-                const core::Rect itemRect(
-                    offsetX,
-                    offsetY,
-                    drawArea.w - offsetX,
-                    drawArea.h - offsetY);
 
-                renderer.SetViewport(itemRect);
-                renderer.DrawText(item.GetItemText());
-                renderer.RestoreViewport();
+                renderer.DrawText(item.GetItemText(), core::Point(offsetX, offsetY));
 
                 const int advanceX = item.GetHorizontalAdvance();
                 const int advanceY = item.GetVerticalAdvance();
                 drawArea.x += advanceX;
                 drawArea.y += advanceY;
-                drawArea.w = std::max(0, textAreaSize.w - drawArea.x);
-                drawArea.h = std::max(0, textAreaSize.h - drawArea.y);
+                drawArea.w = std::max(0, widgetSize.width - drawArea.x);
+                drawArea.h = std::max(0, widgetSize.height - drawArea.y);
                 renderer.RestoreViewport();
             }
 

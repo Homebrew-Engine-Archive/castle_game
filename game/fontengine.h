@@ -21,7 +21,7 @@ namespace Castle
 {
     namespace Render
     {
-        class Renderer;
+        class RenderEngine;
     }
 
     namespace Render
@@ -38,7 +38,7 @@ namespace Castle
             FontEngine& operator=(FontEngine&&);
             virtual ~FontEngine();
 
-            void DrawText(Renderer &renderer, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const;
+            void DrawText(RenderEngine &engine, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const;
             bool CouldRender(const core::Font &font, const std::string &text) const;
             bool LoadFont(const core::Font &font);
             const core::Size TextSize(const core::Font &font, const std::string &text) const;

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/iohelpers.h>
 
 namespace GM1

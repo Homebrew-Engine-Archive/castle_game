@@ -2,10 +2,11 @@
 #define GM1_H_
 
 #include <cstdint>
-
 #include <iosfwd>
 #include <string>
 #include <utility>
+
+#include <SDL.h>
 
 namespace GM1
 {
@@ -15,6 +16,14 @@ namespace GM1
     
     const unsigned CollectionEntryHeaderBytes = 16;
     const unsigned CollectionHeaderBytes = 88;
+    
+    using palette_entry_t = uint16_t;
+
+    const uint32_t PalettePixelFormat = SDL_PIXELFORMAT_RGB555;
+
+    const size_t CollectionPaletteCount = 10;
+    const size_t CollectionPaletteColors = 256;
+    const size_t CollectionPaletteBytes = CollectionPaletteColors * sizeof(palette_entry_t);
 
     /**
      * \brief Is included in every collection only once.

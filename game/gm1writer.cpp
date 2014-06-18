@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include <game/color.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/gm1.h>
 #include <game/iohelpers.h>
 
@@ -36,11 +36,11 @@ namespace GM1
         return out;
     }
 
-    std::ostream& WritePalette(std::ostream &out, const GM1::Palette &palette)
+    std::ostream& WritePalette(std::ostream &out, const Castle::Palette &palette)
     {
-        for(const GM1::Palette::value_type &entry : palette) {
+        for(const Castle::Palette::value_type &entry : palette) {
             const core::Color color(entry);
-            const GM1::palette_entry_t pixel = color.ConvertTo(GM1::PalettePixelFormat);
+            const palette_entry_t pixel = color.ConvertTo(PalettePixelFormat);
             core::WriteLittle(out, pixel);
         }
         return out;

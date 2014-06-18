@@ -2,13 +2,6 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SUBSYSTEMS
   ${CMAKE_CURRENT_SOURCE_DIR}
-  render
-  world
-  ui
-  tgx
-  gm1
-  graphics
-  core
 )
 
 set(SOURCES 

@@ -7,7 +7,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/image.h>
 #include <game/gm1entryreader.h>
 #include <game/filesystem.h>
@@ -50,9 +50,9 @@ namespace
         return in;
     }
 
-    std::istream& ReadPalette(std::istream &in, GM1::Palette &palette)
+    std::istream& ReadPalette(std::istream &in, Castle::Palette &palette)
     {
-        for(GM1::Palette::value_type &entry : palette) {
+        for(Castle::Palette::value_type &entry : palette) {
             uint16_t pixel;
             core::ReadLittle<uint16_t>(in, pixel);
             entry = core::PixelToColor(pixel, GM1::PalettePixelFormat);
@@ -131,11 +131,13 @@ namespace GM1
         if(fsize < GetPreambleSize(mHeader)) {
             throw std::logic_error("File to small to read preamble");
         } 
-        mPalettes.resize(GM1::CollectionPaletteCount);
-        for(GM1::Palette &palette : mPalettes) {
+        mPalettes.reserve(CollectionPaletteCount);
+        for(size_t i = 0; i < CollectionPaletteCount; ++i) {
+            Castle::Palette palette(CollectionPaletteColors);
             if(!ReadPalette(fis, palette)) {
                 throw std::runtime_error(strerror(errno));
             }
+            mPalettes.push_back(palette);
         }
 
         mEntries.resize(mHeader.imageCount);
@@ -250,7 +252,7 @@ namespace GM1
         return mEntries.at(index).header;
     }
 
-    GM1::Palette const& GM1Reader::Palette(size_t index) const
+    Castle::Palette const& GM1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
     }

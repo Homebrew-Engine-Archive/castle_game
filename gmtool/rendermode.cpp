@@ -12,10 +12,9 @@
 #include <gmtool/renderer.h>
 
 #include <game/rect.h>
-#include <game/sdl_error.h>
 #include <game/gm1.h>
 #include <game/gm1reader.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/gm1entryreader.h>
 #include <game/image.h>
 #include <game/color.h>
@@ -68,31 +67,26 @@ namespace GMTool
         return core::Color(240, 0, 255, 0);
     }
     
-    void RenderMode::SetupPalette(Castle::Image &surface, const GM1::Palette &palette)
+    void RenderMode::SetupPalette(Castle::Image &image, const Castle::Palette &palette)
     {
-        if(HasPalette(surface)) {
-            GM1::Palette copied = palette;
-            if(SDL_SetSurfacePalette(surface, &copied.asSDLPalette()) < 0) {
-                throw sdl_error();
-            }
+        if(IsPalettized(image)) {
+            Castle::Palette copied = palette;
+            image.AttachPalette(copied);
         }
     }
 
-    void RenderMode::SetupFormat(Castle::Image &surface, uint32_t format)
+    void RenderMode::SetupFormat(Castle::Image &image, uint32_t format)
     {
-        if(HasPalette(surface)) {
-            if(format != surface->format->format) {
-                surface = Castle::ConvertImage(surface, format);
+        if(IsPalettized(image)) {
+            if(format != image->format->format) {
+                image = Castle::ConvertImage(image, format);
             }
         }
     }
 
     void RenderMode::SetupTransparentColor(Castle::Image &surface, const core::Color &color)
     {
-        const uint32_t colorkey = SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
-        if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
-            throw sdl_error();
-        }
+        surface.SetColorKey(color);
     }
     
     int RenderMode::Exec(const ModeConfig &cfg)

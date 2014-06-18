@@ -26,7 +26,7 @@ set (SHARED
   ../game/gm1reader.cpp
   ../game/gm1writer.cpp
   ../game/gm1entryreader.cpp
-  ../game/gm1palette.cpp
+  ../game/palette.cpp
   ../game/image.cpp
   ../game/imageview.cpp
   ../game/color.cpp
@@ -42,9 +42,9 @@ set (BOOST_PROGRAM_OPTIONS boost_program_options)
 
 include (CheckCXXSourceRuns)
 
-set (CMAKE_REQUIRED_FLAGS "${CMAKE_CXX_FLAGS}")
-set (CMAKE_REQUIRED_LIBRARIES "${SDL2IMAGE_LIBRARY};${SDL2_LIBRARY}")
-set (CMAKE_REQUIRED_INCLUDES "${SDL2IMAGE_INCLUDE_DIR};{SDL2_INCLUDE_DIR}")
+set (CMAKE_REQUIRED_FLAGS ${CMAKE_CXX_FLAGS})
+set (CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${SDL2IMAGE_LIBRARY} ${SDL2_LIBRARY})
+set (CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${SDL2IMAGE_INCLUDE_DIR} ${SDL2_INCLUDE_DIR})
 
 check_cxx_source_runs ("
 #include <SDL.h>
@@ -60,7 +60,7 @@ int main() {
 
 if (HAVE_SDL2_IMAGE_PNG)
   message (STATUS "PNG support was found in SDL2_image")
-  set (RENDERERS "${RENDERERS};renderers/pngrenderer.cpp")
+  set (RENDERERS ${RENDERERS} renderers/pngrenderer.cpp)
 else ()
   set (HAVE_SDL2_IMAGE_PNG 0)
 endif ()

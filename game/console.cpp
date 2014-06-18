@@ -1,5 +1,6 @@
 #include "console.h"
 
+#include <csignal>
 #include <SDL.h>
 
 #include <cassert>
@@ -51,7 +52,8 @@ namespace Castle
         
             renderer.SetViewport(ChopBottom(renderer.GetScreenRect(), promptRect.h));
             mLogArea.SetMaxWidth(consoleRect.w);
-        
+            
+            
             mLogArea.Render(renderer);
             renderer.RestoreViewport();
 

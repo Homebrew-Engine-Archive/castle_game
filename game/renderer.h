@@ -6,7 +6,7 @@
 #include <game/font.h>
 #include <game/rect.h>
 #include <game/renderengine.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/image.h>
 #include <game/filesystem.h>
 #include <game/color.h>
@@ -17,7 +17,7 @@ namespace core
     class Point;
 }
 
-namespace GM1
+namespace Castle
 {
     class Palette;
 }
@@ -41,11 +41,11 @@ namespace Castle
             Renderer& operator=(Renderer&&);
             virtual ~Renderer();
 
-            FontEngine const& GetFontEngine() const;
-            
             void BeginFrame();
             void EndFrame();
 
+            FontEngine& GetFontEngine();
+            
             const core::Point GetMaxOutputSize() const;
             const core::Point GetOutputSize() const;
             void SetScreenWidth(int width);
@@ -77,10 +77,10 @@ namespace Castle
             
             void LoadFont(const core::Font &font);
             void BindFont(const core::Font &font);
-            void DrawText(const std::string &text);
+            void DrawText(const std::string &text, const core::Point &point);
         
             void BindImage(const Image &surface);
-            void BindPalette(const GM1::Palette &palette);
+            void BindPalette(const Palette &palette);
             void BindAlphaChannel(const Image &surface);
 
             void Blit(const core::Rect &source, const core::Point &target);
@@ -96,7 +96,7 @@ namespace Castle
         protected:
             std::unique_ptr<RenderEngine> mRenderEngine;
             std::unique_ptr<FontEngine> mFontEngine;
-            GM1::Palette mBoundPalette;
+            Palette mBoundPalette;
             Image mBoundImage;
             Image mBoundAlphaChannel;
             std::vector<core::Rect> mClipStack;

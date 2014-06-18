@@ -43,18 +43,18 @@ namespace Castle
         explicit Collection(const GM1::GM1Reader &reader);
         Collection(const Collection &collection);
         Collection& operator=(const Collection &collection);
-        ~Collection();
+        virtual ~Collection();
 
-        int Count() const;
+        size_t Count() const;
         GM1::Header const& GetHeader() const;
         const core::Point Anchor() const;
         const Image GetImage(size_t index) const;
         GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
-        GM1::Palette const& GetPalette(PaletteName name) const;
+        Castle::Palette const& GetPalette(PaletteName name) const;
 
     private:
         GM1::Header mHeader;
-        std::vector<GM1::Palette> mPalettes;
+        std::vector<Castle::Palette> mPalettes;
         std::vector<Image> mEntries;
         std::vector<GM1::EntryHeader> mHeaders;
     };

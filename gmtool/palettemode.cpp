@@ -5,9 +5,11 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 
+#include <game/modulo.h>
 #include <game/gm1writer.h>
 #include <game/gm1reader.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
+#include <game/color.h>
 
 namespace po = boost::program_options;
 
@@ -29,7 +31,21 @@ namespace GMTool
     {
         unnamed.add("file", 1);
     }
-    
+
+    std::ostream& PrintPalette(std::ostream &out, const Castle::Palette &palette)
+    {
+        int column = 0;
+        out << std::hex;
+        for(Castle::Palette::value_type entry : palette) {
+            out << entry << ' ';
+            ++column;
+            if(core::Mod(column, 16) == 0) {
+                out << std::endl;
+            }
+        }
+        return out;
+    }
+
     int PaletteMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
@@ -47,10 +63,10 @@ namespace GMTool
             throw std::logic_error("Palette index is out of range");
         }
 
-        const GM1::Palette &palette = reader.Palette(mPaletteIndex);
+        const Castle::Palette &palette = reader.Palette(mPaletteIndex);
         if(!mBinary) {
             cfg.verbose << "Printing palette as text" << std::endl;
-            GM1::PrintPalette(cfg.stdout, palette);
+            PrintPalette(cfg.stdout, palette);
         } else {
             cfg.verbose << "Printing palette as binary" << std::endl;
             GM1::WritePalette(cfg.stdout, palette);

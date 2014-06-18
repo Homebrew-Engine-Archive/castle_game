@@ -5,15 +5,17 @@
 #include <string>
 #include <exception>
 
-class sdl_error : public std::exception
+class sdl_error : public virtual std::exception
 {
+    std::string mErrMsg;
 public:
     sdl_error() throw()
+    : mErrMsg(SDL_GetError())
         { }
 
     char const* what() const throw()
     {
-        return SDL_GetError();
+        return mErrMsg.c_str();
     }
 };
 

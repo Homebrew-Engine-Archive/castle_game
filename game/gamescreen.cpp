@@ -8,7 +8,7 @@
 #include <game/filesystem.h>
 #include <game/fontengine.h>
 #include <game/gm1.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/landscape.h>
 #include <game/make_unique.h>
 #include <game/modulo.h>

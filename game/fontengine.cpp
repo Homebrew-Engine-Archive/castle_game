@@ -11,10 +11,10 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <game/renderengine.h>
 #include <game/size.h>
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/font.h>
-#include <game/renderer.h>
 #include <game/image.h>
 #include <game/rect.h>
 #include <game/color.h>
@@ -285,7 +285,7 @@ namespace Castle
             mFontTable.push_back(std::move(fontdata));
         }
     
-        void FontEngine::DrawText(Renderer &renderer, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const
+        void FontEngine::DrawText(RenderEngine &engine, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const
         {
             if(!text.empty()) {
                 const FontData *fontData = LookupFont(font);
@@ -307,10 +307,8 @@ namespace Castle
                     if(IsPalettized(textImage)) {
                         textImage = ConvertImage(textImage, SDL_PIXELFORMAT_ARGB8888);
                     }
-                    renderer.Opacity(fg.a);
-                    renderer.BindImage(textImage);
-                    renderer.Blit(core::Rect(textImage), target);
-                    renderer.RestoreOpacity();
+                    engine.SetOpacityMod(fg.a);
+                    engine.DrawImage(textImage, core::Rect(textImage), target);
                 } else {
                     throw ttf_error();
                 }

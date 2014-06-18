@@ -9,7 +9,7 @@
 
 #include <SDL.h>
 
-#include <game/gm1palette.h>
+#include <game/palette.h>
 #include <game/color.h>
 #include <game/rect.h>
 #include <game/point.h>
@@ -435,7 +435,7 @@ namespace Castle
     {
     }
 
-    void Image::AttachPalette(GM1::Palette &palette)
+    void Image::AttachPalette(Palette &palette)
     {
         assert(!Null());
         if(SDL_SetSurfacePalette(mSurface, &palette.asSDLPalette()) < 0) {

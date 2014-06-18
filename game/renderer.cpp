@@ -7,7 +7,6 @@
 #include <game/rect.h>
 #include <game/point.h>
 #include <game/color.h>
-#include <game/gm1palette.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/fontengine.h>
@@ -61,14 +60,20 @@ namespace Castle
         {
         }
 
+        FontEngine& Renderer::GetFontEngine()
+        {
+            return *mFontEngine;
+        }
+        
         void Renderer::LoadFont(const core::Font &font)
         {
             mFontEngine->LoadFont(font);
         }
 
-        void Renderer::DrawText(const std::string &text)
+        void Renderer::DrawText(const std::string &text, const core::Point &target)
         {
-            mFontEngine->DrawText(*this, GetScreenOrigin(), mBoundFont, text, mDrawColor, mBackColor);
+            const core::Point screenCoords = ToScreenCoords(target);
+            mFontEngine->DrawText(*mRenderEngine, screenCoords, mBoundFont, text, mDrawColor, mBackColor);
         }
 
         const core::Size Renderer::TextSize(const core::Font &font, const std::string &text) const
@@ -84,11 +89,6 @@ namespace Castle
             return core::Rect(
                 screenOrigin.x, screenOrigin.y,
                 textSize.width, textSize.height);
-        }
-        
-        FontEngine const& Renderer::GetFontEngine() const
-        {
-            return *mFontEngine;
         }
         
         void Renderer::BindFont(const core::Font &font)
@@ -144,13 +144,13 @@ namespace Castle
         const core::Size Renderer::GetScreenSize() const
         {
             assert(!mScreenRectStack.empty());
-            return core::Size(mScreenRectStack.back().w, mScreenRectStack.back().h);
+            return core::RectSize(mScreenRectStack.back());
         }
 
         const core::Point Renderer::GetScreenOrigin() const
         {
             assert(!mScreenRectStack.empty());
-            return core::Point(mScreenRectStack.back().x, mScreenRectStack.back().y);
+            return core::TopLeft(mScreenRectStack.back());
         }
         
         void Renderer::SetViewport(const core::Rect &clipArea)
@@ -161,11 +161,11 @@ namespace Castle
                 return;
             }
         
-            const core::Rect unwindedArea = ToScreenCoords(clipArea);
+            const core::Rect screenArea = ToScreenCoords(clipArea);
             const core::Rect oldClipArea = GetViewport();
-            const core::Rect newClipArea = core::Intersection(oldClipArea, unwindedArea);
+            const core::Rect newClipArea = core::Intersection(oldClipArea, screenArea);
             mClipStack.push_back(newClipArea);
-            mScreenRectStack.push_back(unwindedArea);
+            mScreenRectStack.push_back(screenArea);
 
             mRenderEngine->SetViewport(newClipArea);
         }
@@ -249,7 +249,7 @@ namespace Castle
             mBoundImage = surface;
         }
     
-        void Renderer::BindPalette(const GM1::Palette &palette)
+        void Renderer::BindPalette(const Palette &palette)
         {
             mBoundPalette = palette;
         }
