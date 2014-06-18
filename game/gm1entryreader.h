@@ -31,16 +31,9 @@ namespace GM1
         
     protected:
         virtual void ReadImage(std::istream &in, size_t numBytes, const GM1::EntryHeader &header, Castle::Image &surface) const = 0;
-
-        virtual int Width(GM1::EntryHeader const&) const;
-        virtual int Height(GM1::EntryHeader const&) const;
-
-        /**
-           Convert from source to target if necessary.
-           \todo does it violate LSP?
-         **/
+        virtual int Width(const GM1::EntryHeader &header) const;
+        virtual int Height(const GM1::EntryHeader &header) const;
         virtual uint32_t SourcePixelFormat() const;
-        virtual uint32_t TargetPixelFormat() const;
         
     public:
         GM1EntryReader();
@@ -48,7 +41,6 @@ namespace GM1
         
         void Transparent(core::Color color);
         const core::Color Transparent() const;
-
         const Castle::Image Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
         typedef std::unique_ptr<GM1EntryReader> Ptr;

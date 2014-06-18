@@ -34,7 +34,7 @@ namespace Castle
     {
         class GameScreen : public Screen
         {
-            UI::ScreenManager &mScreenManager;
+            ScreenManager &mScreenManager;
             Collection archer;
             Collection swordsman;
             Collection crossbowman;
@@ -65,7 +65,7 @@ namespace Castle
             Collection const& GetTileSet(Landscape landscape) const;
         
         public:
-            explicit GameScreen(UI::ScreenManager &screenManager);
+            explicit GameScreen(ScreenManager &screenManager);
             GameScreen(GameScreen const&) = delete;
             GameScreen& operator=(GameScreen const&) = delete;
             virtual ~GameScreen();

@@ -5,6 +5,7 @@ IFS=$'\n\t'
 if [ ! "$TRANSPARENT" ];
 then
     TRANSPARENT="#ff00ff";
+    echo "Set transparent to ${TRANSPARENT}";
 fi;
 
 if [ ! "$PALETTE" ];
@@ -14,8 +15,8 @@ fi;
 
 GMTOOL=./gmtool.out
 FILE="$*"
-NUMPALETTES=`$GMTOOL palette --count "$FILE"`
-NUMENTRIES=`$GMTOOL header --count "$FILE"`
+NUM_PALETTES=`$GMTOOL palette --count "$FILE"`
+NUM_ENTRIES=`$GMTOOL header --count "$FILE"`
 ENCODING=`$GMTOOL header --encoding "$FILE"`
 FILENAME=`basename "$FILE"`
 OUTDIR=gm
@@ -36,7 +37,7 @@ fi;
 
 echo Unpacking into "$DIR"
 
-for I in `seq 0 $((NUMENTRIES-1))`;
+for I in `seq 0 $((NUM_ENTRIES-1))`;
 do
     OUTPUT=`printf "$DIR/%.5d.$FTYPE" $I`;
     $GMTOOL render -f$FTYPE -i$I -p$PALETTE -o"$OUTPUT" --transparent-color="${TRANSPARENT}" -- "$FILE";

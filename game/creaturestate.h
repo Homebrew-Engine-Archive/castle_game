@@ -29,21 +29,17 @@ namespace Castle
             virtual void Update(const SimulationContext &context, Creature &creature) = 0;
         };
 
-        struct Archer
+        struct Peasant
         {
-            float srcX;
-            float srcY;
-            float srcZ;
-            float dstX;
-            float dstY;
-            float dstZ;
+            float posX;
+            float posY;
             core::Direction dir;
 
-            enum class ArcherState : int {
-                Idle, Idle2, Walk, Run, Shot, Melee, DigUp, DigDown, ClimbUp, ClimbDown, Fall, Spawning, Disbanding, DeathMelee, DeathMelee2, DeathArrow, Propel
+            enum class PeasantState : int {
+                
             };
 
-            ArcherState state;
+            PeasantState peasantState;
         };
         
         class DefaultCreatureState : public CreatureState

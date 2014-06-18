@@ -298,11 +298,12 @@ namespace Castle
 
         void SoftwareRenderEngine::DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target)
         {
-        
+            DrawImage(image, source, core::TopLeft(target));
         }
     
         void SoftwareRenderEngine::DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target)
         {
+            DrawImage(image, source, core::TopLeft(target));
         }
     
         void SoftwareRenderEngine::SetViewport(const core::Rect &rect)

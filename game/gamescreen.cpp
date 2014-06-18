@@ -25,7 +25,7 @@ namespace Castle
     namespace UI
     {
         GameScreen::~GameScreen() = default;
-        GameScreen::GameScreen(UI::ScreenManager &screenManager)
+        GameScreen::GameScreen(ScreenManager &screenManager)
             : mScreenManager(screenManager)
             , archer(LoadGM1(fs::GM1FilePath("body_archer")))
             , swordsman(LoadGM1(fs::GM1FilePath("body_swordsman")))

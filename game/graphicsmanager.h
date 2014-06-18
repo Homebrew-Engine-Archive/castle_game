@@ -1,14 +1,24 @@
 #ifndef GRAPHICSMANAGER_H_
 #define GRAPHICSMANAGER_H_
 
-namespace Graphics
+#include <game/filesystem.h>
+#include <game/collection.h>
+
+namespace Castle
 {
-    class GraphicsManager
+    namespace Graphics
     {
-    public:
-        GraphicsManager();
-        virtual ~GraphicsManager();
-    };
+        class GraphicsManager
+        {
+            
+        public:
+            GraphicsManager();
+            virtual ~GraphicsManager();
+
+            void AddCollectionPath(const fs::path &path);
+            void LoadAll();
+        };
+    }
 }
 
 #endif // GRAPHICSMANAGER_H_

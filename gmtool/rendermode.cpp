@@ -106,7 +106,7 @@ namespace GMTool
 
         if(DefaultTransparent() != mTransparentColor) {
             cfg.verbose << "Use transparent: " << mTransparentColor << std::endl;
-            reader.EntryReader().Transparent(mTransparentColor);
+            //reader.EntryReader().Transparent(mTransparentColor);
         }
         
         Castle::Image entry = reader.ReadEntry(mEntryIndex);

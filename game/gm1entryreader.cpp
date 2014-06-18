@@ -5,6 +5,7 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 
+#include <game/color.h>
 #include <game/rect.h>
 #include <game/sdl_utils.h>
 #include <game/gm1reader.h>
@@ -29,10 +30,6 @@ namespace
             return SDL_PIXELFORMAT_INDEX8;
         }
 
-        uint32_t TargetPixelFormat() const {
-            return SourcePixelFormat();
-        }
-        
         void ReadImage(std::istream &in, size_t numBytes, GM1::EntryHeader const&, Castle::Image &surface) const;
     };
 
@@ -202,11 +199,9 @@ namespace GM1
         
         Castle::Image surface = Castle::CreateImage(width, height, format);
 
+        surface.SetColorKey(mTransparentColor);
+
         const uint32_t colorkey = GetColorKey(format);
-        if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
-            throw sdl_error();
-        }
-        
         if(SDL_FillRect(surface, NULL, colorkey) < 0) {
             throw sdl_error();
         }
@@ -216,29 +211,10 @@ namespace GM1
 
     const Castle::Image GM1EntryReader::Load(const GM1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
-        Castle::Image surface = CreateCompatibleImage(header);
-
+        Castle::Image image = CreateCompatibleImage(header);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
-        ReadImage(in, bytesCount, header, surface);
-
-        // const uint32_t format = TargetPixelFormat();
-        // if(!HasPalette(surface) && format != SourcePixelFormat()) {
-        //     surface = Castle::ConvertImage(surface, format);
-        //     if(!surface) {
-        //         throw sdl_error();
-        //     }
-        // }
-        
-        // const uint32_t colorkey = GetColorKey(format);
-        // if(SDL_SetColorKey(surface, SDL_TRUE, colorkey) < 0) {
-        //     throw sdl_error();
-        // }
-        
-        if(SDL_SetSurfaceRLE(surface, SDL_TRUE) < 0) {
-            throw sdl_error();
-        }
-        
-        return surface;
+        ReadImage(in, bytesCount, header, image);
+        return image;
     }
     
     int GM1EntryReader::Width(const GM1::EntryHeader &header) const
@@ -256,22 +232,9 @@ namespace GM1
         return TGX::PixelFormat;
     }
 
-    uint32_t GM1EntryReader::TargetPixelFormat() const
-    {
-        return SDL_PIXELFORMAT_RGB888;
-    }
-    
     uint32_t GM1EntryReader::GetColorKey(uint32_t format) const
     {
-        const uint8_t red = mTransparentColor.r;
-        const uint8_t green = mTransparentColor.g;
-        const uint8_t blue = mTransparentColor.b;
-        const uint8_t alpha = mTransparentColor.a;
-
-        const PixelFormatPtr fmt(SDL_AllocFormat(format));
-        const uint32_t color = SDL_MapRGBA(fmt.get(), red, green, blue, alpha);
-        
-        return color;
+        return mTransparentColor.ConvertTo(format);
     }
 
     const core::Color GM1EntryReader::Transparent() const
@@ -284,25 +247,25 @@ namespace GM1
         mTransparentColor = std::move(color);
     }
     
-    GM1EntryReader::Ptr CreateEntryReader(const GM1::Encoding &encoding)
+    GM1EntryReader::Ptr CreateEntryReader(const Encoding &encoding)
     {
         switch(encoding) {
-        case GM1::Encoding::Font:
+        case Encoding::Font:
             return GM1EntryReader::Ptr(new FontReader);
             
-        case GM1::Encoding::TGX16:
+        case Encoding::TGX16:
             return GM1EntryReader::Ptr(new TGX16);
                 
-        case GM1::Encoding::Bitmap:
+        case Encoding::Bitmap:
             return GM1EntryReader::Ptr(new Bitmap);
         
-        case GM1::Encoding::TGX8:
+        case Encoding::TGX8:
             return GM1EntryReader::Ptr(new TGX8);
             
-        case GM1::Encoding::TileObject:
+        case Encoding::TileObject:
             return GM1EntryReader::Ptr(new TileObject);
             
-        case GM1::Encoding::Unknown:
+        case Encoding::Unknown:
         default:
             throw std::runtime_error("Unknown encoding");
         }

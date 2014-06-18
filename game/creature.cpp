@@ -3,8 +3,10 @@
 #include <game/simulationcontext.h>
 #include <game/creaturestate.h>
 
-namespace Castle {
-    namespace World {
+namespace Castle
+{
+    namespace World
+    {
         Creature::Creature(int identity, std::unique_ptr<CreatureState> state)
             : mIdentity(identity)
             , mState(std::move(state))
