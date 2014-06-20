@@ -44,6 +44,8 @@ namespace castle
         std::unique_ptr<world::SimulationManager> mSimManager;
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
+        std::chrono::steady_clock::time_point mLastSimPoll;
+        std::chrono::steady_clock::time_point mLastRenderPoll;
         bool mFpsLimited;
         int16_t mPort;
         double mFpsAverage;
@@ -61,6 +63,8 @@ namespace castle
         void LoadGraphics();
         void PollInput();
         void PollNetIO();
+        void PollRenderQueue();
+        void PollSimulationQueue();
         void DrawFrame();
         void LoadSimulationContext();
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);

@@ -49,7 +49,7 @@ namespace gmtool
     int PaletteMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        gm1::gm1Reader reader(mInputFile);
+        gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         cfg.verbose << "Collection has " << reader.NumPalettes() << " palettes" << std::endl;
 

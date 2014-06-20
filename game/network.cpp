@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -14,9 +15,39 @@ namespace castle
 {
     namespace net
     {
+        accept_error::accept_error(const boost::system::error_code &code) throw()
+            : mCode(code)
+        {
+        }
+
+        const boost::system::error_code& accept_error::Code() const throw()
+        {
+            return mCode;
+        }
+
+        const char* accept_error::what() const throw()
+        {
+            return "accept socket error";
+        }
+
+        receive_error::receive_error(const boost::system::error_code &code) throw()
+            : mCode(code)
+        {
+        }
+
+        const boost::system::error_code& receive_error::Code() const throw()
+        {
+            return mCode;
+        }
+
+        const char* receive_error::what() const throw()
+        {
+            return "receive socket error";
+        }
+        
         Connection::Connection(boost::asio::ip::tcp::socket socket)
             : mReadBuffer()
-            , mDataBuffer()
+            , mDataQueue()
             , mSock(std::move(socket))
         {
             boost::asio::ip::tcp::endpoint peer = mSock.remote_endpoint();
@@ -41,7 +72,7 @@ namespace castle
                 std::cout << msg << std::endl;
                 StartReceive();
             } else {
-                // Report a disconnection issue to the server
+                throw receive_error(code);
             }
         }
 
@@ -61,6 +92,11 @@ namespace castle
                 boost::bind(&Server::AcceptHandler, this, boost::asio::placeholders::error));
         }
 
+        void Server::StopAccept()
+        {
+            mAccept.cancel();
+        }
+        
         void Server::Poll()
         {
             mIO.poll();
@@ -72,7 +108,7 @@ namespace castle
                 mConnections.emplace_back(std::move(mSock));
                 StartAccept();
             } else {
-                // Report an error
+                throw accept_error(code);
             }
         }
     } // namespace net

@@ -6,7 +6,7 @@ namespace castle
 {
     namespace gfx
     {
-        const DirectionSet EightDirs = DirectionSet {
+        const DirSet EightDirs = DirSet {
             core::Direction::East,
             core::Direction::NorthEast,
             core::Direction::North,
@@ -17,20 +17,20 @@ namespace castle
             core::Direction::SouthEast
         };
     
-        const DirectionSet FourDirs = DirectionSet {
+        const DirSet FourDirs = DirSet {
             core::Direction::East,
             core::Direction::North,
             core::Direction::West,
             core::Direction::South
         };
 
-        const DirectionSet SingleDir = DirectionSet {
+        const DirSet SingleDir = DirSet {
             core::Direction::South
         };
 
-        const DirectionSet Singleton(core::Direction dir)
+        const DirSet Singleton(core::Direction dir)
         {
-            return DirectionSet {dir};
+            return DirSet {dir};
         }
         
         std::vector<SpriteGroup> BodyArcherInfo = {
@@ -87,16 +87,9 @@ namespace castle
             {"deatharrow", 24, SingleDir}
         };
         
-        SpriteSequence::SpriteSequence(size_t count, size_t dirs)
-            : mCount(count)
-            , mDirs(dirs)
+        castle::Image SpriteSequence::GetImage(const core::Direction &dir, float index)
         {
-        }
-
-        castle::Image& SpriteSequence::GetImage(const core::Direction &dir, float index)
-        {
-            static castle::Image tmp(nullptr);
-            return tmp;
+            return castle::Image();
         }
 
         ResourcePack::~ResourcePack() = default;
@@ -105,9 +98,10 @@ namespace castle
         {
         }
 
-        const SpriteSequence ResourcePack::ReadSpriteSequence(const std::string &groupName)
+        const SpriteSequence ResourcePack::ReadGroup(const std::string &groupName)
         {
-            SpriteSequence tmp(0, 0);
+            SpriteSequence tmp;
+            
             return tmp;
         }
 

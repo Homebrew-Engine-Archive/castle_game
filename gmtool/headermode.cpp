@@ -32,7 +32,7 @@ namespace gmtool
     int HeaderMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        gm1::gm1Reader reader(mInputFile);
+        gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
 
         const gm1::Header &header = reader.Header();

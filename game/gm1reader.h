@@ -18,12 +18,12 @@ namespace castle
 
 namespace gm1
 {
-    class gm1EntryReader;
+    class GM1EntryReader;
 }
 
 namespace gm1
 {
-    class gm1Reader
+    class GM1Reader
     {
         bool mIsOpened;
         fs::path mPath;
@@ -31,7 +31,7 @@ namespace gm1
         gm1::Header mHeader;
         std::vector<castle::Palette> mPalettes;
         std::vector<ReaderEntryData> mEntries;
-        std::unique_ptr<gm1EntryReader> mEntryReader;
+        std::unique_ptr<GM1EntryReader> mEntryReader;
         
     public:
         enum Flags
@@ -41,9 +41,9 @@ namespace gm1
             CheckSizeCategory = 2
         };
 
-        gm1Reader();
-        explicit gm1Reader(fs::path, Flags = NoFlags);
-        virtual ~gm1Reader();
+        GM1Reader();
+        explicit GM1Reader(fs::path, Flags = NoFlags);
+        virtual ~GM1Reader();
         
         void Open(fs::path, Flags);
         bool IsOpened() const;
@@ -60,7 +60,7 @@ namespace gm1
         int NumEntries() const;
         int NumPalettes() const;
 
-        gm1::gm1EntryReader& EntryReader();
+        gm1::GM1EntryReader& EntryReader();
     };
 }
 

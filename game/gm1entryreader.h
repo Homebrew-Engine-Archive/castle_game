@@ -21,7 +21,7 @@ namespace castle
 
 namespace gm1
 {
-    class gm1EntryReader
+    class GM1EntryReader
     {
         core::Color mTransparentColor;
 
@@ -36,17 +36,17 @@ namespace gm1
         virtual uint32_t SourcePixelFormat() const;
         
     public:
-        gm1EntryReader();
-        virtual ~gm1EntryReader() = default;
+        GM1EntryReader();
+        virtual ~GM1EntryReader() = default;
         
         void Transparent(core::Color color);
         const core::Color Transparent() const;
         const castle::Image Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
-        typedef std::unique_ptr<gm1EntryReader> Ptr;
+        typedef std::unique_ptr<GM1EntryReader> Ptr;
     };
     
-    gm1EntryReader::Ptr CreateEntryReader(gm1::Encoding const&);
+    GM1EntryReader::Ptr CreateEntryReader(gm1::Encoding const&);
 }
 
 #endif

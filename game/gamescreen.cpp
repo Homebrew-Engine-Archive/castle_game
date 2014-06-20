@@ -10,7 +10,6 @@
 #include <game/gm1.h>
 #include <game/palette.h>
 #include <game/landscape.h>
-#include <game/make_unique.h>
 #include <game/modulo.h>
 #include <game/point.h>
 #include <game/rect.h>
@@ -27,16 +26,16 @@ namespace castle
         GameScreen::~GameScreen() = default;
         GameScreen::GameScreen(ScreenManager &screenManager)
             : mScreenManager(screenManager)
-            , archer(gfx::Loadgm1(fs::gm1FilePath("body_archer")))
-            , swordsman(gfx::Loadgm1(fs::gm1FilePath("body_swordsman")))
-            , crossbowman(gfx::Loadgm1(fs::gm1FilePath("body_crossbowman")))
-            , buildings1(gfx::Loadgm1(fs::gm1FilePath("tile_buildings1")))
-            , buildings2(gfx::Loadgm1(fs::gm1FilePath("tile_buildings2")))
-            , workshops(gfx::Loadgm1(fs::gm1FilePath("tile_workshops")))
-            , landset(gfx::Loadgm1(fs::gm1FilePath("tile_land8")))
-            , seaset(gfx::Loadgm1(fs::gm1FilePath("tile_sea8")))
-            , rockset(gfx::Loadgm1(fs::gm1FilePath("tile_rocks8")))
-            , cliffs(gfx::Loadgm1(fs::gm1FilePath("tile_cliffs")))
+            , archer(gfx::LoadGM1(fs::GM1FilePath("body_archer")))
+            , swordsman(gfx::LoadGM1(fs::GM1FilePath("body_swordsman")))
+            , crossbowman(gfx::LoadGM1(fs::GM1FilePath("body_crossbowman")))
+            , buildings1(gfx::LoadGM1(fs::GM1FilePath("tile_buildings1")))
+            , buildings2(gfx::LoadGM1(fs::GM1FilePath("tile_buildings2")))
+            , workshops(gfx::LoadGM1(fs::GM1FilePath("tile_workshops")))
+            , landset(gfx::LoadGM1(fs::GM1FilePath("tile_land8")))
+            , seaset(gfx::LoadGM1(fs::GM1FilePath("tile_sea8")))
+            , rockset(gfx::LoadGM1(fs::GM1FilePath("tile_rocks8")))
+            , cliffs(gfx::LoadGM1(fs::GM1FilePath("tile_cliffs")))
             , mLastCameraUpdate(std::chrono::steady_clock::now())
             , mCursor()
             , mCursorInvalid(true)

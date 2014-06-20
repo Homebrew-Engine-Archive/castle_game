@@ -89,7 +89,7 @@ namespace gmtool
     int ListMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        gm1::gm1Reader reader(mInputFile);
+        gm1::GM1Reader reader(mInputFile);
 
         ShowEntryList(cfg.stdout, reader);
         cfg.verbose << reader.NumEntries() << " total" << std::endl;
@@ -97,7 +97,7 @@ namespace gmtool
         return EXIT_SUCCESS;
     }
     
-    void ShowEntryList(std::ostream &out, const gm1::gm1Reader &reader)
+    void ShowEntryList(std::ostream &out, const gm1::GM1Reader &reader)
     {
         std::vector<std::vector<std::string>> cells;
         cells.reserve(reader.NumEntries() + 1 /** header **/);

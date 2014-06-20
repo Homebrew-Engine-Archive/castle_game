@@ -6,8 +6,8 @@
 
 namespace gmtool
 {
-    void TGXrenderer::renderoStream(std::ostream &out, const castle::Image &image)
+    void TGXRenderer::RenderToStream(std::ostream &out, const castle::Image &image)
     {
-        TGX::WriteTGX(out, image);
+        tgx::WriteImage(out, image);
     }
 }

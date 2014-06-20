@@ -21,9 +21,9 @@ namespace
      * \brief Reader for animation sprites.
      *
      * 8-bit images;
-     * TGX-compressed;
+     * tgx-compressed;
      */
-    class TGX8 : public gm1::gm1EntryReader
+    class TGX8 : public gm1::GM1EntryReader
     {
     protected:
         uint32_t SourcePixelFormat() const {
@@ -39,15 +39,15 @@ namespace
      * All fonts are such encoded.
      *
      * 16-bit images;
-     * TGX-compressed;
+     * tgx-compressed;
      */
-    class TGX16 : public gm1::gm1EntryReader
+    class TGX16 : public gm1::GM1EntryReader
     {
     protected:
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
     };
 
-    class FontReader : public gm1::gm1EntryReader
+    class FontReader : public gm1::GM1EntryReader
     {
     protected:
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
@@ -57,12 +57,12 @@ namespace
      * \brief Reader for tile textures.
      *
      * Every tile is composed of 30x16 tile rhombus texture and
-     * static tgx16 decoration.
+     * static TGX16 decoration.
      *
-     * Tiles are decoded by TGX::DecodeTile
+     * Tiles are decoded by tgx::DecodeTile
      *
      */
-    class TileObject : public gm1::gm1EntryReader
+    class TileObject : public gm1::GM1EntryReader
     {
     protected:
         // int Width(const gm1::EntryHeader &header) const {
@@ -79,7 +79,7 @@ namespace
     /**
      * \tile Uncompressed images. 
      */
-    class Bitmap : public gm1::gm1EntryReader
+    class Bitmap : public gm1::GM1EntryReader
     {
     protected:
         int Height(const gm1::EntryHeader &header) const {
@@ -92,17 +92,17 @@ namespace
     
     void TGX8::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
     {
-        TGX::DecodeImage(in, numBytes, surface);
+        tgx::DecodeImage(in, numBytes, surface);
     }
 
     void TGX16::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
     {
-        TGX::DecodeImage(in, numBytes, surface);
+        tgx::DecodeImage(in, numBytes, surface);
     }
 
     void FontReader::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
     {
-        TGX::DecodeImage(in, numBytes, surface);
+        tgx::DecodeImage(in, numBytes, surface);
 
         // Originally I found that just color-keying of an image
         // doesn't work properly. After skipping all fully-transparent
@@ -180,18 +180,18 @@ namespace
         
         const core::Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         castle::ImageView box(surface, boxrect);
-        TGX::DecodeImage(in, numBytes - gm1::TileBytes, box.GetView());
+        tgx::DecodeImage(in, numBytes - gm1::TileBytes, box.GetView());
     }
 }
 
 namespace gm1
 {
-    gm1EntryReader::gm1EntryReader()
+    GM1EntryReader::GM1EntryReader()
         : mTransparentColor(255, 0, 255)
     {
     }
     
-    castle::Image gm1EntryReader::CreateCompatibleImage(const gm1::EntryHeader &header) const
+    castle::Image GM1EntryReader::CreateCompatibleImage(const gm1::EntryHeader &header) const
     {
         const int width = Width(header);
         const int height = Height(header);
@@ -209,7 +209,7 @@ namespace gm1
         return surface;
     }
 
-    const castle::Image gm1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
+    const castle::Image GM1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
         castle::Image image = CreateCompatibleImage(header);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
@@ -217,53 +217,53 @@ namespace gm1
         return image;
     }
     
-    int gm1EntryReader::Width(const gm1::EntryHeader &header) const
+    int GM1EntryReader::Width(const gm1::EntryHeader &header) const
     {
         return header.width;
     }
 
-    int gm1EntryReader::Height(const gm1::EntryHeader &header) const
+    int GM1EntryReader::Height(const gm1::EntryHeader &header) const
     {
         return header.height;
     }
 
-    uint32_t gm1EntryReader::SourcePixelFormat() const
+    uint32_t GM1EntryReader::SourcePixelFormat() const
     {
-        return TGX::PixelFormat;
+        return tgx::PixelFormat;
     }
 
-    uint32_t gm1EntryReader::GetColorKey(uint32_t format) const
+    uint32_t GM1EntryReader::GetColorKey(uint32_t format) const
     {
         return mTransparentColor.ConvertTo(format);
     }
 
-    const core::Color gm1EntryReader::Transparent() const
+    const core::Color GM1EntryReader::Transparent() const
     {
         return mTransparentColor;
     }
 
-    void gm1EntryReader::Transparent(core::Color color)
+    void GM1EntryReader::Transparent(core::Color color)
     {
         mTransparentColor = std::move(color);
     }
     
-    gm1EntryReader::Ptr CreateEntryReader(const Encoding &encoding)
+    GM1EntryReader::Ptr CreateEntryReader(const Encoding &encoding)
     {
         switch(encoding) {
         case Encoding::Font:
-            return gm1EntryReader::Ptr(new FontReader);
+            return GM1EntryReader::Ptr(new FontReader);
             
         case Encoding::TGX16:
-            return gm1EntryReader::Ptr(new TGX16);
+            return GM1EntryReader::Ptr(new TGX16);
                 
         case Encoding::Bitmap:
-            return gm1EntryReader::Ptr(new Bitmap);
+            return GM1EntryReader::Ptr(new Bitmap);
         
         case Encoding::TGX8:
-            return gm1EntryReader::Ptr(new TGX8);
+            return GM1EntryReader::Ptr(new TGX8);
             
         case Encoding::TileObject:
-            return gm1EntryReader::Ptr(new TileObject);
+            return GM1EntryReader::Ptr(new TileObject);
             
         case Encoding::Unknown:
         default:

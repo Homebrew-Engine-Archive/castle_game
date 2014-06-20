@@ -21,28 +21,28 @@
 
 namespace gmtool
 {
-    std::vector<renderormat> renderormats()
+    std::vector<RenderFormat> RenderFormats()
     {
-        return std::vector<renderormat> {
-            {"bmp", renderer::Ptr(new BitmapFormat)}
-          , {"tgx", renderer::Ptr(new TGXrenderer)}
+        return std::vector<RenderFormat> {
+            {"bmp", Renderer::Ptr(new BitmapFormat)}
+          , {"tgx", Renderer::Ptr(new TGXRenderer)}
             
             #ifdef USE_PNG
-          , {"png", renderer::Ptr(new PNGrenderer)}
+          , {"png", Renderer::Ptr(new PNGRenderer)}
             #endif
         };
     }
 
-    void renderer::rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface)
+    void Renderer::RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface)
     {
-        throw std::runtime_error("You should implement renderer::rendero_SDL_RWops()");
+        throw std::runtime_error("You should implement Renderer::RenderToSDL_RWops()");
     }
     
-    void renderer::renderoStream(std::ostream &out, const castle::Image &surface)
+    void Renderer::RenderToStream(std::ostream &out, const castle::Image &surface)
     {
         RWPtr rw(core::SDL_RWFromOutputStream(out));
         if(rw) {
-            rendero_SDL_RWops(rw.get(), surface);
+            RenderToSDL_RWops(rw.get(), surface);
         } else {
             throw sdl_error();
         }

@@ -19,14 +19,14 @@ namespace castle
 {
     namespace gfx
     {
-        Collection Loadgm1(const fs::path &path)
+        Collection LoadGM1(const fs::path &path)
         {
             using namespace std::chrono;
             steady_clock::time_point startAt = steady_clock::now();
     
-            gm1::gm1Reader gm1;
+            gm1::GM1Reader gm1;
             try {
-                gm1.Open(path, gm1::gm1Reader::Cached);
+                gm1.Open(path, gm1::GM1Reader::Cached);
             } catch(const std::exception &error) {
                 std::cerr << "open collection failed: " << error.what() << std::endl;
                 throw;
@@ -46,7 +46,7 @@ namespace castle
             }
         }
 
-        Image LoadTGX(const fs::path &path)
+        Image Loadtgx(const fs::path &path)
         {
             boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
@@ -56,7 +56,7 @@ namespace castle
             }
     
             try {
-                return TGX::ReadTGX(fin);
+                return tgx::ReadImage(fin);
             } catch(const std::exception &error) {
                 std::cerr << "read image failed: " << error.what() << std::endl;
                 throw;
@@ -67,7 +67,7 @@ namespace castle
         Collection::Collection(const Collection &collection) = default;
         Collection& Collection::operator=(const Collection &collection) = default;
 
-        Collection::Collection(const gm1::gm1Reader &reader)
+        Collection::Collection(const gm1::GM1Reader &reader)
             : mHeader(reader.Header())
             , mEntries(reader.NumEntries())
             , mHeaders(reader.NumEntries())

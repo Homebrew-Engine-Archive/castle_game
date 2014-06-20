@@ -2,8 +2,6 @@
 #define RESOURCEPACK_H_
 
 #include <string>
-#include <map>
-#include <tuple>
 #include <vector>
 
 #include <game/collection.h>
@@ -14,23 +12,18 @@ namespace castle
 {
     namespace gfx
     {
-        using DirectionSet = std::vector<core::Direction>;
-
+        using DirSet = std::vector<core::Direction>;
+        
         struct SpriteGroup
         {
             std::string name;
             size_t size;
-            DirectionSet dirs;
+            DirSet dirs;
         };    
         
-        class SpriteSequence
+        struct SpriteSequence
         {
-            size_t mCount;
-            size_t mDirs;
-            std::vector<castle::Image> images;
-        public:
-            SpriteSequence(size_t count, size_t dirs);
-            castle::Image& GetImage(const core::Direction &dir, float index);
+            castle::Image GetImage(const core::Direction &dir, float index);
         };
         
         class ResourcePack
@@ -43,8 +36,7 @@ namespace castle
             virtual ~ResourcePack();
 
             void AddGroup(const SpriteGroup &group);
-            
-            const SpriteSequence ReadSpriteSequence(const std::string &groupName);
+            const SpriteSequence ReadGroup(const std::string &groupName);
         };
     }
 }

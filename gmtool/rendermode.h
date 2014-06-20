@@ -20,12 +20,12 @@ namespace castle
 
 namespace gmtool
 {
-    class renderormat;
+    class RenderFormat;
 }
 
 namespace gmtool
 {
-    class renderode : public Mode
+    class RenderMode : public Mode
     {
         boost::filesystem::path mInputFile;
         boost::filesystem::path mOutputFile;
@@ -33,8 +33,8 @@ namespace gmtool
         int mEntryIndex = 0;
         int mPaletteIndex = 0;
         core::Color mTransparentColor;
-        std::vector<renderormat> mFormats;
-        bool mApproxSize = false;
+        std::vector<RenderFormat> mFormats;
+        bool mEvalSizeOnly = false;
 
         const core::Color DefaultTransparent() const;
         
@@ -43,8 +43,8 @@ namespace gmtool
         void SetupTransparentColor(castle::Image &surface, const core::Color &color);
         
     public:
-        renderode();
-        virtual ~renderode() throw();
+        RenderMode();
+        virtual ~RenderMode() throw();
         
         void PrintUsage(std::ostream &out);
         void GetOptions(boost::program_options::options_description&);

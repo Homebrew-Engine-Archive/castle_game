@@ -96,7 +96,7 @@ namespace
     
     castle::Image CreateCompatibleImage(int width, int height)
     {
-        return castle::CreateImage(width, height, TGX::PixelFormat);
+        return castle::CreateImage(width, height, tgx::PixelFormat);
     }
     
     bool PixelsEqual(const char *lhs, const char *rhs, int bytesPerPixel)
@@ -148,7 +148,7 @@ namespace
     }
 }
 
-namespace TGX
+namespace tgx
 {
     template<class TransparencyPred>
     std::ostream& EncodeLine(std::ostream &out, const char *pixels, int width, int bytesPP, TransparencyPred transparent)
@@ -232,7 +232,7 @@ namespace TGX
         return out;
     }
     
-    std::ostream& WriteTGX(std::ostream &out, const castle::Image &surface)
+    std::ostream& WriteImage(std::ostream &out, const castle::Image &surface)
     {
         Header header;
         header.width = surface.Width();
@@ -241,7 +241,7 @@ namespace TGX
         return EncodeImage(out, surface);
     }
     
-    const castle::Image ReadTGX(std::istream &in)
+    const castle::Image ReadImage(std::istream &in)
     {
         Header header;
         if(!ReadHeader(in, header)) {
@@ -254,7 +254,7 @@ namespace TGX
         in.seekg(origin);
 
         castle::Image surface = CreateCompatibleImage(header.width, header.height);
-        TGX::DecodeImage(in, fsize - origin, surface);
+        tgx::DecodeImage(in, fsize - origin, surface);
         
         return surface;
     }
@@ -374,4 +374,4 @@ namespace TGX
         return in;
     }
     
-} // namespace TGX 
+} // namespace tgx 

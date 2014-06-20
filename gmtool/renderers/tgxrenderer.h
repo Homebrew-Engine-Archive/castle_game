@@ -10,9 +10,9 @@ namespace castle
 
 namespace gmtool
 {
-    struct TGXrenderer : public renderer
+    struct TGXRenderer : public Renderer
     {
-        virtual void renderoStream(std::ostream &out, const castle::Image &surface);
+        virtual void RenderToStream(std::ostream &out, const castle::Image &surface);
     };
 }
 

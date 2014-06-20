@@ -15,20 +15,20 @@ namespace castle
 
 namespace gmtool
 {
-    struct renderer
+    struct Renderer
     {
-        typedef std::shared_ptr<renderer> Ptr;
-        virtual void rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface);
-        virtual void renderoStream(std::ostream &out, const castle::Image &surface);
+        typedef std::shared_ptr<Renderer> Ptr;
+        virtual void RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface);
+        virtual void RenderToStream(std::ostream &out, const castle::Image &surface);
     };
     
-    struct renderormat
+    struct RenderFormat
     {
         std::string name;
-        renderer::Ptr renderer;
+        Renderer::Ptr renderer;
     };
 
-    std::vector<renderormat> renderormats();
+    std::vector<RenderFormat> RenderFormats();
 }
 
 #endif // RENDERER_H_

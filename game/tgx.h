@@ -1,5 +1,5 @@
-#ifndef TGX_H_
-#define TGX_H_
+#ifndef tgx_H_
+#define tgx_H_
 
 #include <SDL.h>
 
@@ -7,7 +7,7 @@
 #include <iosfwd>
 
 /**
- * TGX is a RLE-like compression algorithm.
+ * tgx is a RLE-like compression algorithm.
  *
  * The data are splitted up into triples
  *
@@ -46,7 +46,7 @@ namespace castle
     class Image;
 }
 
-namespace TGX
+namespace tgx
 {
     /**
        Stronghold's gfx transparentcy is pain.
@@ -83,10 +83,10 @@ namespace TGX
 
     std::istream& ReadImageHeader(std::istream&, castle::Image &surface);
 
-    const castle::Image ReadTGX(std::istream&);
+    const castle::Image ReadImage(std::istream&);
 
     /**
-     * \brief Low level TGX-encoding function.
+     * \brief Low level tgx-encoding function.
      *
      * \param out           Output stream.
      * \param pixels        Input buffer.
@@ -102,8 +102,8 @@ namespace TGX
 
     std::ostream& WriteImageHeader(std::ostream&, const castle::Image &surface);
 
-    std::ostream& WriteTGX(std::ostream&, const castle::Image &surface);
+    std::ostream& WriteImage(std::ostream&, const castle::Image &surface);
     
-} // namespace TGX
+} // namespace tgx
 
 #endif

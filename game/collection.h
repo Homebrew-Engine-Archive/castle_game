@@ -17,7 +17,7 @@ namespace core
 
 namespace gm1
 {
-    class gm1Reader;
+    class GM1Reader;
     class Palette;
 }
 
@@ -42,7 +42,7 @@ namespace castle
         class Collection
         {
         public:
-            explicit Collection(const gm1::gm1Reader &reader);
+            explicit Collection(const gm1::GM1Reader &reader);
             Collection(const Collection &collection);
             Collection& operator=(const Collection &collection);
             virtual ~Collection();
@@ -62,7 +62,7 @@ namespace castle
         };
 
         Image LoadTGX(const fs::path &filename);
-        Collection Loadgm1(const fs::path &filename);
+        Collection LoadGM1(const fs::path &filename);
     } // namespace gfx
 } // namespace castle
 

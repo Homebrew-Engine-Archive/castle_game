@@ -36,9 +36,6 @@ int main(int argc, const char *argv[])
     } catch(const std::exception &error) {
         std::cerr << error.what() << std::endl;
         return EXIT_FAILURE;
-    } catch(...) {
-        std::cerr << "Unknown exception" << std::endl;
-        return EXIT_FAILURE;
     }
 }
 
@@ -91,24 +88,21 @@ namespace po = boost::program_options;
 
 namespace gmtool
 {
-    std::vector<Command> ToolMain::GetCommands()
-    {
-        return std::vector<Command> {
-            {"header",  "Show gm1 header",                     Mode::Ptr(new HeaderMode)},
-            {"palette", "Show gm1 palettes",                   Mode::Ptr(new PaletteMode)},
-            {"entry",   "Show header of gm1 entries",          Mode::Ptr(new EntryMode)},
-            {"list",    "List entries of gm1 collection",      Mode::Ptr(new ListMode)},
-            {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
-            {"render",  "Convert entry into trivial image",    Mode::Ptr(new renderode)},
-            {"unpack",  "Unpack gm1 collection",               Mode::Ptr(nullptr)},
-            {"pack",    "Pack directory into gm1",             Mode::Ptr(nullptr)},
-            {"init",    "Create empty unpacked gm1 directory", Mode::Ptr(nullptr)}
-        };
-    }
+    std::vector<Command> ToolMain::commandList = {
+        {"header",  "Show gm1 header",                     Mode::Ptr(new HeaderMode)},
+        {"palette", "Show gm1 palettes",                   Mode::Ptr(new PaletteMode)},
+        {"entry",   "Show header of gm1 entries",          Mode::Ptr(new EntryMode)},
+        {"list",    "List entries of gm1 collection",      Mode::Ptr(new ListMode)},
+        {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
+        {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
+        {"unpack",  "Unpack gm1 collection",               Mode::Ptr(nullptr)},
+        {"pack",    "Pack directory into gm1",             Mode::Ptr(nullptr)},
+        {"init",    "Create empty unpacked gm1 directory", Mode::Ptr(nullptr)}
+    };
     
     int ToolMain::Exec(int argc, const char *argv[])
     {
-        std::vector<Command> commands = GetCommands();
+        std::vector<Command> commands = this->commandList;
         
         bool helpRequested = false;
         bool versionRequested = false;

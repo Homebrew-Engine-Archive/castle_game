@@ -36,7 +36,7 @@ namespace gmtool
     int DumpMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        gm1::gm1Reader reader(mInputFile);
+        gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         cfg.verbose << "Encoding is " << gm1::GetEncodingName(reader.Encoding()) << std::endl;
 

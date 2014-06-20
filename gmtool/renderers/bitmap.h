@@ -10,9 +10,9 @@ namespace castle
 
 namespace gmtool
 {
-    struct BitmapFormat : public renderer
+    struct BitmapFormat : public Renderer
     {
-        void rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface);
+        void RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface);
     };
 }
 

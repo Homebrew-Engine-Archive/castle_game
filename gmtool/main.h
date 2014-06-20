@@ -12,7 +12,7 @@ namespace gmtool
 {
     class ToolMain
     {
-        std::vector<Command> GetCommands();
+        static std::vector<Command> commandList;
 
         int RunCommand(const std::vector<std::string> &args, Command const&, ModeConfig const&);
 

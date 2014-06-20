@@ -79,13 +79,13 @@ namespace
 
 namespace gm1
 {
-    gm1Reader::~gm1Reader() = default;
+    GM1Reader::~GM1Reader() = default;
     
-    gm1Reader::gm1Reader()
-        : gm1Reader(fs::path(), NoFlags)
+    GM1Reader::GM1Reader()
+        : GM1Reader(fs::path(), NoFlags)
     { }
     
-    gm1Reader::gm1Reader(fs::path path, Flags flags)
+    GM1Reader::GM1Reader(fs::path path, Flags flags)
         : mIsOpened(false)
         , mPath(path)
         , mDataOffset(0)
@@ -99,12 +99,12 @@ namespace gm1
         }
     }
 
-    bool gm1Reader::IsOpened() const
+    bool GM1Reader::IsOpened() const
     {
         return mIsOpened;
     }
 
-    void gm1Reader::Open(fs::path path, Flags flags)
+    void GM1Reader::Open(fs::path path, Flags flags)
     {
         mIsOpened = false;
         mPalettes.resize(0);
@@ -185,27 +185,27 @@ namespace gm1
         mIsOpened = true;
     }
 
-    void gm1Reader::Close()
+    void GM1Reader::Close()
     {
         mIsOpened = false;
     }
 
-    gm1::Encoding gm1Reader::Encoding() const
+    gm1::Encoding GM1Reader::Encoding() const
     {
         return gm1::GetEncoding(mHeader.dataClass);
     }
     
-    int gm1Reader::NumEntries() const
+    int GM1Reader::NumEntries() const
     {
         return mHeader.imageCount;
     }
 
-    int gm1Reader::NumPalettes() const
+    int GM1Reader::NumPalettes() const
     {
         return gm1::CollectionPaletteCount;
     }
     
-    char const* gm1Reader::EntryData(size_t index) const
+    char const* GM1Reader::EntryData(size_t index) const
     {
         const ReaderEntryData &entry = mEntries.at(index);
 
@@ -232,37 +232,37 @@ namespace gm1
         return entry.buffer.data();
     }
 
-    size_t gm1Reader::EntrySize(size_t index) const
+    size_t GM1Reader::EntrySize(size_t index) const
     {
         return mEntries.at(index).size;
     }
 
-    size_t gm1Reader::EntryOffset(size_t index) const
+    size_t GM1Reader::EntryOffset(size_t index) const
     {
         return mEntries.at(index).size;
     }
     
-    gm1::Header const& gm1Reader::Header() const
+    gm1::Header const& GM1Reader::Header() const
     {
         return mHeader;
     }
 
-    gm1::EntryHeader const& gm1Reader::EntryHeader(size_t index) const
+    gm1::EntryHeader const& GM1Reader::EntryHeader(size_t index) const
     {
         return mEntries.at(index).header;
     }
 
-    castle::Palette const& gm1Reader::Palette(size_t index) const
+    castle::Palette const& GM1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
     }
 
-    gm1::gm1EntryReader& gm1Reader::EntryReader()
+    gm1::GM1EntryReader& GM1Reader::EntryReader()
     {
         return *mEntryReader;
     }
     
-    const castle::Image gm1Reader::ReadEntry(size_t index) const
+    const castle::Image GM1Reader::ReadEntry(size_t index) const
     {
         const gm1::EntryHeader &header = EntryHeader(index);
         const char *data = EntryData(index);

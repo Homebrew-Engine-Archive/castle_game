@@ -14,7 +14,6 @@
 #include <game/color.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
-#include <game/make_unique.h>
 #include <game/network.h>
 #include <game/point.h>
 #include <game/rect.h>
@@ -25,6 +24,14 @@
 #include <game/sdl_utils.h>
 #include <game/simulationmanager.h>
 
+namespace
+{
+    constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs, const std::chrono::steady_clock::time_point &rhs)
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(rhs - lhs);
+    }
+}
+
 namespace castle
 {
     Engine::~Engine() = default;
@@ -34,6 +41,8 @@ namespace castle
         , mSimManager(new world::SimulationManager)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
+        , mLastSimPoll()
+        , mLastRenderPoll()
         , mFpsLimited(false)
         , mPort(4500)
         , mFpsAverage(0.0f)
@@ -127,8 +136,6 @@ namespace castle
             }
         } catch(const std::exception &error) {
             std::cerr << "exception on input handling: " << error.what() << std::endl;
-        } catch(...) {
-            std::cerr << "unknown exception on input handling" << std::endl;
         }
     }
     
@@ -136,10 +143,18 @@ namespace castle
     {
         try {
             mServer->Poll();
+        } catch(const castle::net::receive_error &error) {
+            /** There we should probably reject some connection
+                and report simulation manager a network issue
+            **/
+            std::cerr << error.what() << std::endl;
+        } catch(const castle::net::accept_error &error) {
+            /** That is an interesting one.
+                One solution is report an issue to the user and reset screen to main menu.
+                The other is quietly reset underlying io_service and pray for win. **/
+            std::cerr << error.what() << std::endl;
         } catch(const std::exception &error) {
             std::cerr << "exception on polling network: " << error.what() << std::endl;
-        } catch(...) {
-            std::cerr << "unknown exception on polling network" << std::endl;
         }
         
         // forward connections to simulation manager
@@ -167,15 +182,30 @@ namespace castle
         mScreenManager->SetTestString(oss.str());
     }
 
-    constexpr std::chrono::milliseconds Elapsed(const std::chrono::steady_clock::time_point &lhs,
-                                                const std::chrono::steady_clock::time_point &rhs)
+    void Engine::PollRenderQueue()
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(rhs - lhs);
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        const std::chrono::milliseconds sinceLastRender = Elapsed(now, mLastRenderPoll);
+        if(!mFpsLimited || sinceLastRender >= mFrameUpdateInterval) {
+            mFrameCounter += 1;
+            mLastRenderPoll = now;
+            DrawFrame();
+        }
     }
+
+    void Engine::PollSimulationQueue()
+    {
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        const std::chrono::milliseconds sinceLastSim = Elapsed(mLastSimPoll, now);
+        if(mSimManager->HasUpdate(sinceLastSim)) {
+            mLastSimPoll = now;
+            mSimManager->Update(sinceLastSim);
+        }
+    }    
 
     void Engine::LoadSimulationContext()
     {
-        std::unique_ptr<world::Map> testMap = std::make_unique<world::Map>(100);
+        std::unique_ptr<world::Map> testMap(new world::Map(100));
         GenerateTestMap(*testMap);
         
         world::SimulationContext &context = mSimManager->PrimaryContext();
@@ -184,8 +214,6 @@ namespace castle
     
     int Engine::Exec()
     {
-        using namespace std::chrono;
-
         LoadFonts();
         LoadGraphics();
         LoadSimulationContext();
@@ -195,42 +223,21 @@ namespace castle
         mScreenManager->EnterGameScreen();
         mServer->StartAccept();
         
-        steady_clock::time_point prevSimulation = steady_clock::now();
-        steady_clock::time_point prevFrame = steady_clock::now();
-        steady_clock::time_point prevFpsUpdate = steady_clock::now();
+        std::chrono::steady_clock::time_point prevFpsUpdate = std::chrono::steady_clock::now();
         
         while(!mClosed) {
             PollInput();
             PollNetIO();
-
-            {
-                const steady_clock::time_point now = steady_clock::now();
-                if(!mFpsLimited || prevFrame + mFrameUpdateInterval < now) {
-                    mFrameCounter += 1;
-                    prevFrame = now;
-                    DrawFrame();
-                }
-            }
-
-            {
-                const steady_clock::time_point now = steady_clock::now();
-                const milliseconds sinceLastSim = Elapsed(prevSimulation, now);
-                if(mSimManager->HasUpdate(sinceLastSim)) {
-                    prevSimulation = now;
-                    mSimManager->Update(sinceLastSim);
-                }
-            }
-
-            {
-                const steady_clock::time_point now = steady_clock::now();
-                const milliseconds sinceLastFpsUpdate = Elapsed(prevFpsUpdate, now);
-                if(mFpsUpdateInterval < sinceLastFpsUpdate) {
-                    prevFpsUpdate = now;
-                    UpdateFrameCounter(sinceLastFpsUpdate);
-                }
+            PollRenderQueue();
+            PollSimulationQueue();
+            
+            const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+            const std::chrono::milliseconds sinceLastFpsUpdate = Elapsed(prevFpsUpdate, now);
+            if(mFpsUpdateInterval < sinceLastFpsUpdate) {
+                prevFpsUpdate = now;
+                UpdateFrameCounter(sinceLastFpsUpdate);
             }
         }
-
         return 0;
     }
 }

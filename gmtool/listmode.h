@@ -9,12 +9,12 @@
 
 namespace gm1
 {
-    class gm1Reader;
+    class GM1Reader;
 }
 
 namespace gmtool
 {
-    void ShowEntryList(std::ostream &out, const gm1::gm1Reader &reader);
+    void ShowEntryList(std::ostream &out, const gm1::GM1Reader &reader);
 
     class ListMode : public Mode
     {
