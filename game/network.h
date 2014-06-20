@@ -7,9 +7,9 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-namespace Castle
+namespace castle
 {
-    namespace Network
+    namespace net
     {
         class Connection
         {

@@ -22,9 +22,9 @@
 #include <game/rect.h>
 #include <game/range.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         layout_error::layout_error(std::string message) throw()
             : mMessage(std::move(message))
@@ -242,7 +242,7 @@ namespace Castle
             }
         }
 
-        void TextLayout::SetAlignment(core::Alignment horizontal)
+        void TextLayout::SetAlignment(const core::Alignment &horizontal)
         {
             if(mHorizontalAlignment != horizontal) {
                 mHorizontalAlignment = horizontal;
@@ -272,5 +272,5 @@ namespace Castle
         {
             mInvalidated = false;
         }
-    } // namespace UI
+    } // namespace ui
 }

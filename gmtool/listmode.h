@@ -7,14 +7,14 @@
 
 #include <boost/filesystem/path.hpp>
 
-namespace GM1
+namespace gm1
 {
-    class GM1Reader;
+    class gm1Reader;
 }
 
-namespace GMTool
+namespace gmtool
 {
-    void ShowEntryList(std::ostream &out, const GM1::GM1Reader &reader);
+    void ShowEntryList(std::ostream &out, const gm1::gm1Reader &reader);
 
     class ListMode : public Mode
     {

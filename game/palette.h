@@ -11,7 +11,7 @@ namespace core
     class Color;
 }
 
-namespace Castle
+namespace castle
 {
     class Palette
     {

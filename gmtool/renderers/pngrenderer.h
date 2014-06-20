@@ -3,11 +3,11 @@
 
 #include <gmtool/renderer.h>
 
-namespace GMTool
+namespace gmtool
 {
-    struct PNGRenderer : public Renderer
+    struct PNGrenderer : public renderer
     {
-        void RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface);
+        void rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface);
     };
 }
 

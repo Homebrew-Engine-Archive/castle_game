@@ -7,7 +7,7 @@
 #include <game/palette.h>
 #include <game/iohelpers.h>
 
-namespace GM1
+namespace gm1
 {
     std::string GetImageClassName(uint32_t dataClass)
     {
@@ -23,7 +23,7 @@ namespace GM1
         }
     }
     
-    GM1::Encoding GetEncoding(uint32_t dataClass)
+    gm1::Encoding GetEncoding(uint32_t dataClass)
     {
         switch(dataClass) {
         case 1: return Encoding::TGX16;
@@ -37,27 +37,27 @@ namespace GM1
         }
     }
 
-    std::string GetEncodingName(GM1::Encoding encoding)
+    std::string GetEncodingName(gm1::Encoding encoding)
     {
         switch(encoding) {
-        case GM1::Encoding::TGX16: return "TGX16";
-        case GM1::Encoding::TGX8: return "TGX8";
-        case GM1::Encoding::TileObject: return "TileObject";
-        case GM1::Encoding::Font: return "Font";
-        case GM1::Encoding::Bitmap: return "Bitmap";
+        case gm1::Encoding::TGX16: return "TGX16";
+        case gm1::Encoding::TGX8: return "TGX8";
+        case gm1::Encoding::TileObject: return "TileObject";
+        case gm1::Encoding::Font: return "Font";
+        case gm1::Encoding::Bitmap: return "Bitmap";
         default: return "Unknown";
         }
     }
     
-    size_t GetPreambleSize(const GM1::Header &header)
+    size_t GetPreambleSize(const gm1::Header &header)
     {
         size_t size = 0;
 
-        /** About 88 bytes on GM1::Header **/
-        size += GM1::CollectionHeaderBytes;
+        /** About 88 bytes on gm1::Header **/
+        size += gm1::CollectionHeaderBytes;
 
         /** About 10 palettes per file 512 bytes each **/
-        size += GM1::CollectionPaletteCount * GM1::CollectionPaletteBytes;
+        size += gm1::CollectionPaletteCount * gm1::CollectionPaletteBytes;
 
         /** 32-bit size per entry **/
         size += header.imageCount * sizeof(uint32_t);
@@ -65,8 +65,8 @@ namespace GM1
         /** 32-bit offset per entry **/
         size += header.imageCount * sizeof(uint32_t);
         
-        /** Some GM1::EntryHeaders of 16 bytes long **/
-        size += header.imageCount * GM1::CollectionEntryHeaderBytes;
+        /** Some gm1::EntryHeaders of 16 bytes long **/
+        size += header.imageCount * gm1::CollectionEntryHeaderBytes;
 
         return size;
     }
@@ -182,4 +182,4 @@ namespace GM1
         }
     }
     
-} // namespace GM1
+} // namespace gm1

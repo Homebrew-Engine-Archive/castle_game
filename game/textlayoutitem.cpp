@@ -1,8 +1,8 @@
 #include "textlayoutitem.h"
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         TextLayoutItem::TextLayoutItem(std::string text, int advanceX, int advanceY, int offsetX, int offsetY)
             : mItemText(std::move(text))

@@ -73,9 +73,9 @@ namespace
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Graphics
+    namespace gfx
     {
         void BlurImage(Image &dst, size_t radius)
         {

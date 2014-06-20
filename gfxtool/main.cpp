@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         throw std::runtime_error(oss.str());
     }
     
-    Castle::Image surf;
+    castle::Image surf;
     TGX::ReadImageHeader(fin, surf);
 
     std::streampos origin = fin.tellg();
@@ -42,14 +42,14 @@ int main(int argc, char *argv[])
     return ShowImage(surf);
 }
 
-int ShowImage(const Castle::Image &surface)
+int ShowImage(const castle::Image &surface)
 {
     SDLInitializer init();
 
     SDL_Window *window = NULL;
-    SDL_Renderer *renderer = NULL;
+    SDL_renderer *renderer = NULL;
 
-    SDL_CreateWindowAndRenderer(surface->w, surface->h, 0, &window, &renderer);
+    SDL_CreateWindowAndrenderer(surface->w, surface->h, 0, &window, &renderer);
     
     if(!window || !renderer) {
         throw std::runtime_error(SDL_GetError());
@@ -61,15 +61,15 @@ int ShowImage(const Castle::Image &surface)
     while(!quit) {
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
+            if(event.type == SDL_QuiT)
                 quit = true;
         }
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+        SDL_renderopy(renderer, texture, NULL, NULL);
+        SDL_renderresent(renderer);
     }
 
     SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
+    SDL_Destroyrenderer(renderer);
     SDL_DestroyWindow(window);
     
     return 0;

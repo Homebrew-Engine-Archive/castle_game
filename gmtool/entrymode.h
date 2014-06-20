@@ -5,7 +5,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-namespace GMTool
+namespace gmtool
 {
     class EntryMode : public Mode
     {

@@ -1,10 +1,12 @@
 #include "graphicsmanager.h"
 
-namespace Graphics
+namespace castle
 {
-    GraphicsManager::GraphicsManager()
+    namespace gfx
     {
+        GraphicsManager::~GraphicsManager() = default;
+        GraphicsManager::GraphicsManager()
+        {
+        }
     }
-    
-    GraphicsManager::~GraphicsManager() = default;
 }

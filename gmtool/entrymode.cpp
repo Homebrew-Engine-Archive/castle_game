@@ -11,7 +11,7 @@
 
 namespace po = boost::program_options;
 
-namespace GMTool
+namespace gmtool
 {
     void EntryMode::GetOptions(po::options_description &opts)
     {
@@ -33,20 +33,20 @@ namespace GMTool
     int EntryMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        GM1::GM1Reader reader(mInputFile);
+        gm1::gm1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         
         if(mEntryIndex < 0 || mEntryIndex >= reader.NumEntries()) {
             throw std::logic_error("Entry index is out of range");
         }
 
-        const GM1::EntryHeader &header = reader.EntryHeader(mEntryIndex);
+        const gm1::EntryHeader &header = reader.EntryHeader(mEntryIndex);
         if(!mBinary) {
             cfg.verbose << "Printing entry as text..." << std::endl;
-            GM1::PrintEntryHeader(cfg.stdout, header);
+            gm1::PrintEntryHeader(cfg.stdout, header);
         } else {
             cfg.verbose << "Printing entry as binary..." << std::endl;
-            cfg.stdout.write(reinterpret_cast<char const*>(&header), GM1::CollectionEntryHeaderBytes);
+            cfg.stdout.write(reinterpret_cast<char const*>(&header), gm1::CollectionEntryHeaderBytes);
         }
         
         return EXIT_SUCCESS;

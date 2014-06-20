@@ -81,20 +81,6 @@ namespace core
         return RadiansToDirection(atan2(lhs.x - rhs.x, lhs.y - rhs.y));
     }
 
-    Direction ClosestDirection(const DirectionSet &set, const Direction &dir)
-    {
-        Direction closest = dir;
-        int bestDist = std::numeric_limits<int>::max();
-        for(const Direction &d : set) {
-            int dist = MinRotates(d, dir);
-            if(bestDist > dist) {
-                closest = d;
-                bestDist = dist;
-            }
-        }
-        return closest;
-    }
-
     std::ostream &operator<<(std::ostream &out, const Direction &dir)
     {
 #define CASE(value) case (value): out << #value

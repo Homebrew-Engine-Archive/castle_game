@@ -3,12 +3,12 @@
 
 #include <gmtool/mode.h>
 
-namespace GMTool
+namespace gmtool
 {
     class Command;
 }
 
-namespace GMTool
+namespace gmtool
 {
     class ToolMain
     {

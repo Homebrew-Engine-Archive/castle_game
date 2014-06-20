@@ -1,5 +1,5 @@
 #include "packmode.h"
 
-namespace GMTool
+namespace gmtool
 {
 }

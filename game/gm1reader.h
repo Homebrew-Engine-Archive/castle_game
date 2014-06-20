@@ -1,5 +1,5 @@
-#ifndef GM1READER_H_
-#define GM1READER_H_
+#ifndef gm1READER_H_
+#define gm1READER_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -10,28 +10,28 @@
 
 class ReaderEntryData;
 
-namespace Castle
+namespace castle
 {
     class Image;
     class Palette;
 }
 
-namespace GM1
+namespace gm1
 {
-    class GM1EntryReader;
+    class gm1EntryReader;
 }
 
-namespace GM1
+namespace gm1
 {
-    class GM1Reader
+    class gm1Reader
     {
         bool mIsOpened;
         fs::path mPath;
         std::streamoff mDataOffset;
-        GM1::Header mHeader;
-        std::vector<Castle::Palette> mPalettes;
+        gm1::Header mHeader;
+        std::vector<castle::Palette> mPalettes;
         std::vector<ReaderEntryData> mEntries;
-        std::unique_ptr<GM1EntryReader> mEntryReader;
+        std::unique_ptr<gm1EntryReader> mEntryReader;
         
     public:
         enum Flags
@@ -41,26 +41,26 @@ namespace GM1
             CheckSizeCategory = 2
         };
 
-        GM1Reader();
-        explicit GM1Reader(fs::path, Flags = NoFlags);
-        virtual ~GM1Reader();
+        gm1Reader();
+        explicit gm1Reader(fs::path, Flags = NoFlags);
+        virtual ~gm1Reader();
         
         void Open(fs::path, Flags);
         bool IsOpened() const;
         void Close();
-        const Castle::Image ReadEntry(size_t index) const;
+        const castle::Image ReadEntry(size_t index) const;
         
-        GM1::EntryHeader const& EntryHeader(size_t index) const;
-        Castle::Palette const& Palette(size_t index) const;
-        GM1::Header const& Header() const;
-        GM1::Encoding Encoding() const;
+        gm1::EntryHeader const& EntryHeader(size_t index) const;
+        castle::Palette const& Palette(size_t index) const;
+        gm1::Header const& Header() const;
+        gm1::Encoding Encoding() const;
         char const* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
         size_t EntryOffset(size_t index) const;
         int NumEntries() const;
         int NumPalettes() const;
 
-        GM1::GM1EntryReader& EntryReader();
+        gm1::gm1EntryReader& EntryReader();
     };
 }
 

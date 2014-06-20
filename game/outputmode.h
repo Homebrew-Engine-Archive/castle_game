@@ -1,9 +1,9 @@
 #ifndef OUTPUTMODE_H_
 #define OUTPUTMODE_H_
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class OutputMode
         {

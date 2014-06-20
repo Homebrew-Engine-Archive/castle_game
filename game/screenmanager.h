@@ -14,19 +14,19 @@
 #include <game/loadingscreen.h>
 #include <game/ingamemenu.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class TextArea;
     }
     
-    namespace Render
+    namespace render
     {
-        class Renderer;
+        class renderer;
     }
     
-    namespace UI
+    namespace ui
     {
         class ScreenManager
         {
@@ -36,7 +36,7 @@ namespace Castle
         
             // From bottom to top
             std::vector<Screen*> mScreenStack;
-            std::unique_ptr<UI::TextArea> mInfoArea;
+            std::unique_ptr<ui::TextArea> mInfoArea;
         
         public:
             explicit ScreenManager();
@@ -61,9 +61,9 @@ namespace Castle
             Screen& PopScreen();
             void CloseScreen(Screen*);
             bool HandleEvent(SDL_Event const&);
-            void Render(Render::Renderer &renderer);
+            void Render(render::Renderer &renderer);
         };
-    } // namespace UI
+    } // namespace ui
 }
 
 #endif

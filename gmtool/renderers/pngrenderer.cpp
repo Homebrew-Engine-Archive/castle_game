@@ -6,9 +6,9 @@
 
 #include <SDL_image.h>
 
-namespace GMTool
+namespace gmtool
 {
-    void PNGRenderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface)
+    void PNGrenderer::rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface)
     {
         IMG_Init(IMG_INIT_PNG);
         

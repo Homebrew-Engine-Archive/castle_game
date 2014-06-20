@@ -17,9 +17,9 @@
 #include <game/image.h>
 #include <game/point.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         Console::Console(ScreenManager &screenManager)
             : mScreenManager(screenManager)
@@ -40,7 +40,7 @@ namespace Castle
             mLogArea.SetTextAlignment(core::Alignment::Min);
         }
 
-        void Console::Render(Render::Renderer &renderer)
+        void Console::Render(render::Renderer &renderer)
         {
             const core::Rect consoleRect = core::Rect(core::BottomRight(renderer.GetScreenRect()) / core::Point(1, 2));
             renderer.SetDrawColor(core::colors::Black.Opaque(200));
@@ -120,5 +120,5 @@ namespace Castle
             mPromptArea.SetText(mPromptArea.Text() + event.text);
             return true;
         }
-    } // namespace UI
+    } // namespace ui
 }

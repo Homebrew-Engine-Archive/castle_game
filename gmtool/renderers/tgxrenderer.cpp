@@ -4,9 +4,9 @@
 
 #include <game/tgx.h>
 
-namespace GMTool
+namespace gmtool
 {
-    void TGXRenderer::RenderToStream(std::ostream &out, const Castle::Image &image)
+    void TGXrenderer::renderoStream(std::ostream &out, const castle::Image &image)
     {
         TGX::WriteTGX(out, image);
     }

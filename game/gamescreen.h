@@ -14,65 +14,66 @@
 class Image;
 enum class Landscape;
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         class Creature;
         class SimulationContext;
         class SimulationManager;
     }
-    namespace UI
+    namespace ui
     {
         class ScreenManager;
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class GameScreen : public Screen
         {
-            ScreenManager &mScreenManager;
-            Collection archer;
-            Collection swordsman;
-            Collection crossbowman;
-            Collection buildings1;
-            Collection buildings2;
-            Collection workshops;
-            Collection landset;
-            Collection seaset;
-            Collection rockset;
-            Collection cliffs;
-            std::chrono::steady_clock::time_point mLastCameraUpdate;
-            std::map<SDL_Keycode, bool> mKeyState;
-            core::Point mCursor;
-            bool mCursorInvalid;
-            World::Camera mCamera;
-            World::SimulationContext *mSimContext;
-
-        protected:
-            void RenderTile(Render::Renderer &render, const World::Map::Cell &cell);
-            void RenderCreature(Render::Renderer &renderer, const World::Creature &creature);
-            bool HandleKeyPress(const SDL_KeyboardEvent &event);
-            bool HandleMouseButton(const SDL_MouseButtonEvent &event);
-            void UpdateCamera(const Render::Renderer &renderer);
-            void ToggleCameraMode();
-            World::Camera& ActiveCamera();
-            bool TileSelected(const core::Point &cursor, const World::Map::Cell &cell) const;
-            World::Map::Cell FindSelectedTile(const Render::Renderer &renderer);
-            Collection const& GetTileSet(Landscape landscape) const;
-        
         public:
             explicit GameScreen(ScreenManager &screenManager);
             GameScreen(GameScreen const&) = delete;
             GameScreen& operator=(GameScreen const&) = delete;
             virtual ~GameScreen();
 
-            void SetSimulationContext(World::SimulationContext &context);
-            void Render(Render::Renderer &render);
+            void SetSimulationContext(world::SimulationContext &context);
+            void Render(render::Renderer &renderer);
             bool HandleEvent(const SDL_Event &event);
+            world::Camera& GetActiveCamera();
+
+        protected:
+            void RenderTile(render::Renderer &renderer, const world::Map::Cell &cell);
+            void RenderCreature(render::Renderer &renderer, const world::Creature &creature);
+            bool HandleKeyPress(const SDL_KeyboardEvent &event);
+            bool HandleMouseButton(const SDL_MouseButtonEvent &event);
+            void UpdateCamera(const render::Renderer &renderer);
+            void ToggleCameraMode();
+            bool IsTileSelected(const core::Point &cursor, const world::Map::Cell &cell) const;
+            world::Map::Cell FindSelectedTile(const render::Renderer &renderer);
+            gfx::Collection const& GetTileSet(const Landscape &landscape) const;
+
+        private:
+            ScreenManager &mScreenManager;
+            gfx::Collection archer;
+            gfx::Collection swordsman;
+            gfx::Collection crossbowman;
+            gfx::Collection buildings1;
+            gfx::Collection buildings2;
+            gfx::Collection workshops;
+            gfx::Collection landset;
+            gfx::Collection seaset;
+            gfx::Collection rockset;
+            gfx::Collection cliffs;
+            std::chrono::steady_clock::time_point mLastCameraUpdate;
+            std::map<SDL_Keycode, bool> mKeyState;
+            core::Point mCursor;
+            bool mCursorInvalid;
+            world::Camera mCamera;
+            world::SimulationContext *mSimContext;
         };
     }
 }

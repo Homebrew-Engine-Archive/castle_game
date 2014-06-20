@@ -4,9 +4,9 @@
 #include <game/filesystem.h>
 #include <game/collection.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Graphics
+    namespace gfx
     {
         class GraphicsManager
         {

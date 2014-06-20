@@ -3,7 +3,7 @@
 
 #include "mode.h"
 
-namespace GMTool
+namespace gmtool
 {
 }
 

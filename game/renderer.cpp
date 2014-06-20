@@ -37,9 +37,9 @@ namespace
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         Renderer::Renderer(Renderer const&) = delete;
         Renderer& Renderer::operator=(Renderer const&) = delete;
@@ -390,5 +390,5 @@ namespace Castle
             const core::Rect screenCoords = ToScreenCoords(target);
             mRenderEngine->DrawImageScaled(mBoundImage, source, screenCoords);
         }
-    } // namespace Render
+    } // namespace render
 }

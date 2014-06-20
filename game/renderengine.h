@@ -12,19 +12,19 @@ namespace core
     class Color;
 }
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class OutputMode;
     }
     
-    namespace Render
+    namespace render
     {
         enum class DrawMode : int
         {

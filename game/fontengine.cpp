@@ -57,23 +57,23 @@ public:
     FontData(FontData&&) = default;
     FontData(const FontData &that) = delete;
     FontData& operator=(const FontData &that) = delete;
-    ~FontData() = default;
+    virtual ~FontData() = default;
 
     core::Font const& Font() const;
     /**
        Produces as result argb32 surface considered to be drawn on screen.
     **/
-    Castle::Image RenderBlended(const std::string &text, const core::Color &fg) const;
+    castle::Image RenderBlended(const std::string &text, const core::Color &fg) const;
 
     /**
        Palettized surface with background
     **/
-    Castle::Image RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const;
+    castle::Image RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const;
 
     /**
        Cheap and fast
     **/
-    Castle::Image RenderSolid(const std::string &text, const core::Color &fg) const;
+    castle::Image RenderSolid(const std::string &text, const core::Color &fg) const;
     
     bool HasGlyph(int character) const;
     const core::Size TextSize(const std::string &text) const;
@@ -113,19 +113,19 @@ void FontData::UpdateFontState(const core::Font &font) const
     TTF_SetFontKerning(ttf_font, font.Kerning());
 }
 
-Castle::Image FontData::RenderBlended(const std::string &text, const core::Color &fg) const
+castle::Image FontData::RenderBlended(const std::string &text, const core::Color &fg) const
 {
-    return Castle::Image(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
+    return castle::Image(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
 }
 
-Castle::Image FontData::RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const
+castle::Image FontData::RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const
 {
-    return Castle::Image(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
+    return castle::Image(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
 }
 
-Castle::Image FontData::RenderSolid(const std::string &text, const core::Color &fg) const
+castle::Image FontData::RenderSolid(const std::string &text, const core::Color &fg) const
 {
-    return Castle::Image(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
+    return castle::Image(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
 }
 
 bool FontData::HasGlyph(int character) const
@@ -166,9 +166,9 @@ const FontData* GetBestMatch(const core::Font &font, const FontData *lhs, const 
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         FontEngine::FontEngine(FontEngine const&) = delete;
         FontEngine& FontEngine::operator=(FontEngine const&) = delete;
@@ -334,5 +334,5 @@ namespace Castle
             fontData->UpdateFontState(font);
             return fontData->LineSkip();
         }
-    } // namespace Render
+    } // namespace render
 }

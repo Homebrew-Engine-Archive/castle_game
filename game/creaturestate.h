@@ -6,15 +6,15 @@
 
 #include <game/direction.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         class Creature;
         class SimulationContext;
     }
     
-    namespace World
+    namespace world
     {
         class CreatureState
         {

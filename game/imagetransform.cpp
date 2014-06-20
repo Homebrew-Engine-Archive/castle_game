@@ -43,7 +43,7 @@ namespace
     }
 }
 
-namespace Castle
+namespace castle
 {
     void TransformImage(Image &image, core::Color func(core::Color const&))
     {

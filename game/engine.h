@@ -10,38 +10,38 @@
 
 class SDLInitializer;
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         class SimulationManager;
     }
     
-    namespace Network
+    namespace net
     {
         class Server;
     }
 
-    namespace Render
+    namespace render
     {
         class RenderEngine;
         class Renderer;
         class FontEngine;
     }
     
-    namespace UI
+    namespace ui
     {
         class ScreenManager;
     }
 }
 
-namespace Castle
+namespace castle
 {
     class Engine
     {
         std::unique_ptr<SDLInitializer> mSDL_Init;
-        std::unique_ptr<Render::Renderer> mRenderer;
-        std::unique_ptr<World::SimulationManager> mSimManager;
+        std::unique_ptr<render::Renderer> mRenderer;
+        std::unique_ptr<world::SimulationManager> mSimManager;
         std::chrono::milliseconds mFrameUpdateInterval;
         std::chrono::milliseconds mFpsUpdateInterval;
         bool mFpsLimited;
@@ -49,8 +49,8 @@ namespace Castle
         double mFpsAverage;
         int mFrameCounter;
         bool mClosed;
-        std::unique_ptr<Network::Server> mServer;
-        std::unique_ptr<UI::ScreenManager> mScreenManager;
+        std::unique_ptr<net::Server> mServer;
+        std::unique_ptr<ui::ScreenManager> mScreenManager;
 
     private:
         void ResizeScreen(int width, int height);
@@ -60,7 +60,7 @@ namespace Castle
         void LoadFonts();
         void LoadGraphics();
         void PollInput();
-        void PollNetwork();
+        void PollNetIO();
         void DrawFrame();
         void LoadSimulationContext();
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);

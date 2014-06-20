@@ -14,7 +14,7 @@ namespace fs
     path GMPath(const path &suffix = path());
     path FontsPath(const path &suffix = path());
 
-    path GM1FilePath(const std::string &fileName, const std::string &extension = ".gm1");
+    path gm1FilePath(const std::string &fileName, const std::string &extension = ".gm1");
     path TGXFilePath(const std::string &fileName, const std::string &extension = ".tgx");
     path FontFilePath(const std::string &fileName, const std::string &extension = ".ttf");
 

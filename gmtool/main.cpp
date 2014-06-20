@@ -31,7 +31,7 @@
 int main(int argc, const char *argv[])
 {
     try {
-        GMTool::ToolMain tool;
+        gmtool::ToolMain tool;
         return tool.Exec(argc, argv);
     } catch(const std::exception &error) {
         std::cerr << error.what() << std::endl;
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[])
     }
 }
 
-namespace GMTool
+namespace gmtool
 {
     struct Command
     {
@@ -89,20 +89,20 @@ namespace GMTool
 
 namespace po = boost::program_options;
 
-namespace GMTool
+namespace gmtool
 {
     std::vector<Command> ToolMain::GetCommands()
     {
         return std::vector<Command> {
-            {"header",  "Show GM1 header",                     Mode::Ptr(new HeaderMode)},
-            {"palette", "Show GM1 palettes",                   Mode::Ptr(new PaletteMode)},
-            {"entry",   "Show header of GM1 entries",          Mode::Ptr(new EntryMode)},
-            {"list",    "List entries of GM1 collection",      Mode::Ptr(new ListMode)},
+            {"header",  "Show gm1 header",                     Mode::Ptr(new HeaderMode)},
+            {"palette", "Show gm1 palettes",                   Mode::Ptr(new PaletteMode)},
+            {"entry",   "Show header of gm1 entries",          Mode::Ptr(new EntryMode)},
+            {"list",    "List entries of gm1 collection",      Mode::Ptr(new ListMode)},
             {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
-            {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
-            {"unpack",  "Unpack GM1 collection",               Mode::Ptr(nullptr)},
-            {"pack",    "Pack directory into GM1",             Mode::Ptr(nullptr)},
-            {"init",    "Create empty unpacked GM1 directory", Mode::Ptr(nullptr)}
+            {"render",  "Convert entry into trivial image",    Mode::Ptr(new renderode)},
+            {"unpack",  "Unpack gm1 collection",               Mode::Ptr(nullptr)},
+            {"pack",    "Pack directory into gm1",             Mode::Ptr(nullptr)},
+            {"init",    "Create empty unpacked gm1 directory", Mode::Ptr(nullptr)}
         };
     }
     

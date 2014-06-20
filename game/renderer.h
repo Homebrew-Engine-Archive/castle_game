@@ -17,19 +17,19 @@ namespace core
     class Point;
 }
 
-namespace Castle
+namespace castle
 {
     class Palette;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class FontEngine;
     }
 
-    namespace Render
+    namespace render
     {
         class Renderer
         {
@@ -109,7 +109,7 @@ namespace Castle
 
         };
     
-    } // namespace Render
+    } // namespace render
 }
 
 #endif

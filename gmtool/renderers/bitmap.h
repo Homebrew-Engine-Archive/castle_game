@@ -3,16 +3,16 @@
 
 #include <gmtool/renderer.h>
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
 
-namespace GMTool
+namespace gmtool
 {
-    struct BitmapFormat : public Renderer
+    struct BitmapFormat : public renderer
     {
-        void RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface);
+        void rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface);
     };
 }
 

@@ -1,8 +1,8 @@
 #ifndef PLAYERAVATAR_H_
 #define PLAYERAVATAR_H_
 
-namespace Castle {
-    namespace World {
+namespace castle {
+    namespace world {
         class PlayerAvatar
         {
         public:

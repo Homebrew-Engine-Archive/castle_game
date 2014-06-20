@@ -13,9 +13,9 @@
 #include <game/renderer.h>
 #include <game/collection.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         LoadingScreen::~LoadingScreen() = default;
         LoadingScreen::LoadingScreen()
@@ -55,8 +55,8 @@ namespace Castle
             return core::Clamp(done, 0.0f, 1.0f);
         }
     
-        void LoadingScreen::Render(Render::Renderer &renderer)
+        void LoadingScreen::Render(render::Renderer &renderer)
         {
         }   
-    } // namespace UI
+    } // namespace ui
 }

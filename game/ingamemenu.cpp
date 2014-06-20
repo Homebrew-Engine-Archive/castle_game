@@ -1,8 +1,8 @@
 #include "ingamemenu.h"
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         InGameMenu::InGameMenu() = default;
         InGameMenu::~InGameMenu() = default;

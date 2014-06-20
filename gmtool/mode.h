@@ -18,7 +18,7 @@ namespace boost
 **/
 #include <gmtool/path_validator.h>
 
-namespace GMTool
+namespace gmtool
 {    
     struct ModeConfig
     {

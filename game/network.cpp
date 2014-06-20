@@ -10,9 +10,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/bind.hpp>
 
-namespace Castle
+namespace castle
 {
-    namespace Network
+    namespace net
     {
         Connection::Connection(boost::asio::ip::tcp::socket socket)
             : mReadBuffer()
@@ -75,5 +75,5 @@ namespace Castle
                 // Report an error
             }
         }
-    } // namespace Network
+    } // namespace net
 }

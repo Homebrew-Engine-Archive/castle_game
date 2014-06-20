@@ -5,14 +5,14 @@
 
 #include <game/screen.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class ScreenManager;
     }
 
-    namespace UI
+    namespace ui
     {
         class MenuMain : public Screen
         {
@@ -22,7 +22,7 @@ namespace Castle
             explicit MenuMain(ScreenManager &screenManager);
             virtual ~MenuMain() = default;
 
-            virtual void Render(Render::Renderer &renderer);
+            virtual void Render(render::Renderer &renderer);
             virtual bool HandleEvent(const SDL_Event &event);
         };
     }

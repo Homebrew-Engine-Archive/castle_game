@@ -25,13 +25,13 @@
 #include <game/sdl_utils.h>
 #include <game/simulationmanager.h>
 
-namespace Castle
+namespace castle
 {
     Engine::~Engine() = default;
     Engine::Engine()
         : mSDL_Init(new SDLInitializer(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE))
-        , mRenderer(new Render::Renderer)
-        , mSimManager(new World::SimulationManager)
+        , mRenderer(new render::Renderer)
+        , mSimManager(new world::SimulationManager)
         , mFrameUpdateInterval(std::chrono::milliseconds(0))
         , mFpsUpdateInterval(std::chrono::seconds(3))
         , mFpsLimited(false)
@@ -39,8 +39,8 @@ namespace Castle
         , mFpsAverage(0.0f)
         , mFrameCounter(0)
         , mClosed(false)
-        , mServer(new Network::Server(mPort))
-        , mScreenManager(new UI::ScreenManager)
+        , mServer(new net::Server(mPort))
+        , mScreenManager(new ui::ScreenManager)
     {
         mScreenManager->SetTestString("No FPS for you, Sir");
     }
@@ -132,7 +132,7 @@ namespace Castle
         }
     }
     
-    void Engine::PollNetwork()
+    void Engine::PollNetIO()
     {
         try {
             mServer->Poll();
@@ -175,12 +175,11 @@ namespace Castle
 
     void Engine::LoadSimulationContext()
     {
-        std::unique_ptr<World::Map> testMap = std::make_unique<World::Map>(100);
+        std::unique_ptr<world::Map> testMap = std::make_unique<world::Map>(100);
         GenerateTestMap(*testMap);
         
-        World::SimulationContext &context = mSimManager->PrimaryContext();
+        world::SimulationContext &context = mSimManager->PrimaryContext();
         context.SetMap(std::move(testMap));
-        context.SetTurn(0);
     }
     
     int Engine::Exec()
@@ -202,7 +201,7 @@ namespace Castle
         
         while(!mClosed) {
             PollInput();
-            PollNetwork();
+            PollNetIO();
 
             {
                 const steady_clock::time_point now = steady_clock::now();

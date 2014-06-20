@@ -94,9 +94,9 @@ namespace
         return out;
     }
     
-    Castle::Image CreateCompatibleImage(int width, int height)
+    castle::Image CreateCompatibleImage(int width, int height)
     {
-        return Castle::CreateImage(width, height, TGX::PixelFormat);
+        return castle::CreateImage(width, height, TGX::PixelFormat);
     }
     
     bool PixelsEqual(const char *lhs, const char *rhs, int bytesPerPixel)
@@ -203,9 +203,9 @@ namespace TGX
         return WriteLineFeed(out);
     }    
 
-    std::ostream& EncodeImage(std::ostream &out, const Castle::Image &image)
+    std::ostream& EncodeImage(std::ostream &out, const castle::Image &image)
     {
-        const Castle::ImageLocker lock(image);
+        const castle::ImageLocker lock(image);
         
         const char *data = lock.Data();
         const auto pixelStride = image.PixelStride();
@@ -216,7 +216,7 @@ namespace TGX
         };
 
         if(image.HasColorKey()) {
-            const uint32_t colorKey = image.GetColorKey().ConvertTo(Castle::ImageFormat(image));
+            const uint32_t colorKey = image.GetColorKey().ConvertTo(castle::ImageFormat(image));
             transparencyPredicate = [pixelStride, colorKey](const char *pixel) {
                 return PixelTransparent(pixel, colorKey, pixelStride);
             };
@@ -232,7 +232,7 @@ namespace TGX
         return out;
     }
     
-    std::ostream& WriteTGX(std::ostream &out, const Castle::Image &surface)
+    std::ostream& WriteTGX(std::ostream &out, const castle::Image &surface)
     {
         Header header;
         header.width = surface.Width();
@@ -241,7 +241,7 @@ namespace TGX
         return EncodeImage(out, surface);
     }
     
-    const Castle::Image ReadTGX(std::istream &in)
+    const castle::Image ReadTGX(std::istream &in)
     {
         Header header;
         if(!ReadHeader(in, header)) {
@@ -253,7 +253,7 @@ namespace TGX
         const std::streampos fsize = in.tellg();
         in.seekg(origin);
 
-        Castle::Image surface = CreateCompatibleImage(header.width, header.height);
+        castle::Image surface = CreateCompatibleImage(header.width, header.height);
         TGX::DecodeImage(in, fsize - origin, surface);
         
         return surface;
@@ -336,9 +336,9 @@ namespace TGX
         return in;
     }
     
-    std::istream& DecodeImage(std::istream &in, size_t numBytes, Castle::Image &image)
+    std::istream& DecodeImage(std::istream &in, size_t numBytes, castle::Image &image)
     {
-        Castle::ImageLocker lock(image);
+        castle::ImageLocker lock(image);
 
         const int width = image.Width();
         const int height = image.Height();
@@ -364,7 +364,7 @@ namespace TGX
         return in;
     }
     
-    std::istream& ReadImageHeader(std::istream &in, Castle::Image &surface)
+    std::istream& ReadImageHeader(std::istream &in, castle::Image &surface)
     {
         Header header;
         if(!ReadHeader(in, header)) {

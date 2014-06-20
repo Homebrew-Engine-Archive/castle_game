@@ -6,9 +6,9 @@
 #include <game/size.h>
 #include <game/point.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         Camera::Camera()
             : mPosX(0.0f)
@@ -107,7 +107,7 @@ namespace Castle
             mScrollY = 0.0f;
         }
     
-        const World::Map::Cell Camera::ScreenToWorldCoords(const core::Point &cursor) const
+        const world::Map::Cell Camera::ScreenToworldCoords(const core::Point &cursor) const
         {
             switch(mCameraMode) {
             case CameraMode::Staggered:
@@ -128,7 +128,7 @@ namespace Castle
                     const int tx = floor((x - y) * mTileSize.height / static_cast<double>(mTileSize.width));
                     const int ty = x + y;
         
-                    return World::Map::Cell(tx, ty);
+                    return world::Map::Cell(tx, ty);
                 }
             
             case CameraMode::Diamond:
@@ -141,20 +141,20 @@ namespace Castle
                     const int x = cursor.x + mPosX;
                     const int y = cursor.y + mPosY;
                     const int z = 2 * w * h;
-                    return World::Map::Cell((-h*q - r*w + h*x + w*y) / z,
+                    return world::Map::Cell((-h*q - r*w + h*x + w*y) / z,
                                             (h*q - r*w - h*x + w*y) / z);
                 }
 
             case CameraMode::Ortho:
             default:
                 {
-                    return World::Map::Cell((ViewPoint().x + cursor.x) / mTileSize.width,
+                    return world::Map::Cell((ViewPoint().x + cursor.x) / mTileSize.width,
                                             (ViewPoint().y + cursor.y) / mTileSize.height);
                 }
             }
         }
     
-        const core::Point Camera::WorldToScreenCoords(const World::Map::Cell &cell) const
+        const core::Point Camera::worldToScreenCoords(const world::Map::Cell &cell) const
         {
             switch(mCameraMode) {
             case CameraMode::Staggered:

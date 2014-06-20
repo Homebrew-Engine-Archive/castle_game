@@ -3,9 +3,9 @@
 #include <game/menu_combat.h>
 #include <game/screenmanager.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         MenuMain::MenuMain(ScreenManager &screenManager)
             : mScreenManager(screenManager)
@@ -17,8 +17,8 @@ namespace Castle
             return false;
         }
 
-        void MenuMain::Render(Render::Renderer &renderer)
+        void MenuMain::Render(render::Renderer &renderer)
         {
         }
-    } // namespace UI
+    } // namespace ui
 }

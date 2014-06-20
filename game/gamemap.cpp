@@ -9,9 +9,9 @@
 #include <game/modulo.h>
 #include <game/landscape.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         Map::Map(const Map &map) = default;
         Map& Map::operator=(Map const&) = default;
@@ -160,7 +160,7 @@ namespace Castle
             q.push_back(center);
         
             while(!q.empty()) {
-                Map::Cell cell = q.front();
+                const Map::Cell cell = q.front();
                 q.pop_front();
                 map.LandscapeType(cell, landscape);
                 const auto xs = map.AdjacentCells(cell);

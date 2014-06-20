@@ -8,27 +8,27 @@
 
 #include <SDL.h>
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
 
-namespace GMTool
+namespace gmtool
 {
-    struct Renderer
+    struct renderer
     {
-        typedef std::shared_ptr<Renderer> Ptr;
-        virtual void RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface);
-        virtual void RenderToStream(std::ostream &out, const Castle::Image &surface);
+        typedef std::shared_ptr<renderer> Ptr;
+        virtual void rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface);
+        virtual void renderoStream(std::ostream &out, const castle::Image &surface);
     };
     
-    struct RenderFormat
+    struct renderormat
     {
         std::string name;
-        Renderer::Ptr renderer;
+        renderer::Ptr renderer;
     };
 
-    std::vector<RenderFormat> RenderFormats();
+    std::vector<renderormat> renderormats();
 }
 
 #endif // RENDERER_H_

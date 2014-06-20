@@ -20,23 +20,23 @@
 #include <game/simulationmanager.h>
 #include <game/image.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         GameScreen::~GameScreen() = default;
         GameScreen::GameScreen(ScreenManager &screenManager)
             : mScreenManager(screenManager)
-            , archer(LoadGM1(fs::GM1FilePath("body_archer")))
-            , swordsman(LoadGM1(fs::GM1FilePath("body_swordsman")))
-            , crossbowman(LoadGM1(fs::GM1FilePath("body_crossbowman")))
-            , buildings1(LoadGM1(fs::GM1FilePath("tile_buildings1")))
-            , buildings2(LoadGM1(fs::GM1FilePath("tile_buildings2")))
-            , workshops(LoadGM1(fs::GM1FilePath("tile_workshops")))
-            , landset(LoadGM1(fs::GM1FilePath("tile_land8")))
-            , seaset(LoadGM1(fs::GM1FilePath("tile_sea8")))
-            , rockset(LoadGM1(fs::GM1FilePath("tile_rocks8")))
-            , cliffs(LoadGM1(fs::GM1FilePath("tile_cliffs")))
+            , archer(gfx::Loadgm1(fs::gm1FilePath("body_archer")))
+            , swordsman(gfx::Loadgm1(fs::gm1FilePath("body_swordsman")))
+            , crossbowman(gfx::Loadgm1(fs::gm1FilePath("body_crossbowman")))
+            , buildings1(gfx::Loadgm1(fs::gm1FilePath("tile_buildings1")))
+            , buildings2(gfx::Loadgm1(fs::gm1FilePath("tile_buildings2")))
+            , workshops(gfx::Loadgm1(fs::gm1FilePath("tile_workshops")))
+            , landset(gfx::Loadgm1(fs::gm1FilePath("tile_land8")))
+            , seaset(gfx::Loadgm1(fs::gm1FilePath("tile_sea8")))
+            , rockset(gfx::Loadgm1(fs::gm1FilePath("tile_rocks8")))
+            , cliffs(gfx::Loadgm1(fs::gm1FilePath("tile_cliffs")))
             , mLastCameraUpdate(std::chrono::steady_clock::now())
             , mCursor()
             , mCursorInvalid(true)
@@ -45,7 +45,7 @@ namespace Castle
         {
         }
     
-        Collection const& GameScreen::GetTileSet(Landscape landscape) const
+        gfx::Collection const& GameScreen::GetTileSet(const Landscape &landscape) const
         {
             switch(landscape) {
             case Landscape::Sea:
@@ -66,15 +66,15 @@ namespace Castle
             }
         }
 
-        void GameScreen::RenderTile(Render::Renderer &renderer, const World::Map::Cell &cell)
+        void GameScreen::RenderTile(render::Renderer &renderer, const world::Map::Cell &cell)
         {
-            const World::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimContext->GetMap();
 
             const core::Size tileSize(mCamera.TileSize());
             const core::Point heightOffset(0, map.Height(cell));
-            const core::Point tileWorldPos(mCamera.WorldToScreenCoords(cell));
-            const core::Point tileTop(tileWorldPos - heightOffset);
-            const core::Point tileBottom(tileWorldPos);
+            const core::Point tileworldPos(mCamera.worldToScreenCoords(cell));
+            const core::Point tileTop(tileworldPos - heightOffset);
+            const core::Point tileBottom(tileworldPos);
             const core::Rect tileTopRect(tileTop.x, tileTop.y, tileSize.width, tileSize.height);
             const core::Rect tileBottomRect(tileBottom.x, tileBottom.y, tileSize.width, tileSize.height);
 
@@ -82,12 +82,12 @@ namespace Castle
             renderer.DrawRhombus(tileBottomRect);
         }
     
-        void GameScreen::RenderCreature(Render::Renderer &renderer, const World::Creature &creature)
+        void GameScreen::RenderCreature(render::Renderer &renderer, const world::Creature &creature)
         {
         
         }
 
-        void GameScreen::Render(Render::Renderer &renderer)
+        void GameScreen::Render(render::Renderer &renderer)
         {
             if(mSimContext == nullptr) {
                 return;
@@ -95,7 +95,7 @@ namespace Castle
         
             UpdateCamera(renderer);
 
-            const World::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimContext->GetMap();
 
             const auto cells = map.Cells();
             for(auto i = cells.first; i != cells.second; ++i) {
@@ -106,15 +106,15 @@ namespace Castle
         void GameScreen::ToggleCameraMode()
         {
             switch(mCamera.Mode()) {
-            case World::CameraMode::Staggered:
-                mCamera.Mode(World::CameraMode::Diamond);
+            case world::CameraMode::Staggered:
+                mCamera.Mode(world::CameraMode::Diamond);
                 break;
-            case World::CameraMode::Diamond:
-                mCamera.Mode(World::CameraMode::Ortho);
+            case world::CameraMode::Diamond:
+                mCamera.Mode(world::CameraMode::Ortho);
                 break;
             default:
-            case World::CameraMode::Ortho:
-                mCamera.Mode(World::CameraMode::Staggered);
+            case world::CameraMode::Ortho:
+                mCamera.Mode(world::CameraMode::Staggered);
                 break;
             }
         }
@@ -192,7 +192,7 @@ namespace Castle
             return false;
         }
     
-        void GameScreen::UpdateCamera(const Render::Renderer &renderer)
+        void GameScreen::UpdateCamera(const render::Renderer &renderer)
         {
             constexpr const int EdgeWidth = 10;
 
@@ -217,16 +217,16 @@ namespace Castle
             mLastCameraUpdate = steady_clock::now();
         }
 
-        bool GameScreen::TileSelected(const core::Point &cursor, const World::Map::Cell &cell) const
+        bool GameScreen::IsTileSelected(const core::Point &cursor, const world::Map::Cell &cell) const
         {
-            const World::Map &map = mSimContext->GetMap();
-            const Collection &tileset = GetTileSet(map.LandscapeType(cell));
+            const world::Map &map = mSimContext->GetMap();
+            const gfx::Collection &tileset = GetTileSet(map.LandscapeType(cell));
         
             const size_t index = map.Height(cell);
-            const GM1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
+            const gm1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
             const Image &surface = tileset.GetImage(index);
             
-            const core::Point tileTopLeft = mCamera.WorldToScreenCoords(cell);
+            const core::Point tileTopLeft = mCamera.worldToScreenCoords(cell);
             const core::Point tileTopLeftScreenSubrect = tileTopLeft - core::Point(0, map.Height(cell) - entryHeader.tileY);
             const core::Rect tileImageScreenSubrect = Translated(core::Rect(surface), tileTopLeftScreenSubrect);
             if(core::PointInRect(tileImageScreenSubrect, cursor)) {
@@ -238,18 +238,18 @@ namespace Castle
             return false;
         }
     
-        World::Map::Cell GameScreen::FindSelectedTile(const Render::Renderer &renderer)
+        world::Map::Cell GameScreen::FindSelectedTile(const render::Renderer &renderer)
         {
             const core::Point viewportCursor = renderer.ToViewportCoords(mCursor);
             if(mCamera.Flat()) {
-                return mCamera.ScreenToWorldCoords(viewportCursor);
+                return mCamera.ScreenToworldCoords(viewportCursor);
             }
 
-            const World::Map &map = mSimContext->GetMap();
-            World::Map::Cell selected = map.NullCell();
+            const world::Map &map = mSimContext->GetMap();
+            world::Map::Cell selected = map.NullCell();
             const auto cellsIters = map.Cells();
             for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
-                if(TileSelected(viewportCursor, *i)) {
+                if(IsTileSelected(viewportCursor, *i)) {
                     selected = *i;
                 }
             }
@@ -257,14 +257,14 @@ namespace Castle
             return selected;
         }
     
-        World::Camera& GameScreen::ActiveCamera()
+        world::Camera& GameScreen::GetActiveCamera()
         {
             return mCamera;
         }
 
-        void GameScreen::SetSimulationContext(World::SimulationContext &context)
+        void GameScreen::SetSimulationContext(world::SimulationContext &simContext)
         {
-            mSimContext = &context; 
+            mSimContext = &simContext;
         }
-    } // namespace UI
+    } // namespace ui
 }

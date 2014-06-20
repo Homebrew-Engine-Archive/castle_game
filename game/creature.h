@@ -1,4 +1,4 @@
-(#ifndef CREATURE_H_
+#ifndef CREATURE_H_
 #define CREATURE_H_
 
 #include <memory>
@@ -6,9 +6,9 @@
 #include <game/creaturestate.h>
 #include <game/playeravatar.h>
  
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         class Creature
         {

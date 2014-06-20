@@ -4,9 +4,9 @@
 
 #include <game/textarea.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         ScreenManager::ScreenManager(ScreenManager&&) = delete;
         ScreenManager& ScreenManager::operator=(ScreenManager&&) = delete;
@@ -60,7 +60,7 @@ namespace Castle
             return TopScreen().HandleEvent(event);
         }
 
-        void ScreenManager::Render(Render::Renderer &renderer)
+        void ScreenManager::Render(render::Renderer &renderer)
         {
             for(Screen *screen : mScreenStack) {
                 if(screen != nullptr) {
@@ -113,5 +113,5 @@ namespace Castle
             mInfoArea->SetText(std::move(test));
         }
         
-    } // namespace UI
+    } // namespace ui
 }

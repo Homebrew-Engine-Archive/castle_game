@@ -167,4 +167,4 @@ namespace core
         out << font.Family() << ' ' << font.Height();
         return out;
     }
-} // namespace UI
+} // namespace ui

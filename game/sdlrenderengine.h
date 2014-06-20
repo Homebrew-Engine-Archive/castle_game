@@ -12,9 +12,9 @@ namespace core
     class Point;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class SDLRenderEngine : public RenderEngine
         {

@@ -1,5 +1,5 @@
-#ifndef GM1_H_
-#define GM1_H_
+#ifndef gm1_H_
+#define gm1_H_
 
 #include <cstdint>
 #include <iosfwd>
@@ -8,7 +8,7 @@
 
 #include <SDL.h>
 
-namespace GM1
+namespace gm1
 {
     const unsigned TileBytes = 512;
     const unsigned TileSpriteWidth = 30;
@@ -32,7 +32,7 @@ namespace GM1
      *
      * `imageCount' is a just number of entries in the archive.
      *
-     * Each entry shall be decoded by GM1::Encoding which
+     * Each entry shall be decoded by gm1::Encoding which
      * is determined by `dataClass' field (see GetEncoding function).
      *
      * \note There are many fields have undefined purpose. Each of them prefix with 'u'.
@@ -135,12 +135,12 @@ namespace GM1
 
     std::string GetEncodingName(Encoding encoding);
     
-    GM1::Encoding GetEncoding(uint32_t dataClass);
+    gm1::Encoding GetEncoding(uint32_t dataClass);
     
     /**
      * \brief Calculates size of "static" part of the archive by its header.
      */
-    size_t GetPreambleSize(GM1::Header const&);
+    size_t GetPreambleSize(gm1::Header const&);
     
     std::ostream& PrintEntryHeader(std::ostream &out, const EntryHeader &header);
     std::ostream& PrintHeader(std::ostream &out, const Header &gm1);
@@ -153,6 +153,6 @@ namespace GM1
     SizeCategory GetSizeCategoryByDims(int width, int height);
     const std::pair<int, int> GetDimsBySizeCategory(SizeCategory);
     
-} // namespace GM1
+} // namespace gm1
 
 #endif

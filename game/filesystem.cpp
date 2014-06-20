@@ -26,7 +26,7 @@ namespace fs
         return RootPath() / "fonts" / suffix;
     }
 
-    path GM1FilePath(const std::string &filename, const std::string &extension)
+    path gm1FilePath(const std::string &filename, const std::string &extension)
     {
         path p = GMPath(filename);
         p += extension;

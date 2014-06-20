@@ -1,6 +1,6 @@
 #include "unpackmode.h"
 
-namespace GMTool
+namespace gmtool
 {
 
 }

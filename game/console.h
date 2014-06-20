@@ -10,19 +10,19 @@
 #include <game/screen.h>
 #include <game/textarea.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
-        class Renderer;
+        class renderer;
     }
     
-    namespace UI
+    namespace ui
     {
         class ScreenManager;
     }
 
-    namespace UI
+    namespace ui
     {
         class Console : public Screen
         {
@@ -33,7 +33,7 @@ namespace Castle
             virtual ~Console() = default;
 
             void LogMessage(const std::string &message);
-            void Render(Render::Renderer &renderer);
+            void Render(render::Renderer &renderer);
             bool HandleEvent(const SDL_Event &event);
 
         private:

@@ -35,7 +35,7 @@ namespace
     }
 }
 
-namespace Castle
+namespace castle
 {    
     ImageAlphaModSetter::ImageAlphaModSetter(const Image &src, uint8_t newAlphaMod)
         : mImage(src)

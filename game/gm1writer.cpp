@@ -7,9 +7,9 @@
 #include <game/gm1.h>
 #include <game/iohelpers.h>
 
-namespace GM1
+namespace gm1
 {
-    std::ostream& WriteHeader(std::ostream &out, const GM1::Header &header)
+    std::ostream& WriteHeader(std::ostream &out, const gm1::Header &header)
     {
         core::WriteLittle(out, header.u1);
         core::WriteLittle(out, header.u2);
@@ -36,9 +36,9 @@ namespace GM1
         return out;
     }
 
-    std::ostream& WritePalette(std::ostream &out, const Castle::Palette &palette)
+    std::ostream& WritePalette(std::ostream &out, const castle::Palette &palette)
     {
-        for(const Castle::Palette::value_type &entry : palette) {
+        for(const castle::Palette::value_type &entry : palette) {
             const core::Color color(entry);
             const palette_entry_t pixel = color.ConvertTo(PalettePixelFormat);
             core::WriteLittle(out, pixel);

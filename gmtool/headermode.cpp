@@ -10,7 +10,7 @@
 
 namespace po = boost::program_options;
 
-namespace GMTool
+namespace gmtool
 {
     void HeaderMode::GetOptions(po::options_description &opts)
     {
@@ -32,14 +32,14 @@ namespace GMTool
     int HeaderMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        GM1::GM1Reader reader(mInputFile);
+        gm1::gm1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
 
-        const GM1::Header &header = reader.Header();
+        const gm1::Header &header = reader.Header();
 
         if(mEncodingRequested) {
             cfg.verbose << "Print collections's encoding" << std::endl;
-            cfg.stdout << GM1::GetEncodingName(reader.Encoding()) << std::endl;
+            cfg.stdout << gm1::GetEncodingName(reader.Encoding()) << std::endl;
             return EXIT_SUCCESS;
         }
         
@@ -51,10 +51,10 @@ namespace GMTool
         
         if(!mBinary) {
             cfg.verbose << "Printing header in text format" << std::endl;
-            GM1::PrintHeader(cfg.stdout, header);
+            gm1::PrintHeader(cfg.stdout, header);
         } else {
             cfg.verbose << "Printing header in binary format" << std::endl;
-            GM1::WriteHeader(cfg.stdout, reader.Header());
+            gm1::WriteHeader(cfg.stdout, reader.Header());
         }
         return EXIT_SUCCESS;
     }

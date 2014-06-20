@@ -17,14 +17,14 @@ namespace core
     class Point;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class RenderEngine;
     }
 
-    namespace Render
+    namespace render
     {
         const std::string RegularFont = "DejaVuSans";
     

@@ -15,52 +15,55 @@ namespace core
     class Point;
 }
 
-namespace GM1
+namespace gm1
 {
-    class GM1Reader;
+    class gm1Reader;
     class Palette;
 }
 
-namespace Castle
+namespace castle
 {
-    enum class PaletteName : size_t
+    namespace gfx
     {
-        Unknown0     = 0,
-        Blue         = 1,
-        Red          = 2,
-        Orange       = 3,
-        Yellow       = 4,
-        Purple       = 5,
-        Black        = 6,
-        Cyan         = 7,
-        Green        = 8,
-        Unknown      = 9
-    };
+        enum class PaletteName : size_t
+        {
+            Unknown0     = 0,
+            Blue         = 1,
+            Red          = 2,
+            Orange       = 3,
+            Yellow       = 4,
+            Purple       = 5,
+            Black        = 6,
+            Cyan         = 7,
+            Green        = 8,
+            Unknown      = 9
+        };
 
-    class Collection
-    {
-    public:
-        explicit Collection(const GM1::GM1Reader &reader);
-        Collection(const Collection &collection);
-        Collection& operator=(const Collection &collection);
-        virtual ~Collection();
+        class Collection
+        {
+        public:
+            explicit Collection(const gm1::gm1Reader &reader);
+            Collection(const Collection &collection);
+            Collection& operator=(const Collection &collection);
+            virtual ~Collection();
 
-        size_t Count() const;
-        GM1::Header const& GetHeader() const;
-        const core::Point Anchor() const;
-        const Image GetImage(size_t index) const;
-        GM1::EntryHeader const& GetEntryHeader(size_t index) const;        
-        Castle::Palette const& GetPalette(PaletteName name) const;
+            size_t Count() const;
+            gm1::Header const& GetHeader() const;
+            const core::Point Anchor() const;
+            const Image GetImage(size_t index) const;
+            gm1::EntryHeader const& GetEntryHeader(size_t index) const;        
+            castle::Palette const& GetPalette(PaletteName name) const;
 
-    private:
-        GM1::Header mHeader;
-        std::vector<Castle::Palette> mPalettes;
-        std::vector<Image> mEntries;
-        std::vector<GM1::EntryHeader> mHeaders;
-    };
+        private:
+            gm1::Header mHeader;
+            std::vector<castle::Palette> mPalettes;
+            std::vector<Image> mEntries;
+            std::vector<gm1::EntryHeader> mHeaders;
+        };
 
-    Image LoadTGX(const fs::path &filename);
-    Collection LoadGM1(const fs::path &filename);
-}
+        Image LoadTGX(const fs::path &filename);
+        Collection Loadgm1(const fs::path &filename);
+    } // namespace gfx
+} // namespace castle
 
 #endif

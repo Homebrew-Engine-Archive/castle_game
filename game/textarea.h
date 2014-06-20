@@ -9,15 +9,15 @@
 #include <game/rect.h>
 #include <game/color.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class TextLayout;
         class Renderer;
     }
     
-    namespace UI
+    namespace ui
     {
         class TextArea
         {
@@ -43,11 +43,11 @@ namespace Castle
             void SetTextAlignment(core::Alignment horizontal);
             void SetTextColor(const core::Color &textColor);
             void SetBackgroundColor(const core::Color &backColor);
-            const core::Rect FitToScreen(Render::Renderer &renderer) const;
-            void Render(Render::Renderer &renderer);
+            const core::Rect FitToScreen(render::Renderer &renderer) const;
+            void Render(render::Renderer &renderer);
         
         private:
-            mutable std::unique_ptr<Render::TextLayout> mTextLayout;
+            mutable std::unique_ptr<render::TextLayout> mTextLayout;
             std::string mText;
             core::Rect mMaxSize;
             core::Rect mMinSize;

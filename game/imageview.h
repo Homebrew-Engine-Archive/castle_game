@@ -8,7 +8,7 @@ namespace core
     class Rect;
 }
 
-namespace Castle
+namespace castle
 {
 /**
    \brief Region-Of-Interest of surface object

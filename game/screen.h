@@ -4,27 +4,27 @@
 #include <cstdint>
 #include <SDL.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class Renderer;
     }
 
-    namespace Network
+    namespace net
     {
         class Connection;
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class Screen
         {
         public:
-            virtual void Render(Render::Renderer &renderer) {}
+            virtual void Render(render::Renderer &renderer) {}
 
             virtual bool CanBeStacked() const
                 {return true;}
@@ -34,7 +34,7 @@ namespace Castle
              * Only one screen at time can handle event. If it returns true, then
              * the rest screens have not any chance to handle this event too.
              *
-             * It can handle even SDL_QUIT.
+             * It can handle even SDL_QuiT.
              *
              * \param event
              * \return True if event was completely handled or false otherwise
@@ -42,13 +42,13 @@ namespace Castle
             virtual bool HandleEvent(const SDL_Event &event)
                 {return false;}
 
-            virtual void NewConnection(Network::Connection &connection)
+            virtual void NewConnection(net::Connection &connection)
                 {}
 
-            virtual void ConnectionData(Network::Connection &connection)
+            virtual void ConnectionData(net::Connection &connection)
                 {}
 
-            virtual void ConnectionLost(Network::Connection &connection)
+            virtual void ConnectionLost(net::Connection &connection)
                 {}
 
             virtual void EnterScreen(Screen *previous)

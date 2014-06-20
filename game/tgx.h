@@ -41,7 +41,7 @@
  *
  */
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
@@ -79,11 +79,11 @@ namespace TGX
     
     std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
     
-    std::istream& DecodeImage(std::istream&, size_t numBytes, Castle::Image &surface);
+    std::istream& DecodeImage(std::istream&, size_t numBytes, castle::Image &surface);
 
-    std::istream& ReadImageHeader(std::istream&, Castle::Image &surface);
+    std::istream& ReadImageHeader(std::istream&, castle::Image &surface);
 
-    const Castle::Image ReadTGX(std::istream&);
+    const castle::Image ReadTGX(std::istream&);
 
     /**
      * \brief Low level TGX-encoding function.
@@ -98,11 +98,11 @@ namespace TGX
      **/
     // std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     
-    std::ostream& EncodeImage(std::ostream&, const Castle::Image &surface);
+    std::ostream& EncodeImage(std::ostream&, const castle::Image &surface);
 
-    std::ostream& WriteImageHeader(std::ostream&, const Castle::Image &surface);
+    std::ostream& WriteImageHeader(std::ostream&, const castle::Image &surface);
 
-    std::ostream& WriteTGX(std::ostream&, const Castle::Image &surface);
+    std::ostream& WriteTGX(std::ostream&, const castle::Image &surface);
     
 } // namespace TGX
 

@@ -60,7 +60,7 @@ namespace NS
 * Explicit namespace is better than usings.
 * `using po = boost::program_options` is better than `boost::program_options::options_descriptions = boo...`
 * Encapsulating your classes and functions into proper namespaces is encouraged.
-* Namespace name should consist of single::word::either::Capitalized::or::not. 
+* Namespaces should consist of single uncapitalized token. Underscores and numbers are allowed.
 
 1.6. Declarations and Definitions.
 ------------------------------------------------------

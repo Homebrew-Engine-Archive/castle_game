@@ -8,7 +8,7 @@
 #include <game/sdl_error.h>
 #include <game/rect.h>
 
-namespace Castle
+namespace castle
 {
     const Image CreateImageView(Image &src, const core::Rect &clip)
     {

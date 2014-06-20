@@ -1,34 +1,53 @@
 #include "simulationmanager.h"
 
 #include <memory>
+#include <algorithm>
 
 #include <game/creaturestate.h>
 #include <game/creature.h>
 #include <game/simulationcontext.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         SimulationManager::~SimulationManager() = default;
     
         SimulationManager::SimulationManager()
             : mPrimaryContext(new SimulationContext())
+            , mTurnLength(100)
+            , mTurnNumber(0)
         {
         }
-    
+
+        void SimulationManager::CompleteTurn(const PlayerAvatar &player, int turn)
+        {
+            mAvatarTurn[player] = turn;
+        }
+
+        void SimulationManager::AddPlayer(const PlayerAvatar &player)
+        {
+            mAvatars.push_back(player);
+        }
+        
+        void SimulationManager::RemovePlayer(const PlayerAvatar &player)
+        {
+            const auto end = std::remove(mAvatars.begin(), mAvatars.end(), player);
+            mAvatars.erase(end, mAvatars.end());
+        }
+        
         void SimulationManager::Update(const std::chrono::milliseconds &elapsed)
         {
-            const int turn = mPrimaryContext->GetTurn();
-            mPrimaryContext->SetTurn(turn + 1);
+            for(const SimulationCommand &command : mCommands) {
+                command.Execute(*mPrimaryContext);
+            }
         }
     
         bool SimulationManager::HasUpdate(const std::chrono::milliseconds &elapsed)
         {
-            const int currentTurnNumber = mPrimaryContext->GetTurn();
             for(const PlayerAvatar &avatar : mAvatars) {
                 const int turn = mAvatarTurn[avatar];
-                if(turn <= currentTurnNumber) {
+                if(turn <= mTurnNumber) {
                     return false;
                 }
             }

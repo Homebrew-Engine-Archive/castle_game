@@ -3,9 +3,9 @@
 
 #include <game/screen.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class InGameMenu : public Screen
         {

@@ -12,14 +12,14 @@
 #include <game/alignment.h>
 #include <game/textlayoutitem.h>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class FontEngine;
     }
 
-    namespace Render
+    namespace render
     {
         struct TextLayoutLine
         {
@@ -48,7 +48,7 @@ namespace Castle
             void Remove(size_t pos, size_t count = 1);
             void SetText(const std::string &text);
             void SetFont(const core::Font &font);
-            void SetAlignment(core::Alignment align);
+            void SetAlignment(const core::Alignment &alignment);
             void SetWidth(int width);
             void InvalidateLayout();
             bool UpdateLayout(const FontEngine &fontEngine);

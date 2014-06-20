@@ -7,7 +7,7 @@
 
 #include <boost/filesystem/path.hpp>
  
-namespace GMTool
+namespace gmtool
 {
     class HeaderMode : public Mode
     {

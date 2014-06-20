@@ -8,9 +8,9 @@
 #include <game/direction.h>
 #include <game/landscape.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         class Map
         {

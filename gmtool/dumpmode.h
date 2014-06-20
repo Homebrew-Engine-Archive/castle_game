@@ -4,7 +4,7 @@
 #include <gmtool/mode.h>
 #include <boost/filesystem/path.hpp>
 
-namespace GMTool
+namespace gmtool
 {
     class DumpMode : public Mode
     {

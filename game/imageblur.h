@@ -3,14 +3,14 @@
 
 #include <cstddef>
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Graphics
+    namespace gfx
     {
         void BlurImage(Image &surface, size_t radius);
         void BlurImageAlpha(Image &surface, size_t radius);

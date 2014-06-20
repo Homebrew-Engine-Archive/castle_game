@@ -30,7 +30,7 @@ namespace
         return dummy.str();
     }
     
-    std::vector<std::string> GetEntryCells(int index, const GM1::EntryHeader &header)
+    std::vector<std::string> GetEntryCells(int index, const gm1::EntryHeader &header)
     {
         using namespace std;
         return vector<string>
@@ -70,7 +70,7 @@ namespace
     }
 }
 
-namespace GMTool
+namespace gmtool
 {
     void ListMode::GetOptions(boost::program_options::options_description &opts)
     {
@@ -89,7 +89,7 @@ namespace GMTool
     int ListMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        GM1::GM1Reader reader(mInputFile);
+        gm1::gm1Reader reader(mInputFile);
 
         ShowEntryList(cfg.stdout, reader);
         cfg.verbose << reader.NumEntries() << " total" << std::endl;
@@ -97,7 +97,7 @@ namespace GMTool
         return EXIT_SUCCESS;
     }
     
-    void ShowEntryList(std::ostream &out, const GM1::GM1Reader &reader)
+    void ShowEntryList(std::ostream &out, const gm1::gm1Reader &reader)
     {
         std::vector<std::vector<std::string>> cells;
         cells.reserve(reader.NumEntries() + 1 /** header **/);

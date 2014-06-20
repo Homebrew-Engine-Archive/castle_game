@@ -1,8 +1,8 @@
 #include "creaturestate.h"
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         DefaultCreatureState::DefaultCreatureState(double x, double y)
             : mX(x)

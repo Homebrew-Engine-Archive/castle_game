@@ -10,9 +10,9 @@
 #include <game/direction.h>
 #include <game/rect.h>
 
-namespace Castle
+namespace castle
 {
-    namespace World
+    namespace world
     {
         enum class CameraMode : int {
             Staggered,
@@ -54,8 +54,8 @@ namespace Castle
             void RotateLeft();
             void RotateRight();
         
-            const Map::Cell ScreenToWorldCoords(const core::Point &cursor) const;
-            const core::Point WorldToScreenCoords(const Map::Cell &cell) const;
+            const Map::Cell ScreenToworldCoords(const core::Point &cursor) const;
+            const core::Point worldToScreenCoords(const Map::Cell &cell) const;
         
             bool Flat() const;
             void Flat(bool yes);

@@ -1,22 +1,22 @@
-#ifndef GM1WRITER_H_
-#define GM1WRITER_H_
+#ifndef gm1WRITER_H_
+#define gm1WRITER_H_
 
 #include <iosfwd>
 
-namespace Castle
+namespace castle
 {
     class Palette;
 }
 
-namespace GM1
+namespace gm1
 {
     class Header;
 }
 
-namespace GM1
+namespace gm1
 {
-    std::ostream& WriteHeader(std::ostream&, GM1::Header const&);
-    std::ostream& WritePalette(std::ostream&, const Castle::Palette &palette);
+    std::ostream& WriteHeader(std::ostream&, gm1::Header const&);
+    std::ostream& WritePalette(std::ostream&, const castle::Palette &palette);
 }
 
-#endif // GM1WRITER_H_
+#endif // gm1WRITER_H_

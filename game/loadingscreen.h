@@ -5,14 +5,14 @@
 
 #include <game/screen.h>
 
-namespace Render
+namespace render
 {
-    class Renderer;
+    class renderer;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class LoadingScreen : public Screen
         {
@@ -29,7 +29,7 @@ namespace Castle
             void IncreaseDone(int delta = 1);
             void SetProgressLabel(std::string const&);
             double GetCompleteRate() const;
-            void Render(Render::Renderer &renderer);
+            void Render(render::Renderer &renderer);
             bool HandleEvent(SDL_Event const&);
         };
     }

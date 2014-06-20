@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <game/minmax.h>
-#include <game/alignment.h>
 
 namespace core
 {
@@ -30,24 +29,6 @@ namespace core
     {
     }
     
-    template<class T>
-    Range<T> AlignRange(const Range<T> &src, const Range<T> &dst, Alignment align)
-    {
-        switch(align) {
-        case Alignment::Min:
-            return Range<T>(dst.min, dst.min + (src.max - src.min));
-        case Alignment::Max:
-            return Range<T>(dst.max - (src.max - src.min), dst.max);
-        case Alignment::Center:
-            return Range<T>(((dst.min + dst.max) - (src.max - src.min)) / 2,
-                            ((dst.min + dst.max) + (src.max - src.min)) / 2);
-        case Alignment::Expanded:
-            return dst;
-        default:
-            return src;
-        }
-    }
-
     template<class T>
     constexpr bool RangeEmpty(const Range<T> &lhs)
     {

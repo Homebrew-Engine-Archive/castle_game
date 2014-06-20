@@ -19,30 +19,30 @@
 #include "renderers/pngrenderer.h"
 #endif
 
-namespace GMTool
+namespace gmtool
 {
-    std::vector<RenderFormat> RenderFormats()
+    std::vector<renderormat> renderormats()
     {
-        return std::vector<RenderFormat> {
-            {"bmp", Renderer::Ptr(new BitmapFormat)}
-          , {"tgx", Renderer::Ptr(new TGXRenderer)}
+        return std::vector<renderormat> {
+            {"bmp", renderer::Ptr(new BitmapFormat)}
+          , {"tgx", renderer::Ptr(new TGXrenderer)}
             
             #ifdef USE_PNG
-          , {"png", Renderer::Ptr(new PNGRenderer)}
+          , {"png", renderer::Ptr(new PNGrenderer)}
             #endif
         };
     }
 
-    void Renderer::RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface)
+    void renderer::rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface)
     {
-        throw std::runtime_error("You should implement Renderer::RenderTo_SDL_RWops()");
+        throw std::runtime_error("You should implement renderer::rendero_SDL_RWops()");
     }
     
-    void Renderer::RenderToStream(std::ostream &out, const Castle::Image &surface)
+    void renderer::renderoStream(std::ostream &out, const castle::Image &surface)
     {
         RWPtr rw(core::SDL_RWFromOutputStream(out));
         if(rw) {
-            RenderTo_SDL_RWops(rw.get(), surface);
+            rendero_SDL_RWops(rw.get(), surface);
         } else {
             throw sdl_error();
         }

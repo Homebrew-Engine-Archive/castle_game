@@ -1,11 +1,11 @@
-#ifndef MENU_BUILDER_H_
-#define MENU_BUILDER_H_
+#ifndef MENU_BuiLDER_H_
+#define MENU_BuiLDER_H_
 
 #include <game/screen.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class MenuBuilder : public Screen
         {
@@ -14,4 +14,4 @@ namespace Castle
     }
 }
 
-#endif  // MENU_BUILDER_H_
+#endif  // MENU_BuiLDER_H_

@@ -1,14 +1,26 @@
 #ifndef SIMULATIONCOMMAND_H_
 #define SIMULATIONCOMMAND_H_
 
-namespace Castle
+#include <game/playeravatar.h>
+
+namespace castle
 {
-    namespace World
+    namespace world
+    {
+        class SimulationContext;
+    }
+    
+    namespace world
     {
         class SimulationCommand
         {
+            PlayerAvatar mPlayer;
         public:
-            explicit SimulationCommand() {}
+            explicit SimulationCommand(PlayerAvatar v)
+                : mPlayer(v)
+                {}
+
+            void Execute(SimulationContext &context) const;
         };
     }
 }

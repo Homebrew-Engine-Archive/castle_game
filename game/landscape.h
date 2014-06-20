@@ -24,6 +24,18 @@ enum class Landscape : int {
     Mash                                                 // Sea
 };
 
+class Terrain
+{
+    Landscape mLandscape;
+public:
+    explicit Terrain(Landscape type)
+        : mLandscape(type)
+        {}
+    inline Landscape GetType() const {
+        return mLandscape;
+    }
+};
+
 constexpr int GetLandscapeIndex(const Landscape &landscape)
 {
     return static_cast<int>(landscape);

@@ -5,14 +5,14 @@
 
 #include <game/screen.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         class ScreenManager;
     }
 
-    namespace UI
+    namespace ui
     {
         class MenuCombat : public Screen
         {

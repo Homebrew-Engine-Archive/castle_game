@@ -15,7 +15,7 @@
 
 struct ReaderEntryData
 {
-    GM1::EntryHeader header;
+    gm1::EntryHeader header;
     uint32_t size;
     uint32_t offset;
     mutable std::vector<char> buffer;
@@ -23,7 +23,7 @@ struct ReaderEntryData
 
 namespace
 {
-    std::istream& ReadHeader(std::istream &in, GM1::Header &header)
+    std::istream& ReadHeader(std::istream &in, gm1::Header &header)
     {
         core::ReadLittle(in, header.u1);
         core::ReadLittle(in, header.u2);
@@ -50,17 +50,17 @@ namespace
         return in;
     }
 
-    std::istream& ReadPalette(std::istream &in, Castle::Palette &palette)
+    std::istream& ReadPalette(std::istream &in, castle::Palette &palette)
     {
-        for(Castle::Palette::value_type &entry : palette) {
+        for(castle::Palette::value_type &entry : palette) {
             uint16_t pixel;
             core::ReadLittle<uint16_t>(in, pixel);
-            entry = core::PixelToColor(pixel, GM1::PalettePixelFormat);
+            entry = core::PixelToColor(pixel, gm1::PalettePixelFormat);
         }
         return in;
     }
 
-    std::istream& ReadEntryHeader(std::istream &in, GM1::EntryHeader &header)
+    std::istream& ReadEntryHeader(std::istream &in, gm1::EntryHeader &header)
     {
         core::ReadLittle(in, header.width);
         core::ReadLittle(in, header.height);
@@ -77,15 +77,15 @@ namespace
     }
 }
 
-namespace GM1
+namespace gm1
 {
-    GM1Reader::~GM1Reader() = default;
+    gm1Reader::~gm1Reader() = default;
     
-    GM1Reader::GM1Reader()
-        : GM1Reader(fs::path(), NoFlags)
+    gm1Reader::gm1Reader()
+        : gm1Reader(fs::path(), NoFlags)
     { }
     
-    GM1Reader::GM1Reader(fs::path path, Flags flags)
+    gm1Reader::gm1Reader(fs::path path, Flags flags)
         : mIsOpened(false)
         , mPath(path)
         , mDataOffset(0)
@@ -99,12 +99,12 @@ namespace GM1
         }
     }
 
-    bool GM1Reader::IsOpened() const
+    bool gm1Reader::IsOpened() const
     {
         return mIsOpened;
     }
 
-    void GM1Reader::Open(fs::path path, Flags flags)
+    void gm1Reader::Open(fs::path path, Flags flags)
     {
         mIsOpened = false;
         mPalettes.resize(0);
@@ -120,7 +120,7 @@ namespace GM1
         std::streampos fsize = fis.tellg();
         fis.seekg(0);
         
-        if(fsize < GM1::CollectionHeaderBytes) {
+        if(fsize < gm1::CollectionHeaderBytes) {
             throw std::logic_error("File too small to read header");
         }
         
@@ -133,7 +133,7 @@ namespace GM1
         } 
         mPalettes.reserve(CollectionPaletteCount);
         for(size_t i = 0; i < CollectionPaletteCount; ++i) {
-            Castle::Palette palette(CollectionPaletteColors);
+            castle::Palette palette(CollectionPaletteColors);
             if(!ReadPalette(fis, palette)) {
                 throw std::runtime_error(strerror(errno));
             }
@@ -179,33 +179,33 @@ namespace GM1
 
         mEntryReader =
             std::move(
-                GM1::CreateEntryReader(Encoding()));
+                gm1::CreateEntryReader(Encoding()));
 
         mPath = std::move(path);
         mIsOpened = true;
     }
 
-    void GM1Reader::Close()
+    void gm1Reader::Close()
     {
         mIsOpened = false;
     }
 
-    GM1::Encoding GM1Reader::Encoding() const
+    gm1::Encoding gm1Reader::Encoding() const
     {
-        return GM1::GetEncoding(mHeader.dataClass);
+        return gm1::GetEncoding(mHeader.dataClass);
     }
     
-    int GM1Reader::NumEntries() const
+    int gm1Reader::NumEntries() const
     {
         return mHeader.imageCount;
     }
 
-    int GM1Reader::NumPalettes() const
+    int gm1Reader::NumPalettes() const
     {
-        return GM1::CollectionPaletteCount;
+        return gm1::CollectionPaletteCount;
     }
     
-    char const* GM1Reader::EntryData(size_t index) const
+    char const* gm1Reader::EntryData(size_t index) const
     {
         const ReaderEntryData &entry = mEntries.at(index);
 
@@ -232,39 +232,39 @@ namespace GM1
         return entry.buffer.data();
     }
 
-    size_t GM1Reader::EntrySize(size_t index) const
+    size_t gm1Reader::EntrySize(size_t index) const
     {
         return mEntries.at(index).size;
     }
 
-    size_t GM1Reader::EntryOffset(size_t index) const
+    size_t gm1Reader::EntryOffset(size_t index) const
     {
         return mEntries.at(index).size;
     }
     
-    GM1::Header const& GM1Reader::Header() const
+    gm1::Header const& gm1Reader::Header() const
     {
         return mHeader;
     }
 
-    GM1::EntryHeader const& GM1Reader::EntryHeader(size_t index) const
+    gm1::EntryHeader const& gm1Reader::EntryHeader(size_t index) const
     {
         return mEntries.at(index).header;
     }
 
-    Castle::Palette const& GM1Reader::Palette(size_t index) const
+    castle::Palette const& gm1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
     }
 
-    GM1::GM1EntryReader& GM1Reader::EntryReader()
+    gm1::gm1EntryReader& gm1Reader::EntryReader()
     {
         return *mEntryReader;
     }
     
-    const Castle::Image GM1Reader::ReadEntry(size_t index) const
+    const castle::Image gm1Reader::ReadEntry(size_t index) const
     {
-        const GM1::EntryHeader &header = EntryHeader(index);
+        const gm1::EntryHeader &header = EntryHeader(index);
         const char *data = EntryData(index);
         const size_t bytesCount = EntrySize(index);
         return mEntryReader->Load(header, data, bytesCount);

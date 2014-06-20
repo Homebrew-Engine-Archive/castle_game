@@ -25,7 +25,7 @@ namespace
     const int WindowXPos = SDL_WINDOWPOS_UNDEFINED;
     const int WindowYPos = SDL_WINDOWPOS_UNDEFINED;
 
-    const char *WindowTitle = "Castle game";
+    const char *WindowTitle = "castle game";
 
     const int WindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
@@ -33,9 +33,9 @@ namespace
     const int RendererFlags = SDL_RENDERER_ACCELERATED;
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         SoftwareRenderEngine::~SoftwareRenderEngine() = default;
         SoftwareRenderEngine::SoftwareRenderEngine()
@@ -125,12 +125,12 @@ namespace Castle
             }
 
             if(!mPrimitiveRenderer) {
-                RendererPtr renderer(SDL_CreateSoftwareRenderer(mScreenImage));
-                if(!renderer) {
+                RendererPtr Renderer(SDL_CreateSoftwareRenderer(mScreenImage));
+                if(!Renderer) {
                     throw sdl_error();
                 }
 
-                mPrimitiveRenderer = std::move(renderer);
+                mPrimitiveRenderer = std::move(Renderer);
             }
 
             mFrameOutputMode = mOutputMode;
@@ -292,7 +292,7 @@ namespace Castle
             SDL_GetSurfaceBlendMode(image, &oldBlendMode);
             SDL_SetSurfaceBlendMode(image, blendMode);
             SDL_SetSurfaceAlphaMod(image, mOpacityMod);
-            Castle::CopyImage(image, subrect, mScreenImage, targetPoint);
+            castle::CopyImage(image, subrect, mScreenImage, targetPoint);
             SDL_SetSurfaceBlendMode(image, oldBlendMode);
         }
 

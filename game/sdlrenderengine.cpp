@@ -22,27 +22,27 @@ namespace
     const int WindowXPos = SDL_WINDOWPOS_UNDEFINED;
     const int WindowYPos = SDL_WINDOWPOS_UNDEFINED;
 
-    const char *WindowTitle = "Castle game";
+    const char *WindowTitle = "castle game";
 
     const uint32_t WindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED;
 
     const int RendererIndex = -1;
     const int RendererFlags = SDL_RENDERER_ACCELERATED;
 
-    const Castle::Render::OutputMode DetectOutputMode(SDL_Window &window)
+    const castle::render::OutputMode DetectOutputMode(SDL_Window &window)
     {
         int width;
         int height;
         SDL_GetWindowSize(&window, &width, &height);
         
         const uint32_t format = SDL_GetWindowPixelFormat(&window);
-        return Castle::Render::OutputMode(width, height, format);
+        return castle::render::OutputMode(width, height, format);
     }
 }
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         SDLRenderEngine::~SDLRenderEngine() = default;
     

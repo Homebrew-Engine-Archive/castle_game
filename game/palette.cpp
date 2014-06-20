@@ -8,7 +8,7 @@
 #include <game/color.h>
 #include <game/modulo.h>
 
-namespace Castle
+namespace castle
 {
     Palette::Palette(Palette const&) = default;
     Palette& Palette::operator=(Palette const&) = default;

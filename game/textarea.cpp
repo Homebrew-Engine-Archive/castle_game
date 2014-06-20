@@ -11,9 +11,9 @@
 #include <game/point.h>
 #include <game/size.h>
 
-namespace Castle
+namespace castle
 {
-    namespace UI
+    namespace ui
     {
         TextArea::TextArea(TextArea const&) = delete;
         TextArea& TextArea::operator=(TextArea const&) = delete;
@@ -22,7 +22,7 @@ namespace Castle
         TextArea::~TextArea() = default;
         
         TextArea::TextArea()
-            : mTextLayout(new Render::TextLayout)
+            : mTextLayout(new render::TextLayout)
             , mText()
             , mMaxSize()
             , mMinSize()
@@ -104,7 +104,7 @@ namespace Castle
             mMinSize.h = minHeight;
         }
     
-        const core::Rect TextArea::FitToScreen(Render::Renderer &renderer) const
+        const core::Rect TextArea::FitToScreen(render::Renderer &renderer) const
         {
             mTextLayout->UpdateLayout(renderer.GetFontEngine());
 
@@ -117,7 +117,7 @@ namespace Castle
                 AlignRange(AxisY(textDrawRect), AxisY(screenRect), mVerticalAlign));
         }
     
-        void TextArea::Render(Render::Renderer &renderer)
+        void TextArea::Render(render::Renderer &renderer)
         {
             const core::Rect widgetSubrect = FitToScreen(renderer);
             renderer.SetDrawColor(mBackgroundColor);
@@ -132,7 +132,7 @@ namespace Castle
 
             const core::Size widgetSize = renderer.GetScreenSize();
             core::Rect drawArea = renderer.GetScreenRect();
-            for(const Render::TextLayoutItem &item : *mTextLayout) {
+            for(const render::TextLayoutItem &item : *mTextLayout) {
                 renderer.SetViewport(drawArea);
 
                 const int offsetX = item.GetHorizontalOffset();

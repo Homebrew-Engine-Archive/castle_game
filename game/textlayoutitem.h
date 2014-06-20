@@ -3,9 +3,9 @@
 
 #include <string>
 
-namespace Castle
+namespace castle
 {
-    namespace Render
+    namespace render
     {
         class TextLayoutItem
         {

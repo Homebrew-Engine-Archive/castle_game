@@ -11,12 +11,12 @@ namespace core
     class Color;
 }
 
-namespace Castle
+namespace castle
 {
     class Palette;
 }
 
-namespace Castle
+namespace castle
 {
     /**
        Software memory image block.

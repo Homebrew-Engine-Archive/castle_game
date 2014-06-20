@@ -22,19 +22,19 @@
 
 namespace po = boost::program_options;
 
-namespace GMTool
+namespace gmtool
 {
-    RenderMode::~RenderMode() throw() = default;
-    RenderMode::RenderMode()
+    renderode::~renderode() throw() = default;
+    renderode::renderode()
     {
-        mFormats = RenderFormats();
+        mFormats = renderormats();
     }
     
-    void RenderMode::GetOptions(po::options_description &opts)
+    void renderode::GetOptions(po::options_description &opts)
     {
-        po::options_description mode("Render mode");
+        po::options_description mode("rendermode");
         mode.add_options()
-            ("file", po::value(&mInputFile)->required(), "Set GM1 filename")
+            ("file", po::value(&mInputFile)->required(), "Set gm1 filename")
             ("index,i", po::value(&mEntryIndex)->required(), "Set entry index")
             ("output,o", po::value(&mOutputFile), "Set output image filename")
             ("format,f", po::value(&mFormat)->default_value(mFormats.front().name), "Set rendering format")
@@ -45,16 +45,16 @@ namespace GMTool
         opts.add(mode);
     }
     
-    void RenderMode::GetPositionalOptions(po::positional_options_description &unnamed)
+    void renderode::GetPositionalOptions(po::positional_options_description &unnamed)
     {
         unnamed.add("file", 1);
         unnamed.add("output", 1);
     }
 
-    void RenderMode::PrintUsage(std::ostream &out)
+    void renderode::PrintUsage(std::ostream &out)
     {
         out << "Allowed formats are:" << std::endl;
-        for(const RenderFormat &format : mFormats) {
+        for(const renderormat &format : mFormats) {
             out.width(3);
             out << ' ';
             out << format.name;
@@ -62,37 +62,37 @@ namespace GMTool
         }
     }
 
-    const core::Color RenderMode::DefaultTransparent() const
+    const core::Color renderode::DefaultTransparent() const
     {
         return core::Color(240, 0, 255, 0);
     }
     
-    void RenderMode::SetupPalette(Castle::Image &image, const Castle::Palette &palette)
+    void renderode::SetupPalette(castle::Image &image, const castle::Palette &palette)
     {
         if(IsPalettized(image)) {
-            Castle::Palette copied = palette;
+            castle::Palette copied = palette;
             image.AttachPalette(copied);
         }
     }
 
-    void RenderMode::SetupFormat(Castle::Image &image, uint32_t format)
+    void renderode::SetupFormat(castle::Image &image, uint32_t format)
     {
         if(IsPalettized(image)) {
             if(format != image->format->format) {
-                image = Castle::ConvertImage(image, format);
+                image = castle::ConvertImage(image, format);
             }
         }
     }
 
-    void RenderMode::SetupTransparentColor(Castle::Image &surface, const core::Color &color)
+    void renderode::SetupTransparentColor(castle::Image &surface, const core::Color &color)
     {
         surface.SetColorKey(color);
     }
     
-    int RenderMode::Exec(const ModeConfig &cfg)
+    int renderode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        GM1::GM1Reader reader(mInputFile);
+        gm1::gm1Reader reader(mInputFile);
 
         cfg.verbose << "Collection contains " << reader.NumEntries() << " entries" << std::endl;
 
@@ -109,7 +109,7 @@ namespace GMTool
             //reader.EntryReader().Transparent(mTransparentColor);
         }
         
-        Castle::Image entry = reader.ReadEntry(mEntryIndex);
+        castle::Image entry = reader.ReadEntry(mEntryIndex);
 
         std::ostream *out = nullptr;
 
@@ -134,14 +134,14 @@ namespace GMTool
         SetupPalette(entry, reader.Palette(mPaletteIndex));
         
         cfg.verbose << "Setting up format" << std::endl;
-        SetupFormat(entry, GM1::PalettePixelFormat);
+        SetupFormat(entry, gm1::PalettePixelFormat);
 
         cfg.verbose << "Setting up transparency" << std::endl;
         SetupTransparentColor(entry, mTransparentColor);
 
         cfg.verbose << "Find appropriate format" << std::endl;
-        const RenderFormat *result = nullptr;
-        for(const RenderFormat &format : mFormats) {
+        const renderormat *result = nullptr;
+        for(const renderormat &format : mFormats) {
             if(format.name == mFormat)
                 result = &format;
         }
@@ -151,7 +151,7 @@ namespace GMTool
         }
 
         cfg.verbose << "Do render" << std::endl;
-        result->renderer->RenderToStream(*out, entry);
+        result->renderer->renderoStream(*out, entry);
 
         if(mApproxSize) {
             cfg.verbose << "Printing size" << std::endl;

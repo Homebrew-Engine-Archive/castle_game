@@ -1,11 +1,11 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-namespace Castle
+namespace castle
 {
     class Image;
 }
 
-int ShowImage(const Castle::Image &surface);
+int ShowImage(const castle::Image &surface);
 
 #endif

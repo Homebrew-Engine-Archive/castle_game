@@ -4,9 +4,9 @@
 
 #include <game/image.h>
 
-namespace GMTool
+namespace gmtool
 {
-    void BitmapFormat::RenderTo_SDL_RWops(SDL_RWops *dst, const Castle::Image &surface)
+    void BitmapFormat::rendero_SDL_RWops(SDL_RWops *dst, const castle::Image &surface)
     {
         SDL_SaveBMP_RW(surface, dst, 0);
     }

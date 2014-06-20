@@ -3,7 +3,7 @@
 
 #include <game/playeravatar.h>
 
-namespace Castle
+namespace castle
 {
     class Unit
     {
