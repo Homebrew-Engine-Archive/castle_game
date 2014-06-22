@@ -10,6 +10,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+#include <game/palettename.h>
 #include <game/point.h>
 #include <game/palette.h>
 #include <game/gm1reader.h>
@@ -19,7 +20,7 @@ namespace castle
 {
     namespace gfx
     {
-        Collection LoadGM1(const fs::path &path)
+        Collection LoadGM1(const vfs::path &path)
         {
             using namespace std::chrono;
             steady_clock::time_point startAt = steady_clock::now();
@@ -46,7 +47,7 @@ namespace castle
             }
         }
 
-        Image LoadTGX(const fs::path &path)
+        Image LoadTGX(const vfs::path &path)
         {
             boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
@@ -103,7 +104,7 @@ namespace castle
             return core::Point(mHeader.anchorX, mHeader.anchorY);
         }
 
-        const Image Collection::GetImage(size_t index) const
+        const castle::Image& Collection::GetImage(size_t index) const
         {
             return mEntries.at(index);
         }
@@ -113,12 +114,12 @@ namespace castle
             return mHeaders.at(index);
         }
 
-        constexpr size_t GetPaletteIndexByName(PaletteName name)
+        constexpr size_t GetPaletteIndexByName(const PaletteName &name)
         {
             return static_cast<size_t>(name);
         }
 
-        const Palette& Collection::GetPalette(PaletteName name) const
+        const Palette& Collection::GetPalette(const PaletteName &name) const
         {
             return mPalettes.at(GetPaletteIndexByName(name));
         }

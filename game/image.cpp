@@ -9,6 +9,7 @@
 
 #include <SDL.h>
 
+#include <game/imagedebug.h>
 #include <game/imagelocker.h>
 #include <game/palette.h>
 #include <game/color.h>

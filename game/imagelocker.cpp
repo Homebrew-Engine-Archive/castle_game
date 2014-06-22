@@ -47,5 +47,5 @@ namespace castle
     char* ImageLocker::Data()
     {
         return reinterpret_cast<char*>(mImage.GetSurface()->pixels);
-    }    
+    }
 }

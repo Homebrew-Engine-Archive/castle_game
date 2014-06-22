@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cassert>
 
+#include <chrono>
 #include <sstream>
 #include <memory>
 #include <fstream>
@@ -70,10 +71,14 @@ namespace gfxtool
                     quit = true;
                 }
             }
+            std::chrono::steady_clock::time_point beforeFrame = std::chrono::steady_clock::now();
             if(SDL_RenderCopy(renderer.get(), texture.get(), NULL, NULL) < 0) {
                 throw sdl_error();
             }
             SDL_RenderPresent(renderer.get());
+            std::chrono::steady_clock::time_point afterFrame = std::chrono::steady_clock::now();
+            std::chrono::nanoseconds ms = std::chrono::duration_cast<std::chrono::nanoseconds>(afterFrame - beforeFrame);
+            std::cout << "Frame took " << ms.count() << " ns" << std::endl;
         }
     
         return 0;

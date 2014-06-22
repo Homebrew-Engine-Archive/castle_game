@@ -1,6 +1,7 @@
 #ifndef COLLECTION_H_
 #define COLLECTION_H_
 
+#include <cstddef>
 #include <vector>
 
 #include <SDL.h>
@@ -9,6 +10,7 @@
 #include <game/gm1.h>
 #include <game/filesystem.h>
 #include <game/sdl_utils.h>
+#include <game/palettename.h>
 
 namespace core
 {
@@ -25,20 +27,6 @@ namespace castle
 {
     namespace gfx
     {
-        enum class PaletteName : size_t
-        {
-            Unknown0     = 0,
-            Blue         = 1,
-            Red          = 2,
-            Orange       = 3,
-            Yellow       = 4,
-            Purple       = 5,
-            Black        = 6,
-            Cyan         = 7,
-            Green        = 8,
-            Unknown      = 9
-        };
-
         class Collection
         {
         public:
@@ -48,22 +36,22 @@ namespace castle
             virtual ~Collection();
 
             size_t Count() const;
-            gm1::Header const& GetHeader() const;
+            const gm1::Header& GetHeader() const;
             const core::Point Anchor() const;
-            const Image GetImage(size_t index) const;
-            gm1::EntryHeader const& GetEntryHeader(size_t index) const;        
-            castle::Palette const& GetPalette(PaletteName name) const;
+            const castle::Image& GetImage(size_t index) const;
+            const gm1::EntryHeader& GetEntryHeader(size_t index) const;        
+            const castle::Palette& GetPalette(const PaletteName &name) const;
 
         private:
             gm1::Header mHeader;
             std::vector<castle::Palette> mPalettes;
-            std::vector<Image> mEntries;
+            std::vector<castle::Image> mEntries;
             std::vector<gm1::EntryHeader> mHeaders;
         };
 
-        Image LoadTGX(const fs::path &filename);
-        Collection LoadGM1(const fs::path &filename);
-    } // namespace gfx
-} // namespace castle
+        Image LoadTGX(const vfs::path &filename);
+        Collection LoadGM1(const vfs::path &filename);
+    }
+}
 
 #endif

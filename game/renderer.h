@@ -107,10 +107,8 @@ namespace castle
             core::Font mBoundFont;
             core::Color mDrawColor;
             core::Color mBackColor;
-
         };
-    
-    } // namespace render
+    }
 }
 
 #endif

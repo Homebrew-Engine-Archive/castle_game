@@ -1,7 +1,7 @@
 #ifndef RENDERENGINE_H_
 #define RENDERENGINE_H_
 
-#include <stdexcept>
+#include <exception>
 
 namespace core
 {
@@ -31,11 +31,11 @@ namespace castle
             Outline, Filled
         };
     
-        struct wrong_draw_mode_error : public std::runtime_error
+        struct draw_mode_error : public virtual std::exception
         {
-            explicit wrong_draw_mode_error() throw()
-                : std::runtime_error("wrong draw mode")
-                {}
+            inline const char* what() const throw() {
+                return "wrong draw mode";
+            }
         };
     
         class RenderEngine

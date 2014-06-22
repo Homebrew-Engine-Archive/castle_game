@@ -222,7 +222,7 @@ namespace castle
                 }
                 return;
             default:
-                throw wrong_draw_mode_error();
+                throw castle::render::draw_mode_error();
             }
         }
     
@@ -270,7 +270,7 @@ namespace castle
                 polygonRGBA(mPrimitiveRenderer.get(), xs.data(), ys.data(), polycount, color.r, color.g, color.b, color.a);
                 return;
             default:
-                throw wrong_draw_mode_error();
+                throw castle::render::draw_mode_error();
             }
         }    
 

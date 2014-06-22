@@ -126,7 +126,7 @@ namespace castle
 
             renderer.BindFont(mTextFont);
             renderer.SetDrawColor(mTextColor);
-            renderer.SetBackColor(mBackgroundColor);
+            renderer.SetBackColor(core::colors::Black.Opaque(0));
 
             mTextLayout->UpdateLayout(renderer.GetFontEngine());
 

@@ -27,11 +27,11 @@ namespace castle
         GameScreen::~GameScreen() = default;
         GameScreen::GameScreen(ScreenManager &screenManager)
             : mScreenManager(screenManager)
-            , archer(gfx::LoadGM1(fs::GM1FilePath("body_archer")))
-            , landset(gfx::LoadGM1(fs::GM1FilePath("tile_land8")))
-            , seaset(gfx::LoadGM1(fs::GM1FilePath("tile_sea8")))
-            , rockset(gfx::LoadGM1(fs::GM1FilePath("tile_rocks8")))
-            , cliffs(gfx::LoadGM1(fs::GM1FilePath("tile_cliffs")))
+            , archer(gfx::LoadGM1(vfs::GetGM1Filename("body_archer")))
+            , landset(gfx::LoadGM1(vfs::GetGM1Filename("tile_land8")))
+            , seaset(gfx::LoadGM1(vfs::GetGM1Filename("tile_sea8")))
+            , rockset(gfx::LoadGM1(vfs::GetGM1Filename("tile_rocks8")))
+            , cliffs(gfx::LoadGM1(vfs::GetGM1Filename("tile_cliffs")))
             , mLastCameraUpdate(std::chrono::steady_clock::now())
             , mCursor()
             , mCursorInvalid(true)
@@ -64,12 +64,6 @@ namespace castle
         void GameScreen::RenderTile(render::Renderer &renderer, const world::Map::Cell &cell)
         {
             const world::Map &map = mSimContext->GetMap();
-
-            castle::Image img = archer.GetImage(50);
-            castle::Palette palette = archer.GetPalette(gfx::PaletteName::Yellow);
-            renderer.BindImage(img);
-            renderer.BindPalette(palette);
-            renderer.Blit(core::Rect(img.Width(), img.Height()), core::Point());
             
             const core::Size tileSize(mCamera.TileSize());
             const core::Point heightOffset(0, map.Height(cell));
@@ -98,6 +92,12 @@ namespace castle
 
             const world::Map &map = mSimContext->GetMap();
 
+            castle::Image img = archer.GetImage(50);
+            castle::Palette palette = archer.GetPalette(gfx::PaletteName::Yellow);
+            renderer.BindImage(img);
+            renderer.BindPalette(palette);
+            renderer.Blit(core::Rect(img.Width(), img.Height()), core::Point());
+            
             const auto cells = map.Cells();
             for(auto i = cells.first; i != cells.second; ++i) {
                 RenderTile(renderer, *i);

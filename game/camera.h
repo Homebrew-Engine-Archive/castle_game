@@ -9,17 +9,12 @@
 #include <game/gamemap.h>
 #include <game/direction.h>
 #include <game/rect.h>
+#include <game/cameramode.h>
 
 namespace castle
 {
     namespace world
-    {
-        enum class CameraMode : int {
-            Staggered,
-            Diamond,
-            Ortho
-        };
-    
+    {    
         class Camera
         {
             double mPosX;

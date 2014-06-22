@@ -1,64 +1,74 @@
 #include "filesystem.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <memory>
 #include <SDL.h>
 
 namespace castle
 {
-    namespace fs
+    namespace vfs
     {
-
-        path FXPath(const path &suffix)
+        path GetFXPath(const path &suffix)
         {
-            return RootPath() / "fx" / suffix;
+            return GetRootPath() / "fx" / suffix;
         }
 
-        path GFXPath(const path &suffix)
+        path GetGFXPath(const path &suffix)
         {
-            return RootPath() / "gfx" / suffix;
+            return GetRootPath() / "gfx" / suffix;
         }
 
-        path GMPath(const path &suffix)
+        path GetGMPath(const path &suffix)
         {
-            return RootPath() / "gm" / suffix;
+            return GetRootPath() / "gm" / suffix;
         }
 
-        path FontsPath(const path &suffix)
+        path GetTTFPath(const path &suffix)
         {
-            return RootPath() / "fonts" / suffix;
+            return GetRootPath() / "fonts" / suffix;
         }
 
-        path GM1FilePath(const std::string &filename, const std::string &extension)
+        path GetGM1Filename(const std::string &filename, const std::string &extension)
         {
-            path p = GMPath(filename);
+            path p = GetGMPath(filename);
             p += extension;
             return p;
         }
 
-        path TGXFilePath(const std::string &filename, const std::string &extension)
+        path GetTGXFilename(const std::string &filename, const std::string &extension)
         {
-            path p = GFXPath(filename);
+            path p = GetGFXPath(filename);
             p += extension;
             return p;
         }
 
-        path FontFilePath(const std::string &filename, const std::string &extension)
+        path GetTTFFilename(const std::string &filename, const std::string &extension)
         {
-            path p = FontsPath(filename);
+            path p = GetTTFPath(filename);
             p += extension;
             return p;
         }
 
-        path RootPath()
+        path GetRootPath()
         {
-            static path staticBasePath(SDL_GetBasePath());
-            return staticBasePath;
+            static path basePath(SDL_GetBasePath());
+            return basePath;
         }
 
-        path PreferencesPath()
+        path GetPreferencesPath()
         {
-            static path staticPrefPath(SDL_GetPrefPath("castlegame", "castlegame"));
-            return staticPrefPath;
+            static path prefPath(SDL_GetPrefPath("castlegame", "castlegame"));
+            return prefPath;
+        }
+
+        const std::vector<path> BuildTTFPathList(const std::string &fontName)
+        {
+            return std::vector<path> {
+                GetTTFFilename(fontName),
+                GetTTFFilename(boost::to_upper_copy(fontName)),
+                GetTTFFilename(boost::to_lower_copy(fontName))
+            };;
         }
     }
 }

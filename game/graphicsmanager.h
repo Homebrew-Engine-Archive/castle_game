@@ -15,7 +15,7 @@ namespace castle
             GraphicsManager();
             virtual ~GraphicsManager();
 
-            void AddCollectionPath(const fs::path &path);
+            void AddCollectionPath(const vfs::path &path);
             void LoadAll();
         };
     }

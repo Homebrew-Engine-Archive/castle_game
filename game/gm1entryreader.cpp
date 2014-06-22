@@ -175,7 +175,7 @@ namespace
 namespace gm1
 {
     GM1EntryReader::GM1EntryReader()
-        : mTransparentColor(32, 99, 70, 255)
+        : mTransparentColor(255, 0, 255, 255)
     {
     }
     
@@ -187,7 +187,7 @@ namespace gm1
     const castle::Image GM1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
         castle::Image image = CreateCompatibleImage(header);
-        ClearImage(image, core::colors::Yellow);
+        ClearImage(image, mTransparentColor);
         image.SetColorKey(mTransparentColor);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
         ReadImage(in, bytesCount, header, image);

@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <SDL.h>
@@ -19,19 +18,22 @@
 #include <game/rect.h>
 #include <game/color.h>
 #include <game/ttf_error.h>
+#include <game/ttf_init.h>
 #include <game/sdl_utils.h>
-#include <game/ttf_utils.h>
 #include <game/point.h>
 
-namespace
+struct FontCloseDeleter
 {
-    struct font_error : public virtual std::runtime_error
-    {
-        font_error()
-            : std::runtime_error("font lookup failed")
-            {}
-    };
-    
+    void operator()(TTF_Font *font)
+        {
+            TTF_CloseFont(font);
+        }
+};
+
+typedef std::unique_ptr<TTF_Font, FontCloseDeleter> TTFFontPtr;
+
+namespace
+{    
     int GetFontHinting(const core::Font &font)
     {
         return (font.Hinted() ? TTF_HINTING_NORMAL : TTF_HINTING_NONE);
@@ -49,11 +51,7 @@ namespace
 class FontData
 {
 public:
-    FontData(const core::Font &font, FontPtr ttfFont)
-        : mFont(font)
-        , mFontObject(std::move(ttfFont))
-        {}
-    
+    FontData(const core::Font &font, TTFFontPtr ttfFont);
     FontData(FontData&&) = default;
     FontData(const FontData &that) = delete;
     FontData& operator=(const FontData &that) = delete;
@@ -86,7 +84,7 @@ protected:
     /**
        UpdateFontState actually changes this object.
     **/
-    mutable FontPtr mFontObject;
+    mutable TTFFontPtr mFontObject;
 };
 
 const core::Size FontData::TextSize(const std::string &text) const
@@ -97,6 +95,12 @@ const core::Size FontData::TextSize(const std::string &text) const
         throw ttf_error();
     }
     return core::Size(width, height);
+}
+
+FontData::FontData(const core::Font &font, TTFFontPtr fontObject)
+    : mFont(font)
+    , mFontObject(std::move(fontObject))
+{
 }
 
 const core::Font& FontData::Font() const
@@ -170,6 +174,11 @@ namespace castle
 {
     namespace render
     {
+        const char* font_error::what() const throw()
+        {
+            return "font operation failed";
+        }
+        
         FontEngine::FontEngine(FontEngine const&) = delete;
         FontEngine& FontEngine::operator=(FontEngine const&) = delete;
         FontEngine::FontEngine(FontEngine&&) = default;
@@ -191,20 +200,17 @@ namespace castle
             return result;
         }
 
-        std::vector<fs::path> FontEngine::FontSearchPathsList(const core::Font &font) const
+        const FontData& FontEngine::GetFontContext(const core::Font &font) const
         {
-            std::vector<fs::path> paths;
-
-            paths.push_back(fs::FontFilePath(font.Family()));
-            paths.push_back(fs::FontFilePath(
-                                boost::to_upper_copy(font.Family())));
-            paths.push_back(fs::FontFilePath(
-                                boost::to_lower_copy(font.Family())));
-        
-            return paths;
+            const FontData *fontData = LookupFont(font);
+            if(fontData == nullptr) {
+                throw font_error();
+            }
+            fontData->UpdateFontState(font);
+            return *fontData;
         }
-
-        FontData FontEngine::LoadFontData(const fs::path &path, const core::Font &font) const
+        
+        FontData FontEngine::LoadFontData(const vfs::path &path, const core::Font &font) const
         {
             /**
                TODO windows sucks with utf8 so much
@@ -222,7 +228,7 @@ namespace castle
             **/
             const char *c_fpath = path.string().c_str();
 
-            FontPtr ttf_font(TTF_OpenFont(c_fpath, font.Height()));
+            TTFFontPtr ttf_font(TTF_OpenFont(c_fpath, font.Height()));
             if(!ttf_font) {
                 throw ttf_error();
             }
@@ -237,8 +243,8 @@ namespace castle
                 return false;
             }
 
-            std::vector<fs::path> paths = FontSearchPathsList(font);
-            for(const fs::path &path : paths) {
+            const std::vector<vfs::path> paths = vfs::BuildTTFPathList(font.Family());
+            for(const vfs::path &path : paths) {
                 try {
                     FontData temp = LoadFontData(path, font);
                     AddFontData(std::move(temp));
@@ -285,54 +291,40 @@ namespace castle
             mFontTable.push_back(std::move(fontdata));
         }
     
-        void FontEngine::DrawText(RenderEngine &engine, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const
+        bool FontEngine::DrawText(RenderEngine &engine, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const
         {
             if(!text.empty()) {
-                const FontData *fontData = LookupFont(font);
-                if(fontData == nullptr) {
-                    throw font_error();
-                }
-            
-                fontData->UpdateFontState(font);
-                castle::Image textImage;
-                if(bg.a == 0xff) {
-                    textImage = fontData->RenderShaded(text.c_str(), fg, bg);
-                } else if(font.Antialiased()) {
-                    textImage = fontData->RenderBlended(text.c_str(), fg);
-                } else {
-                    textImage = fontData->RenderSolid(text.c_str(), fg);
-                }
+                const FontData &fontData = GetFontContext(font);
+
+                /**
+                   \todo consider using FontData::RenderShaded and FontData::RenderSolid
+                **/
+                castle::Image textImage = fontData.RenderBlended(text.c_str(), fg);
                 if(!textImage.Null()) {
-                    // \todo avoid conversion
-                    if(IsPalettized(textImage)) {
-                        textImage = ConvertImage(textImage, SDL_PIXELFORMAT_ARGB8888);
+                    if(bg.a != 0) {
+                        const core::Rect bgRect(target, textImage.Width(), textImage.Height());
+                        engine.DrawRects(&bgRect, 1, bg, castle::render::DrawMode::Filled);
                     }
                     engine.SetOpacityMod(fg.a);
                     engine.DrawImage(textImage, core::Rect(textImage.Width(), textImage.Height()), target);
                 } else {
                     throw ttf_error();
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         const core::Size FontEngine::TextSize(const core::Font &font, const std::string &text) const
         {
-            const FontData *fontData = LookupFont(font);
-            if(fontData == nullptr) {
-                throw font_error();
-            }
-            fontData->UpdateFontState(font);
-            return fontData->TextSize(text);
+            return GetFontContext(font).TextSize(text);
         }
 
         int FontEngine::LineSkip(const core::Font &font) const
         {
-            const FontData *fontData = LookupFont(font);
-            if(fontData == nullptr) {
-                throw font_error();
-            }
-            fontData->UpdateFontState(font);
-            return fontData->LineSkip();
+            return GetFontContext(font).LineSkip();
         }
     } // namespace render
 }
