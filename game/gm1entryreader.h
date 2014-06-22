@@ -1,5 +1,5 @@
-#ifndef gm1ENTRYREADER_H_
-#define gm1ENTRYREADER_H_
+#ifndef GM1ENTRYREADER_H_
+#define GM1ENTRYREADER_H_
 
 #include <iosfwd>
 #include <memory>
@@ -8,7 +8,6 @@
 
 namespace gm1
 {
-    class gm1Reader;
     class EntryHeader;
     class Header;
     enum class Encoding;
@@ -49,4 +48,4 @@ namespace gm1
     GM1EntryReader::Ptr CreateEntryReader(gm1::Encoding const&);
 }
 
-#endif
+#endif  // GM1ENTRYHEADER_H_

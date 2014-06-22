@@ -18,6 +18,7 @@
 #include <game/simulationcontext.h>
 #include <game/simulationmanager.h>
 #include <game/image.h>
+#include <game/renderengine.h>
 
 namespace castle
 {
@@ -27,11 +28,6 @@ namespace castle
         GameScreen::GameScreen(ScreenManager &screenManager)
             : mScreenManager(screenManager)
             , archer(gfx::LoadGM1(fs::GM1FilePath("body_archer")))
-            , swordsman(gfx::LoadGM1(fs::GM1FilePath("body_swordsman")))
-            , crossbowman(gfx::LoadGM1(fs::GM1FilePath("body_crossbowman")))
-            , buildings1(gfx::LoadGM1(fs::GM1FilePath("tile_buildings1")))
-            , buildings2(gfx::LoadGM1(fs::GM1FilePath("tile_buildings2")))
-            , workshops(gfx::LoadGM1(fs::GM1FilePath("tile_workshops")))
             , landset(gfx::LoadGM1(fs::GM1FilePath("tile_land8")))
             , seaset(gfx::LoadGM1(fs::GM1FilePath("tile_sea8")))
             , rockset(gfx::LoadGM1(fs::GM1FilePath("tile_rocks8")))
@@ -69,6 +65,12 @@ namespace castle
         {
             const world::Map &map = mSimContext->GetMap();
 
+            castle::Image img = archer.GetImage(50);
+            castle::Palette palette = archer.GetPalette(gfx::PaletteName::Yellow);
+            renderer.BindImage(img);
+            renderer.BindPalette(palette);
+            renderer.Blit(core::Rect(img.Width(), img.Height()), core::Point());
+            
             const core::Size tileSize(mCamera.TileSize());
             const core::Point heightOffset(0, map.Height(cell));
             const core::Point tileworldPos(mCamera.worldToScreenCoords(cell));
@@ -223,14 +225,15 @@ namespace castle
         
             const size_t index = map.Height(cell);
             const gm1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
-            const Image &surface = tileset.GetImage(index);
-            
+            const Image &image = tileset.GetImage(index);
+
             const core::Point tileTopLeft = mCamera.worldToScreenCoords(cell);
             const core::Point tileTopLeftScreenSubrect = tileTopLeft - core::Point(0, map.Height(cell) - entryHeader.tileY);
-            const core::Rect tileImageScreenSubrect = Translated(core::Rect(surface), tileTopLeftScreenSubrect);
+            const core::Rect imageRect(image.Width(), image.Height());
+            const core::Rect tileImageScreenSubrect = Translated(imageRect, tileTopLeftScreenSubrect);
             if(core::PointInRect(tileImageScreenSubrect, cursor)) {
                 core::Point inside = core::ClipToRect(tileImageScreenSubrect, cursor);
-                if(ExtractPixel(surface, inside) != 0) {
+                if(ExtractPixel(image, inside) != 0) {
                     return true;
                 }
             }

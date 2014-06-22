@@ -31,9 +31,9 @@ namespace castle
             Outline, Filled
         };
     
-        struct wrong_draw_mode : public std::runtime_error
+        struct wrong_draw_mode_error : public std::runtime_error
         {
-            explicit wrong_draw_mode() throw()
+            explicit wrong_draw_mode_error() throw()
                 : std::runtime_error("wrong draw mode")
                 {}
         };

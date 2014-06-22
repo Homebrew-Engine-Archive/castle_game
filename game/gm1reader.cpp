@@ -5,21 +5,13 @@
 
 #include <vector>
 
+#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <game/palette.h>
 #include <game/image.h>
 #include <game/gm1entryreader.h>
-#include <game/filesystem.h>
 #include <game/iohelpers.h>
-
-struct ReaderEntryData
-{
-    gm1::EntryHeader header;
-    uint32_t size;
-    uint32_t offset;
-    mutable std::vector<char> buffer;
-};
 
 namespace
 {
@@ -79,13 +71,16 @@ namespace
 
 namespace gm1
 {
+    struct ReaderEntryData
+    {
+        EntryHeader header;
+        uint32_t size;
+        uint32_t offset;
+        mutable std::vector<char> buffer;
+    };
+    
     GM1Reader::~GM1Reader() = default;
-    
-    GM1Reader::GM1Reader()
-        : GM1Reader(fs::path(), NoFlags)
-    { }
-    
-    GM1Reader::GM1Reader(fs::path path, Flags flags)
+    GM1Reader::GM1Reader(const boost::filesystem::wpath& path, Flags flags)
         : mIsOpened(false)
         , mPath(path)
         , mDataOffset(0)
@@ -94,8 +89,8 @@ namespace gm1
         , mEntries()
         , mEntryReader()
     {
-        if(!mPath.empty()) {
-            Open(mPath, flags);
+        if(boost::filesystem::exists(path)) {
+            Open(path, flags);
         }
     }
 
@@ -104,7 +99,7 @@ namespace gm1
         return mIsOpened;
     }
 
-    void GM1Reader::Open(fs::path path, Flags flags)
+    void GM1Reader::Open(const boost::filesystem::wpath& path, Flags flags)
     {
         mIsOpened = false;
         mPalettes.resize(0);
@@ -195,12 +190,12 @@ namespace gm1
         return gm1::GetEncoding(mHeader.dataClass);
     }
     
-    int GM1Reader::NumEntries() const
+    size_t GM1Reader::NumEntries() const
     {
         return mHeader.imageCount;
     }
 
-    int GM1Reader::NumPalettes() const
+    size_t GM1Reader::NumPalettes() const
     {
         return gm1::CollectionPaletteCount;
     }
@@ -237,11 +232,6 @@ namespace gm1
         return mEntries.at(index).size;
     }
 
-    size_t GM1Reader::EntryOffset(size_t index) const
-    {
-        return mEntries.at(index).size;
-    }
-    
     gm1::Header const& GM1Reader::Header() const
     {
         return mHeader;

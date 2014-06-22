@@ -13,6 +13,7 @@
 #include <game/color.h>
 #include <game/iohelpers.h>
 #include <game/image.h>
+#include <game/imagelocker.h>
 
 namespace
 {
@@ -215,7 +216,7 @@ namespace tgx
             return false;
         };
 
-        if(image.HasColorKey()) {
+        if(image.ColorKeyEnabled()) {
             const uint32_t colorKey = image.GetColorKey().ConvertTo(castle::ImageFormat(image));
             transparencyPredicate = [pixelStride, colorKey](const char *pixel) {
                 return PixelTransparent(pixel, colorKey, pixelStride);

@@ -9,7 +9,7 @@ namespace gmtool
     class PaletteMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        int mPaletteIndex = 0;
+        size_t mPaletteIndex = 0;
         bool mBinary = false;
         bool mCountRequested = false;
     public:

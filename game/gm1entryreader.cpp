@@ -7,13 +7,13 @@
 
 #include <game/color.h>
 #include <game/rect.h>
-#include <game/sdl_utils.h>
 #include <game/gm1reader.h>
 #include <game/palette.h>
 #include <game/gm1.h>
 #include <game/tgx.h>
 #include <game/image.h>
 #include <game/imageview.h>
+#include <game/imagelocker.h>
 
 namespace
 {    
@@ -64,15 +64,7 @@ namespace
      */
     class TileObject : public gm1::GM1EntryReader
     {
-    protected:
-        // int Width(const gm1::EntryHeader &header) const {
-        //     return gm1::TileSpriteWidth;
-        // }
-        
-        // int Height(const gm1::EntryHeader &header) const {
-        //     return gm1::TileSpriteHeight + header.tileY;
-        // }
-    
+    protected:    
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
     };
 
@@ -114,11 +106,7 @@ namespace
         // TODO is there a better way to do so?
         // uint32_t destFormat = SDL_PIXELFORMAT_ARGB8888;
         // castle::Image tmp = castle::ConvertImage(surface, destFormat);
-
-        // uint32_t colorkey = GetColorKey(destFormat);
-        // if(SDL_SetColorKey(tmp, SDL_TRUE, colorkey) < 0) {
-        //     throw sdl_error();
-        // }
+        // tmp.SetColorKey(mTransparent);
 
         // Here we just ignore original color information. What we are really
         // interested in is green channel
@@ -135,8 +123,8 @@ namespace
     {
         castle::ImageLocker lock(surface);
 
-        const auto stride = surface.RowStride();
-        const auto rowBytes = surface.Width() * surface.PixelStride();
+        const size_t stride = surface.RowStride();
+        const size_t rowBytes = surface.Width() * surface.PixelStride();
         char *const data = lock.Data();
 
         for(size_t i = 0; (numBytes >= rowBytes) && (i < surface.Height()); ++i) {
@@ -147,9 +135,9 @@ namespace
     
     // Width of rhombus rows in pixels.
     // \todo should it be placed in separate header file?
-    constexpr int PerRow[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
+    constexpr uint8_t PerRow[] = {2, 6, 10, 14, 18, 22, 26, 30, 30, 26, 22, 18, 14, 10, 6, 2};
     
-    constexpr int GetTilePixelsPerRow(int row)
+    constexpr uint8_t GetTilePixelsPerRow(size_t row)
     {
         return PerRow[row];
     }
@@ -158,15 +146,15 @@ namespace
     {
         castle::ImageLocker lock(image);
         
-        const auto rowStride = image.RowStride();
-        const auto height = gm1::TileSpriteHeight;
-        const auto width = gm1::TileSpriteWidth;
-        const auto pixelStride = image.PixelStride();
+        const size_t rowStride = image.RowStride();
+        const size_t height = gm1::TileSpriteHeight;
+        const size_t width = gm1::TileSpriteWidth;
+        const size_t pixelStride = image.PixelStride();
         char *data = lock.Data();
     
         for(size_t y = 0; y < height; ++y) {
-            const auto length = GetTilePixelsPerRow(y);
-            const auto offset = (width - length) / 2;
+            const size_t length = GetTilePixelsPerRow(y);
+            const size_t offset = (width - length) / 2;
             in.read(data + offset * pixelStride, length * pixelStride);
             data += rowStride;
         }
@@ -187,31 +175,20 @@ namespace
 namespace gm1
 {
     GM1EntryReader::GM1EntryReader()
-        : mTransparentColor(255, 0, 255)
+        : mTransparentColor(32, 99, 70, 255)
     {
     }
     
     castle::Image GM1EntryReader::CreateCompatibleImage(const gm1::EntryHeader &header) const
     {
-        const int width = Width(header);
-        const int height = Height(header);
-        const uint32_t format = SourcePixelFormat();
-        
-        castle::Image surface = castle::CreateImage(width, height, format);
-
-        surface.SetColorKey(mTransparentColor);
-
-        const uint32_t colorkey = GetColorKey(format);
-        if(SDL_FillRect(surface, NULL, colorkey) < 0) {
-            throw sdl_error();
-        }
-
-        return surface;
+        return castle::CreateImage(Width(header), Height(header), SourcePixelFormat());
     }
 
     const castle::Image GM1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
         castle::Image image = CreateCompatibleImage(header);
+        ClearImage(image, core::colors::Yellow);
+        image.SetColorKey(mTransparentColor);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
         ReadImage(in, bytesCount, header, image);
         return image;

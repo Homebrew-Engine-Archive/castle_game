@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include <cstring>
+#include <cassert>
 
 #include <sstream>
 #include <memory>
@@ -10,6 +11,7 @@
 
 #include <SDL.h>
 
+#include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/image.h>
 #include <game/tgx.h>
@@ -20,7 +22,7 @@ int main(int argc, char *argv[])
         std::cout << "Use string, luke!" << std::endl;
     }
     
-    std::string name = argv[1];
+    const std::string name = argv[1];
 
     std::ifstream fin(name, std::ios_base::binary);
     if(!fin.is_open()) {
@@ -29,48 +31,51 @@ int main(int argc, char *argv[])
         throw std::runtime_error(oss.str());
     }
     
-    castle::Image surf;
-    tgx::ReadImageHeader(fin, surf);
-
-    std::streampos origin = fin.tellg();
-    fin.seekg(0, std::ios_base::end);
-    std::streampos fsize = fin.tellg();
-    fin.seekg(origin);
-    
-    tgx::DecodeImage(fin, fsize, surf);
-    
-    return ShowImage(surf);
+    const castle::Image image = tgx::ReadImage(fin);
+    return gfxtool::ShowImage(image);
 }
 
-int ShowImage(const castle::Image &surface)
+namespace gfxtool
 {
-    SDLInitializer init();
+    int ShowImage(const castle::Image &image)
+    {
+        SDLInitializer init(SDL_INIT_EVERYTHING);
 
-    SDL_Window *window = NULL;
-    SDL_Renderer *renderer = NULL;
-
-    SDL_CreateWindowAndRenderer(surface->w, surface->h, 0, &window, &renderer);
-    
-    if(!window || !renderer) {
-        throw std::runtime_error(SDL_GetError());
-    }
-
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    bool quit = false;
-    while(!quit) {
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
-                quit = true;
+        WindowPtr window(
+            SDL_CreateWindow("Gfx viewer",
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             image.Width(), image.Height(),
+                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+        if(!window) {
+            throw sdl_error();
         }
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-    }
+        
+        RendererPtr renderer(
+            SDL_CreateRenderer(window.get(), -1, 0));
+        if(!renderer) {
+            throw sdl_error();
+        }
 
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+        TexturePtr texture(SDL_CreateTextureFromSurface(renderer.get(), image.GetSurface()));
+        if(texture == NULL) {
+            throw sdl_error();
+        }
+
+        bool quit = false;
+        while(!quit) {
+            SDL_Event event;
+            while(SDL_PollEvent(&event)) {
+                if(event.type == SDL_QUIT) {
+                    quit = true;
+                }
+            }
+            if(SDL_RenderCopy(renderer.get(), texture.get(), NULL, NULL) < 0) {
+                throw sdl_error();
+            }
+            SDL_RenderPresent(renderer.get());
+        }
     
-    return 0;
+        return 0;
+    }
 }

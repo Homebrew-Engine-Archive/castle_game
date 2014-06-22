@@ -19,7 +19,6 @@ namespace core
         explicit constexpr Rect(const SDL_Point &wh);    
         constexpr Rect(const SDL_Point &lt, const SDL_Point &br);
         constexpr Rect(const SDL_Rect &other);
-        explicit constexpr Rect(const SDL_Surface *surface);
     
         constexpr Rect(const Rect &that) = default;
         constexpr Rect(Rect&&) = default;
@@ -42,11 +41,6 @@ namespace core
 
     constexpr Rect::Rect()
         : Rect(0, 0, 0, 0)
-    {
-    }
-
-    constexpr Rect::Rect(const SDL_Surface *surface)
-        : Rect(surface->w, surface->h)
     {
     }
 

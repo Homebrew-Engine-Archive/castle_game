@@ -59,7 +59,7 @@ namespace gmtool
             return EXIT_SUCCESS;
         }
         
-        if(mPaletteIndex < 0 || mPaletteIndex >= reader.NumPalettes()) {
+        if(mPaletteIndex >= reader.NumPalettes()) {
             throw std::logic_error("Palette index is out of range");
         }
 

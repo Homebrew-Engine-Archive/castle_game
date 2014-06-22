@@ -59,11 +59,6 @@ namespace castle
         private:
             ScreenManager &mScreenManager;
             gfx::Collection archer;
-            gfx::Collection swordsman;
-            gfx::Collection crossbowman;
-            gfx::Collection buildings1;
-            gfx::Collection buildings2;
-            gfx::Collection workshops;
             gfx::Collection landset;
             gfx::Collection seaset;
             gfx::Collection rockset;

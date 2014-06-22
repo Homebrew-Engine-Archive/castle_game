@@ -13,8 +13,9 @@
 #include <game/rect.h>
 #include <game/size.h>
 #include <game/line.h>
-#include <game/image.h>
 #include <game/clamp.h>
+#include <game/image.h>
+#include <game/imagelocker.h>
 
 namespace
 {
@@ -109,28 +110,23 @@ namespace castle
             }
 
             if(!mScreenImage) {
-                const Image temp = CreateImage(
+                castle::Image temp = castle::CreateImage(
                     mOutputMode.Width(),
                     mOutputMode.Height(),
                     mOutputMode.Format());
-                if(!temp) {
-                    throw sdl_error();
-                }
-
-                if(SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE) < 0) {
-                    throw sdl_error();
-                }
+                
+                temp.SetBlendMode(SDL_BLENDMODE_NONE);
         
                 mScreenImage = temp;
             }
 
             if(!mPrimitiveRenderer) {
-                RendererPtr Renderer(SDL_CreateSoftwareRenderer(mScreenImage));
-                if(!Renderer) {
+                RendererPtr renderer(SDL_CreateSoftwareRenderer(mScreenImage.GetSurface()));
+                if(!renderer) {
                     throw sdl_error();
                 }
 
-                mPrimitiveRenderer = std::move(Renderer);
+                mPrimitiveRenderer = std::move(renderer);
             }
 
             mFrameOutputMode = mOutputMode;
@@ -140,17 +136,17 @@ namespace castle
     
         void SoftwareRenderEngine::EndFrame()
         {
-            assert(mScreenImage != nullptr);
-            assert(mScreenTexture != nullptr);
-            assert(mScreenRenderer != nullptr);
+            assert(!mScreenImage.Null());
+            assert(mScreenTexture);
+            assert(mScreenRenderer);
         
-            const ImageLocker lock(mScreenImage);
+            const castle::ImageLocker lock(mScreenImage);
             
             if(SDL_UpdateTexture(mScreenTexture.get(), NULL, lock.Data(), mScreenImage.RowStride()) < 0) {
                 throw sdl_error();
             }
 
-            const core::Rect textureRect(mScreenImage);
+            const core::Rect textureRect(mScreenImage.Width(), mScreenImage.Height());
             if(SDL_RenderCopy(mScreenRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
                 throw sdl_error();
             }
@@ -226,7 +222,7 @@ namespace castle
                 }
                 return;
             default:
-                throw wrong_draw_mode();
+                throw wrong_draw_mode_error();
             }
         }
     
@@ -274,26 +270,26 @@ namespace castle
                 polygonRGBA(mPrimitiveRenderer.get(), xs.data(), ys.data(), polycount, color.r, color.g, color.b, color.a);
                 return;
             default:
-                throw wrong_draw_mode();
+                throw wrong_draw_mode_error();
             }
         }    
 
-        void SoftwareRenderEngine::DrawImage(const Image &image, const core::Rect &subrect, const core::Point &targetPoint)
+        void SoftwareRenderEngine::DrawImage(const castle::Image &image, const core::Rect &subrect, const core::Point &targetPoint)
         {
             assert(!mScreenImage.Null());
+            assert(!image.Null());
             mScreenImage.SetClipRect(mViewport);
-            SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
+            castle::Image::BlendMode blendMode = SDL_BLENDMODE_NONE;
             if(mOpacityMod != 0xff) {
                 blendMode = SDL_BLENDMODE_BLEND;
             } else if(SDL_ISPIXELFORMAT_ALPHA(ImageFormat(image).format)) {
                 blendMode = SDL_BLENDMODE_BLEND;
             }
-            SDL_BlendMode oldBlendMode;
-            SDL_GetSurfaceBlendMode(image, &oldBlendMode);
-            SDL_SetSurfaceBlendMode(image, blendMode);
-            SDL_SetSurfaceAlphaMod(image, mOpacityMod);
+            // remove cv-qual
+            castle::Image source = image;
+            source.SetOpacity(mOpacityMod);
+            source.SetBlendMode(blendMode);
             castle::CopyImage(image, subrect, mScreenImage, targetPoint);
-            SDL_SetSurfaceBlendMode(image, oldBlendMode);
         }
 
         void SoftwareRenderEngine::DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target)
@@ -313,10 +309,12 @@ namespace castle
 
         void SoftwareRenderEngine::ClearOutput(const core::Color &color)
         {
-            assert(mScreenImage != nullptr);
-            const auto pixel = color.ConvertTo(mFrameOutputMode.Format());
-            SDL_SetClipRect(mScreenImage, NULL);
-            SDL_FillRect(mScreenImage, NULL, pixel);
+            assert(!mScreenImage.Null());
+            mScreenImage.SetClipRect(
+                core::Rect(
+                    mScreenImage.Width(),
+                    mScreenImage.Height()));
+            ClearImage(mScreenImage, color);
         }
     }
 }

@@ -45,6 +45,7 @@ namespace castle
             void EndFrame();
 
             FontEngine& GetFontEngine();
+            RenderEngine& GetRenderEngine();
             
             const core::Point GetMaxOutputSize() const;
             const core::Point GetOutputSize() const;

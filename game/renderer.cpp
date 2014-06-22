@@ -64,6 +64,11 @@ namespace castle
         {
             return *mFontEngine;
         }
+
+        RenderEngine& Renderer::GetRenderEngine()
+        {
+            return *mRenderEngine;
+        }
         
         void Renderer::LoadFont(const core::Font &font)
         {
@@ -369,26 +374,12 @@ namespace castle
     
         void Renderer::BlitTiled(const core::Rect &source, const core::Rect &target)
         {
-            mRenderEngine->SetOpacityMod(mOpacity);
-
-            if(IsPalettized(mBoundImage)) {
-                mBoundImage.AttachPalette(mBoundPalette);
-            }
-
-            const core::Rect screenCoords = ToScreenCoords(target);
-            mRenderEngine->DrawImageTiled(mBoundImage, source, screenCoords);
+            Blit(source, core::TopLeft(target));
         }
 
         void Renderer::BlitScaled(const core::Rect &source, const core::Rect &target)
         {
-            mRenderEngine->SetOpacityMod(mOpacity);
-
-            if(IsPalettized(mBoundImage)) {
-                mBoundImage.AttachPalette(mBoundPalette);
-            }
-
-            const core::Rect screenCoords = ToScreenCoords(target);
-            mRenderEngine->DrawImageScaled(mBoundImage, source, screenCoords);
+            Blit(source, core::TopLeft(target));
         }
     } // namespace render
 }

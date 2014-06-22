@@ -10,7 +10,7 @@ namespace gmtool
     class EntryMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        int mEntryIndex;
+        size_t mEntryIndex;
         bool mBinary;
     public:
         void GetOptions(boost::program_options::options_description&);

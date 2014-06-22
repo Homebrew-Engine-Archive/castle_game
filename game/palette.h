@@ -43,7 +43,7 @@ namespace castle
         bool Null() const;
         bool operator!() const;
 
-        SDL_Palette& asSDLPalette();
+        SDL_Palette& GetSDLPalette();
     };
 }
 

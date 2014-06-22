@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 
+#include <game/sdl_utils.h>
 #include <game/sdl_error.h>
 #include <game/color.h>
 #include <game/modulo.h>
@@ -26,11 +27,11 @@ namespace castle
 
     Palette::Palette(size_t colors)
     {
-        SDL_Palette *tmp = SDL_AllocPalette(colors);
-        if(tmp == NULL) {
+        PalettePtr tmp(SDL_AllocPalette(colors));
+        if(!tmp) {
             throw sdl_error();
         }
-        mStorage.reset(tmp, paletteDeleter);
+        mStorage = std::move(tmp);
     }
     
     Palette::value_type const& Palette::operator[](size_type index) const
@@ -68,7 +69,7 @@ namespace castle
         return (Null() ? nullptr : (mStorage->colors + Size()));
     }
 
-    SDL_Palette& Palette::asSDLPalette()
+    SDL_Palette& Palette::GetSDLPalette()
     {
         return *mStorage;
     }

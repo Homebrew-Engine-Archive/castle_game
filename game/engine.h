@@ -65,7 +65,6 @@ namespace castle
         void PollNetIO();
         void PollRenderQueue();
         void PollSimulationQueue();
-        void DrawFrame();
         void LoadSimulationContext();
         void UpdateFrameCounter(std::chrono::milliseconds elapsed);
 

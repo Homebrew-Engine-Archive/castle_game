@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include <game/imagelocker.h>
 #include <game/color.h>
 #include <game/sdl_error.h>
 #include <game/rect.h>
@@ -12,7 +13,7 @@ namespace castle
 {
     const Image CreateImageView(Image &src, const core::Rect &clip)
     {
-        if(SDL_MUSTLOCK(src)) {
+        if(SDL_MUSTLOCK(src.GetSurface())) {
             // \todo can we deal with it?
             throw std::invalid_argument("ImageView might not be created from RLEaccel surface");
         }
@@ -22,15 +23,14 @@ namespace castle
         const core::Rect cropped =
             Intersection(
                 core::Normalized(clip),
-                core::Rect(src));
+                core::Rect(src.Width(), src.Height()));
 
         char *const data = lock.Data()
             + cropped.y * src.RowStride()
             + cropped.x * src.PixelStride();
 
-        Image tmp;
-        tmp = CreateImageFrom(data, cropped.w, cropped.h, src.RowStride(), ImageFormat(src));
-        if(src.HasColorKey()) {
+        Image tmp = CreateImageFrom(data, cropped.w, cropped.h, src.RowStride(), ImageFormat(src));
+        if(src.ColorKeyEnabled()) {
             tmp.SetColorKey(src.GetColorKey());
         }
     

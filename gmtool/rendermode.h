@@ -30,8 +30,8 @@ namespace gmtool
         boost::filesystem::path mInputFile;
         boost::filesystem::path mOutputFile;
         std::string mFormat;
-        int mEntryIndex = 0;
-        int mPaletteIndex = 0;
+        size_t mEntryIndex = 0;
+        size_t mPaletteIndex = 0;
         core::Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
         bool mEvalSizeOnly = false;

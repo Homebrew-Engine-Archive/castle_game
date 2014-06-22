@@ -36,7 +36,7 @@ namespace gmtool
         gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         
-        if(mEntryIndex < 0 || mEntryIndex >= reader.NumEntries()) {
+        if(mEntryIndex >= reader.NumEntries()) {
             throw std::logic_error("Entry index is out of range");
         }
 

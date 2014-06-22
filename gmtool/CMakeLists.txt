@@ -29,6 +29,7 @@ set (SHARED
   ../game/palette.cpp
   ../game/image.cpp
   ../game/imageview.cpp
+  ../game/imagelocker.cpp
   ../game/color.cpp
   ../game/rect.cpp
   ../game/tgx.cpp

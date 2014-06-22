@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 
+#include <game/imagelocker.h>
 #include <game/image.h>
 #include <game/color.h>
 

@@ -294,7 +294,7 @@ namespace castle
                 }
             
                 fontData->UpdateFontState(font);
-                Image textImage;
+                castle::Image textImage;
                 if(bg.a == 0xff) {
                     textImage = fontData->RenderShaded(text.c_str(), fg, bg);
                 } else if(font.Antialiased()) {
@@ -308,7 +308,7 @@ namespace castle
                         textImage = ConvertImage(textImage, SDL_PIXELFORMAT_ARGB8888);
                     }
                     engine.SetOpacityMod(fg.a);
-                    engine.DrawImage(textImage, core::Rect(textImage), target);
+                    engine.DrawImage(textImage, core::Rect(textImage.Width(), textImage.Height()), target);
                 } else {
                     throw ttf_error();
                 }

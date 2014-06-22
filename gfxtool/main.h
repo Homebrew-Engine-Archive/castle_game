@@ -5,7 +5,9 @@ namespace castle
 {
     class Image;
 }
-
-int ShowImage(const castle::Image &surface);
-
+namespace gfxtool
+{
+    int ShowImage(const castle::Image &image);
+}
+    
 #endif

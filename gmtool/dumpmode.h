@@ -9,7 +9,7 @@ namespace gmtool
     class DumpMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        int mEntryIndex;
+        size_t mEntryIndex;
         bool mTileOnly;
         bool mBoxOnly;
     public:

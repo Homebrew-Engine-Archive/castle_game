@@ -22,12 +22,22 @@ namespace core
         South,
         SouthEast
     };
+
+    constexpr Direction DirFromNum(int num)
+    {
+        return static_cast<Direction>(num);
+    }
+
+    constexpr int DirToNum(Direction dir)
+    {
+        return core::Mod(static_cast<int>(dir), MaxDirCount);
+    }
     
     constexpr Direction Rotated(Direction dir, int times)
     {
-        return static_cast<Direction>(
+        return DirFromNum(
             core::Mod(
-                static_cast<int>(dir) + times, MaxDirCount));
+                DirToNum(dir) + times, MaxDirCount));
     }
 
     constexpr Direction RotatedCCW(Direction dir)
@@ -42,7 +52,7 @@ namespace core
 
     constexpr int LeftRotates(Direction lhs, Direction rhs)
     {
-        return core::Mod(static_cast<int>(lhs) - static_cast<int>(rhs), MaxDirCount);
+        return core::Mod(DirToNum(lhs) - DirToNum(rhs), MaxDirCount);
     }
 
     constexpr int RightRotates(Direction lhs, Direction rhs)

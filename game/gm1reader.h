@@ -6,9 +6,8 @@
 #include <memory>
 
 #include <game/gm1.h>
-#include <game/filesystem.h>
 
-class ReaderEntryData;
+#include <boost/filesystem/path.hpp>
 
 namespace castle
 {
@@ -23,10 +22,12 @@ namespace gm1
 
 namespace gm1
 {
+    class ReaderEntryData;
+
     class GM1Reader
     {
         bool mIsOpened;
-        fs::path mPath;
+        boost::filesystem::wpath mPath;
         std::streamoff mDataOffset;
         gm1::Header mHeader;
         std::vector<castle::Palette> mPalettes;
@@ -41,11 +42,10 @@ namespace gm1
             CheckSizeCategory = 2
         };
 
-        GM1Reader();
-        explicit GM1Reader(fs::path, Flags = NoFlags);
+        explicit GM1Reader(const boost::filesystem::wpath& = boost::filesystem::wpath(), Flags = NoFlags);
         virtual ~GM1Reader();
         
-        void Open(fs::path, Flags);
+        void Open(const boost::filesystem::wpath&, Flags);
         bool IsOpened() const;
         void Close();
         const castle::Image ReadEntry(size_t index) const;
@@ -56,9 +56,8 @@ namespace gm1
         gm1::Encoding Encoding() const;
         char const* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
-        size_t EntryOffset(size_t index) const;
-        int NumEntries() const;
-        int NumPalettes() const;
+        size_t NumEntries() const;
+        size_t NumPalettes() const;
 
         gm1::GM1EntryReader& EntryReader();
     };

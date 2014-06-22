@@ -64,7 +64,7 @@ namespace gmtool
 
     const core::Color RenderMode::DefaultTransparent() const
     {
-        return core::Color(240, 0, 255, 0);
+        return core::Color(255, 0, 255, 255);
     }
     
     void RenderMode::SetupPalette(castle::Image &image, const castle::Palette &palette)
@@ -78,7 +78,7 @@ namespace gmtool
     void RenderMode::SetupFormat(castle::Image &image, uint32_t format)
     {
         if(castle::IsPalettized(image)) {
-            if(format != image->format->format) {
+            if(format != castle::ImageFormat(image).format) {
                 image = castle::ConvertImage(image, format);
             }
         }
@@ -96,11 +96,11 @@ namespace gmtool
 
         cfg.verbose << "Collection contains " << reader.NumEntries() << " entries" << std::endl;
 
-        if(mEntryIndex < 0 || mEntryIndex >= reader.NumEntries()) {
+        if(mEntryIndex >= reader.NumEntries()) {
             throw std::logic_error("Entry index is out of range");
         }
 
-        if(mPaletteIndex < 0 || mPaletteIndex >= reader.NumPalettes()) {
+        if(mPaletteIndex >= reader.NumPalettes()) {
             throw std::logic_error("Palette index is out of range");
         }
 

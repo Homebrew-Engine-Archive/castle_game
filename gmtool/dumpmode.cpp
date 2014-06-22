@@ -40,7 +40,7 @@ namespace gmtool
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         cfg.verbose << "Encoding is " << gm1::GetEncodingName(reader.Encoding()) << std::endl;
 
-        if(mEntryIndex < 0 || mEntryIndex >= reader.NumEntries()) {
+        if(mEntryIndex >= reader.NumEntries()) {
             throw std::logic_error("Entry index is out of range");
         }
 

@@ -72,7 +72,8 @@ namespace castle
                 std::cout << msg << std::endl;
                 StartReceive();
             } else {
-                throw receive_error(code);
+                /** Should be handled in Engine::PollNetIO **/
+                throw castle::net::receive_error(code);
             }
         }
 
@@ -108,7 +109,8 @@ namespace castle
                 mConnections.emplace_back(std::move(mSock));
                 StartAccept();
             } else {
-                throw accept_error(code);
+                /** Should be handled in castle::Engine::PollNetIO**/
+                throw castle::net::accept_error(code);
             }
         }
     } // namespace net

@@ -158,7 +158,7 @@ namespace castle
                 }
                 return;
             default:
-                throw wrong_draw_mode();
+                throw wrong_draw_mode_error();
             }
         }
     
@@ -205,22 +205,23 @@ namespace castle
                 polygonRGBA(mRenderer.get(), xs.data(), ys.data(), polycount, color.r, color.g, color.b, color.a);
                 return;
             default:
-                throw wrong_draw_mode();
+                throw wrong_draw_mode_error();
             }
         }
     
-        void SDLRenderEngine::DrawImage(const Image &image, const core::Rect &textureRect, const core::Point &target)
+        void SDLRenderEngine::DrawImage(const Image &image, const core::Rect &source, const core::Point &target)
         {
             const core::Rect screenRect(target.x,
                                         target.y,
-                                        textureRect.w,
-                                        textureRect.h);
+                                        source.w,
+                                        source.h);
             if(Intersects(screenRect, mViewport)) {
                 UpdateViewport(mViewport);
+                SDL_Surface *surface = image.GetSurface();
                 TexturePtr texture(
-                    SDL_CreateTextureFromSurface(mRenderer.get(), image));
+                    SDL_CreateTextureFromSurface(mRenderer.get(), surface));
                 SDL_SetTextureAlphaMod(texture.get(), mOpacityMod);
-                SDL_RenderCopy(mRenderer.get(), texture.get(), &textureRect, &screenRect);
+                SDL_RenderCopy(mRenderer.get(), texture.get(), &source, &screenRect);
             }
         }
 

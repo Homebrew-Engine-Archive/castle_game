@@ -46,7 +46,7 @@ namespace castle
             }
         }
 
-        Image Loadtgx(const fs::path &path)
+        Image LoadTGX(const fs::path &path)
         {
             boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
@@ -73,12 +73,12 @@ namespace castle
             , mHeaders(reader.NumEntries())
         {
             mPalettes.reserve(reader.NumPalettes());
-            for(int n = 0; n < reader.NumPalettes(); ++n) {
+            for(size_t n = 0; n < reader.NumPalettes(); ++n) {
                 mPalettes.push_back(reader.Palette(n));
             }
 
             try {
-                for(int n = 0; n < reader.NumEntries(); ++n) {
+                for(size_t n = 0; n < reader.NumEntries(); ++n) {
                     mEntries[n] = reader.ReadEntry(n);
                     mHeaders[n] = reader.EntryHeader(n);
                 }

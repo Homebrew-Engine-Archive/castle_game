@@ -1,4 +1,7 @@
-#include "resourcepack.h"
+#include "resourceindex.h"
+
+#include <algorithm>
+#include <set>
 
 #include <game/direction.h>
 
@@ -33,7 +36,7 @@ namespace castle
             return DirSet {dir};
         }
         
-        std::vector<SpriteGroup> BodyArcherInfo = {
+        std::vector<ResourceGroup> BodyArcherInfo = {
             {"walk", 16, EightDirs},
             {"run", 16, EightDirs},
             {"shot", 24, EightDirs},
@@ -50,8 +53,8 @@ namespace castle
             {"fall", 8, EightDirs},
             {"dig", 16, EightDirs}
         };
-
-        std::vector<SpriteGroup> BodyPeasantInfo = {
+        
+        std::vector<ResourceGroup> BodyPeasantInfo = {
             {"walk", 16, EightDirs},
             {"idle", 4, FourDirs},
             {"sit_down", 8, FourDirs},
@@ -64,7 +67,7 @@ namespace castle
             {"deathkick", 24, SingleDir}
         };
 
-        std::vector<SpriteGroup> BodyLordInfo = {
+        std::vector<ResourceGroup> BodyLordInfo = {
             {"walk", 16, EightDirs},
             {"walk_with_sword", 16, EightDirs},
             {"talk", 24, EightDirs},
@@ -74,7 +77,7 @@ namespace castle
             {"surrender", 28, SingleDir}
         };
 
-        std::vector<SpriteGroup> BodySwordsmanInfo = {
+        std::vector<ResourceGroup> BodySwordsmanInfo = {
             {"walk", 16, EightDirs},
             {"idle", 24, Singleton(core::Direction::NorthEast)},
             {"idle", 24, Singleton(core::Direction::SouthEast)},
@@ -87,27 +90,27 @@ namespace castle
             {"deatharrow", 24, SingleDir}
         };
         
-        castle::Image SpriteSequence::GetImage(const core::Direction &dir, float index)
+        void IndexTable::AddIndex(const core::Direction &dir, size_t index)
         {
-            return castle::Image();
+            mIndex[dir].push_back(index);
+        }
+        
+        ResourceIndex::ResourceIndex(const std::vector<ResourceGroup> &groups)
+        {
+            size_t index = 0;
+            for(const ResourceGroup &group : groups) {
+                for(size_t i = 0; i < group.size; ++i) {
+                    for(const core::Direction &dir : group.dirs) {
+                        mTables[group.name].AddIndex(dir, index);
+                        ++index;
+                    }
+                }
+            }
         }
 
-        ResourcePack::~ResourcePack() = default;
-        ResourcePack::ResourcePack(const Collection &collection)
-            : mCollection(collection)
+        const IndexTable& ResourceIndex::QueryIndex(const std::string &group) const
         {
-        }
-
-        const SpriteSequence ResourcePack::ReadGroup(const std::string &groupName)
-        {
-            SpriteSequence tmp;
-            
-            return tmp;
-        }
-
-        void ResourcePack::AddGroup(const SpriteGroup &group)
-        {
-            mGroups.push_back(group);
+            return mTables.at(group);
         }
     }
 }

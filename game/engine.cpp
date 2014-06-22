@@ -160,15 +160,6 @@ namespace castle
         // forward connections to simulation manager
         // forward data to simulation manager
     }
-    
-    void Engine::DrawFrame()
-    {
-        mRenderer->BeginFrame();
-        mScreenManager->Render(*mRenderer);
-        mRenderer->SetDrawColor(core::colors::Gray);
-        mRenderer->DrawFrame(mRenderer->GetScreenRect());
-        mRenderer->EndFrame();
-    }
 
     void Engine::UpdateFrameCounter(std::chrono::milliseconds elapsed)
     {
@@ -187,9 +178,11 @@ namespace castle
         const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         const std::chrono::milliseconds sinceLastRender = Elapsed(now, mLastRenderPoll);
         if(!mFpsLimited || sinceLastRender >= mFrameUpdateInterval) {
-            mFrameCounter += 1;
             mLastRenderPoll = now;
-            DrawFrame();
+            mRenderer->BeginFrame();
+            mScreenManager->Render(*mRenderer);
+            mRenderer->EndFrame();
+            mFrameCounter += 1;
         }
     }
 

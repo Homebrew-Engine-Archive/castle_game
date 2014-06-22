@@ -1,13 +1,7 @@
 #ifndef ANIMATION_H_
 #define ANIMATION_H_
 
-#include <vector>
-#include <game/direction.h>
-#include <game/gm1.h>
-#include <game/surface.h>
-#include <game/filesystem.h>
-
-enum class AnimType : int
+enum class Animation : int
 {
     Walk,
     Run,
@@ -18,11 +12,11 @@ enum class AnimType : int
     Climb,
     RemoveLadder,
     DeathArrow,
-    DeathMelee1,
-    DeathMelee2,
-    Fall,
+    DeathLunge,
+    DeathPunch,
+    FallLadder,
     AttackMelee,
-    Victory                                              // swordman, mace
+    Triumph                                              // swordman, mace
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <stdexcept>
+#include <exception>
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -11,11 +11,11 @@
 
 namespace
 {
-    struct invalid_direction : public std::runtime_error
+    struct invalid_direction : public std::exception
     {
-        invalid_direction()
-            : std::runtime_error("invalid direction")
-            {}
+        const char* what() const throw() {
+            return "invalid direction";
+        }
     };
     
     void test()
@@ -57,23 +57,12 @@ namespace core
         // and now avoid cyclic directions
         int d = core::Mod<int>(gamma * MaxDirCount, MaxDirCount);
     
-        return static_cast<Direction>(d);
+        return DirFromNum(d);
     }
 
     double DirectionToRadians(Direction dir)
     {
-        switch(dir) {
-        case Direction::East: return 0.0f;
-        case Direction::NorthEast: return M_PI / 4.0f;
-        case Direction::North: return M_PI / 2.0f;
-        case Direction::NorthWest: return 3.0f * M_PI / 4.0f;
-        case Direction::West: return M_PI;
-        case Direction::SouthWest: return M_PI + M_PI / 4.0f;
-        case Direction::South: return 3.0f * M_PI / 2.0f;
-        case Direction::SouthEast: return 3.0f * M_PI / 4.0f + M_PI;
-        default:
-            throw invalid_direction();
-        }
+        return core::Mod((DirToNum(dir) - DirToNum(Direction::East)), MaxDirCount) * 2 * M_PI / MaxDirCount;
     }
 
     Direction PointsDirection(const Point &lhs, const Point &rhs)

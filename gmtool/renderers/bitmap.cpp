@@ -6,8 +6,8 @@
 
 namespace gmtool
 {
-    void BitmapFormat::RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface)
+    void BitmapFormat::RenderToSDL_RWops(SDL_RWops *out, const castle::Image &image)
     {
-        SDL_SaveBMP_RW(surface, dst, 0);
+        SDL_SaveBMP_RW(image.GetSurface(), out, SDL_FALSE);
     }
 }

@@ -106,7 +106,7 @@ namespace gmtool
         std::vector<size_t> width(heading.size(), 0);
         cells.emplace_back(std::move(heading));
 
-        for(int index = 0; index < reader.NumEntries(); ++index) {
+        for(size_t index = 0; index < reader.NumEntries(); ++index) {
             cells.emplace_back(
                 std::move(
                     GetEntryCells(
