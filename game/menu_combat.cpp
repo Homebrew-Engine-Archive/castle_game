@@ -3,7 +3,6 @@
 #include <SDL.h>
 
 #include <game/collection.h>
-#include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/screenmanager.h>
 

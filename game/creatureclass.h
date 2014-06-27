@@ -1,6 +1,8 @@
 #ifndef CREATURECLASS_H_
 #define CREATURECLASS_H_
 
+#include <game/vfs.h>
+
 namespace castle
 {
     namespace gfx

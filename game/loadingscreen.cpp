@@ -9,7 +9,8 @@
 #include <core/clamp.h>
 #include <core/color.h>
 #include <core/rect.h>
-#include <game/filesystem.h>
+
+#include <game/vfs.h>
 #include <game/renderer.h>
 #include <game/collection.h>
 

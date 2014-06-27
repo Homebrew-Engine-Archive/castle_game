@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <game/filesystem.h>
+#include <game/vfs.h>
 
 class TTFInitializer;
 class FontData;

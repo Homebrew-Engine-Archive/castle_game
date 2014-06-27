@@ -8,7 +8,7 @@
 #include <game/renderengine.h>
 #include <game/palette.h>
 #include <game/image.h>
-#include <game/filesystem.h>
+#include <game/vfs.h>
 #include <core/color.h>
 
 namespace core

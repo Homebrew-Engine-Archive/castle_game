@@ -5,7 +5,7 @@
 #include <core/color.h>
 #include <game/creature.h>
 #include <core/direction.h>
-#include <game/filesystem.h>
+#include <game/vfs.h>
 #include <game/fontengine.h>
 #include <game/gm1.h>
 #include <game/palette.h>

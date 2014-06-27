@@ -8,6 +8,14 @@
 
 namespace castle
 {
+    namespace gfx
+    {
+        enum class PaletteName;
+    }
+}
+
+namespace castle
+{
     namespace world
     {
         class CreatureState
@@ -17,8 +25,7 @@ namespace castle
             const std::string GetName() const;
             core::Direction GetDirection() const;
             float GetCompleteRate() const;
-
-            void Update(int ticks);
+            castle::gfx::PaletteName GetPaletteName() const;
         };
     }
 }

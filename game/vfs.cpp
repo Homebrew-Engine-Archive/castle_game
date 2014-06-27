@@ -1,4 +1,4 @@
-#include "filesystem.h"
+#include "vfs.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -68,7 +68,7 @@ namespace castle
                 GetTTFFilename(fontName),
                 GetTTFFilename(boost::to_upper_copy(fontName)),
                 GetTTFFilename(boost::to_lower_copy(fontName))
-            };;
+            };
         }
     }
 }

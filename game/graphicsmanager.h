@@ -1,7 +1,7 @@
 #ifndef GRAPHICSMANAGER_H_
 #define GRAPHICSMANAGER_H_
 
-#include <game/filesystem.h>
+#include <game/vfs.h>
 #include <game/collection.h>
 
 namespace castle

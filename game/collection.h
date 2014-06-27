@@ -6,9 +6,9 @@
 
 #include <SDL.h>
 
+#include <game/vfs.h>
 #include <game/image.h>
 #include <game/gm1.h>
-#include <game/filesystem.h>
 #include <game/sdl_utils.h>
 #include <game/palettename.h>
 

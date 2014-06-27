@@ -1,5 +1,5 @@
-#ifndef FILESYSTEM_H_
-#define FILESYSTEM_H_
+#ifndef VFS_H_
+#define VFS_H_
 
 #include <vector>
 #include <string>
@@ -28,4 +28,4 @@ namespace castle
     }
 }
 
-#endif
+#endif  // VFS_H_
