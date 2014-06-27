@@ -16,6 +16,14 @@ namespace castle
 {
     namespace world
     {
+        class CreatureClass;
+    }
+}
+
+namespace castle
+{
+    namespace world
+    {
         class SimulationManager
         {
         public:
@@ -36,14 +44,13 @@ namespace castle
             
         protected:
             std::vector<PlayerAvatar> mAvatars;
-            std::map<PlayerAvatar, int> mAvatarTurn;
+            std::map<PlayerAvatar, unsigned> mAvatarTurn;
             std::vector<SimulationCommand> mCommands;
             std::unique_ptr<SimulationContext> mPrimaryContext;
-            std::chrono::milliseconds mTurnLength;
-            std::chrono::milliseconds mSecondLength;
-            int mTurnNumber;
-            PlayerAvatar mThisPlayer;
-            PlayerAvatar mHostPlayer;
+            std::chrono::nanoseconds mTickDuration;
+            unsigned mTurnLength;
+            unsigned mTurnNumber;
+            std::map<std::string, castle::world::CreatureClass> mCreatureClasses;
         };
     }
 }

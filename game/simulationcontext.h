@@ -19,7 +19,6 @@ namespace castle
         class SimulationContext
         {
             std::unique_ptr<Map> mMap;
-            std::vector<std::unique_ptr<Creature>> mCreatures;
         
         public:
             explicit SimulationContext();

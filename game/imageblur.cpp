@@ -8,8 +8,9 @@
 #include <SDL.h>
 
 #include <game/imagelocker.h>
-#include <game/color.h>
 #include <game/image.h>
+
+#include <core/color.h>
 
 namespace
 {

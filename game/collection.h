@@ -37,7 +37,6 @@ namespace castle
 
             size_t Count() const;
             const gm1::Header& GetHeader() const;
-            const core::Point Anchor() const;
             const castle::Image& GetImage(size_t index) const;
             const gm1::EntryHeader& GetEntryHeader(size_t index) const;        
             const castle::Palette& GetPalette(const PaletteName &name) const;
@@ -45,8 +44,13 @@ namespace castle
         private:
             gm1::Header mHeader;
             std::vector<castle::Palette> mPalettes;
-            std::vector<castle::Image> mEntries;
-            std::vector<gm1::EntryHeader> mHeaders;
+
+            struct CollectionEntry
+            {
+                castle::Image image;
+                gm1::EntryHeader header;
+            };
+            std::vector<CollectionEntry> mEntries;
         };
 
         Image LoadTGX(const vfs::path &filename);

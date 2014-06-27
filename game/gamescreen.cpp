@@ -2,17 +2,17 @@
 
 #include <sstream>
 
-#include <game/color.h>
+#include <core/color.h>
 #include <game/creature.h>
-#include <game/direction.h>
+#include <core/direction.h>
 #include <game/filesystem.h>
 #include <game/fontengine.h>
 #include <game/gm1.h>
 #include <game/palette.h>
 #include <game/landscape.h>
-#include <game/modulo.h>
-#include <game/point.h>
-#include <game/rect.h>
+#include <core/modulo.h>
+#include <core/point.h>
+#include <core/rect.h>
 #include <game/renderer.h>
 #include <game/screenmanager.h>
 #include <game/simulationcontext.h>
@@ -70,16 +70,20 @@ namespace castle
             const core::Point tileworldPos(mCamera.worldToScreenCoords(cell));
             const core::Point tileTop(tileworldPos - heightOffset);
             const core::Point tileBottom(tileworldPos);
-            const core::Rect tileTopRect(tileTop.x, tileTop.y, tileSize.width, tileSize.height);
-            const core::Rect tileBottomRect(tileBottom.x, tileBottom.y, tileSize.width, tileSize.height);
+            const core::Rect tileTopRect(tileTop.X(), tileTop.Y(), tileSize.Width(), tileSize.Height());
+            const core::Rect tileBottomRect(tileBottom.X(), tileBottom.Y(), tileSize.Width(), tileSize.Height());
 
-            renderer.SetDrawColor(core::colors::Red.Opaque(100));
-            renderer.DrawRhombus(tileBottomRect);
+            const Landscape landscape = map.LandscapeType(cell);
+            const gfx::Collection &collection = GetTileSet(landscape);
+            const size_t height = map.Height(cell);
+            const castle::Image img = collection.GetImage(height);
+            renderer.BindImage(img);
+            renderer.Blit(core::Rect(img.Width(), img.Height()), tileTop);
         }
     
         void GameScreen::RenderCreature(render::Renderer &renderer, const world::Creature &creature)
         {
-        
+            
         }
 
         void GameScreen::Render(render::Renderer &renderer)
@@ -147,10 +151,10 @@ namespace castle
 
         bool GameScreen::HandleMouseButton(const SDL_MouseButtonEvent &event)
         {
-            mCursor.x = event.x;
-            mCursor.y = event.y;
+            mCursor.SetX(event.x);
+            mCursor.SetY(event.y);
             mCursorInvalid = false;
-            if(event.button == SDL_BUTTON_LEFT && event.state == SDL_PRESSED) {
+            if((event.button == SDL_BUTTON_LEFT) && (event.state == SDL_PRESSED)) {
                 return true;
             }
             return false;
@@ -176,8 +180,8 @@ namespace castle
             case SDL_MOUSEMOTION:
                 {
                     mCursorInvalid = false;
-                    mCursor.x = event.motion.x;
-                    mCursor.y = event.motion.y;
+                    mCursor.SetX(event.motion.x);
+                    mCursor.SetY(event.motion.y);
                     return true;
                 }
             case SDL_KEYUP:
@@ -200,16 +204,16 @@ namespace castle
             const core::Rect screenRect = renderer.GetScreenRect();
             const core::Point viewportCursor = renderer.ToViewportCoords(mCursor);
         
-            if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && viewportCursor.x < EdgeWidth)) {
+            if(mKeyState[SDLK_LEFT] || (!mCursorInvalid && viewportCursor.X() < EdgeWidth)) {
                 mCamera.Move(-1, 0);
             }
-            if(mKeyState[SDLK_RIGHT] || (!mCursorInvalid && viewportCursor.x > screenRect.w - EdgeWidth)) {
+            if(mKeyState[SDLK_RIGHT] || (!mCursorInvalid && viewportCursor.X() > screenRect.Width() - EdgeWidth)) {
                 mCamera.Move(1, 0);
             }
-            if(mKeyState[SDLK_UP] || (!mCursorInvalid && viewportCursor.y < EdgeWidth)) {
+            if(mKeyState[SDLK_UP] || (!mCursorInvalid && viewportCursor.Y() < EdgeWidth)) {
                 mCamera.Move(0, -1);
             }
-            if(mKeyState[SDLK_DOWN] || (!mCursorInvalid && viewportCursor.y > screenRect.h - EdgeWidth)) {
+            if(mKeyState[SDLK_DOWN] || (!mCursorInvalid && viewportCursor.Y() > screenRect.Height() - EdgeWidth)) {
                 mCamera.Move(0, 1);
             }
         
@@ -230,7 +234,10 @@ namespace castle
             const core::Point tileTopLeft = mCamera.worldToScreenCoords(cell);
             const core::Point tileTopLeftScreenSubrect = tileTopLeft - core::Point(0, map.Height(cell) - entryHeader.tileY);
             const core::Rect imageRect(image.Width(), image.Height());
-            const core::Rect tileImageScreenSubrect = Translated(imageRect, tileTopLeftScreenSubrect);
+            const core::Rect tileImageScreenSubrect = core::Translated(
+                imageRect,
+                tileTopLeftScreenSubrect.X(),
+                tileTopLeftScreenSubrect.Y());
             if(core::PointInRect(tileImageScreenSubrect, cursor)) {
                 core::Point inside = core::ClipToRect(tileImageScreenSubrect, cursor);
                 if(ExtractPixel(image, inside) != 0) {

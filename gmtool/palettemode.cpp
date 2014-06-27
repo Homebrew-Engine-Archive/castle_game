@@ -5,11 +5,12 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 
-#include <game/modulo.h>
+#include <core/color.h>
+#include <core/modulo.h>
+
 #include <game/gm1writer.h>
 #include <game/gm1reader.h>
 #include <game/palette.h>
-#include <game/color.h>
 
 namespace po = boost::program_options;
 

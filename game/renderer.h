@@ -3,13 +3,13 @@
 
 #include <vector>
 
-#include <game/font.h>
-#include <game/rect.h>
+#include <core/font.h>
+#include <core/rect.h>
 #include <game/renderengine.h>
 #include <game/palette.h>
 #include <game/image.h>
 #include <game/filesystem.h>
-#include <game/color.h>
+#include <core/color.h>
 
 namespace core
 {

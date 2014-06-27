@@ -77,8 +77,6 @@ namespace tgx
 
     constexpr uint32_t PixelFormat = SDL_PIXELFORMAT_RGB555;
     
-    std::istream& DecodeLine(std::istream&, size_t numBytes, char *dst, size_t width, size_t bytesPerPixel);
-    
     std::istream& DecodeImage(std::istream&, size_t numBytes, castle::Image &surface);
 
     std::istream& ReadImageHeader(std::istream&, castle::Image &surface);
@@ -96,14 +94,13 @@ namespace tgx
      *
      * \note Input buffer must have real size of width * bytesPerPixel bytes.
      **/
-    // std::ostream& EncodeLine(std::ostream&, const char *pixels, int width, int bytesPP, uint32_t colorKey);
     
     std::ostream& EncodeImage(std::ostream&, const castle::Image &surface);
 
     std::ostream& WriteImageHeader(std::ostream&, const castle::Image &surface);
 
     std::ostream& WriteImage(std::ostream&, const castle::Image &surface);
-    
+
 } // namespace tgx
 
 #endif

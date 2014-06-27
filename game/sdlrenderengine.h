@@ -1,7 +1,7 @@
 #ifndef SDLRENDERENGINE_H_
 #define SDLRENDERENGINE_H_
 
-#include <game/rect.h>
+#include <core/rect.h>
 #include <game/outputmode.h>
 #include <game/sdl_utils.h>
 #include <game/renderengine.h>

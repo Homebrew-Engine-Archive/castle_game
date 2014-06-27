@@ -4,8 +4,8 @@
 #include <vector>
 #include <iterator>
 
-#include <game/point.h>
-#include <game/direction.h>
+#include <core/point.h>
+#include <core/direction.h>
 #include <game/landscape.h>
 
 namespace castle

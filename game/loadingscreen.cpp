@@ -6,9 +6,9 @@
 
 #include <boost/filesystem/fstream.hpp>
 
-#include <game/clamp.h>
-#include <game/color.h>
-#include <game/rect.h>
+#include <core/clamp.h>
+#include <core/color.h>
+#include <core/rect.h>
 #include <game/filesystem.h>
 #include <game/renderer.h>
 #include <game/collection.h>

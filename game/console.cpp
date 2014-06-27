@@ -7,15 +7,16 @@
 #include <iostream>
 #include <string>
 
-#include <game/font.h>
-#include <game/alignment.h>
-#include <game/renderer.h>
-#include <game/color.h>
-#include <game/rect.h>
+#include <core/alignment.h>
+#include <core/color.h>
+#include <core/font.h>
+#include <core/point.h>
+#include <core/rect.h>
+
 #include <game/fontengine.h>
-#include <game/screenmanager.h>
 #include <game/image.h>
-#include <game/point.h>
+#include <game/renderer.h>
+#include <game/screenmanager.h>
 
 namespace castle
 {
@@ -47,11 +48,11 @@ namespace castle
             renderer.FillFrame(consoleRect);
             renderer.SetViewport(consoleRect);
 
-            mPromptArea.SetMaxWidth(consoleRect.w);
+            mPromptArea.SetMaxWidth(consoleRect.Width());
             const core::Rect promptRect = mPromptArea.FitToScreen(renderer);
         
-            renderer.SetViewport(ChopBottom(renderer.GetScreenRect(), promptRect.h));
-            mLogArea.SetMaxWidth(consoleRect.w);
+            renderer.SetViewport(ChopBottom(renderer.GetScreenRect(), promptRect.Height()));
+            mLogArea.SetMaxWidth(consoleRect.Width());
             
             
             mLogArea.Render(renderer);

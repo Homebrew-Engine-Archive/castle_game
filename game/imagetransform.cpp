@@ -6,7 +6,7 @@
 
 #include <game/imagelocker.h>
 #include <game/image.h>
-#include <game/color.h>
+#include <core/color.h>
 
 namespace
 {

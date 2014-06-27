@@ -1,5 +1,5 @@
-#ifndef gm1_H_
-#define gm1_H_
+#ifndef GM1_H_
+#define GM1_H_
 
 #include <cstdint>
 #include <iosfwd>
@@ -32,8 +32,8 @@ namespace gm1
      *
      * `imageCount' is a just number of entries in the archive.
      *
-     * Each entry shall be decoded by gm1::Encoding which
-     * is determined by `dataClass' field (see GetEncoding function).
+     * Each entry shall be decoded by gm1::ArchiveType which
+     * is determined by `dataClass' field (see GetArchiveType function).
      *
      * \note There are many fields have undefined purpose. Each of them prefix with 'u'.
      */
@@ -96,7 +96,7 @@ namespace gm1
 
     const size_t NumEntryHeaderFields = 11;
     
-    enum class Encoding : int
+    enum class ArchiveType
     {
         TGX16,
         TGX8,
@@ -133,9 +133,9 @@ namespace gm1
     
     std::string GetImageClassName(uint32_t dataClass);
 
-    std::string GetEncodingName(Encoding encoding);
+    std::string GetArchiveTypeName(ArchiveType encoding);
     
-    gm1::Encoding GetEncoding(uint32_t dataClass);
+    gm1::ArchiveType GetArchiveType(uint32_t dataClass);
     
     /**
      * \brief Calculates size of "static" part of the archive by its header.

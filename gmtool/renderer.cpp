@@ -8,7 +8,7 @@
 
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
-#include <game/rw.h>
+#include <core/rw.h>
 
 #include "renderers/bitmap.h"
 #include "renderers/tgxrenderer.h"

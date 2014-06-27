@@ -14,6 +14,7 @@
 
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
+#include <game/sdl_init.h>
 #include <game/image.h>
 #include <game/tgx.h>
 

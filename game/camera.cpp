@@ -1,10 +1,12 @@
 #include "camera.h"
 
 #include <iostream>
+
 #include <game/gm1.h>
-#include <game/modulo.h>
-#include <game/size.h>
-#include <game/point.h>
+
+#include <core/modulo.h>
+#include <core/size.h>
+#include <core/point.h>
 
 namespace castle
 {
@@ -63,8 +65,8 @@ namespace castle
 
         void Camera::ViewPoint(const core::Point &viewpoint)
         {
-            mPosX = viewpoint.x;
-            mPosY = viewpoint.y;
+            mPosX = viewpoint.X();
+            mPosY = viewpoint.Y();
         }
     
         const core::Point Camera::ViewPoint() const
@@ -113,19 +115,19 @@ namespace castle
             case CameraMode::Staggered:
                 {
                     /** stretched and unprojected cursor position **/
-                    const double px = mPosX + cursor.x - mTileSize.width / 2;
-                    const double py = (mPosY + cursor.y) * mTileSize.height / mTileSize.height - mTileSize.height;
+                    const double px = mPosX + cursor.X() - mTileSize.Width() / 2;
+                    const double py = (mPosY + cursor.Y()) * mTileSize.Height() / mTileSize.Height() - mTileSize.Height();
 
                     /** rotated counterclockwise by 45 degrees **/
                     const double rx = px + py;
                     const double ry = py - px;
 
                     /** coordinates in square-cell grid **/
-                    const int x = round(rx / mTileSize.width);
-                    const int y = round(ry / mTileSize.width);
+                    const int x = round(rx / mTileSize.Width());
+                    const int y = round(ry / mTileSize.Width());
 
                     /** rotated clockwise by 45 degrees **/
-                    const int tx = floor((x - y) * mTileSize.height / static_cast<double>(mTileSize.width));
+                    const int tx = floor((x - y) * mTileSize.Height() / static_cast<double>(mTileSize.Width()));
                     const int ty = x + y;
         
                     return world::Map::Cell(tx, ty);
@@ -134,12 +136,12 @@ namespace castle
             case CameraMode::Diamond:
                 {
                     // \todo bring here original matrix and implement affine transformations
-                    const int h = mTileSize.height / 2;
-                    const int w = mTileSize.width / 2;
-                    const int q = mTileSize.width;
+                    const int h = mTileSize.Height() / 2;
+                    const int w = mTileSize.Width() / 2;
+                    const int q = mTileSize.Width();
                     const int r = 0;
-                    const int x = cursor.x + mPosX;
-                    const int y = cursor.y + mPosY;
+                    const int x = cursor.X() + mPosX;
+                    const int y = cursor.Y() + mPosY;
                     const int z = 2 * w * h;
                     return world::Map::Cell((-h*q - r*w + h*x + w*y) / z,
                                             (h*q - r*w - h*x + w*y) / z);
@@ -148,8 +150,8 @@ namespace castle
             case CameraMode::Ortho:
             default:
                 {
-                    return world::Map::Cell((ViewPoint().x + cursor.x) / mTileSize.width,
-                                            (ViewPoint().y + cursor.y) / mTileSize.height);
+                    return world::Map::Cell((ViewPoint().X() + cursor.X()) / mTileSize.Width(),
+                                            (ViewPoint().Y() + cursor.Y()) / mTileSize.Height());
                 }
             }
         }
@@ -159,29 +161,29 @@ namespace castle
             switch(mCameraMode) {
             case CameraMode::Staggered:
                 {
-                    const int w = mTileSize.width / 2;
-                    const int h = mTileSize.height / 2;
+                    const int w = mTileSize.Width() / 2;
+                    const int h = mTileSize.Height() / 2;
                     return -ViewPoint() +
-                        core::Point(2*w*cell.x + w*core::Mod(cell.y, 2),
-                                    h*cell.y);
+                        core::Point(2*w*cell.X() + w*core::Mod(cell.Y(), 2),
+                                    h*cell.Y());
                 }
             
             case CameraMode::Diamond:
                 {
-                    const int w = mTileSize.width / 2;
-                    const int h = mTileSize.height / 2;
-                    const int q = mTileSize.width / 2;
+                    const int w = mTileSize.Width() / 2;
+                    const int h = mTileSize.Height() / 2;
+                    const int q = mTileSize.Width() / 2;
                     const int r = 0;
                     return -ViewPoint() +
-                        core::Point(w*cell.x - w*cell.y + q,
-                                    h*cell.x + h*cell.y + r);
+                        core::Point(w*cell.X() - w*cell.Y() + q,
+                                    h*cell.X() + h*cell.Y() + r);
                 }
 
             default:
             case CameraMode::Ortho:
                 return -ViewPoint() +
-                    core::Point(mTileSize.width * cell.x,
-                                mTileSize.height * cell.y);
+                    core::Point(mTileSize.Width() * cell.X(),
+                                mTileSize.Height() * cell.Y());
             }
         }
     }

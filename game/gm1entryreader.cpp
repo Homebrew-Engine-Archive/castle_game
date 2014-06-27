@@ -5,8 +5,8 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#include <game/color.h>
-#include <game/rect.h>
+#include <core/color.h>
+#include <core/rect.h>
 #include <game/gm1reader.h>
 #include <game/palette.h>
 #include <game/gm1.h>
@@ -224,25 +224,25 @@ namespace gm1
         mTransparentColor = std::move(color);
     }
     
-    GM1EntryReader::Ptr CreateEntryReader(const Encoding &encoding)
+    GM1EntryReader::Ptr CreateEntryReader(const ArchiveType &type)
     {
-        switch(encoding) {
-        case Encoding::Font:
+        switch(type) {
+        case ArchiveType::Font:
             return GM1EntryReader::Ptr(new FontReader);
             
-        case Encoding::TGX16:
+        case ArchiveType::TGX16:
             return GM1EntryReader::Ptr(new TGX16);
                 
-        case Encoding::Bitmap:
+        case ArchiveType::Bitmap:
             return GM1EntryReader::Ptr(new Bitmap);
         
-        case Encoding::TGX8:
+        case ArchiveType::TGX8:
             return GM1EntryReader::Ptr(new TGX8);
             
-        case Encoding::TileObject:
+        case ArchiveType::TileObject:
             return GM1EntryReader::Ptr(new TileObject);
             
-        case Encoding::Unknown:
+        case ArchiveType::Unknown:
         default:
             throw std::runtime_error("Unknown encoding");
         }

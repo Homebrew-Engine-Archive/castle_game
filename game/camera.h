@@ -5,10 +5,10 @@
 
 #include <SDL.h>
 
-#include <game/size.h>
+#include <core/size.h>
 #include <game/gamemap.h>
-#include <game/direction.h>
-#include <game/rect.h>
+#include <core/direction.h>
+#include <core/rect.h>
 #include <game/cameramode.h>
 
 namespace castle

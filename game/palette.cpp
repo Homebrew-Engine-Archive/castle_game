@@ -6,8 +6,8 @@
 
 #include <game/sdl_utils.h>
 #include <game/sdl_error.h>
-#include <game/color.h>
-#include <game/modulo.h>
+#include <core/color.h>
+#include <core/modulo.h>
 
 namespace castle
 {

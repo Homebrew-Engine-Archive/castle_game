@@ -4,12 +4,13 @@
 
 #include <game/textlayout.h>
 #include <game/image.h>
-#include <game/rect.h>
 #include <game/fontengine.h>
 #include <game/renderer.h>
-#include <game/range.h>
-#include <game/point.h>
-#include <game/size.h>
+
+#include <core/interval.h>
+#include <core/rect.h>
+#include <core/point.h>
+#include <core/size.h>
 
 namespace castle
 {
@@ -85,23 +86,23 @@ namespace castle
     
         void TextArea::SetMaxWidth(int maxWidth)
         {
-            mMaxSize.w = maxWidth;
-            mTextLayout->SetWidth(mMaxSize.w);
+            mMaxSize.SetWidth(maxWidth);
+            mTextLayout->SetWidth(mMaxSize.Width());
         }
 
         void TextArea::SetMaxHeight(int maxHeight)
         {
-            mMaxSize.h = maxHeight;
+            mMaxSize.SetHeight(maxHeight);
         }
     
         void TextArea::SetMinWidth(int minWidth)
         {
-            mMinSize.w = minWidth;
+            mMinSize.SetWidth(minWidth);
         }
 
         void TextArea::SetMinHeight(int minHeight)
         {
-            mMinSize.h = minHeight;
+            mMinSize.SetHeight(minHeight);
         }
     
         const core::Rect TextArea::FitToScreen(render::Renderer &renderer) const
@@ -110,11 +111,11 @@ namespace castle
 
             const core::Rect screenRect = renderer.GetScreenRect();
             const core::Rect textBoundingRect = mTextLayout->BoundingRect();
-            const core::Rect textDrawRect = Union(mMinSize, textBoundingRect);
+            const core::Rect textDrawRect = Union(core::Rect(mMinSize.Width(), mMinSize.Height()), textBoundingRect);
                     
             return core::CombineRect(
-                AlignRange(AxisX(textDrawRect), AxisX(screenRect), mHorizontalAlign),
-                AlignRange(AxisY(textDrawRect), AxisY(screenRect), mVerticalAlign));
+                core::AlignIntervals(AxisX(textDrawRect), AxisX(screenRect), mHorizontalAlign),
+                core::AlignIntervals(AxisY(textDrawRect), AxisY(screenRect), mVerticalAlign));
         }
     
         void TextArea::Render(render::Renderer &renderer)
@@ -142,10 +143,12 @@ namespace castle
 
                 const int advanceX = item.GetHorizontalAdvance();
                 const int advanceY = item.GetVerticalAdvance();
-                drawArea.x += advanceX;
-                drawArea.y += advanceY;
-                drawArea.w = std::max(0, widgetSize.width - drawArea.x);
-                drawArea.h = std::max(0, widgetSize.height - drawArea.y);
+
+                drawArea.SetX(drawArea.X() + advanceX);
+                drawArea.SetY(drawArea.Y() + advanceY);
+                drawArea.SetWidth(std::max<int>(0, widgetSize.Width() - drawArea.X()));
+                drawArea.SetHeight(std::max<int>(0, widgetSize.Height() - drawArea.Y()));
+
                 renderer.RestoreViewport();
             }
 

@@ -1,9 +1,10 @@
-#include "resourceindex.h"
+#include "spritelookuptable.h"
 
+#include <stdexcept>
 #include <algorithm>
 #include <set>
 
-#include <game/direction.h>
+#include <core/direction.h>
 
 namespace castle
 {
@@ -36,12 +37,12 @@ namespace castle
             return DirSet {dir};
         }
         
-        std::vector<ResourceGroup> BodyArcherInfo = {
+        std::vector<BodyGroupDescription> BodyArcherInfo = {
             {"walk", 16, EightDirs},
             {"run", 16, EightDirs},
-            {"shot", 24, EightDirs},
-            {"shotdown", 12, EightDirs},
-            {"shotup", 12, EightDirs},
+            {"shoot", 24, EightDirs},
+            {"shootdown", 12, EightDirs},
+            {"shootup", 12, EightDirs},
             {"push", 12, FourDirs},
             {"aware", 16, SingleDir},
             {"idle", 16, SingleDir},
@@ -54,7 +55,7 @@ namespace castle
             {"dig", 16, EightDirs}
         };
         
-        std::vector<ResourceGroup> BodyPeasantInfo = {
+        std::vector<BodyGroupDescription> BodyPeasantInfo = {
             {"walk", 16, EightDirs},
             {"idle", 4, FourDirs},
             {"sit_down", 8, FourDirs},
@@ -67,7 +68,7 @@ namespace castle
             {"deathkick", 24, SingleDir}
         };
 
-        std::vector<ResourceGroup> BodyLordInfo = {
+        std::vector<BodyGroupDescription> BodyLordInfo = {
             {"walk", 16, EightDirs},
             {"walk_with_sword", 16, EightDirs},
             {"talk", 24, EightDirs},
@@ -77,7 +78,7 @@ namespace castle
             {"surrender", 28, SingleDir}
         };
 
-        std::vector<ResourceGroup> BodySwordsmanInfo = {
+        std::vector<BodyGroupDescription> BodySwordsmanInfo = {
             {"walk", 16, EightDirs},
             {"idle", 24, Singleton(core::Direction::NorthEast)},
             {"idle", 24, Singleton(core::Direction::SouthEast)},
@@ -90,16 +91,30 @@ namespace castle
             {"deatharrow", 24, SingleDir}
         };
         
-        void IndexTable::AddIndex(const core::Direction &dir, size_t index)
+        void DirectionTable::AddIndex(const core::Direction &dir, size_t index)
         {
             mIndex[dir].push_back(index);
         }
         
-        ResourceIndex::ResourceIndex(const std::vector<ResourceGroup> &groups)
+        const std::vector<size_t>& DirectionTable::QueryDirection(const core::Direction &dir) const
+        {
+            if(mIndex.empty()) {
+                throw std::runtime_error("wrong query");
+            }
+            auto bestKv = mIndex.begin();
+            for(auto kv = mIndex.begin(); kv != mIndex.end(); ++kv) {
+                if(core::MinRotates(kv->first, dir) < core::MinRotates(bestKv->first, dir)) {
+                    bestKv = kv;
+                }
+            }
+            return bestKv->second;
+        }
+        
+        BodyIndex::BodyIndex(const std::vector<BodyGroupDescription> &groups)
         {
             size_t index = 0;
-            for(const ResourceGroup &group : groups) {
-                for(size_t i = 0; i < group.size; ++i) {
+            for(const BodyGroupDescription &group : groups) {
+                for(size_t i = 0; i < group.frames; ++i) {
                     for(const core::Direction &dir : group.dirs) {
                         mTables[group.name].AddIndex(dir, index);
                         ++index;
@@ -108,7 +123,7 @@ namespace castle
             }
         }
 
-        const IndexTable& ResourceIndex::QueryIndex(const std::string &group) const
+        const DirectionTable& BodyIndex::QueryGroup(const std::string &group) const
         {
             return mTables.at(group);
         }

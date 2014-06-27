@@ -30,10 +30,7 @@ set (SHARED
   ../game/image.cpp
   ../game/imageview.cpp
   ../game/imagelocker.cpp
-  ../game/color.cpp
-  ../game/rect.cpp
   ../game/tgx.cpp
-  ../game/rw.cpp
 )
 
 set(TARGET "gmtool.out")
@@ -72,4 +69,4 @@ configure_file (
 
 add_executable (${TARGET} ${SRCS} ${SHARED} ${RENDERERS})
 
-target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY})
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} corelib.a)

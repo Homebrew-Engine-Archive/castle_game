@@ -5,8 +5,8 @@
 
 #include <SDL.h>
 
-#include <game/rect.h>
-#include <game/color.h>
+#include <core/rect.h>
+#include <core/color.h>
 
 namespace core
 {

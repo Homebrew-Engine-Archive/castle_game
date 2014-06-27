@@ -10,18 +10,19 @@
 
 #include <SDL.h>
 
+#include <core/color.h>
+#include <core/point.h>
+#include <core/rect.h>
+
 #include <game/collection.h>
-#include <game/color.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
 #include <game/network.h>
-#include <game/point.h>
-#include <game/rect.h>
 #include <game/renderengine.h>
 #include <game/renderer.h>
 #include <game/screen.h>
 #include <game/screenmanager.h>
-#include <game/sdl_utils.h>
+#include <game/sdl_init.h>
 #include <game/simulationmanager.h>
 
 namespace

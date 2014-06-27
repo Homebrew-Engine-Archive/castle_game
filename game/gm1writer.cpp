@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#include <game/color.h>
+#include <core/iohelpers.h>
+#include <core/color.h>
 #include <game/palette.h>
 #include <game/gm1.h>
-#include <game/iohelpers.h>
 
 namespace gm1
 {

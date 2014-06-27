@@ -3,49 +3,28 @@
 
 #include <memory>
 
-#include <game/creaturestate.h>
 #include <game/playeravatar.h>
  
 namespace castle
 {
     namespace world
     {
+        class CreatureState;
+        class CreatureClass;
+
         class Creature
         {
-            uint32_t mIdentity;
+            const CreatureClass &mClass;
             std::unique_ptr<CreatureState> mState;
-        
+
         public:
-            explicit Creature(int identity, std::unique_ptr<CreatureState> state);
+            explicit Creature(const CreatureClass &cc, std::unique_ptr<CreatureState> state);
+            virtual ~Creature();
 
-            inline uint32_t Id() const;
-            inline CreatureState const& GetState() const;
-            inline CreatureState& GetState();
-        
-            void SetState(std::unique_ptr<CreatureState> state);
-
-            void Update(const SimulationContext &context);
+            const CreatureClass& GetClass() const;
+            const CreatureState& GetState() const;
+            CreatureState& GetState();
         };
-        
-        inline uint32_t Creature::Id() const
-        {
-            return mIdentity;
-        }
-
-        inline CreatureState const& Creature::GetState() const
-        {
-            return *mState;
-        }
-
-        inline CreatureState& Creature::GetState()
-        {
-            return *mState;
-        }
-    
-        inline bool operator==(const Creature &alice, const Creature &bob)
-        {
-            return alice.Id() == bob.Id();
-        }
     }
 }
 

@@ -3,6 +3,7 @@
 #include <memory>
 #include <algorithm>
 
+#include <game/creatureclass.h>
 #include <game/creaturestate.h>
 #include <game/creature.h>
 #include <game/simulationcontext.h>
@@ -17,6 +18,7 @@ namespace castle
             : mPrimaryContext(new SimulationContext())
             , mTurnLength(100)
             , mTurnNumber(0)
+            , mCreatureClasses()
         {
         }
 
@@ -46,7 +48,7 @@ namespace castle
         bool SimulationManager::HasUpdate(const std::chrono::milliseconds &elapsed)
         {
             for(const PlayerAvatar &avatar : mAvatars) {
-                const int turn = mAvatarTurn[avatar];
+                const unsigned turn = mAvatarTurn[avatar];
                 if(turn <= mTurnNumber) {
                     return false;
                 }

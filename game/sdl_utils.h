@@ -5,14 +5,6 @@
 
 #include <SDL.h>
 
-#include <game/sdl_error.h>
-
-struct SDLInitializer final
-{
-    SDLInitializer(int flags) throw(sdl_error);
-    ~SDLInitializer() throw();
-};
-
 template<class T, void (*D)(T*)>
 struct SDLDeleter
 {

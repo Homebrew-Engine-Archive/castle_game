@@ -17,7 +17,6 @@ GMTOOL=./gmtool.out
 FILE="$*"
 NUM_PALETTES=`$GMTOOL palette --count "$FILE"`
 NUM_ENTRIES=`$GMTOOL header --count "$FILE"`
-ENCODING=`$GMTOOL header --encoding "$FILE"`
 FILENAME=`basename "$FILE"`
 OUTDIR=gm
 DIR="$OUTDIR/$FILENAME"

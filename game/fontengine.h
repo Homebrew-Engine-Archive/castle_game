@@ -57,7 +57,6 @@ namespace castle
             void AddFontData(FontData fontdata);
             FontData const* LookupFont(const core::Font &font) const;
             const FontData& GetFontContext(const core::Font &font) const;
-            
             bool HasFontLoaded(const core::Font &font) const;
             bool HasExactMatch(const core::Font &font) const;
             FontData LoadFontData(const vfs::path &path, const core::Font &font) const;

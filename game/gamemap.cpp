@@ -6,7 +6,7 @@
 #include <random>
 #include <set>
 
-#include <game/modulo.h>
+#include <core/modulo.h>
 #include <game/landscape.h>
 
 namespace castle
@@ -56,7 +56,7 @@ namespace castle
     
         int Map::CellToIndex(const Cell &cell) const
         {
-            return cell.y * mSize + cell.x;
+            return cell.Y() * mSize + cell.X();
         }
 
         const Map::Cell Map::IndexToCell(int index) const
@@ -66,7 +66,7 @@ namespace castle
     
         bool Map::HasCell(const Cell &cell) const
         {
-            return (cell.x >= 0) && (cell.y >= 0) && (cell.x < mSize) && (cell.y < mSize);
+            return (cell.X() >= 0) && (cell.Y() >= 0) && (cell.X() < mSize) && (cell.Y() < mSize);
         }
 
         const Map::Cell Map::NullCell() const
@@ -104,7 +104,7 @@ namespace castle
         const Map::Cell Map::AdjacencyIterator::operator*() const
         {
             // staggered iso map
-            if(core::Even(mCell.y)) {
+            if(core::Even(mCell.Y())) {
                 constexpr Map::Cell even[core::MaxDirCount] = {
                     {0, 2}, {0, -2}, {-1, 0}, {1, 0},
                     {-1, -1}, {-1, 1}, {0, -1}, {0, 1}

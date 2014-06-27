@@ -4,8 +4,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <core/iohelpers.h>
+
 #include <game/palette.h>
-#include <game/iohelpers.h>
 
 namespace gm1
 {
@@ -23,28 +24,28 @@ namespace gm1
         }
     }
     
-    gm1::Encoding GetEncoding(uint32_t dataClass)
+    gm1::ArchiveType GetArchiveType(uint32_t dataClass)
     {
         switch(dataClass) {
-        case 1: return Encoding::TGX16;
-        case 2: return Encoding::TGX8;
-        case 3: return Encoding::TileObject;
-        case 4: return Encoding::Font;
-        case 5: return Encoding::Bitmap;
-        case 6: return Encoding::TGX16;
-        case 7: return Encoding::Bitmap;
-        default: return Encoding::Unknown;
+        case 1: return ArchiveType::TGX16;
+        case 2: return ArchiveType::TGX8;
+        case 3: return ArchiveType::TileObject;
+        case 4: return ArchiveType::Font;
+        case 5: return ArchiveType::Bitmap;
+        case 6: return ArchiveType::TGX16;
+        case 7: return ArchiveType::Bitmap;
+        default: return ArchiveType::Unknown;
         }
     }
 
-    std::string GetEncodingName(gm1::Encoding encoding)
+    std::string GetArchiveTypeName(gm1::ArchiveType encoding)
     {
         switch(encoding) {
-        case gm1::Encoding::TGX16: return "TGX16";
-        case gm1::Encoding::TGX8: return "TGX8";
-        case gm1::Encoding::TileObject: return "TileObject";
-        case gm1::Encoding::Font: return "Font";
-        case gm1::Encoding::Bitmap: return "Bitmap";
+        case gm1::ArchiveType::TGX16: return "TGX16";
+        case gm1::ArchiveType::TGX8: return "TGX8";
+        case gm1::ArchiveType::TileObject: return "TileObject";
+        case gm1::ArchiveType::Font: return "Font";
+        case gm1::ArchiveType::Bitmap: return "Bitmap";
         default: return "Unknown";
         }
     }

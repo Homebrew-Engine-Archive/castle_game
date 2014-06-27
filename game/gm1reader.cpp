@@ -8,10 +8,12 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#include <core/iohelpers.h>
+#include <core/color.h>
+
 #include <game/palette.h>
 #include <game/image.h>
 #include <game/gm1entryreader.h>
-#include <game/iohelpers.h>
 
 namespace
 {
@@ -174,7 +176,7 @@ namespace gm1
 
         mEntryReader =
             std::move(
-                gm1::CreateEntryReader(Encoding()));
+                gm1::CreateEntryReader(ArchiveType()));
 
         mPath = std::move(path);
         mIsOpened = true;
@@ -185,9 +187,9 @@ namespace gm1
         mIsOpened = false;
     }
 
-    gm1::Encoding GM1Reader::Encoding() const
+    gm1::ArchiveType GM1Reader::ArchiveType() const
     {
-        return gm1::GetEncoding(mHeader.dataClass);
+        return gm1::GetArchiveType(mHeader.dataClass);
     }
     
     size_t GM1Reader::NumEntries() const
@@ -247,9 +249,11 @@ namespace gm1
         return mPalettes.at(index);
     }
 
-    gm1::GM1EntryReader& GM1Reader::EntryReader()
+    void GM1Reader::SetTransparentColor(const core::Color &color)
     {
-        return *mEntryReader;
+        if(mEntryReader) {
+            mEntryReader->Transparent(color);
+        }
     }
     
     const castle::Image GM1Reader::ReadEntry(size_t index) const

@@ -12,13 +12,10 @@ set (SHARED
   ../game/imagelocker.cpp
   ../game/palette.cpp
   ../game/sdl_utils.cpp
-  ../game/rect.cpp
-  ../game/point.cpp
-  ../game/color.cpp
 )
 
 set(TARGET "gfxtool.out")
 
 add_executable (${TARGET} ${SRCS} ${SHARED})
 
-target_link_libraries (${TARGET} ${SDL2_LIBRARY})
+target_link_libraries (${TARGET} ${SDL2_LIBRARY} corelib.a)

@@ -65,6 +65,7 @@ find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
 
 set (BOOST_LIBRARIES boost_system boost_filesystem boost_iostreams)
 
+add_subdirectory (core)
 add_subdirectory (game)
 add_subdirectory (gmtool)
 add_subdirectory (gfxtool)

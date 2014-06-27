@@ -49,18 +49,18 @@ namespace NS
 
 1.4. C++11 Features
 -------------------
-* Freely use any C++11 features. It's your future!
-* `auto` is unwelcome. `auto&` and `auto*` either.
+* All C++11 features are good except some on them which are not.
+* `auto` is unwelcome. `auto&` and `auto*` especially.
 * Use anonymous namespaces for your static methods, types and constants.
 * Look at `constexpr`. It's better than simply inline your functions.
-* Provide both default and deleted constructors and assignment operators.
+* Mark constructors, destructors and assignment operators as `delete` or `default` to explicitly disallow (or allow) them.
 
 1.5. Namespaces
 --------------
 * Explicit namespace is better than usings.
 * `using po = boost::program_options` is better than `boost::program_options::options_descriptions = boo...`
 * Encapsulating your classes and functions into proper namespaces is encouraged.
-* Namespaces should consist of single uncapitalized token. Underscores and numbers are allowed.
+* Namespaces should consist of single low case token. Underscores and numbers are allowed.
 
 1.6. Declarations and Definitions.
 ------------------------------------------------------

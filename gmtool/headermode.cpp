@@ -19,7 +19,7 @@ namespace gmtool
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
             ("binary", po::bool_switch(&mBinary), "Print header in binary format")
             ("count", po::bool_switch(&mCountRequested), "Print entries count")
-            ("encoding", po::bool_switch(&mEncodingRequested), "Print encoding name")
+            ("type", po::bool_switch(&mArchiveTypeRequested), "Print encoding name")
             ;
         opts.add(mode);
     }
@@ -37,9 +37,9 @@ namespace gmtool
 
         const gm1::Header &header = reader.Header();
 
-        if(mEncodingRequested) {
+        if(mArchiveTypeRequested) {
             cfg.verbose << "Print collections's encoding" << std::endl;
-            cfg.stdout << gm1::GetEncodingName(reader.Encoding()) << std::endl;
+            cfg.stdout << gm1::GetArchiveTypeName(reader.ArchiveType()) << std::endl;
             return EXIT_SUCCESS;
         }
         

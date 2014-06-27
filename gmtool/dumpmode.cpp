@@ -38,7 +38,7 @@ namespace gmtool
         cfg.verbose << "Reading file " << mInputFile << std::endl;
         gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
-        cfg.verbose << "Encoding is " << gm1::GetEncodingName(reader.Encoding()) << std::endl;
+        cfg.verbose << "ArchiveType is " << gm1::GetArchiveTypeName(reader.ArchiveType()) << std::endl;
 
         if(mEntryIndex >= reader.NumEntries()) {
             throw std::logic_error("Entry index is out of range");
@@ -48,7 +48,7 @@ namespace gmtool
             throw std::logic_error("--tile-only and --box-only cannot be specified together");
         }
 
-        if(reader.Encoding() != gm1::Encoding::TileObject) {
+        if(reader.ArchiveType() != gm1::ArchiveType::TileObject) {
             if(mTileOnly) {
                 cfg.verbose << "--tile-only ignored since incompatible encoding" << std::endl;
             }
@@ -61,7 +61,7 @@ namespace gmtool
         int64_t offset = 0;
         
         /** Checking and choping entry size **/
-        if(reader.Encoding() == gm1::Encoding::TileObject) {
+        if(reader.ArchiveType() == gm1::ArchiveType::TileObject) {
             /** impossible or should be checked earlier? **/
             if(size < gm1::TileBytes) {
                 std::ostringstream oss;
@@ -81,11 +81,11 @@ namespace gmtool
             }
         }
         
-        if((mTileOnly) && (reader.Encoding() == gm1::Encoding::TileObject)) {
+        if((mTileOnly) && (reader.ArchiveType() == gm1::ArchiveType::TileObject)) {
             cfg.verbose << "Dump tile data of size "
                         << size << " bytes"
                         << std::endl;
-        } else if((mBoxOnly) && (reader.Encoding() == gm1::Encoding::TileObject)) {
+        } else if((mBoxOnly) && (reader.ArchiveType() == gm1::ArchiveType::TileObject)) {
             cfg.verbose << "Dump box of size "
                         << size << " bytes"
                         << std::endl;

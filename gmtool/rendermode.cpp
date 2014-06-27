@@ -11,14 +11,15 @@
 
 #include <gmtool/renderer.h>
 
-#include <game/rect.h>
 #include <game/gm1.h>
 #include <game/gm1reader.h>
-#include <game/palette.h>
 #include <game/gm1entryreader.h>
 #include <game/image.h>
-#include <game/color.h>
-#include <game/rw.h>
+#include <game/palette.h>
+
+#include <core/color.h>
+#include <core/rect.h>
+#include <core/rw.h>
 
 namespace po = boost::program_options;
 
@@ -106,7 +107,7 @@ namespace gmtool
 
         if(DefaultTransparent() != mTransparentColor) {
             cfg.verbose << "Use transparent: " << mTransparentColor << std::endl;
-            reader.EntryReader().Transparent(mTransparentColor);
+            reader.SetTransparentColor(mTransparentColor);
         }
         
         castle::Image entry = reader.ReadEntry(mEntryIndex);

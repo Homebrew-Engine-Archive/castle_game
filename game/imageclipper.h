@@ -1,7 +1,7 @@
 #ifndef IMAGECLIPPER_H_
 #define IMAGECLIPPER_H_
 
-#include <game/rect.h>
+#include <core/rect.h>
 #include <game/image.h>
 
 namespace castle

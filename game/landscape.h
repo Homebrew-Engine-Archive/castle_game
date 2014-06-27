@@ -1,7 +1,7 @@
 #ifndef LANDSCAPE_H_
 #define LANDSCAPE_H_
 
-#include <game/modulo.h>
+#include <core/modulo.h>
 
 const int CliffsHeightThreshold = 20;
 

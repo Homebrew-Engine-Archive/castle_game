@@ -6,12 +6,14 @@
 #include <SDL2_gfxPrimitives.h>
 #include <SDL.h>
 
-#include <game/line.h>
+#include <core/line.h>
+#include <core/point.h>
+#include <core/size.h>
+#include <core/rect.h>
+#include <core/color.h>
+
 #include <game/image.h>
-#include <game/point.h>
-#include <game/size.h>
-#include <game/rect.h>
-#include <game/color.h>
+#include <game/sdl_error.h>
 
 namespace
 {
@@ -111,7 +113,8 @@ namespace castle
 
         void SDLRenderEngine::UpdateViewport(const core::Rect &rect)
         {
-            const int code = SDL_RenderSetClipRect(mRenderer.get(), &rect);
+            const SDL_Rect tmp {rect.X(), rect.Y(), rect.Width(), rect.Height()};
+            const int code = SDL_RenderSetClipRect(mRenderer.get(), &tmp);
             throw_sdl_error(code);
         }
 
@@ -137,23 +140,36 @@ namespace castle
         {
             UpdateViewport(mViewport);
             UpdateDrawColor(color);
-            SDL_RenderDrawPoints(mRenderer.get(), points, count);
+            std::vector<SDL_Point> pts(count);
+            for(size_t i = 0; i < count; ++i) {
+                pts[i].x = points[i].X();
+                pts[i].y = points[i].Y();
+            }
+            SDL_RenderDrawPoints(mRenderer.get(), pts.data(), count);
         }
     
         void SDLRenderEngine::DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode)
         {
             UpdateViewport(mViewport);
             UpdateDrawColor(color);
+
+            std::vector<SDL_Rect> rts(count);
+            for(size_t i = 0; i < count; ++i) {
+                rts[i].x = rects[i].X();
+                rts[i].y = rects[i].Y();
+                rts[i].w = rects[i].Width();
+                rts[i].h = rects[i].Height();
+            }
             switch(mode) {
             case DrawMode::Outline:
                 {
-                    const int code = SDL_RenderDrawRects(mRenderer.get(), rects, count);
+                    const int code = SDL_RenderDrawRects(mRenderer.get(), rts.data(), count);
                     throw_sdl_error(code);
                 }
                 return;
             case DrawMode::Filled:
                 {
-                    const int code = SDL_RenderFillRects(mRenderer.get(), rects, count);
+                    const int code = SDL_RenderFillRects(mRenderer.get(), rts.data(), count);
                     throw_sdl_error(code);
                 }
                 return;
@@ -168,10 +184,10 @@ namespace castle
             UpdateDrawColor(color);
         
             for(size_t i = 0; i < count; ++i) {
-                const auto x1 = lines[i].p1.x;
-                const auto y1 = lines[i].p1.y;
-                const auto x2 = lines[i].p2.x;
-                const auto y2 = lines[i].p2.y;
+                const auto x1 = lines[i].p1.X();
+                const auto y1 = lines[i].p1.Y();
+                const auto x2 = lines[i].p2.X();
+                const auto y2 = lines[i].p2.Y();
                 const int code = SDL_RenderDrawLine(mRenderer.get(), x1, y1, x2, y2);
                 throw_sdl_error(code);
             }
@@ -191,11 +207,11 @@ namespace castle
             std::vector<Sint16> ys(polycount);
         
             for(size_t i = 0; i < count; ++i) {
-                xs[i] = points[i].x;
-                ys[i] = points[i].y;
+                xs[i] = points[i].X();
+                ys[i] = points[i].Y();
             }
-            xs[count] = points[0].x;
-            ys[count] = points[0].y;
+            xs[count] = points[0].X();
+            ys[count] = points[0].Y();
         
             switch(mode) {
             case DrawMode::Filled:
@@ -211,17 +227,19 @@ namespace castle
     
         void SDLRenderEngine::DrawImage(const Image &image, const core::Rect &source, const core::Point &target)
         {
-            const core::Rect screenRect(target.x,
-                                        target.y,
-                                        source.w,
-                                        source.h);
+            const core::Rect screenRect(target.X(),
+                                        target.Y(),
+                                        source.Width(),
+                                        source.Height());
             if(Intersects(screenRect, mViewport)) {
                 UpdateViewport(mViewport);
                 SDL_Surface *surface = image.GetSurface();
                 TexturePtr texture(
                     SDL_CreateTextureFromSurface(mRenderer.get(), surface));
                 SDL_SetTextureAlphaMod(texture.get(), mOpacityMod);
-                SDL_RenderCopy(mRenderer.get(), texture.get(), &source, &screenRect);
+                const SDL_Rect srcrect {source.X(), source.Y(), source.Width(), source.Height()};
+                const SDL_Rect dstrect {target.X(), target.Y(), source.Width(), source.Height()};
+                SDL_RenderCopy(mRenderer.get(), texture.get(), &srcrect, &dstrect);
             }
         }
 

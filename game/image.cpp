@@ -9,13 +9,15 @@
 
 #include <SDL.h>
 
+#include <core/color.h>
+#include <core/rect.h>
+#include <core/point.h>
+
 #include <game/imagedebug.h>
 #include <game/imagelocker.h>
 #include <game/palette.h>
-#include <game/color.h>
-#include <game/rect.h>
-#include <game/point.h>
 #include <game/sdl_utils.h>
+#include <game/sdl_error.h>
 
 namespace
 {        
@@ -137,13 +139,15 @@ namespace castle
     void Image::SetClipRect(const core::Rect &clipRect)
     {
         assert(!Null());
-        SDL_SetClipRect(mSurface, &clipRect);
+        const SDL_Rect tmp {clipRect.X(), clipRect.Y(), clipRect.Width(), clipRect.Height()};
+        SDL_SetClipRect(mSurface, &tmp);
     }
     
     const core::Rect Image::GetClipRect() const
     {
         assert(!Null());
-        return core::Rect(mSurface->clip_rect);
+        const SDL_Rect tmp = mSurface->clip_rect;
+        return core::Rect(tmp.x, tmp.y, tmp.w, tmp.h);
     }
 
     Image::BlendMode Image::GetBlendMode() const
@@ -277,10 +281,11 @@ namespace castle
     void CopyImage(const Image &source, const core::Rect &sourceRect, Image &target, const core::Point &targetPoint)
     {
         // tempRect would be modified by SDL_BlitSurface
-        core::Rect tempRect(targetPoint, 0, 0);
+        SDL_Rect dstrect {targetPoint.X(), targetPoint.Y(), 0, 0 };
+        SDL_Rect srcrect {sourceRect.X(), sourceRect.Y(), sourceRect.Width(), sourceRect.Height()};
         UpdateColorKey(source);
         
-        if(SDL_BlitSurface(source.GetSurface(), &sourceRect, target.GetSurface(), &tempRect) < 0) {
+        if(SDL_BlitSurface(source.GetSurface(), &srcrect, target.GetSurface(), &dstrect) < 0) {
             throw sdl_error();
         }
     }
@@ -288,10 +293,11 @@ namespace castle
     void BlitImageScaled(const Image &source, const core::Rect &sourceRect, Image &dest, const core::Rect &targetRect)
     {
         // see BlitImage
-        core::Rect tempRect(targetRect);
+        SDL_Rect dstrect {targetRect.X(), targetRect.Y(), targetRect.Width(), targetRect.Height()};
+        SDL_Rect srcrect {sourceRect.X(), sourceRect.Y(), sourceRect.Width(), sourceRect.Height()};
         UpdateColorKey(source);
         
-        if(SDL_BlitScaled(source.GetSurface(), &sourceRect, dest.GetSurface(), &tempRect) < 0) {
+        if(SDL_BlitScaled(source.GetSurface(), &srcrect, dest.GetSurface(), &dstrect) < 0) {
             throw sdl_error();
         }
     }
@@ -309,8 +315,8 @@ namespace castle
         const ImageLocker lock(img);
         return core::GetPackedPixel(
             lock.Data()
-            + point.y * img.RowStride()
-            + point.x * img.PixelStride(), img.PixelStride());
+            + point.Y() * img.RowStride()
+            + point.X() * img.PixelStride(), img.PixelStride());
     }
 
     bool IsPalettized(const Image &image)

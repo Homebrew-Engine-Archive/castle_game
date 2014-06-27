@@ -4,10 +4,11 @@
 #include <memory>
 #include <string>
 
-#include <game/font.h>
-#include <game/alignment.h>
-#include <game/rect.h>
-#include <game/color.h>
+#include <core/font.h>
+#include <core/alignment.h>
+#include <core/rect.h>
+#include <core/color.h>
+#include <core/size.h>
 
 namespace castle
 {
@@ -49,8 +50,8 @@ namespace castle
         private:
             mutable std::unique_ptr<render::TextLayout> mTextLayout;
             std::string mText;
-            core::Rect mMaxSize;
-            core::Rect mMinSize;
+            core::Size mMaxSize;
+            core::Size mMinSize;
             core::Color mTextColor;
             core::Color mBackgroundColor;
             core::Alignment mHorizontalAlign;

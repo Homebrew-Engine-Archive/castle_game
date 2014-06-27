@@ -7,9 +7,9 @@
 #include <vector>
 #include <string>
 
-#include <game/rect.h>
-#include <game/font.h>
-#include <game/alignment.h>
+#include <core/rect.h>
+#include <core/font.h>
+#include <core/alignment.h>
 #include <game/textlayoutitem.h>
 
 namespace castle

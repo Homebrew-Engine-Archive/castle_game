@@ -6,7 +6,7 @@
 
 #include <SDL.h>
 
-#include <game/point.h>
+#include <core/point.h>
 #include <game/screen.h>
 #include <game/collection.h>
 #include <game/camera.h>

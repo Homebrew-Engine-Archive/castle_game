@@ -10,8 +10,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <game/color.h>
-#include <game/iohelpers.h>
+#include <core/color.h>
+#include <core/iohelpers.h>
+
 #include <game/image.h>
 #include <game/imagelocker.h>
 

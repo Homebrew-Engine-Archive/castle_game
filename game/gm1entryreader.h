@@ -4,13 +4,13 @@
 #include <iosfwd>
 #include <memory>
 
-#include <game/color.h>
+#include <core/color.h>
 
 namespace gm1
 {
     class EntryHeader;
     class Header;
-    enum class Encoding;
+    enum class ArchiveType;
 }
 
 namespace castle
@@ -45,7 +45,7 @@ namespace gm1
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };
     
-    GM1EntryReader::Ptr CreateEntryReader(gm1::Encoding const&);
+    GM1EntryReader::Ptr CreateEntryReader(const gm1::ArchiveType &type);
 }
 
 #endif  // GM1ENTRYHEADER_H_

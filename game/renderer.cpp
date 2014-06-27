@@ -2,11 +2,11 @@
 
 #include <cassert>
 
-#include <game/size.h>
+#include <core/size.h>
 #include <game/outputmode.h>
-#include <game/rect.h>
-#include <game/point.h>
-#include <game/color.h>
+#include <core/rect.h>
+#include <core/point.h>
+#include <core/color.h>
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/fontengine.h>
@@ -92,8 +92,8 @@ namespace castle
             const core::Size textSize = mFontEngine->TextSize(font, text);
             
             return core::Rect(
-                screenOrigin.x, screenOrigin.y,
-                textSize.width, textSize.height);
+                screenOrigin.X(), screenOrigin.Y(),
+                textSize.Width(), textSize.Height());
         }
         
         void Renderer::BindFont(const core::Font &font)
@@ -143,7 +143,7 @@ namespace castle
         const core::Rect Renderer::GetScreenRect() const
         {
             assert(!mScreenRectStack.empty());
-            return core::Rect(mScreenRectStack.back().w, mScreenRectStack.back().h);
+            return core::Rect(mScreenRectStack.back().Width(), mScreenRectStack.back().Height());
         }
 
         const core::Size Renderer::GetScreenSize() const
@@ -200,7 +200,8 @@ namespace castle
     
         const core::Rect Renderer::ToScreenCoords(const core::Rect &relative) const
         {
-            return Translated(relative, core::TopLeft(mScreenRectStack.back()));
+            const core::Point origin = core::TopLeft(mScreenRectStack.back());
+            return Translated(relative, origin.X(), origin.Y());
         }
 
         const core::Point Renderer::ToScreenCoords(const core::Point &relative) const
@@ -210,7 +211,8 @@ namespace castle
 
         const core::Rect Renderer::ToViewportCoords(const core::Rect &relative) const
         {
-            return Translated(relative, -core::TopLeft(mScreenRectStack.back()));
+            const core::Point origin = -core::TopLeft(mScreenRectStack.back());
+            return Translated(relative, origin.X(), origin.Y());
         }
         
         const core::Point Renderer::ToViewportCoords(const core::Point &relative) const
@@ -266,10 +268,10 @@ namespace castle
     
         void PaintRhombus(RenderEngine &engine, const core::Rect &bounds, const core::Color &color, DrawMode mode)
         {
-            const auto x1 = bounds.x;
-            const auto y1 = bounds.y;
-            const auto x2 = bounds.x + bounds.w;
-            const auto y2 = bounds.y + bounds.h;
+            const auto x1 = bounds.X1();
+            const auto y1 = bounds.Y1();
+            const auto x2 = bounds.X2();
+            const auto y2 = bounds.Y2();
 
             const auto centerX = (x1 + x2) / 2;
             const auto centerY = (y1 + y2) / 2;
@@ -319,18 +321,18 @@ namespace castle
             PaintRhombus(engine, bottom, color, mode);
             PaintRhombus(engine, top, color, mode);
 
-            const auto tx1 = top.x;
-            const auto ty1 = top.y;
-            const auto tx2 = top.x + top.w;
-            const auto ty2 = top.y + top.h;
+            const auto tx1 = top.X1();
+            const auto ty1 = top.Y1();
+            const auto tx2 = top.X2();
+            const auto ty2 = top.Y2();
 
             const auto tcenterX = (tx1 + tx2) / 2;
             const auto tcenterY = (ty1 + ty2) / 2;
 
-            const auto bx1 = bottom.x;
-            const auto by1 = bottom.y;
-            const auto bx2 = bottom.x + bottom.w;
-            const auto by2 = bottom.y + bottom.h;
+            const auto bx1 = bottom.X1();
+            const auto by1 = bottom.Y1();
+            const auto bx2 = bottom.X2();
+            const auto by2 = bottom.Y2();
 
             const auto bcenterX = (bx1 + bx2) / 2;
             const auto bcenterY = (by1 + by2) / 2;

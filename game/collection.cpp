@@ -10,8 +10,9 @@
 
 #include <boost/filesystem/fstream.hpp>
 
+#include <core/point.h>
+
 #include <game/palettename.h>
-#include <game/point.h>
 #include <game/palette.h>
 #include <game/gm1reader.h>
 #include <game/tgx.h>
@@ -70,8 +71,6 @@ namespace castle
 
         Collection::Collection(const gm1::GM1Reader &reader)
             : mHeader(reader.Header())
-            , mEntries(reader.NumEntries())
-            , mHeaders(reader.NumEntries())
         {
             mPalettes.reserve(reader.NumPalettes());
             for(size_t n = 0; n < reader.NumPalettes(); ++n) {
@@ -79,9 +78,12 @@ namespace castle
             }
 
             try {
+                mEntries.reserve(reader.NumEntries());
                 for(size_t n = 0; n < reader.NumEntries(); ++n) {
-                    mEntries[n] = reader.ReadEntry(n);
-                    mHeaders[n] = reader.EntryHeader(n);
+                    CollectionEntry entry;
+                    entry.image = reader.ReadEntry(n);
+                    entry.header = reader.EntryHeader(n);
+                    mEntries.push_back(std::move(entry));
                 }
             } catch(const std::exception &error) {
                 std::cerr << "read entry failed: " << error.what() << std::endl;
@@ -94,34 +96,24 @@ namespace castle
             return mHeader.imageCount;
         }
 
-        gm1::Header const& Collection::GetHeader() const
+        const gm1::Header& Collection::GetHeader() const
         {
             return mHeader;
         }
 
-        const core::Point Collection::Anchor() const
-        {
-            return core::Point(mHeader.anchorX, mHeader.anchorY);
-        }
-
         const castle::Image& Collection::GetImage(size_t index) const
         {
-            return mEntries.at(index);
+            return mEntries.at(index).image;
         }
 
-        gm1::EntryHeader const& Collection::GetEntryHeader(size_t index) const
+        const gm1::EntryHeader& Collection::GetEntryHeader(size_t index) const
         {
-            return mHeaders.at(index);
+            return mEntries.at(index).header;
         }
 
-        constexpr size_t GetPaletteIndexByName(const PaletteName &name)
+        const castle::Palette& Collection::GetPalette(const PaletteName &name) const
         {
-            return static_cast<size_t>(name);
+            return mPalettes.at(static_cast<size_t>(name));
         }
-
-        const Palette& Collection::GetPalette(const PaletteName &name) const
-        {
-            return mPalettes.at(GetPaletteIndexByName(name));
-        }
-    } // namespace gfx
-} // namespace castle
+    }
+}

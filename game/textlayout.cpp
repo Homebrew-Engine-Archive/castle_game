@@ -17,10 +17,11 @@
 #include <memory>
 #include <sstream>
 
-#include <game/size.h>
+#include <core/interval.h>
+#include <core/rect.h>
+#include <core/size.h>
+
 #include <game/fontengine.h>
-#include <game/rect.h>
-#include <game/range.h>
 
 namespace castle
 {
@@ -94,7 +95,7 @@ namespace castle
                 }
                 buffer += character;
                 const core::Size bufferSize = engine.TextSize(mTextFont, buffer);
-                if(bufferSize.width > mWidth) {
+                if(bufferSize.Width() > mWidth) {
                     if(isblank(character)) {
                         in.unget();
                         buffer.pop_back();
@@ -184,10 +185,10 @@ namespace castle
                 PushShrinkedLine(engine, line, 0);
                 break;
             case core::Alignment::Max:
-                PushShrinkedLine(engine, line, (mWidth - lineSize.width));
+                PushShrinkedLine(engine, line, (mWidth - lineSize.Width()));
                 break;
             case core::Alignment::Center:
-                PushShrinkedLine(engine, line, (mWidth - lineSize.width) / 2);
+                PushShrinkedLine(engine, line, (mWidth - lineSize.Width()) / 2);
                 break;
             case core::Alignment::Expanded:
                 PushExpandedLine(engine, line);
@@ -195,13 +196,19 @@ namespace castle
             default:
                 throw std::runtime_error("wrong alignment");
             }
-            mBoundingRect.w = std::max<int>(mBoundingRect.w, lineSize.width);
+            mBoundingRect = core::Rect(
+                mBoundingRect.X(), mBoundingRect.Y(),
+                std::max<int>(mBoundingRect.Width(), lineSize.Width()),
+                mBoundingRect.Height());
         }
     
         void TextLayout::PushShrinkedLine(const FontEngine &engine, const TextLayoutLine &line, int offset)
         {
             const int lineSkip = engine.LineSkip(mTextFont);
-            mBoundingRect.h += lineSkip;
+            mBoundingRect = core::Rect(
+                mBoundingRect.X(), mBoundingRect.Y(),
+                mBoundingRect.Width(),
+                mBoundingRect.Height() + lineSkip);
             mItems.emplace_back(line.text, 0, lineSkip, offset, 0);
         }
     

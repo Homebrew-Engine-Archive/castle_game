@@ -10,17 +10,18 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <core/size.h>
+#include <core/font.h>
+#include <core/rect.h>
+#include <core/color.h>
+#include <core/point.h>
+
 #include <game/renderengine.h>
-#include <game/size.h>
 #include <game/palette.h>
-#include <game/font.h>
-#include <game/image.h>
-#include <game/rect.h>
-#include <game/color.h>
 #include <game/ttf_error.h>
 #include <game/ttf_init.h>
 #include <game/sdl_utils.h>
-#include <game/point.h>
+#include <game/image.h>
 
 struct FontCloseDeleter
 {
@@ -212,20 +213,6 @@ namespace castle
         
         FontData FontEngine::LoadFontData(const vfs::path &path, const core::Font &font) const
         {
-            /**
-               TODO windows sucks with utf8 so much
-               see http://stackoverflow.com/questions/11352641/boostfilesystempath-and-fopen
-               so we must not use c_str().
-                
-               The desired solution is as follows
-                
-               boost::filesystem::ifstream fin(fontData.fontPath);
-               RWPtr rw(SDL_RWFromInputStream(fin));
-               TTF_Font *font = TTF_OpenFontRW(rw.get(), SDL_FALSE, fsize);
-                
-               ... but it gets a crash due to a bug in SDL_OpenFontRW
-               see http://forums.libsdl.org/viewtopic.php?t=8050&sid=ba3720be045e8acadf2645d7369156f8
-            **/
             const char *c_fpath = path.string().c_str();
 
             TTFFontPtr ttf_font(TTF_OpenFont(c_fpath, font.Height()));
@@ -264,26 +251,27 @@ namespace castle
     
         bool FontEngine::HasExactMatch(const core::Font &font) const
         {
-            const FontData *data = LookupFont(font);
-            if(data == nullptr) {
+            try {
+                const FontData &fontData = GetFontContext(font);
+                return IsCopyOf(fontData.Font(), font);
+            } catch(const font_error &error) {
                 return false;
             }
-            return IsCopyOf(data->Font(), font);
         }
     
         bool FontEngine::CouldRender(const core::Font &font, const std::string &text) const
         {
-            const FontData *fontData = LookupFont(font);
-            if(fontData == nullptr) {
+            try {
+                const FontData &fontData = GetFontContext(font);
+                for(auto character : text) {
+                    if(!fontData.HasGlyph(character)) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch(const font_error &error) {
                 return false;
             }
-            fontData->UpdateFontState(font);
-            for(auto character : text) {
-                if(!fontData->HasGlyph(character)) {
-                    return false;
-                }
-            }
-            return true;
         }
 
         void FontEngine::AddFontData(FontData fontdata)
@@ -302,7 +290,7 @@ namespace castle
                 castle::Image textImage = fontData.RenderBlended(text.c_str(), fg);
                 if(!textImage.Null()) {
                     if(bg.a != 0) {
-                        const core::Rect bgRect(target, textImage.Width(), textImage.Height());
+                        const core::Rect bgRect(target.X(), target.Y(), textImage.Width(), textImage.Height());
                         engine.DrawRects(&bgRect, 1, bg, castle::render::DrawMode::Filled);
                     }
                     engine.SetOpacityMod(fg.a);

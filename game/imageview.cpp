@@ -5,9 +5,9 @@
 #include <stdexcept>
 
 #include <game/imagelocker.h>
-#include <game/color.h>
+#include <core/color.h>
 #include <game/sdl_error.h>
-#include <game/rect.h>
+#include <core/rect.h>
 
 namespace castle
 {
@@ -21,15 +21,15 @@ namespace castle
         ImageLocker lock(src);
         
         const core::Rect cropped =
-            Intersection(
+            core::Intersection(
                 core::Normalized(clip),
                 core::Rect(src.Width(), src.Height()));
 
         char *const data = lock.Data()
-            + cropped.y * src.RowStride()
-            + cropped.x * src.PixelStride();
+            + cropped.Y() * src.RowStride()
+            + cropped.X() * src.PixelStride();
 
-        Image tmp = CreateImageFrom(data, cropped.w, cropped.h, src.RowStride(), ImageFormat(src));
+        Image tmp = CreateImageFrom(data, cropped.Width(), cropped.Height(), src.RowStride(), ImageFormat(src));
         if(src.ColorKeyEnabled()) {
             tmp.SetColorKey(src.GetColorKey());
         }

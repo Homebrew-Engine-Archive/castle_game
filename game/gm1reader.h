@@ -9,6 +9,11 @@
 
 #include <boost/filesystem/path.hpp>
 
+namespace core
+{
+    class Color;
+}
+
 namespace castle
 {
     class Image;
@@ -48,18 +53,18 @@ namespace gm1
         void Open(const boost::filesystem::wpath&, Flags);
         bool IsOpened() const;
         void Close();
-        const castle::Image ReadEntry(size_t index) const;
+
+        void SetTransparentColor(const core::Color &color);
         
-        gm1::EntryHeader const& EntryHeader(size_t index) const;
-        castle::Palette const& Palette(size_t index) const;
-        gm1::Header const& Header() const;
-        gm1::Encoding Encoding() const;
-        char const* EntryData(size_t index) const;
+        const char* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
+        const castle::Image ReadEntry(size_t index) const;
+        const gm1::EntryHeader& EntryHeader(size_t index) const;
+        const castle::Palette& Palette(size_t index) const;
+        const gm1::Header& Header() const;
+        gm1::ArchiveType ArchiveType() const;
         size_t NumEntries() const;
         size_t NumPalettes() const;
-
-        gm1::GM1EntryReader& EntryReader();
     };
 }
 

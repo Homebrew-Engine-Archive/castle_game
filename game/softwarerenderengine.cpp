@@ -8,12 +8,14 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 
-#include <game/color.h>
-#include <game/point.h>
-#include <game/rect.h>
-#include <game/size.h>
-#include <game/line.h>
-#include <game/clamp.h>
+#include <core/color.h>
+#include <core/point.h>
+#include <core/rect.h>
+#include <core/size.h>
+#include <core/line.h>
+#include <core/clamp.h>
+
+#include <game/sdl_error.h>
 #include <game/image.h>
 #include <game/imagelocker.h>
 
@@ -47,7 +49,7 @@ namespace castle
             , mScreenImage(nullptr)
             , mScreenTexture(nullptr)
             , mPrimitiveRenderer(nullptr)
-            , mOpacityMod(0)
+            , mOpacityMod(255)
         {
             mWindow.reset(
                 SDL_CreateWindow(WindowTitle,
@@ -146,8 +148,8 @@ namespace castle
                 throw sdl_error();
             }
 
-            const core::Rect textureRect(mScreenImage.Width(), mScreenImage.Height());
-            if(SDL_RenderCopy(mScreenRenderer.get(), mScreenTexture.get(), &textureRect, &textureRect) < 0) {
+            const SDL_Rect dstrect { 0, 0, static_cast<int>(mScreenImage.Width()), static_cast<int>(mScreenImage.Height()) };
+            if(SDL_RenderCopy(mScreenRenderer.get(), mScreenTexture.get(), &dstrect, &dstrect) < 0) {
                 throw sdl_error();
             }
         
@@ -176,7 +178,8 @@ namespace castle
 
         void SoftwareRenderEngine::UpdateViewport(const core::Rect &rect)
         {
-            if(SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &rect) < 0) {
+            const SDL_Rect tmp { rect.X(), rect.Y(), rect.Width(), rect.Height() };
+            if(SDL_RenderSetClipRect(mPrimitiveRenderer.get(), &tmp) < 0) {
                 throw sdl_error();
             }
         }
@@ -200,7 +203,12 @@ namespace castle
         {
             UpdateDrawColor(color);
             UpdateViewport(mViewport);
-            if(SDL_RenderDrawPoints(mPrimitiveRenderer.get(), points, count) < 0) {
+            std::vector<SDL_Point> pts(count);
+            for(size_t i = 0; i < count; ++i) {
+                pts[i].x = points[i].X();
+                pts[i].y = points[i].Y();
+            }
+            if(SDL_RenderDrawPoints(mPrimitiveRenderer.get(), pts.data(), count) < 0) {
                 throw sdl_error();
             }
         }
@@ -210,14 +218,22 @@ namespace castle
             UpdateDrawColor(color);
             UpdateViewport(mViewport);
 
+            std::vector<SDL_Rect> rts(count);
+            for(size_t i = 0; i < count; ++i) {
+                rts[i].x = rects[i].X();
+                rts[i].y = rects[i].Y();
+                rts[i].w = rects[i].Width();
+                rts[i].h = rects[i].Height();
+            }
+            
             switch(mode) {
             case DrawMode::Outline:
-                if(SDL_RenderDrawRects(mPrimitiveRenderer.get(), rects, count) < 0) {
+                if(SDL_RenderDrawRects(mPrimitiveRenderer.get(), rts.data(), count) < 0) {
                     throw sdl_error();
                 }
                 return;
             case DrawMode::Filled:
-                if(SDL_RenderFillRects(mPrimitiveRenderer.get(), rects, count) < 0) {
+                if(SDL_RenderFillRects(mPrimitiveRenderer.get(), rts.data(), count) < 0) {
                     throw sdl_error();
                 }
                 return;
@@ -232,10 +248,10 @@ namespace castle
             UpdateDrawColor(color);
         
             for(size_t i = 0; i < count; ++i) {
-                const auto x1 = lines[i].p1.x;
-                const auto y1 = lines[i].p1.y;
-                const auto x2 = lines[i].p2.x;
-                const auto y2 = lines[i].p2.y;
+                const auto x1 = lines[i].p1.X();
+                const auto y1 = lines[i].p1.Y();
+                const auto x2 = lines[i].p2.X();
+                const auto y2 = lines[i].p2.Y();
                 if(SDL_RenderDrawLine(mPrimitiveRenderer.get(), x1, y1, x2, y2) < 0) {
                     throw sdl_error();
                 }
@@ -256,11 +272,11 @@ namespace castle
             std::vector<Sint16> ys(polycount);
         
             for(size_t i = 0; i < count; ++i) {
-                xs[i] = points[i].x;
-                ys[i] = points[i].y;
+                xs[i] = points[i].X();
+                ys[i] = points[i].Y();
             }
-            xs[count] = points[0].x;
-            ys[count] = points[0].y;
+            xs[count] = points[0].X();
+            ys[count] = points[0].Y();
         
             switch(mode) {
             case DrawMode::Filled:

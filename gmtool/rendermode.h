@@ -10,7 +10,7 @@
 
 #include <gmtool/mode.h>
 
-#include <game/color.h>
+#include <core/color.h>
 
 namespace castle
 {

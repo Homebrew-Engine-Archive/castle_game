@@ -2,24 +2,17 @@
 
 #include <game/simulationcontext.h>
 #include <game/creaturestate.h>
+#include <game/creatureclass.h>
 
 namespace castle
 {
     namespace world
     {
-        Creature::Creature(int identity, std::unique_ptr<CreatureState> state)
-            : mIdentity(identity)
+        Creature::~Creature() = default;
+        Creature::Creature(const CreatureClass &cc, std::unique_ptr<CreatureState> state)
+            : mClass(cc)
             , mState(std::move(state))
-        {}
-    
-        void Creature::Update(const SimulationContext &context)
         {
-            mState->Update(context, *this);
-        }
-
-        void Creature::SetState(std::unique_ptr<CreatureState> state)
-        {
-            mState = std::move(state);
         }
     }
 }
