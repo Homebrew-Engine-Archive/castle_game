@@ -15,8 +15,6 @@ foreach (DIR ${SUBDIRS})
   set (SOURCES ${SOURCES} ${SUBDIR_SOURCES})
 endforeach(DIR)
 
-set (TARGET "corelib.a")
+set (TARGET "corelib")
 
 add_library (${TARGET} ${SOURCES})
-
-#target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2GFX_LIBRARY})

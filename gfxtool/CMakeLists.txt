@@ -18,4 +18,4 @@ set(TARGET "gfxtool.out")
 
 add_executable (${TARGET} ${SRCS} ${SHARED})
 
-target_link_libraries (${TARGET} ${SDL2_LIBRARY} corelib.a)
+target_link_libraries (${TARGET} ${SDL2_LIBRARY} corelib)

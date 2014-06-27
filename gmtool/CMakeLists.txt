@@ -69,4 +69,4 @@ configure_file (
 
 add_executable (${TARGET} ${SRCS} ${SHARED} ${RENDERERS})
 
-target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} corelib.a)
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} corelib)

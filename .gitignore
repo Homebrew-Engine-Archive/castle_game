@@ -2,6 +2,7 @@
 *.tgx
 *.out
 *.ttf
+*.a
 *~
 Makefile
 CMakeFiles/
