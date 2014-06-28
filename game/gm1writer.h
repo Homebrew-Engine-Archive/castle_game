@@ -3,7 +3,7 @@
 
 #include <iosfwd>
 
-namespace castle
+namespace core
 {
     class Palette;
 }
@@ -16,7 +16,7 @@ namespace gm1
 namespace gm1
 {
     std::ostream& WriteHeader(std::ostream&, gm1::Header const&);
-    std::ostream& WritePalette(std::ostream&, const castle::Palette &palette);
+    std::ostream& WritePalette(std::ostream&, const core::Palette &palette);
 }
 
 #endif // gm1WRITER_H_

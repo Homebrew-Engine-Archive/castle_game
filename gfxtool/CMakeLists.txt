@@ -8,9 +8,6 @@ set (SRCS
 
 set (SHARED
   ../game/tgx.cpp
-  ../game/image.cpp
-  ../game/imagelocker.cpp
-  ../game/palette.cpp
   ../game/sdl_utils.cpp
 )
 

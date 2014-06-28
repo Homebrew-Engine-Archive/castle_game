@@ -12,7 +12,7 @@
 
 #include <core/color.h>
 
-namespace castle
+namespace core
 {
     class Image;
     class Palette;
@@ -38,9 +38,9 @@ namespace gmtool
 
         const core::Color DefaultTransparent() const;
         
-        void SetupFormat(castle::Image &surface, uint32_t format);
-        void SetupPalette(castle::Image &surface, const castle::Palette &palette);
-        void SetupTransparentColor(castle::Image &surface, const core::Color &color);
+        void SetupFormat(core::Image &surface, uint32_t format);
+        void SetupPalette(core::Image &surface, const core::Palette &palette);
+        void SetupTransparentColor(core::Image &surface, const core::Color &color);
         
     public:
         RenderMode();

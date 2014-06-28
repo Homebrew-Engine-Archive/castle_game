@@ -1,17 +1,13 @@
 #ifndef IMAGETRANSFORM_H_
 #define IMAGETRANSFORM_H_
 
-namespace castle
-{
-    class Image;
-}
-
 namespace core
 {
+    class Image;
     class Color;
 }
 
-namespace castle
+namespace core
 {
     void TransformImage(const Image &surface, core::Color(core::Color const&));
 }

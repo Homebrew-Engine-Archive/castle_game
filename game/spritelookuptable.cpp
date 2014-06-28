@@ -90,6 +90,11 @@ namespace castle
             {"deathmelee2", 24, SingleDir},
             {"deatharrow", 24, SingleDir}
         };
+
+        const std::vector<BodyGroupDescription>& GetBodyLordDescription()
+        {
+            return BodyLordInfo;
+        }
         
         void DirectionTable::AddIndex(const core::Direction &dir, size_t index)
         {
@@ -126,6 +131,19 @@ namespace castle
         const DirectionTable& BodyIndex::QueryGroup(const std::string &group) const
         {
             return mTables.at(group);
+        }
+
+        SpriteLookupTable::~SpriteLookupTable() = default;
+
+        SpriteLookupTable::SpriteLookupTable(const std::vector<BodyGroupDescription> &groups)
+            : mIndex(groups)
+        {
+        }
+
+        size_t SpriteLookupTable::Get(const std::string &group, float frame, const core::Direction &dir) const
+        {
+            const std::vector<size_t> indices = mIndex.QueryGroup(group).QueryDirection(dir);
+            return indices.at((indices.size() - 1) * frame);
         }
     }
 }

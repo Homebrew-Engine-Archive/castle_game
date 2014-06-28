@@ -40,9 +40,9 @@ namespace castle
             virtual void DrawRects(const core::Rect *rects, size_t count, core::Color const&, DrawMode);
             virtual void DrawLines(const core::Line *lines, size_t count, core::Color const&);
             virtual void DrawPolygon(const core::Point *points, size_t count, core::Color const&, DrawMode);
-            virtual void DrawImage(const Image &image, const core::Rect &subrect, const core::Point &target);
-            virtual void DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target);
-            virtual void DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target);
+            virtual void DrawImage(const core::Image &image, const core::Rect &subrect, const core::Point &target);
+            virtual void DrawImageTiled(const core::Image &image, const core::Rect &source, const core::Rect &target);
+            virtual void DrawImageScaled(const core::Image &image, const core::Rect &source, const core::Rect &target);
 
             virtual void SetViewport(const core::Rect &rect);
             virtual void SetOpacityMod(int opacity);

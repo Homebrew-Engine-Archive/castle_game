@@ -14,6 +14,7 @@
 #include <core/point.h>
 #include <core/rect.h>
 
+#include <game/gm1reader.h>
 #include <game/collection.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
@@ -201,9 +202,15 @@ namespace castle
     {
         std::unique_ptr<world::Map> testMap(new world::Map(100));
         GenerateTestMap(*testMap);
-        
+
         world::SimulationContext &context = mSimManager->PrimaryContext();
         context.SetMap(std::move(testMap));
+
+        gm1::GM1Reader reader(vfs::GetGM1Filename("body_lord"));
+        world::CreatureClass cc("lord", castle::gfx::GetBodyLordDescription(), reader);
+        
+        world::Creature creature(cc, world::CreatureState("idle", core::Direction::NorthWest, 0, castle::gfx::PaletteName::Blue));
+        context.AddCreature(creature);
     }
     
     int Engine::Exec()

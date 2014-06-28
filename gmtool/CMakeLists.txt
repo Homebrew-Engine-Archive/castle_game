@@ -26,10 +26,6 @@ set (SHARED
   ../game/gm1reader.cpp
   ../game/gm1writer.cpp
   ../game/gm1entryreader.cpp
-  ../game/palette.cpp
-  ../game/image.cpp
-  ../game/imageview.cpp
-  ../game/imagelocker.cpp
   ../game/tgx.cpp
 )
 

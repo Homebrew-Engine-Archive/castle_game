@@ -1,14 +1,14 @@
 #ifndef IMAGEVIEW_H_
 #define IMAGEVIEW_H_
 
-#include <game/image.h>
+#include <core/image.h>
 
 namespace core
 {
     class Rect;
 }
 
-namespace castle
+namespace core
 {
 /**
    \brief Region-Of-Interest of surface object

@@ -1,9 +1,9 @@
 #include "imagedebug.h"
 
 #include <iostream>
-#include <game/image.h>
+#include <core/image.h>
 
-namespace castle
+namespace core
 {
     ImageDebug::ImageDebug(const Image &image)
         : mImg(image)
@@ -15,7 +15,7 @@ namespace castle
     std::ostream& ImageDebug::FormatName(std::ostream &out) const
     {
         out << "Format: "
-            << SDL_GetPixelFormatName(castle::ImageFormat(mImg).format)
+            << SDL_GetPixelFormatName(core::ImageFormat(mImg).format)
             << std::endl;
         return out;
     }
@@ -57,7 +57,7 @@ namespace castle
     }
     std::ostream& ImageDebug::ColorTable(std::ostream &out) const
     {
-        const SDL_Palette *palette = castle::ImageFormat(mImg).palette;
+        const SDL_Palette *palette = core::ImageFormat(mImg).palette;
         out << "Palette: ";
         if(palette == nullptr) {
             out << "null";

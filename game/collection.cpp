@@ -11,9 +11,9 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <core/point.h>
+#include <core/palette.h>
 
 #include <game/palettename.h>
-#include <game/palette.h>
 #include <game/gm1reader.h>
 #include <game/tgx.h>
 
@@ -48,7 +48,7 @@ namespace castle
             }
         }
 
-        Image LoadTGX(const vfs::path &path)
+        core::Image LoadTGX(const vfs::path &path)
         {
             boost::filesystem::ifstream fin(path, std::ios_base::binary);
 
@@ -101,7 +101,7 @@ namespace castle
             return mHeader;
         }
 
-        const castle::Image& Collection::GetImage(size_t index) const
+        const core::Image& Collection::GetImage(size_t index) const
         {
             return mEntries.at(index).image;
         }
@@ -111,7 +111,7 @@ namespace castle
             return mEntries.at(index).header;
         }
 
-        const castle::Palette& Collection::GetPalette(const PaletteName &name) const
+        const core::Palette& Collection::GetPalette(const PaletteName &name) const
         {
             return mPalettes.at(static_cast<size_t>(name));
         }

@@ -13,12 +13,12 @@ namespace core
     class Point;
 }
 
-namespace castle
+namespace core
 {
     class Palette;
 }
 
-namespace castle
+namespace core
 {
     /**
        Software memory image block.

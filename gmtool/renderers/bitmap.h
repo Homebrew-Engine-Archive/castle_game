@@ -3,7 +3,7 @@
 
 #include <gmtool/renderer.h>
 
-namespace castle
+namespace core
 {
     class Image;
 }
@@ -12,7 +12,7 @@ namespace gmtool
 {
     struct BitmapFormat : public Renderer
     {
-        void RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface);
+        void RenderToSDL_RWops(SDL_RWops *dst, const core::Image &surface);
     };
 }
 

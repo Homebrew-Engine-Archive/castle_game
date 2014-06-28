@@ -4,8 +4,8 @@
 
 #include <SDL.h>
 
-#include <game/imagelocker.h>
-#include <game/image.h>
+#include <core/imagelocker.h>
+#include <core/image.h>
 #include <core/color.h>
 
 namespace
@@ -44,7 +44,7 @@ namespace
     }
 }
 
-namespace castle
+namespace core
 {
     void TransformImage(Image &image, core::Color func(core::Color const&))
     {

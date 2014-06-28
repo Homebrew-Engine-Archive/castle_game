@@ -14,9 +14,9 @@
 #include <game/gm1.h>
 #include <game/gm1reader.h>
 #include <game/gm1entryreader.h>
-#include <game/image.h>
-#include <game/palette.h>
 
+#include <core/image.h>
+#include <core/palette.h>
 #include <core/color.h>
 #include <core/rect.h>
 #include <core/rw.h>
@@ -68,24 +68,24 @@ namespace gmtool
         return core::Color(255, 0, 255, 255);
     }
     
-    void RenderMode::SetupPalette(castle::Image &image, const castle::Palette &palette)
+    void RenderMode::SetupPalette(core::Image &image, const core::Palette &palette)
     {
-        if(castle::IsPalettized(image)) {
-            castle::Palette copied = palette;
+        if(core::IsPalettized(image)) {
+            core::Palette copied = palette;
             image.AttachPalette(copied);
         }
     }
 
-    void RenderMode::SetupFormat(castle::Image &image, uint32_t format)
+    void RenderMode::SetupFormat(core::Image &image, uint32_t format)
     {
-        if(castle::IsPalettized(image)) {
-            if(format != castle::ImageFormat(image).format) {
-                image = castle::ConvertImage(image, format);
+        if(core::IsPalettized(image)) {
+            if(format != core::ImageFormat(image).format) {
+                image = core::ConvertImage(image, format);
             }
         }
     }
 
-    void RenderMode::SetupTransparentColor(castle::Image &surface, const core::Color &color)
+    void RenderMode::SetupTransparentColor(core::Image &surface, const core::Color &color)
     {
         surface.SetColorKey(color);
     }
@@ -110,7 +110,7 @@ namespace gmtool
             reader.SetTransparentColor(mTransparentColor);
         }
         
-        castle::Image entry = reader.ReadEntry(mEntryIndex);
+        core::Image entry = reader.ReadEntry(mEntryIndex);
 
         std::ostream *out = nullptr;
 

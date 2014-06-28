@@ -11,8 +11,8 @@
 #include <core/size.h>
 #include <core/rect.h>
 #include <core/color.h>
+#include <core/image.h>
 
-#include <game/image.h>
 #include <game/sdl_error.h>
 
 namespace
@@ -225,7 +225,7 @@ namespace castle
             }
         }
     
-        void SDLRenderEngine::DrawImage(const Image &image, const core::Rect &source, const core::Point &target)
+        void SDLRenderEngine::DrawImage(const core::Image &image, const core::Rect &source, const core::Point &target)
         {
             const core::Rect screenRect(target.X(),
                                         target.Y(),
@@ -243,11 +243,11 @@ namespace castle
             }
         }
 
-        void SDLRenderEngine::DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target)
+        void SDLRenderEngine::DrawImageTiled(const core::Image &image, const core::Rect &source, const core::Rect &target)
         {
         }
     
-        void SDLRenderEngine::DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target)
+        void SDLRenderEngine::DrawImageScaled(const core::Image &image, const core::Rect &source, const core::Rect &target)
         {
         }
     

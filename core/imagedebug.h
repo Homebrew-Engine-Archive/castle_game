@@ -3,16 +3,16 @@
 
 #include <iosfwd>
 
-namespace castle
+namespace core
 {
     class Image;
 }
 
-namespace castle
+namespace core
 {
     class ImageDebug
     {
-        const castle::Image &mImg;
+        const core::Image &mImg;
     public:
         explicit ImageDebug(const Image &image);
         virtual ~ImageDebug();

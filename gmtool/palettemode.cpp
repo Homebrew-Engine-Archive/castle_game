@@ -7,10 +7,10 @@
 
 #include <core/color.h>
 #include <core/modulo.h>
+#include <core/palette.h>
 
 #include <game/gm1writer.h>
 #include <game/gm1reader.h>
-#include <game/palette.h>
 
 namespace po = boost::program_options;
 
@@ -33,11 +33,11 @@ namespace gmtool
         unnamed.add("file", 1);
     }
 
-    std::ostream& PrintPalette(std::ostream &out, const castle::Palette &palette)
+    std::ostream& PrintPalette(std::ostream &out, const core::Palette &palette)
     {
         int column = 0;
         out << std::hex;
-        for(castle::Palette::value_type entry : palette) {
+        for(core::Palette::value_type entry : palette) {
             out << entry << ' ';
             ++column;
             if(core::Mod(column, 16) == 0) {
@@ -64,7 +64,7 @@ namespace gmtool
             throw std::logic_error("Palette index is out of range");
         }
 
-        const castle::Palette &palette = reader.Palette(mPaletteIndex);
+        const core::Palette &palette = reader.Palette(mPaletteIndex);
         if(!mBinary) {
             cfg.verbose << "Printing palette as text" << std::endl;
             PrintPalette(cfg.stdout, palette);

@@ -2,9 +2,10 @@
 #define SOFTWARERENDERENGINE_H_
 
 #include <core/rect.h>
+#include <core/image.h>
+
 #include <game/outputmode.h>
 #include <game/sdl_utils.h>
-#include <game/image.h>
 #include <game/renderengine.h>
 
 namespace core
@@ -30,7 +31,7 @@ namespace castle
             OutputMode mFrameOutputMode;
 
             core::Rect mViewport;
-            Image mScreenImage;
+            core::Image mScreenImage;
             TexturePtr mScreenTexture;
             RendererPtr mPrimitiveRenderer;
             int mOpacityMod;
@@ -48,9 +49,9 @@ namespace castle
             virtual void DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode);
             virtual void DrawLines(const core::Line *lines, size_t count, const core::Color &color);
             virtual void DrawPolygon(const core::Point *points, size_t count, const core::Color &color, DrawMode mode);
-            virtual void DrawImage(const Image &image, const core::Rect &subrect, const core::Point &targetPoint);
-            virtual void DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target);
-            virtual void DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target);
+            virtual void DrawImage(const core::Image &image, const core::Rect &subrect, const core::Point &targetPoint);
+            virtual void DrawImageTiled(const core::Image &image, const core::Rect &source, const core::Rect &target);
+            virtual void DrawImageScaled(const core::Image &image, const core::Rect &source, const core::Rect &target);
             virtual void SetOpacityMod(int opacity);
             virtual void SetViewport(const core::Rect &rect);
             virtual void ClearOutput(const core::Color &color);

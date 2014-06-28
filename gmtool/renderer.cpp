@@ -33,12 +33,12 @@ namespace gmtool
         };
     }
 
-    void Renderer::RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface)
+    void Renderer::RenderToSDL_RWops(SDL_RWops *dst, const core::Image &surface)
     {
         throw std::runtime_error("You should implement Renderer::RenderToSDL_RWops()");
     }
     
-    void Renderer::RenderToStream(std::ostream &out, const castle::Image &surface)
+    void Renderer::RenderToStream(std::ostream &out, const core::Image &surface)
     {
         RWPtr rw(core::SDL_RWFromOutputStream(out));
         if(rw) {

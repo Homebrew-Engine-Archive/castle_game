@@ -4,7 +4,9 @@
 #include <memory>
 
 #include <game/playeravatar.h>
- 
+#include <game/creaturestate.h>
+#include <game/creatureclass.h>
+
 namespace castle
 {
     namespace world
@@ -14,16 +16,20 @@ namespace castle
 
         class Creature
         {
-            const CreatureClass &mClass;
-            std::unique_ptr<CreatureState> mState;
+            const CreatureClass *mClass;
+            CreatureState mState;
 
         public:
-            explicit Creature(const CreatureClass &cc, std::unique_ptr<CreatureState> state);
+            explicit Creature(const CreatureClass &cc, const CreatureState &state);
             virtual ~Creature();
 
             const CreatureClass& GetClass() const;
-            const CreatureState& GetState() const;
+            void SetClass(const CreatureClass &cc);
+            
             CreatureState& GetState();
+            const CreatureState& GetState() const;
+
+            void SetState(const CreatureState &state);
         };
     }
 }

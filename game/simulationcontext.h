@@ -19,6 +19,7 @@ namespace castle
         class SimulationContext
         {
             std::unique_ptr<Map> mMap;
+            std::vector<Creature> mCreatures;
         
         public:
             explicit SimulationContext();
@@ -26,6 +27,9 @@ namespace castle
             SimulationContext& operator=(SimulationContext const&);
             virtual ~SimulationContext();
 
+            unsigned AddCreature(const Creature &creature);
+            void RemoveCreature(unsigned id);
+            
             void SetMap(std::unique_ptr<Map> map);
             inline Map& GetMap();
         };

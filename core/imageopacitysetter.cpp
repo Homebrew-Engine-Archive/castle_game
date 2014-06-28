@@ -2,9 +2,9 @@
 
 #include <exception>
 
-namespace castle
+namespace core
 {
-    ImageOpacitySetter::ImageOpacitySetter(const castle::Image &src, uint8_t newAlphaMod)
+    ImageOpacitySetter::ImageOpacitySetter(const core::Image &src, uint8_t newAlphaMod)
         : mImage(src)
         , mOldAlphaMod(src.GetOpacity())
     {

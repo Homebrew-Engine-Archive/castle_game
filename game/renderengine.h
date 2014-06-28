@@ -10,10 +10,6 @@ namespace core
     class Size;
     class Rect;
     class Color;
-}
-
-namespace castle
-{
     class Image;
 }
 
@@ -52,9 +48,9 @@ namespace castle
             virtual void DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode) = 0;
             virtual void DrawLines(const core::Line *lines, size_t count, const core::Color &color) = 0;
             virtual void DrawPolygon(const core::Point *points, size_t count, const core::Color &color, DrawMode mode) = 0;
-            virtual void DrawImage(const Image &image, const core::Rect &source, const core::Point &target) = 0;
-            virtual void DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target) = 0;
-            virtual void DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target) = 0;
+            virtual void DrawImage(const core::Image &image, const core::Rect &source, const core::Point &target) = 0;
+            virtual void DrawImageTiled(const core::Image &image, const core::Rect &source, const core::Rect &target) = 0;
+            virtual void DrawImageScaled(const core::Image &image, const core::Rect &source, const core::Rect &target) = 0;
 
             virtual void SetViewport(const core::Rect &rect) = 0;
             virtual void SetOpacityMod(int opacity) = 0;

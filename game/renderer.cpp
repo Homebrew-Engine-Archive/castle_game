@@ -251,17 +251,17 @@ namespace castle
             mBackColor = std::move(color);
         }
         
-        void Renderer::BindImage(const Image &surface)
+        void Renderer::BindImage(const core::Image &surface)
         {
             mBoundImage = surface;
         }
     
-        void Renderer::BindPalette(const Palette &palette)
+        void Renderer::BindPalette(const core::Palette &palette)
         {
             mBoundPalette = palette;
         }
     
-        void Renderer::BindAlphaChannel(const Image &surface)
+        void Renderer::BindAlphaChannel(const core::Image &surface)
         {
             mBoundAlphaChannel = surface;
         }
@@ -366,7 +366,7 @@ namespace castle
         {        
             mRenderEngine->SetOpacityMod(mOpacity);
         
-            if(IsPalettized(mBoundImage)) {
+            if(core::IsPalettized(mBoundImage)) {
                 mBoundImage.AttachPalette(mBoundPalette);
             }
 

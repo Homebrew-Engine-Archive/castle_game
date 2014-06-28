@@ -14,10 +14,10 @@
 #include <core/size.h>
 #include <core/line.h>
 #include <core/clamp.h>
+#include <core/image.h>
+#include <core/imagelocker.h>
 
 #include <game/sdl_error.h>
-#include <game/image.h>
-#include <game/imagelocker.h>
 
 namespace
 {
@@ -112,7 +112,7 @@ namespace castle
             }
 
             if(!mScreenImage) {
-                castle::Image temp = castle::CreateImage(
+                core::Image temp = core::CreateImage(
                     mOutputMode.Width(),
                     mOutputMode.Height(),
                     mOutputMode.Format());
@@ -142,7 +142,7 @@ namespace castle
             assert(mScreenTexture);
             assert(mScreenRenderer);
         
-            const castle::ImageLocker lock(mScreenImage);
+            const core::ImageLocker lock(mScreenImage);
             
             if(SDL_UpdateTexture(mScreenTexture.get(), NULL, lock.Data(), mScreenImage.RowStride()) < 0) {
                 throw sdl_error();
@@ -290,30 +290,30 @@ namespace castle
             }
         }    
 
-        void SoftwareRenderEngine::DrawImage(const castle::Image &image, const core::Rect &subrect, const core::Point &targetPoint)
+        void SoftwareRenderEngine::DrawImage(const core::Image &image, const core::Rect &subrect, const core::Point &targetPoint)
         {
             assert(!mScreenImage.Null());
             assert(!image.Null());
             mScreenImage.SetClipRect(mViewport);
-            castle::Image::BlendMode blendMode = SDL_BLENDMODE_NONE;
+            core::Image::BlendMode blendMode = SDL_BLENDMODE_NONE;
             if(mOpacityMod != 0xff) {
                 blendMode = SDL_BLENDMODE_BLEND;
-            } else if(SDL_ISPIXELFORMAT_ALPHA(ImageFormat(image).format)) {
+            } else if(SDL_ISPIXELFORMAT_ALPHA(core::ImageFormat(image).format)) {
                 blendMode = SDL_BLENDMODE_BLEND;
             }
             // remove cv-qual
-            castle::Image source = image;
+            core::Image source = image;
             source.SetOpacity(mOpacityMod);
             source.SetBlendMode(blendMode);
-            castle::CopyImage(image, subrect, mScreenImage, targetPoint);
+            core::CopyImage(image, subrect, mScreenImage, targetPoint);
         }
 
-        void SoftwareRenderEngine::DrawImageTiled(const Image &image, const core::Rect &source, const core::Rect &target)
+        void SoftwareRenderEngine::DrawImageTiled(const core::Image &image, const core::Rect &source, const core::Rect &target)
         {
             DrawImage(image, source, core::TopLeft(target));
         }
     
-        void SoftwareRenderEngine::DrawImageScaled(const Image &image, const core::Rect &source, const core::Rect &target)
+        void SoftwareRenderEngine::DrawImageScaled(const core::Image &image, const core::Rect &source, const core::Rect &target)
         {
             DrawImage(image, source, core::TopLeft(target));
         }

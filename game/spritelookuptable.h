@@ -20,6 +20,8 @@ namespace castle
             DirSet dirs;
         };
 
+        const std::vector<BodyGroupDescription>& GetBodyLordDescription();
+        
         class DirectionTable
         {
             std::map<core::Direction, std::vector<size_t>> mIndex;
@@ -49,7 +51,7 @@ namespace castle
             BodyIndex mIndex;
             
         public:
-            explicit SpriteLookupTable(const BodyIndex &index);
+            explicit SpriteLookupTable(const std::vector<BodyGroupDescription> &groups);
             virtual ~SpriteLookupTable();
 
             size_t Get(const std::string &group, float frame, const core::Direction &dir) const;

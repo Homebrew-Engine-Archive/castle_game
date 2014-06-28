@@ -65,5 +65,14 @@ namespace castle
         {
             mPrimaryContext = std::move(context);
         }
+
+        const castle::world::CreatureClass& SimulationManager::FindClass(const std::string &name) const
+        {
+            return mCreatureClasses.at(name);
+        }
+
+        void SimulationManager::RegisterClass(const CreatureClass &cc)
+        {
+        }
     }
 }

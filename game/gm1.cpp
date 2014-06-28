@@ -5,8 +5,7 @@
 #include <sstream>
 
 #include <core/iohelpers.h>
-
-#include <game/palette.h>
+#include <core/palette.h>
 
 namespace gm1
 {

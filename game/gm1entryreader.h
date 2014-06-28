@@ -13,7 +13,7 @@ namespace gm1
     enum class ArchiveType;
 }
 
-namespace castle
+namespace core
 {
     class Image;
 }
@@ -25,11 +25,11 @@ namespace gm1
         core::Color mTransparentColor;
 
     private:
-        castle::Image CreateCompatibleImage(const gm1::EntryHeader &header) const;
+        core::Image CreateCompatibleImage(const gm1::EntryHeader &header) const;
         uint32_t GetColorKey(uint32_t format) const;
         
     protected:
-        virtual void ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, castle::Image &surface) const = 0;
+        virtual void ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const = 0;
         virtual int Width(const gm1::EntryHeader &header) const;
         virtual int Height(const gm1::EntryHeader &header) const;
         virtual uint32_t SourcePixelFormat() const;
@@ -40,7 +40,7 @@ namespace gm1
         
         void Transparent(core::Color color);
         const core::Color Transparent() const;
-        const castle::Image Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const;
+        const core::Image Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };

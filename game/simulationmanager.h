@@ -9,6 +9,7 @@
 #include <game/creature.h>
 #include <game/simulationcommand.h>
 #include <game/simulationcontext.h>
+#include <game/simulationtick.h>
 #include <game/playeravatar.h>
 #include <game/gamemap.h>
 
@@ -37,6 +38,9 @@ namespace castle
             void SetPrimaryContext(std::unique_ptr<SimulationContext> context);
             SimulationContext& PrimaryContext();
 
+            void RegisterClass(const CreatureClass &cc);
+            const castle::world::CreatureClass& FindClass(const std::string &name) const;
+            
         private:
             void CompleteTurn(const PlayerAvatar &player, int turn);
             void AddPlayer(const PlayerAvatar &player);
@@ -50,6 +54,8 @@ namespace castle
             std::chrono::nanoseconds mTickDuration;
             unsigned mTurnLength;
             unsigned mTurnNumber;
+            PlayerAvatar mHostAvatar;
+            PlayerAvatar mLocalAvatar;
             std::map<std::string, castle::world::CreatureClass> mCreatureClasses;
         };
     }

@@ -6,8 +6,9 @@
 
 #include <SDL.h>
 
+#include <core/image.h>
+
 #include <game/vfs.h>
-#include <game/image.h>
 #include <game/gm1.h>
 #include <game/sdl_utils.h>
 #include <game/palettename.h>
@@ -20,7 +21,6 @@ namespace core
 namespace gm1
 {
     class GM1Reader;
-    class Palette;
 }
 
 namespace castle
@@ -37,23 +37,23 @@ namespace castle
 
             size_t Count() const;
             const gm1::Header& GetHeader() const;
-            const castle::Image& GetImage(size_t index) const;
+            const core::Image& GetImage(size_t index) const;
             const gm1::EntryHeader& GetEntryHeader(size_t index) const;        
-            const castle::Palette& GetPalette(const PaletteName &name) const;
+            const core::Palette& GetPalette(const PaletteName &name) const;
 
         private:
             gm1::Header mHeader;
-            std::vector<castle::Palette> mPalettes;
+            std::vector<core::Palette> mPalettes;
 
             struct CollectionEntry
             {
-                castle::Image image;
+                core::Image image;
                 gm1::EntryHeader header;
             };
             std::vector<CollectionEntry> mEntries;
         };
 
-        Image LoadTGX(const vfs::path &filename);
+        core::Image LoadTGX(const vfs::path &filename);
         Collection LoadGM1(const vfs::path &filename);
     }
 }

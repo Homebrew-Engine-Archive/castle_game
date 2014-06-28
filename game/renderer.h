@@ -4,12 +4,14 @@
 #include <vector>
 
 #include <core/font.h>
-#include <core/rect.h>
-#include <game/renderengine.h>
-#include <game/palette.h>
-#include <game/image.h>
-#include <game/vfs.h>
 #include <core/color.h>
+#include <core/rect.h>
+#include <core/palette.h>
+#include <core/image.h>
+
+#include <game/renderengine.h>
+#include <game/vfs.h>
+
 
 namespace core
 {
@@ -80,9 +82,9 @@ namespace castle
             void BindFont(const core::Font &font);
             void DrawText(const std::string &text, const core::Point &point);
         
-            void BindImage(const Image &surface);
-            void BindPalette(const Palette &palette);
-            void BindAlphaChannel(const Image &surface);
+            void BindImage(const core::Image &surface);
+            void BindPalette(const core::Palette &palette);
+            void BindAlphaChannel(const core::Image &surface);
 
             void Blit(const core::Rect &source, const core::Point &target);
             void BlitTiled(const core::Rect &source, const core::Rect &target);
@@ -97,9 +99,9 @@ namespace castle
         protected:
             std::unique_ptr<RenderEngine> mRenderEngine;
             std::unique_ptr<FontEngine> mFontEngine;
-            Palette mBoundPalette;
-            Image mBoundImage;
-            Image mBoundAlphaChannel;
+            core::Palette mBoundPalette;
+            core::Image mBoundImage;
+            core::Image mBoundAlphaChannel;
             std::vector<core::Rect> mClipStack;
             std::vector<core::Rect> mScreenRectStack;
             std::vector<float> mOpacityStack;

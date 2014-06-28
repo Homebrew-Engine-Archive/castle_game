@@ -7,7 +7,7 @@ namespace castle
 {
     namespace gfx
     {
-        enum class PaletteName : size_t
+        enum class PaletteName
         {
             Blue         = 1,
             Red          = 2,

@@ -3,10 +3,10 @@
 #include <iostream>
 
 #include <game/textlayout.h>
-#include <game/image.h>
 #include <game/fontengine.h>
 #include <game/renderer.h>
 
+#include <core/image.h>
 #include <core/interval.h>
 #include <core/rect.h>
 #include <core/point.h>

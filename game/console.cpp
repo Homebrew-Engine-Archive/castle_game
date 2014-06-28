@@ -1,6 +1,5 @@
 #include "console.h"
 
-#include <csignal>
 #include <SDL.h>
 
 #include <cassert>
@@ -12,9 +11,9 @@
 #include <core/font.h>
 #include <core/point.h>
 #include <core/rect.h>
+#include <core/image.h>
 
 #include <game/fontengine.h>
-#include <game/image.h>
 #include <game/renderer.h>
 #include <game/screenmanager.h>
 

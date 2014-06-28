@@ -109,7 +109,7 @@ namespace castle
             mScrollY = 0.0f;
         }
     
-        const world::Map::Cell Camera::ScreenToworldCoords(const core::Point &cursor) const
+        const world::MapCell Camera::ScreenToworldCoords(const core::Point &cursor) const
         {
             switch(mCameraMode) {
             case CameraMode::Staggered:
@@ -130,7 +130,7 @@ namespace castle
                     const int tx = floor((x - y) * mTileSize.Height() / static_cast<double>(mTileSize.Width()));
                     const int ty = x + y;
         
-                    return world::Map::Cell(tx, ty);
+                    return world::MapCell(tx, ty);
                 }
             
             case CameraMode::Diamond:
@@ -143,20 +143,20 @@ namespace castle
                     const int x = cursor.X() + mPosX;
                     const int y = cursor.Y() + mPosY;
                     const int z = 2 * w * h;
-                    return world::Map::Cell((-h*q - r*w + h*x + w*y) / z,
-                                            (h*q - r*w - h*x + w*y) / z);
+                    return world::MapCell((-h*q - r*w + h*x + w*y) / z,
+                                          (h*q - r*w - h*x + w*y) / z);
                 }
 
             case CameraMode::Ortho:
             default:
                 {
-                    return world::Map::Cell((ViewPoint().X() + cursor.X()) / mTileSize.Width(),
-                                            (ViewPoint().Y() + cursor.Y()) / mTileSize.Height());
+                    return world::MapCell((ViewPoint().X() + cursor.X()) / mTileSize.Width(),
+                                          (ViewPoint().Y() + cursor.Y()) / mTileSize.Height());
                 }
             }
         }
     
-        const core::Point Camera::worldToScreenCoords(const world::Map::Cell &cell) const
+        const core::Point Camera::worldToScreenCoords(const world::MapCell &cell) const
         {
             switch(mCameraMode) {
             case CameraMode::Staggered:

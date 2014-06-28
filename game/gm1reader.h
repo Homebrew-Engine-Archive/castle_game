@@ -12,10 +12,6 @@
 namespace core
 {
     class Color;
-}
-
-namespace castle
-{
     class Image;
     class Palette;
 }
@@ -35,7 +31,7 @@ namespace gm1
         boost::filesystem::wpath mPath;
         std::streamoff mDataOffset;
         gm1::Header mHeader;
-        std::vector<castle::Palette> mPalettes;
+        std::vector<core::Palette> mPalettes;
         std::vector<ReaderEntryData> mEntries;
         std::unique_ptr<GM1EntryReader> mEntryReader;
         
@@ -58,9 +54,9 @@ namespace gm1
         
         const char* EntryData(size_t index) const;
         size_t EntrySize(size_t index) const;
-        const castle::Image ReadEntry(size_t index) const;
+        const core::Image ReadEntry(size_t index) const;
         const gm1::EntryHeader& EntryHeader(size_t index) const;
-        const castle::Palette& Palette(size_t index) const;
+        const core::Palette& Palette(size_t index) const;
         const gm1::Header& Header() const;
         gm1::ArchiveType ArchiveType() const;
         size_t NumEntries() const;

@@ -46,14 +46,14 @@ namespace castle
             world::Camera& GetActiveCamera();
 
         protected:
-            void RenderTile(render::Renderer &renderer, const world::Map::Cell &cell);
+            void RenderTile(render::Renderer &renderer, const world::MapCell &cell);
             void RenderCreature(render::Renderer &renderer, const world::Creature &creature);
             bool HandleKeyPress(const SDL_KeyboardEvent &event);
             bool HandleMouseButton(const SDL_MouseButtonEvent &event);
             void UpdateCamera(const render::Renderer &renderer);
             void ToggleCameraMode();
-            bool IsTileSelected(const core::Point &cursor, const world::Map::Cell &cell) const;
-            world::Map::Cell FindSelectedTile(const render::Renderer &renderer);
+            bool IsTileSelected(const core::Point &cursor, const world::MapCell &cell) const;
+            world::MapCell FindSelectedTile(const render::Renderer &renderer);
             gfx::Collection const& GetTileSet(const Landscape &landscape) const;
 
         private:

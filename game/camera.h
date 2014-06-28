@@ -49,8 +49,8 @@ namespace castle
             void RotateLeft();
             void RotateRight();
         
-            const Map::Cell ScreenToworldCoords(const core::Point &cursor) const;
-            const core::Point worldToScreenCoords(const Map::Cell &cell) const;
+            const MapCell ScreenToworldCoords(const core::Point &cursor) const;
+            const core::Point worldToScreenCoords(const MapCell &cell) const;
         
             bool Flat() const;
             void Flat(bool yes);

@@ -7,7 +7,7 @@ namespace gmtool
 {
     struct PNGRenderer : public Renderer
     {
-        void RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface);
+        void RenderToSDL_RWops(SDL_RWops *dst, const core::Image &surface);
     };
 }
 

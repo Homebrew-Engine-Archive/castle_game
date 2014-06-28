@@ -9,7 +9,7 @@
 #include <core/color.h>
 #include <core/modulo.h>
 
-namespace castle
+namespace core
 {
     Palette::Palette(Palette const&) = default;
     Palette& Palette::operator=(Palette const&) = default;

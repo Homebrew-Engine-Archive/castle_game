@@ -1,13 +1,13 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-namespace castle
+namespace core
 {
     class Image;
 }
 namespace gfxtool
 {
-    int ShowImage(const castle::Image &image);
+    int ShowImage(const core::Image &image);
 }
     
 #endif

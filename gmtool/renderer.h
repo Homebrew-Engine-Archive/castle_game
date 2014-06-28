@@ -8,7 +8,7 @@
 
 #include <SDL.h>
 
-namespace castle
+namespace core
 {
     class Image;
 }
@@ -18,8 +18,8 @@ namespace gmtool
     struct Renderer
     {
         typedef std::shared_ptr<Renderer> Ptr;
-        virtual void RenderToSDL_RWops(SDL_RWops *dst, const castle::Image &surface);
-        virtual void RenderToStream(std::ostream &out, const castle::Image &surface);
+        virtual void RenderToSDL_RWops(SDL_RWops *dst, const core::Image &surface);
+        virtual void RenderToStream(std::ostream &out, const core::Image &surface);
     };
     
     struct RenderFormat

@@ -3,22 +3,23 @@
 #include <sstream>
 
 #include <core/color.h>
-#include <game/creature.h>
 #include <core/direction.h>
-#include <game/vfs.h>
-#include <game/fontengine.h>
-#include <game/gm1.h>
-#include <game/palette.h>
-#include <game/landscape.h>
 #include <core/modulo.h>
 #include <core/point.h>
 #include <core/rect.h>
+#include <core/image.h>
+#include <core/palette.h>
+
+#include <game/creature.h>
+#include <game/fontengine.h>
+#include <game/gm1.h>
+#include <game/landscape.h>
+#include <game/renderengine.h>
 #include <game/renderer.h>
 #include <game/screenmanager.h>
 #include <game/simulationcontext.h>
 #include <game/simulationmanager.h>
-#include <game/image.h>
-#include <game/renderengine.h>
+#include <game/vfs.h>
 
 namespace castle
 {
@@ -61,7 +62,7 @@ namespace castle
             }
         }
 
-        void GameScreen::RenderTile(render::Renderer &renderer, const world::Map::Cell &cell)
+        void GameScreen::RenderTile(render::Renderer &renderer, const world::MapCell &cell)
         {
             const world::Map &map = mSimContext->GetMap();
             
@@ -76,9 +77,9 @@ namespace castle
             const Landscape landscape = map.LandscapeType(cell);
             const gfx::Collection &collection = GetTileSet(landscape);
             const size_t height = map.Height(cell);
-            const castle::Image img = collection.GetImage(height);
+            const core::Image img = collection.GetImage(height);
             renderer.BindImage(img);
-            renderer.Blit(core::Rect(img.Width(), img.Height()), tileTop);
+            renderer.Blit(core::Rect(img.Width(), img.Height()), tileBottom);
         }
     
         void GameScreen::RenderCreature(render::Renderer &renderer, const world::Creature &creature)
@@ -96,12 +97,6 @@ namespace castle
 
             const world::Map &map = mSimContext->GetMap();
 
-            castle::Image img = archer.GetImage(50);
-            castle::Palette palette = archer.GetPalette(gfx::PaletteName::Yellow);
-            renderer.BindImage(img);
-            renderer.BindPalette(palette);
-            renderer.Blit(core::Rect(img.Width(), img.Height()), core::Point());
-            
             const auto cells = map.Cells();
             for(auto i = cells.first; i != cells.second; ++i) {
                 RenderTile(renderer, *i);
@@ -222,14 +217,14 @@ namespace castle
             mLastCameraUpdate = steady_clock::now();
         }
 
-        bool GameScreen::IsTileSelected(const core::Point &cursor, const world::Map::Cell &cell) const
+        bool GameScreen::IsTileSelected(const core::Point &cursor, const world::MapCell &cell) const
         {
             const world::Map &map = mSimContext->GetMap();
             const gfx::Collection &tileset = GetTileSet(map.LandscapeType(cell));
         
             const size_t index = map.Height(cell);
             const gm1::EntryHeader entryHeader = tileset.GetEntryHeader(index);
-            const Image &image = tileset.GetImage(index);
+            const core::Image &image = tileset.GetImage(index);
 
             const core::Point tileTopLeft = mCamera.worldToScreenCoords(cell);
             const core::Point tileTopLeftScreenSubrect = tileTopLeft - core::Point(0, map.Height(cell) - entryHeader.tileY);
@@ -247,7 +242,7 @@ namespace castle
             return false;
         }
     
-        world::Map::Cell GameScreen::FindSelectedTile(const render::Renderer &renderer)
+        world::MapCell GameScreen::FindSelectedTile(const render::Renderer &renderer)
         {
             const core::Point viewportCursor = renderer.ToViewportCoords(mCursor);
             if(mCamera.Flat()) {
@@ -255,7 +250,7 @@ namespace castle
             }
 
             const world::Map &map = mSimContext->GetMap();
-            world::Map::Cell selected = map.NullCell();
+            world::MapCell selected = map.NullCell();
             const auto cellsIters = map.Cells();
             for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
                 if(IsTileSelected(viewportCursor, *i)) {

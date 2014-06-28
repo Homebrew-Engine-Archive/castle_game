@@ -12,6 +12,8 @@ namespace castle
 {
     namespace world
     {
+        using MapCell = core::Point;
+        
         class Map
         {
             int mSize;
@@ -20,13 +22,10 @@ namespace castle
             std::vector<Landscape> mLandscapeLayer;
             bool mHorizontalWrapping;
             bool mVerticalWrapping;
-
-        public:
-            using Cell = core::Point;
         
         private:
-            int CellToIndex(const Cell &cell) const;
-            const Cell IndexToCell(int index) const;
+            int CellToIndex(const MapCell &cell) const;
+            const MapCell IndexToCell(int index) const;
         
         public:
             explicit Map(int size = 0);
@@ -36,38 +35,38 @@ namespace castle
             Map& operator=(Map&&);
             virtual ~Map();
 
-            void Height(const Cell &cell, int height);
-            int Height(const Cell &cell) const;
-            void LandscapeType(const Cell &cell, Landscape land);
-            Landscape LandscapeType(const Cell &cell) const;
-            bool HasCell(const Cell &cell) const;
+            void Height(const MapCell &cell, int height);
+            int Height(const MapCell &cell) const;
+            void LandscapeType(const MapCell &cell, Landscape land);
+            Landscape LandscapeType(const MapCell &cell) const;
+            bool HasCell(const MapCell &cell) const;
             void WrapHorizontal(bool on);
             void WrapVertical(bool on);
-            const Cell NullCell() const;
+            const MapCell NullCell() const;
             int Size() const;
             void SetSize(int size) const;
 
-            class AdjacencyIterator : public std::iterator<std::forward_iterator_tag, Map::Cell>
+            class AdjacencyIterator : public std::iterator<std::forward_iterator_tag, MapCell>
             {
             public:
-                inline AdjacencyIterator(const Map &map, Map::Cell cell, int dir)
+                inline AdjacencyIterator(const Map &map, MapCell cell, int dir)
                     : mMap(map), mCell(cell), mDir(dir)
                     {}
                 
                 const AdjacencyIterator operator++(int);
                 void operator++();
                 bool operator!=(const AdjacencyIterator &that) const;
-                const Map::Cell operator*() const;
+                const MapCell operator*() const;
 
             private:
                 const Map &mMap;
-                Map::Cell mCell;
+                MapCell mCell;
                 int mDir;
             };
         
-            const std::pair<AdjacencyIterator, AdjacencyIterator> AdjacentCells(Map::Cell cell) const;
+            const std::pair<AdjacencyIterator, AdjacencyIterator> AdjacentCells(const MapCell &cell) const;
 
-            class CellIterator : public std::iterator<std::forward_iterator_tag, Map::Cell>
+            class CellIterator : public std::iterator<std::forward_iterator_tag, MapCell>
             {
             public:
                 explicit constexpr CellIterator(const Map &map, size_t cellIndex)
@@ -77,7 +76,7 @@ namespace castle
                 const CellIterator operator++(int);
                 void operator++();
                 bool operator!=(const CellIterator &that) const;
-                const Map::Cell operator*() const;
+                const MapCell operator*() const;
             
             private:
                 const Map &mMap;

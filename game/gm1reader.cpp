@@ -10,9 +10,9 @@
 
 #include <core/iohelpers.h>
 #include <core/color.h>
+#include <core/palette.h>
+#include <core/image.h>
 
-#include <game/palette.h>
-#include <game/image.h>
 #include <game/gm1entryreader.h>
 
 namespace
@@ -44,9 +44,9 @@ namespace
         return in;
     }
 
-    std::istream& ReadPalette(std::istream &in, castle::Palette &palette)
+    std::istream& ReadPalette(std::istream &in, core::Palette &palette)
     {
-        for(castle::Palette::value_type &entry : palette) {
+        for(core::Palette::value_type &entry : palette) {
             uint16_t pixel;
             core::ReadLittle<uint16_t>(in, pixel);
             entry = core::PixelToColor(pixel, gm1::PalettePixelFormat);
@@ -130,7 +130,7 @@ namespace gm1
         } 
         mPalettes.reserve(CollectionPaletteCount);
         for(size_t i = 0; i < CollectionPaletteCount; ++i) {
-            castle::Palette palette(CollectionPaletteColors);
+            core::Palette palette(CollectionPaletteColors);
             if(!ReadPalette(fis, palette)) {
                 throw std::runtime_error(strerror(errno));
             }
@@ -244,7 +244,7 @@ namespace gm1
         return mEntries.at(index).header;
     }
 
-    castle::Palette const& GM1Reader::Palette(size_t index) const
+    core::Palette const& GM1Reader::Palette(size_t index) const
     {
         return mPalettes.at(index);
     }
@@ -256,7 +256,7 @@ namespace gm1
         }
     }
     
-    const castle::Image GM1Reader::ReadEntry(size_t index) const
+    const core::Image GM1Reader::ReadEntry(size_t index) const
     {
         const gm1::EntryHeader &header = EntryHeader(index);
         const char *data = EntryData(index);

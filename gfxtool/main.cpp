@@ -12,10 +12,11 @@
 
 #include <SDL.h>
 
+#include <core/image.h>
+
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/sdl_init.h>
-#include <game/image.h>
 #include <game/tgx.h>
 
 int main(int argc, char *argv[])
@@ -33,13 +34,13 @@ int main(int argc, char *argv[])
         throw std::runtime_error(oss.str());
     }
     
-    const castle::Image image = tgx::ReadImage(fin);
+    const core::Image image = tgx::ReadImage(fin);
     return gfxtool::ShowImage(image);
 }
 
 namespace gfxtool
 {
-    int ShowImage(const castle::Image &image)
+    int ShowImage(const core::Image &image)
     {
         SDLInitializer init(SDL_INIT_EVERYTHING);
 

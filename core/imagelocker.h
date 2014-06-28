@@ -1,23 +1,23 @@
 #ifndef IMAGELOCKER_H_
 #define IMAGELOCKER_H_
 
-namespace castle
+namespace core
 {
     class Image;
 }
 
-namespace castle
+namespace core
 {
     /**
        \brief RAII for SDL_LockSurface and SDL_UnlockSurface functions call
     **/
     class ImageLocker
     {
-        const castle::Image &mImage;
+        const core::Image &mImage;
         bool mLocked;
         
     public:
-        explicit ImageLocker(const castle::Image &surface);
+        explicit ImageLocker(const core::Image &surface);
         ImageLocker(ImageLocker const&) = delete;
         ImageLocker &operator=(ImageLocker const&) = delete;
         virtual ~ImageLocker() throw();

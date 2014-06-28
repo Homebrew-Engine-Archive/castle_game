@@ -3,7 +3,7 @@
 
 #include <gmtool/renderer.h>
 
-namespace castle
+namespace core
 {
     class Image;
 }
@@ -12,7 +12,7 @@ namespace gmtool
 {
     struct TGXRenderer : public Renderer
     {
-        virtual void RenderToStream(std::ostream &out, const castle::Image &surface);
+        virtual void RenderToStream(std::ostream &out, const core::Image &surface);
     };
 }
 

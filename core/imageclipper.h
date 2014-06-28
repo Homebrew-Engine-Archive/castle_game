@@ -2,9 +2,9 @@
 #define IMAGECLIPPER_H_
 
 #include <core/rect.h>
-#include <game/image.h>
+#include <core/image.h>
 
-namespace castle
+namespace core
 {
     class ImageClipper
     {
@@ -12,7 +12,7 @@ namespace castle
         core::Rect mOldClip;
     
     public:
-        explicit ImageClipper(castle::Image &surface, const core::Rect &cliprect);
+        explicit ImageClipper(core::Image &surface, const core::Rect &cliprect);
         virtual ~ImageClipper() throw();
 
         void Rollback();

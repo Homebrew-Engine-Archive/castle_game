@@ -16,5 +16,19 @@ namespace castle
         {
             mMap = std::move(map);
         }
+
+        unsigned SimulationContext::AddCreature(const Creature &creature)
+        {
+            const unsigned id = mCreatures.size();
+            mCreatures.push_back(creature);
+            return id;
+        }
+        
+        void SimulationContext::RemoveCreature(unsigned id)
+        {
+            if(!mCreatures.empty()) {
+                mCreatures.pop_back();
+            }
+        }
     }
 }

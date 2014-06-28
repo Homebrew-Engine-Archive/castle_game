@@ -2,9 +2,9 @@
 
 #include <exception>
 
-namespace castle
+namespace core
 {
-    ImageClipper::ImageClipper(castle::Image &surface, const core::Rect &cliprect)
+    ImageClipper::ImageClipper(core::Image &surface, const core::Rect &cliprect)
         : mImage(surface)
         , mOldClip()
     {

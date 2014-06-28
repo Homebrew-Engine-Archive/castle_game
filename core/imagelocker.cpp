@@ -3,9 +3,9 @@
 #include <SDL.h>
 #include <exception>
 
-#include <game/image.h>
+#include <core/image.h>
 
-namespace castle
+namespace core
 {
     ImageLocker::ImageLocker(const Image &surface)
         : mImage(surface)

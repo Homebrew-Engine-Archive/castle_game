@@ -41,7 +41,7 @@
  *
  */
 
-namespace castle
+namespace core
 {
     class Image;
 }
@@ -77,11 +77,11 @@ namespace tgx
 
     constexpr uint32_t PixelFormat = SDL_PIXELFORMAT_RGB555;
     
-    std::istream& DecodeImage(std::istream&, size_t numBytes, castle::Image &surface);
+    std::istream& DecodeImage(std::istream&, size_t numBytes, core::Image &surface);
 
-    std::istream& ReadImageHeader(std::istream&, castle::Image &surface);
+    std::istream& ReadImageHeader(std::istream&, core::Image &surface);
 
-    const castle::Image ReadImage(std::istream&);
+    const core::Image ReadImage(std::istream&);
 
     /**
      * \brief Low level tgx-encoding function.
@@ -95,11 +95,11 @@ namespace tgx
      * \note Input buffer must have real size of width * bytesPerPixel bytes.
      **/
     
-    std::ostream& EncodeImage(std::ostream&, const castle::Image &surface);
+    std::ostream& EncodeImage(std::ostream&, const core::Image &surface);
 
-    std::ostream& WriteImageHeader(std::ostream&, const castle::Image &surface);
+    std::ostream& WriteImageHeader(std::ostream&, const core::Image &surface);
 
-    std::ostream& WriteImage(std::ostream&, const castle::Image &surface);
+    std::ostream& WriteImage(std::ostream&, const core::Image &surface);
 
 } // namespace tgx
 

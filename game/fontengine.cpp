@@ -15,13 +15,13 @@
 #include <core/rect.h>
 #include <core/color.h>
 #include <core/point.h>
+#include <core/image.h>
+#include <core/palette.h>
 
 #include <game/renderengine.h>
-#include <game/palette.h>
 #include <game/ttf_error.h>
 #include <game/ttf_init.h>
 #include <game/sdl_utils.h>
-#include <game/image.h>
 
 struct FontCloseDeleter
 {
@@ -62,17 +62,17 @@ public:
     /**
        Produces as result argb32 surface considered to be drawn on screen.
     **/
-    castle::Image RenderBlended(const std::string &text, const core::Color &fg) const;
+    core::Image RenderBlended(const std::string &text, const core::Color &fg) const;
 
     /**
        Palettized surface with background
     **/
-    castle::Image RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const;
+    core::Image RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const;
 
     /**
        Cheap and fast
     **/
-    castle::Image RenderSolid(const std::string &text, const core::Color &fg) const;
+    core::Image RenderSolid(const std::string &text, const core::Color &fg) const;
     
     bool HasGlyph(int character) const;
     const core::Size TextSize(const std::string &text) const;
@@ -118,19 +118,19 @@ void FontData::UpdateFontState(const core::Font &font) const
     TTF_SetFontKerning(ttf_font, font.Kerning());
 }
 
-castle::Image FontData::RenderBlended(const std::string &text, const core::Color &fg) const
+core::Image FontData::RenderBlended(const std::string &text, const core::Color &fg) const
 {
-    return castle::Image(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
+    return core::Image(TTF_RenderUTF8_Blended(mFontObject.get(), text.c_str(), fg));
 }
 
-castle::Image FontData::RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const
+core::Image FontData::RenderShaded(const std::string &text, const core::Color &fg, const core::Color &bg) const
 {
-    return castle::Image(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
+    return core::Image(TTF_RenderUTF8_Shaded(mFontObject.get(), text.c_str(), fg, bg));
 }
 
-castle::Image FontData::RenderSolid(const std::string &text, const core::Color &fg) const
+core::Image FontData::RenderSolid(const std::string &text, const core::Color &fg) const
 {
-    return castle::Image(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
+    return core::Image(TTF_RenderUTF8_Solid(mFontObject.get(), text.c_str(), fg));
 }
 
 bool FontData::HasGlyph(int character) const
@@ -287,7 +287,7 @@ namespace castle
                 /**
                    \todo consider using FontData::RenderShaded and FontData::RenderSolid
                 **/
-                castle::Image textImage = fontData.RenderBlended(text.c_str(), fg);
+                core::Image textImage = fontData.RenderBlended(text.c_str(), fg);
                 if(!textImage.Null()) {
                     if(bg.a != 0) {
                         const core::Rect bgRect(target.X(), target.Y(), textImage.Width(), textImage.Height());

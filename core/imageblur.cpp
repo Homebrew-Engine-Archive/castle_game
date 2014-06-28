@@ -7,9 +7,8 @@
 
 #include <SDL.h>
 
-#include <game/imagelocker.h>
-#include <game/image.h>
-
+#include <core/imagelocker.h>
+#include <core/image.h>
 #include <core/color.h>
 
 namespace
@@ -75,48 +74,45 @@ namespace
     }
 }
 
-namespace castle
+namespace core
 {
-    namespace gfx
+    void BlurImage(Image &dst, size_t radius)
     {
-        void BlurImage(Image &dst, size_t radius)
-        {
-            if(!dst) {
-                throw std::invalid_argument("surface is null or invalid");
-            }
-
-            const auto buffSize = std::max(dst.Width(),
-                                           dst.Height());
-
-            ConvolveFunctor convolve(radius, ImageFormat(dst), buffSize);
-    
-            if(radius < 1 || radius > buffSize) {
-                throw std::invalid_argument("inproper convolution radius");
-            }
-
-            ImageLocker lock(dst);
-            char *const dataBegin = lock.Data();
-    
-            /** Per row convolution **/
-            for(size_t y = 0; y < dst.Height(); ++y) {
-                char *const data = dataBegin + dst.RowStride() * y;
-                const auto count = dst.Width();
-                const auto stride = dst.PixelStride();
-                convolve(data, count, stride);
-            }
-
-            /** Per column convolution **/
-            for(size_t x = 0; x < dst.Width(); ++x) {
-                char *const data = dataBegin + dst.PixelStride() * x;
-                const auto count = dst.Height();
-                const auto stride = dst.RowStride();
-                convolve(data, count, stride);
-            }
+        if(!dst) {
+            throw std::invalid_argument("surface is null or invalid");
         }
 
-        void BlurImageAlpha(Image &surface, size_t radius)
-        {
+        const auto buffSize = std::max(dst.Width(),
+                                       dst.Height());
 
+        ConvolveFunctor convolve(radius, ImageFormat(dst), buffSize);
+    
+        if(radius < 1 || radius > buffSize) {
+            throw std::invalid_argument("inproper convolution radius");
         }
+
+        ImageLocker lock(dst);
+        char *const dataBegin = lock.Data();
+    
+        /** Per row convolution **/
+        for(size_t y = 0; y < dst.Height(); ++y) {
+            char *const data = dataBegin + dst.RowStride() * y;
+            const auto count = dst.Width();
+            const auto stride = dst.PixelStride();
+            convolve(data, count, stride);
+        }
+
+        /** Per column convolution **/
+        for(size_t x = 0; x < dst.Width(); ++x) {
+            char *const data = dataBegin + dst.PixelStride() * x;
+            const auto count = dst.Height();
+            const auto stride = dst.RowStride();
+            convolve(data, count, stride);
+        }
+    }
+
+    void BlurImageAlpha(Image &surface, size_t radius)
+    {
+
     }
 }

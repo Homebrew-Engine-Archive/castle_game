@@ -7,13 +7,14 @@
 
 #include <core/color.h>
 #include <core/rect.h>
+#include <core/palette.h>
+#include <core/image.h>
+#include <core/imageview.h>
+#include <core/imagelocker.h>
+
 #include <game/gm1reader.h>
-#include <game/palette.h>
 #include <game/gm1.h>
 #include <game/tgx.h>
-#include <game/image.h>
-#include <game/imageview.h>
-#include <game/imagelocker.h>
 
 namespace
 {    
@@ -30,7 +31,7 @@ namespace
             return SDL_PIXELFORMAT_INDEX8;
         }
 
-        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
     };
 
     /**
@@ -44,13 +45,13 @@ namespace
     class TGX16 : public gm1::GM1EntryReader
     {
     protected:
-        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
     };
 
     class FontReader : public gm1::GM1EntryReader
     {
     protected:
-        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
     };
     
     /**
@@ -65,7 +66,7 @@ namespace
     class TileObject : public gm1::GM1EntryReader
     {
     protected:    
-        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
     };
 
     /**
@@ -79,20 +80,20 @@ namespace
             return header.height - 7;
         }
     
-        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const;
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
     };
     
-    void TGX8::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
+    void TGX8::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const
     {
         tgx::DecodeImage(in, numBytes, surface);
     }
 
-    void TGX16::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
+    void TGX16::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const
     {
         tgx::DecodeImage(in, numBytes, surface);
     }
 
-    void FontReader::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
+    void FontReader::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const
     {
         tgx::DecodeImage(in, numBytes, surface);
 
@@ -105,7 +106,7 @@ namespace
 
         // TODO is there a better way to do so?
         // uint32_t destFormat = SDL_PIXELFORMAT_ARGB8888;
-        // castle::Image tmp = castle::ConvertImage(surface, destFormat);
+        // core::Image tmp = core::ConvertImage(surface, destFormat);
         // tmp.SetColorKey(mTransparent);
 
         // Here we just ignore original color information. What we are really
@@ -119,9 +120,9 @@ namespace
         // surface = tmp;
     }
     
-    void Bitmap::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, castle::Image &surface) const
+    void Bitmap::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const
     {
-        castle::ImageLocker lock(surface);
+        core::ImageLocker lock(surface);
 
         const size_t stride = surface.RowStride();
         const size_t rowBytes = surface.Width() * surface.PixelStride();
@@ -142,9 +143,9 @@ namespace
         return PerRow[row];
     }
 
-    void ReadTile(std::istream &in, castle::Image &image)
+    void ReadTile(std::istream &in, core::Image &image)
     {
-        castle::ImageLocker lock(image);
+        core::ImageLocker lock(image);
         
         const size_t rowStride = image.RowStride();
         const size_t height = gm1::TileSpriteHeight;
@@ -160,14 +161,14 @@ namespace
         }
     }
     
-    void TileObject::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, castle::Image &surface) const
+    void TileObject::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const
     {
         const core::Rect tilerect(0, header.tileY, Width(header), gm1::TileSpriteHeight);
-        castle::ImageView tile(surface, tilerect);
+        core::ImageView tile(surface, tilerect);
         ReadTile(in, tile.GetView());
         
         const core::Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
-        castle::ImageView box(surface, boxrect);
+        core::ImageView box(surface, boxrect);
         tgx::DecodeImage(in, numBytes - gm1::TileBytes, box.GetView());
     }
 }
@@ -179,15 +180,15 @@ namespace gm1
     {
     }
     
-    castle::Image GM1EntryReader::CreateCompatibleImage(const gm1::EntryHeader &header) const
+    core::Image GM1EntryReader::CreateCompatibleImage(const gm1::EntryHeader &header) const
     {
-        return castle::CreateImage(Width(header), Height(header), SourcePixelFormat());
+        return core::CreateImage(Width(header), Height(header), SourcePixelFormat());
     }
 
-    const castle::Image GM1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
+    const core::Image GM1EntryReader::Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const
     {
-        castle::Image image = CreateCompatibleImage(header);
-        ClearImage(image, mTransparentColor);
+        core::Image image = CreateCompatibleImage(header);
+        core::ClearImage(image, mTransparentColor);
         image.SetColorKey(mTransparentColor);
         boost::iostreams::stream<boost::iostreams::array_source> in(data, bytesCount);
         ReadImage(in, bytesCount, header, image);

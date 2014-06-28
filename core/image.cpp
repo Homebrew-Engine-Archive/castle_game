@@ -12,10 +12,10 @@
 #include <core/color.h>
 #include <core/rect.h>
 #include <core/point.h>
+#include <core/imagedebug.h>
+#include <core/imagelocker.h>
+#include <core/palette.h>
 
-#include <game/imagedebug.h>
-#include <game/imagelocker.h>
-#include <game/palette.h>
 #include <game/sdl_utils.h>
 #include <game/sdl_error.h>
 
@@ -39,7 +39,7 @@ namespace
     }
 }
 
-namespace castle
+namespace core
 {
     Image::Image() : Image(nullptr) {}
         

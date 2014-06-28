@@ -4,12 +4,12 @@
 
 #include <stdexcept>
 
-#include <game/imagelocker.h>
+#include <core/imagelocker.h>
 #include <core/color.h>
 #include <game/sdl_error.h>
 #include <core/rect.h>
 
-namespace castle
+namespace core
 {
     const Image CreateImageView(Image &src, const core::Rect &clip)
     {
