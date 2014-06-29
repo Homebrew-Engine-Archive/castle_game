@@ -3,7 +3,6 @@
 
 #include <string>
 
-#include <game/gm1reader.h>
 #include <game/vfs.h>
 #include <game/spritecollection.h>
 #include <game/spritelookuptable.h>
@@ -15,9 +14,8 @@ namespace castle
         class CreatureClass
         {
         public:
-            CreatureClass(const std::string &name, const std::vector<gfx::BodyGroupDescription> &groups, const gm1::GM1Reader &reader);
+            CreatureClass(const std::string &name, const castle::gfx::SpriteCollection &collection);
             
-            /** represent creature name like "archer" or "seagull" **/
             const std::string& GetName() const;
             const castle::gfx::SpriteCollection& GetSpriteCollection() const;
 

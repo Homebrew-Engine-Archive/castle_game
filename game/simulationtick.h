@@ -5,7 +5,7 @@ namespace castle
 {
     namespace world
     {
-        using tick_t = unsigned;
+        using tick_t = unsigned long long;
     }
 }
 

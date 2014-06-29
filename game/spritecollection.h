@@ -5,7 +5,8 @@
 
 #include <game/collection.h>
 #include <game/spritelookuptable.h>
-#include <game/gm1reader.h>
+
+#include <gm1/gm1reader.h>
 
 #include <core/point.h>
 #include <core/image.h>
@@ -34,7 +35,6 @@ namespace castle
         {
         public:
             SpriteCollection(const std::vector<BodyGroupDescription> &groups, const gm1::GM1Reader &reader);
-            
             const Sprite GetSprite(const std::string &group, float frame, const core::Direction &dir);
             
         private:

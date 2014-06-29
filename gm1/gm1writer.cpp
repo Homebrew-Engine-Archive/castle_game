@@ -6,7 +6,7 @@
 #include <core/color.h>
 #include <core/palette.h>
 
-#include <game/gm1.h>
+#include <gm1/gm1.h>
 
 namespace gm1
 {

@@ -1,6 +1,8 @@
 #ifndef IMAGEVIEW_H_
 #define IMAGEVIEW_H_
 
+#include <stdexcept>
+
 #include <core/image.h>
 
 namespace core
@@ -24,14 +26,14 @@ namespace core
    \todo This class is not intended to work together with RLE accel. Can we deal with it?
 **/
 
-    class ImageView final
+    class ImageView
     {
         Image mImage;
         const Image &mParentRef;
     
-      public:
-        ImageView(const Image &src, const core::Rect &clip);
-        ImageView(Image &src, const core::Rect &clip);
+    public:
+        ImageView(const core::Image &src, const core::Rect &clip);
+        ImageView(core::Image &src, const core::Rect &clip);
 
         inline Image& GetView();
         inline Image const& GetView() const;

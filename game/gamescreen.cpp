@@ -10,14 +10,14 @@
 #include <core/image.h>
 #include <core/palette.h>
 
+#include <gm1/gm1.h>
+
 #include <game/creature.h>
 #include <game/fontengine.h>
-#include <game/gm1.h>
 #include <game/landscape.h>
 #include <game/renderengine.h>
 #include <game/renderer.h>
 #include <game/screenmanager.h>
-#include <game/simulationcontext.h>
 #include <game/simulationmanager.h>
 #include <game/vfs.h>
 
@@ -37,7 +37,7 @@ namespace castle
             , mCursor()
             , mCursorInvalid(true)
             , mCamera()
-            , mSimContext(nullptr)
+            , mSimManager(nullptr)
         {
         }
     
@@ -64,7 +64,7 @@ namespace castle
 
         void GameScreen::RenderTile(render::Renderer &renderer, const world::MapCell &cell)
         {
-            const world::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimManager->GetMap();
             
             const core::Size tileSize(mCamera.TileSize());
             const core::Point heightOffset(0, map.Height(cell));
@@ -84,18 +84,21 @@ namespace castle
     
         void GameScreen::RenderCreature(render::Renderer &renderer, const world::Creature &creature)
         {
+            const world::CreatureClass &cc = creature.GetClass();
+            const world::CreatureState &state = creature.GetState();
+
             
         }
 
         void GameScreen::Render(render::Renderer &renderer)
         {
-            if(mSimContext == nullptr) {
+            if(mSimManager == nullptr) {
                 return;
             }
         
             UpdateCamera(renderer);
 
-            const world::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimManager->GetMap();
 
             const auto cells = map.Cells();
             for(auto i = cells.first; i != cells.second; ++i) {
@@ -219,7 +222,7 @@ namespace castle
 
         bool GameScreen::IsTileSelected(const core::Point &cursor, const world::MapCell &cell) const
         {
-            const world::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimManager->GetMap();
             const gfx::Collection &tileset = GetTileSet(map.LandscapeType(cell));
         
             const size_t index = map.Height(cell);
@@ -249,7 +252,7 @@ namespace castle
                 return mCamera.ScreenToworldCoords(viewportCursor);
             }
 
-            const world::Map &map = mSimContext->GetMap();
+            const world::Map &map = mSimManager->GetMap();
             world::MapCell selected = map.NullCell();
             const auto cellsIters = map.Cells();
             for(auto i = cellsIters.first; i != cellsIters.second; ++i) {
@@ -266,9 +269,9 @@ namespace castle
             return mCamera;
         }
 
-        void GameScreen::SetSimulationContext(world::SimulationContext &simContext)
+        void GameScreen::SetSimulation(world::SimulationManager &simsim)
         {
-            mSimContext = &simContext;
+            mSimManager = &simsim;
         }
     } // namespace ui
 }

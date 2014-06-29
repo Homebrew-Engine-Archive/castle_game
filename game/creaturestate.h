@@ -38,18 +38,17 @@ namespace castle
             int GetWorldX() const;
             int GetWorldY() const;
 
-            void ResetState();
             void Update(tick_t ticks);
+            void ResetState();
             void SetName(const std::string &anim);
             void SetDirection(const core::Direction &dir);
             void SetPaletteName(const castle::gfx::PaletteName &name);
-            
+
         private:
             std::string mName;
             core::Direction mDirection;
             castle::world::tick_t mTicksElapsed;
             castle::gfx::PaletteName mPaletteName;
-            
         };
     }
 }

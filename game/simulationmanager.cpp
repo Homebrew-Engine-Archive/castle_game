@@ -6,19 +6,15 @@
 #include <game/creatureclass.h>
 #include <game/creaturestate.h>
 #include <game/creature.h>
-#include <game/simulationcontext.h>
 
 namespace castle
 {
     namespace world
     {
-        SimulationManager::~SimulationManager() = default;
-    
         SimulationManager::SimulationManager()
-            : mPrimaryContext(new SimulationContext())
+            : mTickDuration(std::chrono::milliseconds(10))
             , mTurnLength(100)
             , mTurnNumber(0)
-            , mCreatureClasses()
         {
         }
 
@@ -40,39 +36,39 @@ namespace castle
         
         void SimulationManager::Update(const std::chrono::milliseconds &elapsed)
         {
-            for(const SimulationCommand &command : mCommands) {
-                command.Execute(*mPrimaryContext);
+            const auto sinceLastTick = (elapsed + mTickInterpolation);
+            const auto ticks = sinceLastTick / mTickDuration;
+            mTickInterpolation = sinceLastTick % mTickDuration;
+            AdvanceSimulation(ticks);
+        }
+
+        void SimulationManager::AdvanceSimulation(tick_t ticks)
+        {
+            for(Creature &creature : mCreatures) {
+                creature.Update(ticks);
             }
         }
-    
-        bool SimulationManager::HasUpdate(const std::chrono::milliseconds &elapsed)
+        
+        void SimulationManager::RegisterClass(const std::string &name, CreatureClass cc)
         {
-            for(const PlayerAvatar &avatar : mAvatars) {
-                const unsigned turn = mAvatarTurn[avatar];
-                if(turn <= mTurnNumber) {
-                    return false;
-                }
-            }
-            return true;
+            mCreatureClasses.insert(std::make_pair(cc.GetName(), std::move(cc)));
         }
-
-        SimulationContext& SimulationManager::PrimaryContext()
+        
+        void SimulationManager::SetMap(std::unique_ptr<Map> map)
         {
-            return *mPrimaryContext;
+            mMap = std::move(map);
         }
-    
-        void SimulationManager::SetPrimaryContext(std::unique_ptr<SimulationContext> context)
+            
+        const Map& SimulationManager::GetMap() const
         {
-            mPrimaryContext = std::move(context);
+            return *mMap;
         }
-
-        const castle::world::CreatureClass& SimulationManager::FindClass(const std::string &name) const
+            
+        void SimulationManager::AddCreature(const std::string &creatureClass, const CreatureState &st)
         {
-            return mCreatureClasses.at(name);
-        }
-
-        void SimulationManager::RegisterClass(const CreatureClass &cc)
-        {
+            const CreatureClass &cc = mCreatureClasses.at(creatureClass);
+            mCreatures.emplace_back(cc, st);
         }
     }
 }
+

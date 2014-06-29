@@ -13,7 +13,7 @@
 #include <core/palette.h>
 #include <core/image.h>
 
-#include <game/gm1entryreader.h>
+#include <gm1/gm1entryreader.h>
 
 namespace
 {

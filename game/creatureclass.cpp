@@ -4,9 +4,9 @@ namespace castle
 {
     namespace world
     {
-        CreatureClass::CreatureClass(const std::string &name, const std::vector<gfx::BodyGroupDescription> &groups, const gm1::GM1Reader &reader)
+        CreatureClass::CreatureClass(const std::string &name, const castle::gfx::SpriteCollection &collection)
             : mName(name)
-            , mSpriteCollection(groups, reader)
+            , mSpriteCollection(collection)
         {
         }
 

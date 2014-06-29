@@ -11,14 +11,14 @@
 
 namespace core
 {
-    const Image CreateImageView(Image &src, const core::Rect &clip)
+    const core::Image CreateImageView(core::Image &src, const core::Rect &clip)
     {
         if(SDL_MUSTLOCK(src.GetSurface())) {
             // \todo can we deal with it?
             throw std::invalid_argument("ImageView might not be created from RLEaccel surface");
         }
 
-        ImageLocker lock(src);
+        core::ImageLocker lock(src);
         
         const core::Rect cropped =
             core::Intersection(
@@ -29,7 +29,7 @@ namespace core
             + cropped.Y() * src.RowStride()
             + cropped.X() * src.PixelStride();
 
-        Image tmp = CreateImageFrom(data, cropped.Width(), cropped.Height(), src.RowStride(), ImageFormat(src));
+        core::Image tmp = core::CreateImageFrom(data, cropped.Width(), cropped.Height(), src.RowStride(), core::ImageFormat(src));
         if(src.ColorKeyEnabled()) {
             tmp.SetColorKey(src.GetColorKey());
         }
@@ -37,17 +37,20 @@ namespace core
         return tmp;
     }
 
-    ImageView::ImageView(Image &src, const core::Rect &clip)
-        : mImage(CreateImageView(src, clip))
+    ImageView::ImageView(core::Image &src, const core::Rect &clip)
+        : mImage(core::CreateImageView(src, clip))
         , mParentRef(src)
     {
     }
 
-// \todo there is something wrong with const-specifier
-// problem arises to SDL_CreateRGBSurfaceFrom which asks for non-const pixels
-// We can just copy object to remove const-cv anyway.
-    ImageView::ImageView(const Image &src, const core::Rect &clip)
-        : ImageView(const_cast<Image&>(src), clip)
+    /** 
+        \todo There is something wrong with const-specifier.
+        
+        Problem arises to SDL_CreateRGBSurfaceFrom which asks for non-const pixels
+        We can just copy object to remove const-cv anyway.
+    **/
+    ImageView::ImageView(const core::Image &src, const core::Rect &clip)
+        : ImageView(const_cast<core::Image&>(src), clip)
     {
     }
 }

@@ -1,12 +1,12 @@
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
+set (TARGET a.out)
+
 set (SUBSYSTEMS
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(SOURCES 
-  engine.cpp
-  main.cpp)
+set(SOURCES "")
 
 foreach (DIR ${SUBSYSTEMS})
   include_directories (${DIR})
@@ -14,8 +14,6 @@ foreach (DIR ${SUBSYSTEMS})
   set (SOURCES ${SOURCES} ${SUBSYSTEM_SOURCES})
 endforeach(DIR)
 
-set (TARGET "a.out")
-
 add_executable (${TARGET} ${SOURCES})
 
-target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2GFX_LIBRARY} corelib)
+target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2GFX_LIBRARY} gm1lib tgxlib corelib)

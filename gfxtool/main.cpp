@@ -14,10 +14,11 @@
 
 #include <core/image.h>
 
+#include <tgx/tgx.h>
+
 #include <game/sdl_error.h>
 #include <game/sdl_utils.h>
 #include <game/sdl_init.h>
-#include <game/tgx.h>
 
 int main(int argc, char *argv[])
 {

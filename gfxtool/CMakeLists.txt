@@ -6,13 +6,8 @@ set (SRCS
   main.cpp
 )
 
-set (SHARED
-  ../game/tgx.cpp
-  ../game/sdl_utils.cpp
-)
-
 set(TARGET "gfxtool.out")
 
-add_executable (${TARGET} ${SRCS} ${SHARED})
+add_executable (${TARGET} ${SRCS})
 
-target_link_libraries (${TARGET} ${SDL2_LIBRARY} corelib)
+target_link_libraries (${TARGET} ${SDL2_LIBRARY} corelib tgxlib)

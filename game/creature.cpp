@@ -1,6 +1,5 @@
 #include "creature.h"
 
-#include <game/simulationcontext.h>
 #include <game/creaturestate.h>
 #include <game/creatureclass.h>
 
@@ -38,6 +37,11 @@ namespace castle
         void Creature::SetState(const CreatureState &state)
         {
             mState = state;
+        }
+
+        void Creature::Update(tick_t ticks)
+        {
+            mState.Update(ticks);
         }
     }
 }

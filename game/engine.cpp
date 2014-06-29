@@ -14,7 +14,8 @@
 #include <core/point.h>
 #include <core/rect.h>
 
-#include <game/gm1reader.h>
+#include <gm1/gm1reader.h>
+
 #include <game/collection.h>
 #include <game/gamemap.h>
 #include <game/gamescreen.h>
@@ -126,6 +127,14 @@ namespace castle
     {
         // precache gm dir
     }
+
+    void Engine::LoadSimulationContext()
+    {
+        std::unique_ptr<world::Map> testMap(new world::Map(100));
+        GenerateTestMap(*testMap);
+
+        mSimManager->SetMap(std::move(testMap));
+    }
     
     void Engine::PollInput()
     {
@@ -192,26 +201,8 @@ namespace castle
     {
         const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         const std::chrono::milliseconds sinceLastSim = Elapsed(mLastSimPoll, now);
-        if(mSimManager->HasUpdate(sinceLastSim)) {
-            mLastSimPoll = now;
-            mSimManager->Update(sinceLastSim);
-        }
+        mSimManager->Update(sinceLastSim);
     }    
-
-    void Engine::LoadSimulationContext()
-    {
-        std::unique_ptr<world::Map> testMap(new world::Map(100));
-        GenerateTestMap(*testMap);
-
-        world::SimulationContext &context = mSimManager->PrimaryContext();
-        context.SetMap(std::move(testMap));
-
-        gm1::GM1Reader reader(vfs::GetGM1Filename("body_lord"));
-        world::CreatureClass cc("lord", castle::gfx::GetBodyLordDescription(), reader);
-        
-        world::Creature creature(cc, world::CreatureState("idle", core::Direction::NorthWest, 0, castle::gfx::PaletteName::Blue));
-        context.AddCreature(creature);
-    }
     
     int Engine::Exec()
     {
@@ -219,8 +210,7 @@ namespace castle
         LoadGraphics();
         LoadSimulationContext();
 
-        mScreenManager->GetGameScreen().SetSimulationContext(mSimManager->PrimaryContext());
-
+        mScreenManager->GetGameScreen().SetSimulation(*mSimManager);
         mScreenManager->EnterGameScreen();
         mServer->StartAccept();
         

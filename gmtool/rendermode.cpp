@@ -11,9 +11,9 @@
 
 #include <gmtool/renderer.h>
 
-#include <game/gm1.h>
-#include <game/gm1reader.h>
-#include <game/gm1entryreader.h>
+#include <gm1/gm1.h>
+#include <gm1/gm1reader.h>
+#include <gm1/gm1entryreader.h>
 
 #include <core/image.h>
 #include <core/palette.h>

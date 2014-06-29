@@ -7,11 +7,6 @@ namespace castle
 {
     namespace world
     {
-        class SimulationContext;
-    }
-    
-    namespace world
-    {
         class SimulationCommand
         {
             PlayerAvatar mPlayer;
@@ -19,8 +14,6 @@ namespace castle
             explicit SimulationCommand(PlayerAvatar v)
                 : mPlayer(v)
                 {}
-
-            void Execute(SimulationContext &context) const;
         };
     }
 }

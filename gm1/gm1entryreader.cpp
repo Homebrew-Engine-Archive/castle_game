@@ -12,9 +12,9 @@
 #include <core/imageview.h>
 #include <core/imagelocker.h>
 
-#include <game/gm1reader.h>
-#include <game/gm1.h>
-#include <game/tgx.h>
+#include <gm1/gm1reader.h>
+#include <gm1/gm1.h>
+#include <tgx/tgx.h>
 
 namespace
 {    
@@ -115,7 +115,7 @@ namespace
         //     return core::Color(color.r, 255, color.b, color.g);
         // };
     
-        // castle::TransformImage(tmp, swap_green_alpha);
+        // core::TransformImage(tmp, swap_green_alpha);
 
         // surface = tmp;
     }

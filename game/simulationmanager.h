@@ -8,13 +8,16 @@
 
 #include <game/creature.h>
 #include <game/simulationcommand.h>
-#include <game/simulationcontext.h>
 #include <game/simulationtick.h>
 #include <game/playeravatar.h>
 #include <game/gamemap.h>
 
 namespace castle
 {
+    namespace gfx
+    {
+        class SpriteCollection;
+    }
     namespace world
     {
         class CreatureClass;
@@ -28,35 +31,36 @@ namespace castle
         class SimulationManager
         {
         public:
-            explicit SimulationManager();
-            SimulationManager(SimulationManager const&) = delete;
-            SimulationManager& operator=(SimulationManager const&) = delete;
-            virtual ~SimulationManager();
+            SimulationManager();
 
             void Update(const std::chrono::milliseconds &elapsed);
-            bool HasUpdate(const std::chrono::milliseconds &elapsed);
-            void SetPrimaryContext(std::unique_ptr<SimulationContext> context);
-            SimulationContext& PrimaryContext();
+            
+            void SetMap(std::unique_ptr<Map> map);
+            const Map& GetMap() const;
 
-            void RegisterClass(const CreatureClass &cc);
-            const castle::world::CreatureClass& FindClass(const std::string &name) const;
+            void RegisterClass(const std::string &name, CreatureClass cc);
+            void AddCreature(const std::string &creatureClass, const CreatureState &st);
             
         private:
             void CompleteTurn(const PlayerAvatar &player, int turn);
             void AddPlayer(const PlayerAvatar &player);
             void RemovePlayer(const PlayerAvatar &player);
+
+            void AdvanceSimulation(tick_t ticks);
             
         protected:
+            std::unique_ptr<Map> mMap;
+            std::vector<Creature> mCreatures;
+            std::map<std::string, CreatureClass> mCreatureClasses;
             std::vector<PlayerAvatar> mAvatars;
             std::map<PlayerAvatar, unsigned> mAvatarTurn;
             std::vector<SimulationCommand> mCommands;
-            std::unique_ptr<SimulationContext> mPrimaryContext;
+            std::chrono::nanoseconds mTickInterpolation;
             std::chrono::nanoseconds mTickDuration;
             unsigned mTurnLength;
             unsigned mTurnNumber;
             PlayerAvatar mHostAvatar;
             PlayerAvatar mLocalAvatar;
-            std::map<std::string, castle::world::CreatureClass> mCreatureClasses;
         };
     }
 }

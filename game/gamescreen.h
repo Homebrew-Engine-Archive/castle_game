@@ -19,7 +19,6 @@ namespace castle
     namespace world
     {
         class Creature;
-        class SimulationContext;
         class SimulationManager;
     }
     namespace ui
@@ -40,7 +39,7 @@ namespace castle
             GameScreen& operator=(GameScreen const&) = delete;
             virtual ~GameScreen();
 
-            void SetSimulationContext(world::SimulationContext &context);
+            void SetSimulation(world::SimulationManager &simsim);
             void Render(render::Renderer &renderer);
             bool HandleEvent(const SDL_Event &event);
             world::Camera& GetActiveCamera();
@@ -68,7 +67,7 @@ namespace castle
             core::Point mCursor;
             bool mCursorInvalid;
             world::Camera mCamera;
-            world::SimulationContext *mSimContext;
+            world::SimulationManager *mSimManager;
         };
     }
 }

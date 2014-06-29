@@ -1,13 +1,13 @@
-#ifndef gm1READER_H_
-#define gm1READER_H_
+#ifndef GM1READER_H_
+#define GM1READER_H_
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 
-#include <game/gm1.h>
-
 #include <boost/filesystem/path.hpp>
+
+#include <gm1/gm1.h>
 
 namespace core
 {
@@ -64,4 +64,4 @@ namespace gm1
     };
 }
 
-#endif
+#endif  // GM1READER_H_

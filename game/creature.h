@@ -30,6 +30,8 @@ namespace castle
             const CreatureState& GetState() const;
 
             void SetState(const CreatureState &state);
+
+            void Update(tick_t ticks);
         };
     }
 }

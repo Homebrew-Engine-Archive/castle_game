@@ -6,8 +6,8 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 
-#include <game/gm1.h>
-#include <game/gm1reader.h>
+#include <gm1/gm1.h>
+#include <gm1/gm1reader.h>
 
 namespace po = boost::program_options;
 

@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include <game/gm1.h>
-
 #include <core/modulo.h>
 #include <core/size.h>
 #include <core/point.h>

@@ -8,8 +8,9 @@
 
 #include <core/image.h>
 
+#include <gm1/gm1.h>
+
 #include <game/vfs.h>
-#include <game/gm1.h>
 #include <game/sdl_utils.h>
 #include <game/palettename.h>
 

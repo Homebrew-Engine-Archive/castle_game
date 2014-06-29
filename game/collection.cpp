@@ -13,9 +13,12 @@
 #include <core/point.h>
 #include <core/palette.h>
 
+#include <gm1/gm1reader.h>
+
+#include <tgx/tgx.h>
+
 #include <game/palettename.h>
-#include <game/gm1reader.h>
-#include <game/tgx.h>
+
 
 namespace castle
 {

@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (gmtool)
 
+set(TARGET gmtool.out)
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
@@ -20,16 +22,6 @@ set (RENDERERS
   renderers/bitmap.cpp
   renderers/tgxrenderer.cpp
 )
-
-set (SHARED
-  ../game/gm1.cpp
-  ../game/gm1reader.cpp
-  ../game/gm1writer.cpp
-  ../game/gm1entryreader.cpp
-  ../game/tgx.cpp
-)
-
-set(TARGET "gmtool.out")
 
 find_package (Boost 1.46 REQUIRED COMPONENTS program_options)
 set (BOOST_PROGRAM_OPTIONS boost_program_options)
@@ -63,6 +55,6 @@ configure_file (
   ${CMAKE_CURRENT_SOURCE_DIR}/config_${PROJECT_NAME}.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config_${PROJECT_NAME}.h)
 
-add_executable (${TARGET} ${SRCS} ${SHARED} ${RENDERERS})
+add_executable (${TARGET} ${SRCS} ${RENDERERS})
 
-target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} corelib)
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} gm1lib tgxlib corelib)

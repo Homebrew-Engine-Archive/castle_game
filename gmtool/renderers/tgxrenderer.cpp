@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <game/tgx.h>
+#include <tgx/tgx.h>
 
 namespace gmtool
 {
