@@ -5,7 +5,7 @@
 #include <core/image.h>
 
 #include <game/videomode.h>
-#include <game/sdl_utils.h>
+#include <core/sdl_utils.h>
 #include <game/renderengine.h>
 
 namespace core

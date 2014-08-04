@@ -18,7 +18,7 @@
 #include <gm1/gm1.h>
 #include <gm1/gm1reader.h>
 
-#include <game/sdl_utils.h>
+#include <core/sdl_utils.h>
 
 #include <gmtool/headermode.h>
 #include <gmtool/palettemode.h>

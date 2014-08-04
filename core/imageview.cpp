@@ -6,7 +6,7 @@
 
 #include <core/imagelocker.h>
 #include <core/color.h>
-#include <game/sdl_error.h>
+#include <core/sdl_error.h>
 #include <core/rect.h>
 
 namespace core

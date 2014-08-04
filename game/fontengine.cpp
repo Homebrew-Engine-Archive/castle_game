@@ -21,7 +21,7 @@
 #include <game/renderengine.h>
 #include <game/ttf_error.h>
 #include <game/ttf_init.h>
-#include <game/sdl_utils.h>
+#include <core/sdl_utils.h>
 
 struct FontCloseDeleter
 {

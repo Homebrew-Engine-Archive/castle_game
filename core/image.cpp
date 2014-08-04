@@ -16,8 +16,8 @@
 #include <core/imagelocker.h>
 #include <core/palette.h>
 
-#include <game/sdl_utils.h>
-#include <game/sdl_error.h>
+#include <core/sdl_utils.h>
+#include <core/sdl_error.h>
 
 namespace
 {        

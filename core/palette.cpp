@@ -4,8 +4,8 @@
 
 #include <SDL.h>
 
-#include <game/sdl_utils.h>
-#include <game/sdl_error.h>
+#include <core/sdl_utils.h>
+#include <core/sdl_error.h>
 #include <core/color.h>
 #include <core/modulo.h>
 

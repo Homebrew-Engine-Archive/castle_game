@@ -7,8 +7,8 @@
 #include <core/rect.h>
 #include <core/point.h>
 #include <core/color.h>
-#include <game/sdl_error.h>
-#include <game/sdl_utils.h>
+#include <core/sdl_error.h>
+#include <core/sdl_utils.h>
 #include <game/fontengine.h>
 #include <game/softwarerenderengine.h>
 #include <game/sdlrenderengine.h>

@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-#include <game/sdl_error.h>
+#include <core/sdl_error.h>
 
 struct SDLInitializer
 {

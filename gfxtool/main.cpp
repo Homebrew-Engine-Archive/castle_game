@@ -16,9 +16,9 @@
 
 #include <tgx/tgx.h>
 
-#include <game/sdl_error.h>
-#include <game/sdl_utils.h>
-#include <game/sdl_init.h>
+#include <core/sdl_error.h>
+#include <core/sdl_utils.h>
+#include <core/sdl_init.h>
 
 int main(int argc, char *argv[])
 {

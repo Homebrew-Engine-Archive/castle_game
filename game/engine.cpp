@@ -24,7 +24,7 @@
 #include <game/renderer.h>
 #include <game/screen.h>
 #include <game/screenmanager.h>
-#include <game/sdl_init.h>
+#include <core/sdl_init.h>
 #include <game/simulationmanager.h>
 
 namespace

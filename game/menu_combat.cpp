@@ -3,7 +3,7 @@
 #include <SDL.h>
 
 #include <game/collection.h>
-#include <game/sdl_utils.h>
+#include <core/sdl_utils.h>
 #include <game/screenmanager.h>
 
 namespace castle

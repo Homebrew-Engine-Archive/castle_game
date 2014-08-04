@@ -13,7 +13,7 @@
 #include <core/color.h>
 #include <core/image.h>
 
-#include <game/sdl_error.h>
+#include <core/sdl_error.h>
 
 namespace
 {

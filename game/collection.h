@@ -11,7 +11,7 @@
 #include <gm1/gm1.h>
 
 #include <game/vfs.h>
-#include <game/sdl_utils.h>
+#include <core/sdl_utils.h>
 #include <game/palettename.h>
 
 namespace core
