@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include <core/size.h>
-#include <game/outputmode.h>
+#include <game/videomode.h>
 #include <core/rect.h>
 #include <core/point.h>
 #include <core/color.h>
@@ -103,7 +103,7 @@ namespace castle
         
         void Renderer::BeginFrame()
         {
-            const OutputMode mode = mRenderEngine->GetOutputMode();
+            const VideoMode mode = mRenderEngine->GetVideoMode();
             mClipStack.clear();
             mClipStack.push_back(
                 core::Rect(mode.Width(), mode.Height()));
@@ -130,7 +130,7 @@ namespace castle
     
         const core::Point Renderer::GetOutputSize() const
         {
-            const OutputMode mode = mRenderEngine->GetOutputMode();
+            const VideoMode mode = mRenderEngine->GetVideoMode();
             return core::Point(mode.Width(), mode.Height());
         }
     
@@ -222,23 +222,23 @@ namespace castle
         
         void Renderer::SetScreenWidth(int width)
         {
-            OutputMode mode = mRenderEngine->GetOutputMode();
+            VideoMode mode = mRenderEngine->GetVideoMode();
             mode.SetWidth(width);
-            mRenderEngine->SetOutputMode(mode);
+            mRenderEngine->SetVideoMode(mode);
         }
     
         void Renderer::SetScreenHeight(int height)
         {
-            OutputMode mode = mRenderEngine->GetOutputMode();
+            VideoMode mode = mRenderEngine->GetVideoMode();
             mode.SetHeight(height);
-            mRenderEngine->SetOutputMode(mode);
+            mRenderEngine->SetVideoMode(mode);
         }
     
         void Renderer::SetScreenFormat(int format)
         {
-            OutputMode mode = mRenderEngine->GetOutputMode();
+            VideoMode mode = mRenderEngine->GetVideoMode();
             mode.SetFormat(format);
-            mRenderEngine->SetOutputMode(mode);
+            mRenderEngine->SetVideoMode(mode);
         }
 
         void Renderer::SetDrawColor(core::Color color)

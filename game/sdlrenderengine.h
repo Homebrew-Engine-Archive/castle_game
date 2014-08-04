@@ -2,7 +2,7 @@
 #define SDLRENDERENGINE_H_
 
 #include <core/rect.h>
-#include <game/outputmode.h>
+#include <game/videomode.h>
 #include <game/sdl_utils.h>
 #include <game/renderengine.h>
 
@@ -21,7 +21,7 @@ namespace castle
         protected:
             RendererPtr mRenderer;
             WindowPtr mWindow;
-            OutputMode mOutputMode;
+            VideoMode mVideoMode;
             core::Rect mViewport;
             int mOpacityMod;
         
@@ -32,8 +32,8 @@ namespace castle
             virtual void BeginFrame();
             virtual void EndFrame();
 
-            virtual void SetOutputMode(const OutputMode &mode);
-            virtual const OutputMode GetOutputMode() const;
+            virtual void SetVideoMode(const VideoMode &mode);
+            virtual const VideoMode GetVideoMode() const;
             virtual const core::Size GetMaxOutputSize() const;
 
             virtual void DrawPoints(const core::Point *points, size_t count, core::Color const&);

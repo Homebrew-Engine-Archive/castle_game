@@ -44,8 +44,8 @@ namespace castle
         SoftwareRenderEngine::SoftwareRenderEngine()
             : mScreenRenderer(nullptr)
             , mWindow(nullptr)
-            , mOutputMode(WindowWidth, WindowHeight, WindowPixelFormat)
-            , mFrameOutputMode(mOutputMode)
+            , mVideoMode(WindowWidth, WindowHeight, WindowPixelFormat)
+            , mFrameVideoMode(mVideoMode)
             , mScreenImage(nullptr)
             , mScreenTexture(nullptr)
             , mPrimitiveRenderer(nullptr)
@@ -55,8 +55,8 @@ namespace castle
                 SDL_CreateWindow(WindowTitle,
                                  WindowXPos,
                                  WindowYPos,
-                                 mOutputMode.Width(),
-                                 mOutputMode.Height(),
+                                 mVideoMode.Width(),
+                                 mVideoMode.Height(),
                                  WindowFlags));
         
             if(!mWindow) {
@@ -77,18 +77,18 @@ namespace castle
             mOpacityMod = opacity;
         }
 
-        bool SoftwareRenderEngine::ReallocationRequired(const OutputMode &mode) const
+        bool SoftwareRenderEngine::ReallocationRequired(const VideoMode &mode) const
         {
             if((!mScreenImage) || (!mScreenTexture) || (!mPrimitiveRenderer)) {
                 return true;
             }
 
-            return mFrameOutputMode != mOutputMode;
+            return mFrameVideoMode != mVideoMode;
         }
     
         void SoftwareRenderEngine::BeginFrame()
         {
-            if(ReallocationRequired(mOutputMode)) {
+            if(ReallocationRequired(mVideoMode)) {
                 mPrimitiveRenderer = nullptr;
                 mScreenImage = nullptr;
                 mScreenTexture = nullptr;
@@ -98,10 +98,10 @@ namespace castle
                 TexturePtr temp(
                     SDL_CreateTexture(
                         mScreenRenderer.get(),
-                        mOutputMode.Format(),
+                        mVideoMode.Format(),
                         SDL_TEXTUREACCESS_STREAMING,
-                        mOutputMode.Width(),
-                        mOutputMode.Height()));
+                        mVideoMode.Width(),
+                        mVideoMode.Height()));
 
                 /** Incorrect size or format will be reported here **/
                 if(!temp) {
@@ -113,9 +113,9 @@ namespace castle
 
             if(!mScreenImage) {
                 core::Image temp = core::CreateImage(
-                    mOutputMode.Width(),
-                    mOutputMode.Height(),
-                    mOutputMode.Format());
+                    mVideoMode.Width(),
+                    mVideoMode.Height(),
+                    mVideoMode.Format());
                 
                 temp.SetBlendMode(SDL_BLENDMODE_NONE);
         
@@ -131,9 +131,9 @@ namespace castle
                 mPrimitiveRenderer = std::move(renderer);
             }
 
-            mFrameOutputMode = mOutputMode;
-            mViewport = core::Rect(mFrameOutputMode.Width(),
-                                   mFrameOutputMode.Height());
+            mFrameVideoMode = mVideoMode;
+            mViewport = core::Rect(mFrameVideoMode.Width(),
+                                   mFrameVideoMode.Height());
         }
     
         void SoftwareRenderEngine::EndFrame()
@@ -156,14 +156,14 @@ namespace castle
             SDL_RenderPresent(mScreenRenderer.get());
         }
     
-        void SoftwareRenderEngine::SetOutputMode(const OutputMode &mode)
+        void SoftwareRenderEngine::SetVideoMode(const VideoMode &mode)
         {
-            mOutputMode = mode;
+            mVideoMode = mode;
         }
 
-        const OutputMode SoftwareRenderEngine::GetOutputMode() const
+        const VideoMode SoftwareRenderEngine::GetVideoMode() const
         {
-            return mOutputMode;
+            return mVideoMode;
         }
         
         const core::Size SoftwareRenderEngine::GetMaxOutputSize() const

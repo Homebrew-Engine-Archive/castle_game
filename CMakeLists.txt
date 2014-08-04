@@ -65,6 +65,13 @@ find_package (Boost 1.54.0 REQUIRED COMPONENTS filesystem)
 
 set (BOOST_LIBRARIES boost_system boost_filesystem boost_iostreams)
 
+set (CORELIB core)
+set (TGXLIB tgx)
+set (GM1LIB gm1)
+set (GAMEBIN a.out)
+set (GMTOOLBIN gmtool.out)
+set (GFXTOOLBIN gfxtool.out)
+
 add_subdirectory (core)
 add_subdirectory (tgx)
 add_subdirectory (gm1)

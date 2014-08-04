@@ -31,14 +31,14 @@ namespace
     const int RendererIndex = -1;
     const int RendererFlags = SDL_RENDERER_ACCELERATED;
 
-    const castle::render::OutputMode DetectOutputMode(SDL_Window &window)
+    const castle::render::VideoMode DetectVideoMode(SDL_Window &window)
     {
         int width;
         int height;
         SDL_GetWindowSize(&window, &width, &height);
         
         const uint32_t format = SDL_GetWindowPixelFormat(&window);
-        return castle::render::OutputMode(width, height, format);
+        return castle::render::VideoMode(width, height, format);
     }
 }
 
@@ -51,7 +51,7 @@ namespace castle
         SDLRenderEngine::SDLRenderEngine()
             : mRenderer(nullptr)
             , mWindow(nullptr)
-            , mOutputMode()
+            , mVideoMode()
             , mViewport()
             , mOpacityMod()
         {
@@ -59,8 +59,8 @@ namespace castle
                 SDL_CreateWindow(WindowTitle,
                                  WindowXPos,
                                  WindowYPos,
-                                 mOutputMode.Width(),
-                                 mOutputMode.Height(),
+                                 mVideoMode.Width(),
+                                 mVideoMode.Height(),
                                  WindowFlags));
         
             if(!mWindow) {
@@ -83,7 +83,7 @@ namespace castle
     
         void SDLRenderEngine::BeginFrame()
         {
-            mOutputMode = DetectOutputMode(*mWindow);
+            mVideoMode = DetectVideoMode(*mWindow);
         }
     
         void SDLRenderEngine::EndFrame()
@@ -91,24 +91,24 @@ namespace castle
             SDL_RenderPresent(mRenderer.get());
         }
     
-        void SDLRenderEngine::SetOutputMode(const OutputMode &mode)
+        void SDLRenderEngine::SetVideoMode(const VideoMode &mode)
         {
-            const OutputMode actual = DetectOutputMode(*mWindow);
+            const VideoMode actual = DetectVideoMode(*mWindow);
             SDL_RenderSetScale(mRenderer.get(),
                                static_cast<float>(actual.Width()) / mode.Width(),
                                static_cast<float>(actual.Height()) / mode.Height());
         
-            mOutputMode = mode;
+            mVideoMode = mode;
         }
     
-        const OutputMode SDLRenderEngine::GetOutputMode() const
+        const VideoMode SDLRenderEngine::GetVideoMode() const
         {
-            return mOutputMode;
+            return mVideoMode;
         }
         
         const core::Size SDLRenderEngine::GetMaxOutputSize() const
         {
-            return core::Size(mOutputMode.Width(), mOutputMode.Height());
+            return core::Size(mVideoMode.Width(), mVideoMode.Height());
         }
 
         void SDLRenderEngine::UpdateViewport(const core::Rect &rect)

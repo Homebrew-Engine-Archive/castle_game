@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (corelib)
 
-set (TARGET gm1lib)
+set (TARGET ${GM1LIB})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 

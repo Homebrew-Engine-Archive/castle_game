@@ -1,6 +1,6 @@
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
-set (TARGET a.out)
+set (TARGET ${GAMEBIN})
 
 set (SUBSYSTEMS
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -16,4 +16,4 @@ endforeach(DIR)
 
 add_executable (${TARGET} ${SOURCES})
 
-target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2GFX_LIBRARY} gm1lib tgxlib corelib)
+target_link_libraries (${TARGET} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2GFX_LIBRARY} ${GM1LIB} ${TGXLIB} ${CORELIB})

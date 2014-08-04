@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (gmtool)
 
-set(TARGET gmtool.out)
+set(TARGET ${GMTOOLBIN})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -57,4 +57,4 @@ configure_file (
 
 add_executable (${TARGET} ${SRCS} ${RENDERERS})
 
-target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} gm1lib tgxlib corelib)
+target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${GM1LIB} ${TGXLIB} ${CORELIB})

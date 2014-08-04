@@ -17,7 +17,7 @@ namespace castle
 {
     namespace render
     {
-        class OutputMode;
+        class VideoMode;
     }
     
     namespace render
@@ -40,8 +40,8 @@ namespace castle
             virtual void BeginFrame() = 0;
             virtual void EndFrame() = 0;
 
-            virtual void SetOutputMode(const OutputMode &mode) = 0;
-            virtual const OutputMode GetOutputMode() const = 0;
+            virtual void SetVideoMode(const VideoMode &mode) = 0;
+            virtual const VideoMode GetVideoMode() const = 0;
             virtual const core::Size GetMaxOutputSize() const = 0;
 
             virtual void DrawPoints(const core::Point *points, size_t count, const core::Color &color) = 0;

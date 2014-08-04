@@ -4,7 +4,7 @@
 #include <core/rect.h>
 #include <core/image.h>
 
-#include <game/outputmode.h>
+#include <game/videomode.h>
 #include <game/sdl_utils.h>
 #include <game/renderengine.h>
 
@@ -24,11 +24,11 @@ namespace castle
             RendererPtr mScreenRenderer;
             WindowPtr mWindow;
 
-            /** mOutputMode is not yet active output mode but pending out
-                and mFrameOutputMode is current frame's mode
+            /** mVideoMode is not yet active output mode but pending out
+                and mFrameVideoMode is current frame's mode
             **/
-            OutputMode mOutputMode;
-            OutputMode mFrameOutputMode;
+            VideoMode mVideoMode;
+            VideoMode mFrameVideoMode;
 
             core::Rect mViewport;
             core::Image mScreenImage;
@@ -42,8 +42,8 @@ namespace castle
         
             virtual void BeginFrame();
             virtual void EndFrame();
-            virtual void SetOutputMode(const OutputMode &mode);
-            virtual const OutputMode GetOutputMode() const;
+            virtual void SetVideoMode(const VideoMode &mode);
+            virtual const VideoMode GetVideoMode() const;
             virtual const core::Size GetMaxOutputSize() const;
             virtual void DrawPoints(const core::Point *points, size_t count, const core::Color &color);
             virtual void DrawRects(const core::Rect *rects, size_t count, const core::Color &color, DrawMode mode);
@@ -57,7 +57,7 @@ namespace castle
             virtual void ClearOutput(const core::Color &color);
 
         private:
-            bool ReallocationRequired(const OutputMode &mode) const;
+            bool ReallocationRequired(const VideoMode &mode) const;
             void UpdateDrawColor(const core::Color &color);
             void UpdateViewport(const core::Rect &clipRect);
         };
