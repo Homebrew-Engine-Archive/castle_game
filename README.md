@@ -1,7 +1,19 @@
-## Coding style conventions
+Project
+-------
 
-1.0. About project source files
------------------
+There are several utilities for manipulating game resources and some game components.
+
+* gmtool/ -- *.gm1 files extraction/inspection.
+* gfxtool/ -- *.tgx files rendering.
+* core/ -- utility classes for each component.
+* tgx/ -- library for encoding and decoding tgx files.
+* gm1/ -- library for manipulate gm1 files.
+* game/ -- the game itself (fully incomplete yet).
+
+Coding style conventions
+---------------------------
+
+## 1.0. About project source files
 * C++ Header extension is `.h`.
 * C++ Source code files extension is `.cpp`.
 * Source and headers both should be all lower case, shouldn't contain spaces and be written ideally without underscores.
@@ -12,8 +24,7 @@ Here are some truly \m/ formatted names:
 * Place related headers and sources in the same directory.
 * Only UTF-8 in source files. Seriously.
 
-1.1. Basic rules
-----------
+## 1.1. Basic rules
 * C++-style casts is better than C-style.
 * Templates and inlines is better than macroses.
 * Don't forget include guards. It might be written LIKE_THIS_H_ or somehow else.
@@ -37,39 +48,33 @@ namespace NS
     };
 }
 ```
-1.2. C++ Exceptions
--------------------
+## 1.2. C++ Exceptions
 * Feel free to throw errors, misunderstandings, just throw.
 * Derive your exceptions from std::exception.
 * Scoped resource management is better than manual.
 
-1.3. Boost Features
---------------
+## 1.3. Boost Features
 * Boost at your service, Sir.
 
-1.4. C++11 Features
--------------------
+## 1.4. C++11 Features
 * All C++11 features are good except some on them which are not.
 * `auto` is unwelcome. `auto&` and `auto*` especially.
 * Use anonymous namespaces for your static methods, types and constants.
 * Look at `constexpr`. It's better than simply inline your functions.
 * Mark constructors, destructors and assignment operators as `delete` or `default` to explicitly disallow (or allow) them.
 
-1.5. Namespaces
---------------
+## 1.5. Namespaces
 * Explicit namespace is better than usings.
 * `using po = boost::program_options` is better than `boost::program_options::options_descriptions = boo...`
 * Encapsulating your classes and functions into proper namespaces is encouraged.
 * Namespaces should consist of single low case token. Underscores and numbers are allowed.
 
-1.6. Declarations and Definitions.
-------------------------------------------------------
+## 1.6. Declarations and Definitions.
 * Avoid multiple variable declaration.
 * `const` is very encouraged.
 * `constexpr`, `template` and `inline` functions and classes place into headers.
 
-1.7. Formatting rules
----------------------
+## 1.7. Formatting rules
 * General formatting rule - K&R with 4 spaces.
 * CamelCase for classes and functions.
 * mixedCase for variables.
@@ -136,16 +141,21 @@ std::istream& ReadBook(std::istream &in, Game::Objects::Book &book)
 }
 ```
 
-## Install
+Install
+-------
 
-## Run
+Run
+---
 
-## License
+License
+-------
 
-## Troubleshooting
+Troubleshooting
+---------------
 
 That is Scott Meyer's *Effective C++ 3rd*. Read it?
 
-## Thanks
+Thanks
+------
 
 Your tired, my Lord?
