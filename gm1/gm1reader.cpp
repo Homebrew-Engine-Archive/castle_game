@@ -5,7 +5,6 @@
 
 #include <vector>
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <core/iohelpers.h>
@@ -91,7 +90,7 @@ namespace gm1
         , mEntries()
         , mEntryReader()
     {
-        if(boost::filesystem::exists(path)) {
+        if(!path.empty()) {
             Open(path, flags);
         }
     }
