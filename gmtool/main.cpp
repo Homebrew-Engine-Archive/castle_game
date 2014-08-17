@@ -60,7 +60,7 @@ namespace gmtool
         for(const Command &command : commands) {
             table.AppendRow({command.name, command.description});
         }
-        out << table;
+        table.Print(out);
     }
 
     void ShowVersion(std::ostream &out)

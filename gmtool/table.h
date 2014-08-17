@@ -7,6 +7,8 @@
 
 namespace gmtool
 {
+    const unsigned DefaultTableIndent = 3;
+    
     enum class Alignment {Left, Right};
     
     class Column
@@ -34,23 +36,18 @@ namespace gmtool
     class Table
     {
     public:
-        Table()
+        Table(const std::vector<Column> &columns = std::vector<Column>())
             : mRowsCount(0)
-            , mShowHeader(false) {}
-        
-        void ShowHeader(bool show);
-        
-        void AppendColumn(const std::string &title, Alignment alignment = Alignment::Left, unsigned indent = 3);
+            , mColumns(columns) {}
+
         void AppendRow(const std::vector<std::string> &row);
-
-        friend std::ostream& operator<<(std::ostream &out, const Table &table);
-
+        void AppendColumn(const std::string &text, Alignment alignment = Alignment::Left, unsigned indent = DefaultTableIndent);
+        void PrintHeader(std::ostream &out) const;
+        void Print(std::ostream &out) const;
+        
     private:
         unsigned mRowsCount;
-        bool mShowHeader;
         std::vector<Column> mColumns;
-
-        void Print(std::ostream &out) const;
     };
 }
 

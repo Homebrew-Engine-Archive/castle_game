@@ -63,7 +63,7 @@ namespace gmtool
         for(const RenderFormat &format : mFormats) {
             table.AppendRow({format.name});
         }
-        out << table;
+        table.Print(out);
     }
 
     const core::Color RenderMode::DefaultTransparent() const

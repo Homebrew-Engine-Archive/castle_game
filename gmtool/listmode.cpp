@@ -95,14 +95,14 @@ namespace gmtool
     void ShowEntryList(std::ostream &out, const gm1::GM1Reader &reader)
     {
         Table table;
-        table.ShowHeader(true);
         for(const auto &h : GetHeader()) {
             table.AppendColumn(h.first, h.second);
         }
         for(size_t i = 0; i < reader.NumEntries(); ++i) {
             table.AppendRow(GetRow(i, reader.EntryHeader(i)));
         }
-        
-        out << table;
+
+        table.PrintHeader(out);
+        table.Print(out);
     }
 }

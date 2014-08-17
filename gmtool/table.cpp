@@ -34,11 +34,6 @@ namespace gmtool
     {
         PrintCell(out, mValues[row + 1], mAlign, mWidth, mIndent);
     }
-
-    void Table::ShowHeader(bool show)
-    {
-        mShowHeader = show;
-    }
     
     void Table::AppendColumn(const std::string &title, Alignment alignment, unsigned indent)
     {
@@ -53,26 +48,21 @@ namespace gmtool
         ++mRowsCount;
     }
 
+    void Table::PrintHeader(std::ostream &out) const
+    {
+        for(const Column &column : mColumns) {
+            column.PrintHeader(out);
+        }
+        out << std::endl;
+    }
+    
     void Table::Print(std::ostream &out) const
     {
-        if(mShowHeader) {
-            for(const Column &column : mColumns) {
-                column.PrintHeader(out);
-            }
-            out << std::endl;
-        }
-
         for(unsigned i = 0; i < mRowsCount; ++i) {
             for(const Column &column : mColumns) {
                 column.Print(out, i);
             }
             out << std::endl;
         }
-    }        
-    
-    std::ostream& operator<<(std::ostream &out, const Table &table)
-    {
-        table.Print(out);
-        return out;
     }
 }

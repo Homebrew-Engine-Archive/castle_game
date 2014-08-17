@@ -1,37 +1,46 @@
 #!/bin/bash
 
+## some files (like puff\ of\ smoke.gm1) may contain spaces
 IFS=$'\n\t'
 
-if [ ! "$TRANSPARENT" ];
-then
+if [ ! "$TRANSPARENT" ]; then
     TRANSPARENT="#ff00ff";
-    echo "Set transparent to ${TRANSPARENT}";
 fi;
+echo "Set transparent to ${TRANSPARENT}";
 
 if [ ! "$PALETTE" ];
 then
     PALETTE=0
 fi;
+echo "Use palette index $PALETTE";
 
-GMTOOL=./gmtool.out
+if [ ! "$GMTOOL" ]; then
+    GMTOOL=./gmtool.out;
+fi;
+echo "Set binary to $GMTOOL";
+
+if [ ! "$FTYPE" ]; then
+    FTYPE=png;
+fi;
+echo "Set output file type to $FTYPE";
+
+## each unpacked collection should be placed in it's own subdirectory
+## in OUTDIR.
+if [ ! "$OUTDIR" ]; then
+    OUTDIR=gm;
+fi;
+echo "Set output directory $OUTDIR";
+
 FILE="$*"
 NUM_PALETTES=`$GMTOOL palette --count "$FILE"`
 NUM_ENTRIES=`$GMTOOL header --count "$FILE"`
 FILENAME=`basename "$FILE"`
-OUTDIR=gm
 DIR="$OUTDIR/$FILENAME"
-FTYPE=png
-
-if [ ! -d "$OUTDIR" ];
-then
-    echo "Create directory $OUTDIR";
-    mkdir "$OUTDIR";
-fi;
 
 if [ ! -d "$DIR" ];
 then 
-    echo "Create directory $DIR";
-    mkdir "$DIR";
+    echo "$DIR doesn't exist. Creating.";
+    mkdir -p "$DIR";
 fi;
 
 echo Unpacking into "$DIR"
