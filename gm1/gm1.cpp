@@ -9,46 +9,33 @@
 
 namespace gm1
 {
-    std::string GetImageClassName(uint32_t dataClass)
+    gm1::DataClass GetDataClass(uint32_t dataClass)
     {
-        switch(dataClass) {
-        case 1: return "Compressed 16 bit image";
-        case 2: return "Compressed animation";
-        case 3: return "Tile Object";
-        case 4: return "Compressed font";
-        case 5: return "Uncompressed bitmap";
-        case 6: return "Compressed const size image";
-        case 7: return "Uncompressed bitmap (other)";
-        default: return "Unknown";
-        }
-    }
-    
-    gm1::ArchiveType GetArchiveType(uint32_t dataClass)
-    {
-        switch(dataClass) {
-        case 1: return ArchiveType::TGX16;
-        case 2: return ArchiveType::TGX8;
-        case 3: return ArchiveType::TileObject;
-        case 4: return ArchiveType::Font;
-        case 5: return ArchiveType::Bitmap;
-        case 6: return ArchiveType::TGX16;
-        case 7: return ArchiveType::Bitmap;
-        default: return ArchiveType::Unknown;
-        }
+        return static_cast<DataClass>(dataClass);
     }
 
-    std::string GetArchiveTypeName(gm1::ArchiveType encoding)
+    std::string GetDataClassName(DataClass dataClass)
     {
-        switch(encoding) {
-        case gm1::ArchiveType::TGX16: return "TGX16";
-        case gm1::ArchiveType::TGX8: return "TGX8";
-        case gm1::ArchiveType::TileObject: return "TileObject";
-        case gm1::ArchiveType::Font: return "Font";
-        case gm1::ArchiveType::Bitmap: return "Bitmap";
-        default: return "Unknown";
+        switch(dataClass) {
+        case DataClass::TGX16:
+            return "Compressed 16 bit image";
+        case DataClass::TGX8:
+            return "Compressed animation";
+        case DataClass::TileBox:
+            return "Tile Object";
+        case DataClass::Font:
+            return "Compressed font";
+        case DataClass::Bitmap:
+            return "Uncompressed bitmap";
+        case DataClass::TGX16_ConstSize:
+            return "Compressed const size image";
+        case DataClass::Bitmap_Other:
+            return "Uncompressed bitmap (other)";
+        default:
+            return "Unknown";
         }
     }
-    
+        
     size_t GetPreambleSize(const gm1::Header &header)
     {
         size_t size = 0;
@@ -96,7 +83,7 @@ namespace gm1
             << "Unknown3 = "     << header.u3 << endl
             << "ImageCount= "   << header.imageCount << endl
             << "Unknown4 = "     << header.u4 << endl
-            << "DataClass = "    << GetImageClassName(header.dataClass) << endl
+            << "DataClass = "    << GetDataClassName(GetDataClass(header.dataClass)) << endl
             << "Unknown5 = "     << header.u5 << endl
             << "Unknown6 = "     << header.u6 << endl
             << "SizeCategory = " << header.sizeCategory << endl

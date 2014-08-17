@@ -35,6 +35,7 @@ namespace gmtool
         core::Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
         bool mEvalSizeOnly = false;
+        bool mRenderTileOnly = false;
 
         const core::Color DefaultTransparent() const;
         

@@ -42,6 +42,7 @@ namespace gmtool
             ("palette,p",         po::value(&mPaletteIndex),                                             "Set palette index for 8-bit entries")
             ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()),    "Set background color in #AARRGGBB format")
             ("print-size-only",   po::bool_switch(&mEvalSizeOnly),                                       "Do not perform real rendering, but eval and print size")
+            ("tile-only",         po::bool_switch(&mRenderTileOnly),                                     "Render only 30x16 tile rhombus if appreciated")
             ;
         opts.add(mode);
     }
@@ -93,16 +94,25 @@ namespace gmtool
     int RenderMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
-        gm1::GM1Reader reader(mInputFile);
+
+        int flags = gm1::GM1Reader::NoFlags;
+        if(mRenderTileOnly) {
+            cfg.verbose << "Set TileOnly flag ON" << std::endl;
+            flags |= gm1::GM1Reader::TileOnly;
+        }
+        
+        gm1::GM1Reader reader(mInputFile, flags);
 
         cfg.verbose << "Collection contains " << reader.NumEntries() << " entries" << std::endl;
 
+        cfg.verbose << reader.GetEntryReader().GetName() << std::endl;
+        
         if(mEntryIndex >= reader.NumEntries()) {
-            throw std::logic_error("Entry index is out of range");
+            throw std::runtime_error("Entry index is out of range");
         }
 
         if(mPaletteIndex >= reader.NumPalettes()) {
-            throw std::logic_error("Palette index is out of range");
+            throw std::runtime_error("Palette index is out of range");
         }
 
         if(DefaultTransparent() != mTransparentColor) {
@@ -122,7 +132,7 @@ namespace gmtool
         boost::filesystem::ofstream fout;
         if(!mEvalSizeOnly) {
             if(mOutputFile.empty()) {
-                throw std::logic_error("You should specify --output option");
+                throw std::runtime_error("You should specify --output option");
             }
             fout.open(mOutputFile, std::ios_base::binary | std::ios_base::out);
             if(!fout) {
@@ -148,7 +158,7 @@ namespace gmtool
         }
 
         if(result == nullptr) {
-            throw std::logic_error("No format with such name");
+            throw std::runtime_error("No format with such name");
         }
 
         cfg.verbose << "Do render" << std::endl;

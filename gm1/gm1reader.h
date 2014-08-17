@@ -25,28 +25,33 @@ namespace gm1
 {
     class ReaderEntryData;
 
-    class GM1Reader
+    /// Reader implementation type. Each reader is associated with some
+    /// data classes.
+    enum class ReaderType
     {
-        bool mIsOpened;
-        boost::filesystem::wpath mPath;
-        std::streamoff mDataOffset;
-        gm1::Header mHeader;
-        std::vector<core::Palette> mPalettes;
-        std::vector<ReaderEntryData> mEntries;
-        std::unique_ptr<GM1EntryReader> mEntryReader;
-        
+        TGX16,
+        TGX8,
+        Font,
+        TileBox,
+        Tile,
+        Bitmap
+    };
+    
+    class GM1Reader
+    {        
     public:
         enum Flags
         {
             NoFlags = 0,
             Cached = 1,
-            CheckSizeCategory = 2
+            CheckSizeCategory = 2,
+            TileOnly = 4
         };
 
-        explicit GM1Reader(const boost::filesystem::wpath& = boost::filesystem::wpath(), Flags = NoFlags);
+        explicit GM1Reader(const boost::filesystem::path& = boost::filesystem::path(), int flags = NoFlags);
         virtual ~GM1Reader();
         
-        void Open(const boost::filesystem::wpath&, Flags);
+        void Open(const boost::filesystem::path&, int flags);
         bool IsOpened() const;
         void Close();
 
@@ -58,9 +63,22 @@ namespace gm1
         const gm1::EntryHeader& EntryHeader(size_t index) const;
         const core::Palette& Palette(size_t index) const;
         const gm1::Header& Header() const;
-        gm1::ArchiveType ArchiveType() const;
+        ReaderType GetReaderType() const;
         size_t NumEntries() const;
         size_t NumPalettes() const;
+
+        GM1EntryReader& GetEntryReader();
+        const GM1EntryReader& GetEntryReader() const;
+
+    private:
+        bool mIsOpened;
+        int mFlags;
+        boost::filesystem::wpath mPath;
+        std::streamoff mDataOffset;
+        gm1::Header mHeader;
+        std::vector<core::Palette> mPalettes;
+        std::vector<ReaderEntryData> mEntries;
+        std::unique_ptr<GM1EntryReader> mEntryReader;
     };
 }
 

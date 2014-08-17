@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <string>
 
 #include <core/color.h>
 
@@ -10,7 +11,7 @@ namespace gm1
 {
     class EntryHeader;
     class Header;
-    enum class ArchiveType;
+    enum class ReaderType;
 }
 
 namespace core
@@ -42,10 +43,12 @@ namespace gm1
         const core::Color Transparent() const;
         const core::Image Load(const gm1::EntryHeader &header, const char *data, size_t bytesCount) const;
 
+        virtual std::string GetName() const;
+        
         typedef std::unique_ptr<GM1EntryReader> Ptr;
     };
     
-    GM1EntryReader::Ptr CreateEntryReader(const gm1::ArchiveType &type);
+    GM1EntryReader::Ptr CreateEntryReader(const gm1::ReaderType &type);
 }
 
 #endif  // GM1ENTRYHEADER_H_

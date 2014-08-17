@@ -82,7 +82,7 @@ namespace gm1
     };
     
     GM1Reader::~GM1Reader() = default;
-    GM1Reader::GM1Reader(const boost::filesystem::wpath& path, Flags flags)
+    GM1Reader::GM1Reader(const boost::filesystem::path &path, int flags)
         : mIsOpened(false)
         , mPath(path)
         , mDataOffset(0)
@@ -101,9 +101,10 @@ namespace gm1
         return mIsOpened;
     }
 
-    void GM1Reader::Open(const boost::filesystem::wpath& path, Flags flags)
+    void GM1Reader::Open(const boost::filesystem::path &path, int flags)
     {
         mIsOpened = false;
+        mFlags = flags;
         mPalettes.resize(0);
         mEntries.resize(0);
         mDataOffset = 0;
@@ -118,7 +119,7 @@ namespace gm1
         fis.seekg(0);
         
         if(fsize < gm1::CollectionHeaderBytes) {
-            throw std::logic_error("File too small to read header");
+            throw std::runtime_error("File too small to read header");
         }
         
         if(!ReadHeader(fis, mHeader)) {
@@ -126,7 +127,7 @@ namespace gm1
         }
 
         if(fsize < GetPreambleSize(mHeader)) {
-            throw std::logic_error("File to small to read preamble");
+            throw std::runtime_error("File to small to read preamble");
         } 
         mPalettes.reserve(CollectionPaletteCount);
         for(size_t i = 0; i < CollectionPaletteCount; ++i) {
@@ -159,7 +160,7 @@ namespace gm1
         }
 
         if(fsize < mHeader.dataSize) {
-            throw std::logic_error("File too small to read data");
+            throw std::runtime_error("File too small to read data");
         }
 
         mDataOffset = fis.tellg();
@@ -174,9 +175,7 @@ namespace gm1
             }
         }
 
-        mEntryReader =
-            std::move(
-                gm1::CreateEntryReader(ArchiveType()));
+        mEntryReader = std::move(gm1::CreateEntryReader(GetReaderType()));
 
         mPath = std::move(path);
         mIsOpened = true;
@@ -186,10 +185,38 @@ namespace gm1
     {
         mIsOpened = false;
     }
-
-    gm1::ArchiveType GM1Reader::ArchiveType() const
+    
+    ReaderType GM1Reader::GetReaderType() const
     {
-        return gm1::GetArchiveType(mHeader.dataClass);
+        switch(GetDataClass(mHeader.dataClass)) {
+        case DataClass::TGX16:
+            return ReaderType::TGX16;
+            
+        case DataClass::TGX8:
+            return ReaderType::TGX8;
+                
+        case DataClass::TileBox:
+            if(mFlags & GM1Reader::TileOnly) {
+                return ReaderType::Tile;
+            } else {
+                return ReaderType::TileBox;
+            }
+            
+        case DataClass::Font:
+            return ReaderType::Font;
+            
+        case DataClass::Bitmap:
+            return ReaderType::Bitmap;
+            
+        case DataClass::TGX16_ConstSize:
+            return ReaderType::TGX16;
+            
+        case DataClass::Bitmap_Other:
+            return ReaderType::Bitmap;
+            
+        default:
+            throw std::runtime_error("bad data class");
+        }
     }
     
     size_t GM1Reader::NumEntries() const
@@ -262,5 +289,15 @@ namespace gm1
         const char *data = EntryData(index);
         const size_t bytesCount = EntrySize(index);
         return mEntryReader->Load(header, data, bytesCount);
+    }
+
+    GM1EntryReader& GM1Reader::GetEntryReader()
+    {
+        return *mEntryReader;
+    }
+
+    const GM1EntryReader& GM1Reader::GetEntryReader() const
+    {
+        return *mEntryReader;
     }
 }

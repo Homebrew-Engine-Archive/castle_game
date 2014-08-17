@@ -14,7 +14,7 @@ namespace gmtool
         boost::filesystem::path mInputFile;
         bool mBinary = false;
         bool mCountRequested = false;
-        bool mArchiveTypeRequested = false;
+        bool mReaderTypeRequested = false;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);

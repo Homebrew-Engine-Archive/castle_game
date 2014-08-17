@@ -32,6 +32,11 @@ namespace
         }
 
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+
+    public:
+        virtual std::string GetName() const {
+            return "TGX8";
+        }
     };
 
     /**
@@ -46,12 +51,22 @@ namespace
     {
     protected:
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+        
+    public:
+        virtual std::string GetName() const {
+            return "TGX16";
+        }
     };
 
     class FontReader : public gm1::GM1EntryReader
     {
     protected:
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+        
+    public:
+        virtual std::string GetName() const {
+            return "FontReader";
+        }
     };
     
     /**
@@ -63,12 +78,39 @@ namespace
      * Tiles are decoded by tgx::DecodeTile
      *
      */
-    class TileObject : public gm1::GM1EntryReader
+    class TileBox : public gm1::GM1EntryReader
     {
     protected:    
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+        
+    public:
+        virtual std::string GetName() const {
+            return "TileBox";
+        }
     };
 
+    /**
+     * \brief Like TileBox, but reads only rhombus.
+     */
+    class Tile : public gm1::GM1EntryReader
+    {
+    protected:
+        int Width(const gm1::EntryHeader&) const {
+            return gm1::TileSpriteWidth;
+        }
+
+        int Height(const gm1::EntryHeader&) const {
+            return gm1::TileSpriteHeight;
+        }
+        
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+        
+    public:
+        virtual std::string GetName() const {
+            return "Tile";
+        }
+    };
+    
     /**
      * \tile Uncompressed images. 
      */
@@ -81,6 +123,11 @@ namespace
         }
     
         void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+        
+    public:
+        virtual std::string GetName() const {
+            return "Bitmap";
+        }
     };
     
     void TGX8::ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const
@@ -161,7 +208,7 @@ namespace
         }
     }
     
-    void TileObject::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const
+    void TileBox::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const
     {
         const core::Rect tilerect(0, header.tileY, Width(header), gm1::TileSpriteHeight);
         core::ImageView tile(surface, tilerect);
@@ -170,6 +217,11 @@ namespace
         const core::Rect boxrect(header.hOffset, 0, header.boxWidth, Height(header));
         core::ImageView box(surface, boxrect);
         tgx::DecodeImage(in, numBytes - gm1::TileBytes, box.GetView());
+    }
+
+    void Tile::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const
+    {
+        ReadTile(in, surface);
     }
 }
 
@@ -225,27 +277,34 @@ namespace gm1
         mTransparentColor = std::move(color);
     }
     
-    GM1EntryReader::Ptr CreateEntryReader(const ArchiveType &type)
+    GM1EntryReader::Ptr CreateEntryReader(const ReaderType &type)
     {
         switch(type) {
-        case ArchiveType::Font:
-            return GM1EntryReader::Ptr(new FontReader);
-            
-        case ArchiveType::TGX16:
+        case ReaderType::TGX16:
             return GM1EntryReader::Ptr(new TGX16);
-                
-        case ArchiveType::Bitmap:
-            return GM1EntryReader::Ptr(new Bitmap);
         
-        case ArchiveType::TGX8:
+        case ReaderType::TGX8:
             return GM1EntryReader::Ptr(new TGX8);
-            
-        case ArchiveType::TileObject:
-            return GM1EntryReader::Ptr(new TileObject);
-            
-        case ArchiveType::Unknown:
+
+        case ReaderType::Font:
+            return GM1EntryReader::Ptr(new FontReader);
+
+        case ReaderType::TileBox:
+            return GM1EntryReader::Ptr(new TileBox);
+
+        case ReaderType::Tile:
+            return GM1EntryReader::Ptr(new Tile);
+
+        case ReaderType::Bitmap:
+            return GM1EntryReader::Ptr(new Bitmap);
+
         default:
-            throw std::runtime_error("Unknown encoding");
+            throw std::runtime_error("bad reader type");
         }
+    }
+
+    std::string GM1EntryReader::GetName() const
+    {
+        return "Default";
     }
 }

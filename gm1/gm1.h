@@ -95,19 +95,22 @@ namespace gm1
     };
 
     const size_t NumEntryHeaderFields = 11;
-    
-    enum class ArchiveType
+
+    /// Category of collection
+    enum class DataClass : uint32_t
     {
-        TGX16,
-        TGX8,
-        Font,
-        TileObject,
-        Bitmap,
-        Unknown
+        TGX16 = 1,
+        TGX8 = 2,
+        TileBox = 3,
+        Font = 4,
+        Bitmap = 5,
+        TGX16_ConstSize = 6,
+        Bitmap_Other = 7
     };
 
     // TODO Look how this thing really works (if it does).
-    enum class TileAlignment : uint8_t {
+    enum class TileAlignment : uint8_t
+    {
         Left,
         Right,
         Center,
@@ -130,12 +133,9 @@ namespace gm1
         Size250x250 = 10,
         Size180x180 = 11
     };
-    
-    std::string GetImageClassName(uint32_t dataClass);
 
-    std::string GetArchiveTypeName(ArchiveType encoding);
-    
-    gm1::ArchiveType GetArchiveType(uint32_t dataClass);
+    gm1::DataClass GetDataClass(uint32_t dataClass);
+    std::string GetDataClassName(DataClass dataClass);
     
     /**
      * \brief Calculates size of "static" part of the archive by its header.
