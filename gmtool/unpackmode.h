@@ -5,6 +5,11 @@
 
 namespace gmtool
 {
+    class UnpackMode : public Mode
+    {
+    public:
+        virtual int Exec(const ModeConfig &config);
+    };
 }
 
 #endif // UNPACKMODE_H_

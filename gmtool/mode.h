@@ -4,6 +4,11 @@
 #include <iosfwd>
 #include <memory>
 
+/**
+   boost::filesystem::operator>> overload for boost::filesystem::path
+**/
+#include <gmtool/path_validator.h>
+
 namespace boost
 {
     namespace program_options
@@ -13,13 +18,8 @@ namespace boost
     }
 }
 
-/**
-   boost::filesystem::operator>> overload for boost::filesystem::path
-**/
-#include <gmtool/path_validator.h>
-
 namespace gmtool
-{    
+{
     struct ModeConfig
     {
         bool helpRequested;
@@ -28,17 +28,17 @@ namespace gmtool
         std::ostream &verbose;
         std::ostream &stdout;
     };
-    
+
     class Mode
     {
     public:
         typedef std::shared_ptr<Mode> Ptr;
 
         virtual void PrintUsage(std::ostream&) {}
-        
+
         virtual ~Mode() = default;
-        virtual void GetOptions(boost::program_options::options_description&) = 0;
-        virtual void GetPositionalOptions(boost::program_options::positional_options_description&) = 0;
+        virtual void GetOptions(boost::program_options::options_description&) {};
+        virtual void GetPositionalOptions(boost::program_options::positional_options_description&) {};
         virtual int Exec(const ModeConfig &config) = 0;
     };
 }

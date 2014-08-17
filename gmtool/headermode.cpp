@@ -29,7 +29,7 @@ namespace gmtool
     {
         unnamed.add("file", 1);
     }
-    
+
     int HeaderMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
@@ -43,12 +43,12 @@ namespace gmtool
             cfg.stdout << reader.GetEntryReader().GetName() << std::endl;
             return EXIT_SUCCESS;
         }
-        
+
         if(mCountRequested) {
             cfg.stdout << reader.NumEntries() << std::endl;
             return EXIT_SUCCESS;
         }
-        
+
         if(!mBinary) {
             gm1::PrintHeader(cfg.stdout, header);
         } else {

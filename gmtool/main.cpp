@@ -25,9 +25,9 @@
 #include <gmtool/listmode.h>
 #include <gmtool/entrymode.h>
 #include <gmtool/dumpmode.h>
-#include <gmtool/packmode.h>
-#include <gmtool/unpackmode.h>
 #include <gmtool/rendermode.h>
+#include <gmtool/unpackmode.h>
+#include <gmtool/packmode.h>
 
 int main(int argc, const char *argv[])
 {
@@ -96,9 +96,8 @@ namespace gmtool
         {"list",    "List entries of gm1 collection",      Mode::Ptr(new ListMode)},
         {"dump",    "Dump entry data onto stdout",         Mode::Ptr(new DumpMode)},
         {"render",  "Convert entry into trivial image",    Mode::Ptr(new RenderMode)},
-        {"unpack",  "Unpack gm1 collection",               Mode::Ptr(nullptr)},
-        {"pack",    "Pack directory into gm1",             Mode::Ptr(nullptr)},
-        {"init",    "Create empty unpacked gm1 directory", Mode::Ptr(nullptr)}
+        {"unpack",  "Unpack gm1 collection",               Mode::Ptr(new UnpackMode)},
+        {"pack",    "Pack directory into gm1",             Mode::Ptr(new PackMode)}
     };
     
     int ToolMain::Exec(int argc, const char *argv[])
