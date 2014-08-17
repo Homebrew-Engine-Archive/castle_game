@@ -20,6 +20,7 @@
 
 #include <core/sdl_utils.h>
 
+#include <gmtool/table_formatter.h>
 #include <gmtool/headermode.h>
 #include <gmtool/palettemode.h>
 #include <gmtool/listmode.h>
@@ -48,7 +49,7 @@ namespace gmtool
         std::string description;
         Mode::Ptr mode;
     };
-
+    
     void ShowCommandList(std::ostream &out, const std::vector<Command> &commands)
     {
         out << "Allowed commands: " << std::endl;
@@ -59,14 +60,11 @@ namespace gmtool
                 maxLength = std::max<int>(maxLength, command.name.length());
             }
         }
-
+        
         for(const Command &command : commands) {
             if(command.mode) {
-                out.width(3 /** ?? **/);
-                out << ' ';
-                out.width(maxLength + 3 /** ???? **/);
-                out << std::left << command.name;
-                out << command.description;
+                PrintColumn(out, command.name, maxLength);
+                PrintColumn(out, command.description);
                 out << std::endl;
             }
         }
@@ -99,17 +97,17 @@ namespace gmtool
         {"unpack",  "Unpack gm1 collection",               Mode::Ptr(new UnpackMode)},
         {"pack",    "Pack directory into gm1",             Mode::Ptr(new PackMode)}
     };
-    
+
     int ToolMain::Exec(int argc, const char *argv[])
     {
         std::vector<Command> commands = this->commandList;
-        
+
         bool helpRequested = false;
         bool versionRequested = false;
         bool allowVerbose = false;
         bool noUnusedBytes = false;
         std::string modeName;
-        
+
         po::options_description visible("Allowed options");
         visible.add_options()
             ("help,h", po::bool_switch(&helpRequested), "produce help message")
@@ -129,7 +127,9 @@ namespace gmtool
         po::positional_options_description unnamed;
         unnamed.add("mode", 1);
 
-        /** for passing into children parsers **/
+        /// We are no really need it here, but boost can't just ignore
+        /// unrecognized positional options for us. So we put it into additional
+        /// vector and then append to the rest.
         unnamed.add("extras", -1);
 
         po::parsed_options parsed = po::command_line_parser(argc, argv)
@@ -139,12 +139,13 @@ namespace gmtool
             .run();
 
         std::vector<std::string> unparsed = po::collect_unrecognized(parsed.options, po::exclude_positional);
-            
+
         po::variables_map vars;
         po::store(parsed, vars);
         po::notify(vars);
 
-        /** parse "optional" positional options is tricky **/
+        /// Here we merge unrecognized positional and non-positional options.
+        /// Further we can parse it again using more appreciate command parser.
         std::copy(extras.begin(), extras.end(), std::back_inserter(unparsed));
 
         if(versionRequested) {
@@ -159,21 +160,22 @@ namespace gmtool
                 ShowCommandList(std::cout, commands);
                 return EXIT_SUCCESS;
             }
-            throw std::logic_error("Command required but missing");
+            throw std::runtime_error("Command required but missing");
         }
 
-        /** Dummy stream for disallowed verbose messages **/
-        std::ostringstream logging;
-        std::ostream &verbose = (allowVerbose ? std::clog : logging);
-        ModeConfig config {helpRequested, versionRequested, allowVerbose, verbose, std::cout};
+        /// Dummy stream for dull verbosity.
+        std::ostream null(nullptr);
+        std::ostream &verbose = (allowVerbose ? std::clog : null);
         
+        ModeConfig config {helpRequested, versionRequested, allowVerbose, verbose, std::cout};
+
         for(const Command &lookup : commands) {
             if(lookup.name == modeName) {
                 return RunCommand(unparsed, lookup, config);
             }
         }
 
-        throw std::logic_error("No command with such name");
+        throw std::runtime_error("No command with such name");
     }
 
     int ToolMain::RunCommand(const std::vector<std::string> &args, const Command &command, const ModeConfig &cfg)
@@ -186,7 +188,7 @@ namespace gmtool
             command.mode->PrintUsage(std::cout);
             return EXIT_SUCCESS;
         }
-        
+
         po::positional_options_description unnamed;
         command.mode->GetPositionalOptions(unnamed);
 

@@ -16,6 +16,7 @@ set (SRCS
   packmode.cpp
   unpackmode.cpp
   renderer.cpp
+  table_formatter.cpp
 )
 
 set (RENDERERS

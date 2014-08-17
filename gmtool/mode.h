@@ -23,23 +23,35 @@ namespace gmtool
     struct ModeConfig
     {
         bool helpRequested;
+        ///< Has user specified --help option.
+        
         bool versionRequested;
+        ///< Has user requested --version.
+        
         bool verboseRequested;
+        ///< Has user asked for --verbose.
+        
         std::ostream &verbose;
         std::ostream &stdout;
     };
 
+    /// Basic command mode.
     class Mode
     {
     public:
+        virtual ~Mode() = default;
         typedef std::shared_ptr<Mode> Ptr;
 
-        virtual void PrintUsage(std::ostream&) {}
-
-        virtual ~Mode() = default;
+        virtual void PrintUsage(std::ostream &out) {}
+        
         virtual void GetOptions(boost::program_options::options_description&) {};
+        ///< Called once per mode in order to construct command line parser.
+        
         virtual void GetPositionalOptions(boost::program_options::positional_options_description&) {};
+        ///< Exactly the same as GetOptions but for the positional options.
+        
         virtual int Exec(const ModeConfig &config) = 0;
+        ///< 
     };
 }
 
