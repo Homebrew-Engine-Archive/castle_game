@@ -20,7 +20,7 @@
 
 #include <core/sdl_utils.h>
 
-#include <gmtool/table_formatter.h>
+#include <gmtool/table.h>
 #include <gmtool/headermode.h>
 #include <gmtool/palettemode.h>
 #include <gmtool/listmode.h>
@@ -54,20 +54,13 @@ namespace gmtool
     {
         out << "Allowed commands: " << std::endl;
 
-        int maxLength = 0;
+        Table table;
+        table.AppendColumn("Command", Alignment::Left);
+        table.AppendColumn("Description", Alignment::Left);
         for(const Command &command : commands) {
-            if(command.mode) {
-                maxLength = std::max<int>(maxLength, command.name.length());
-            }
+            table.AppendRow({command.name, command.description});
         }
-        
-        for(const Command &command : commands) {
-            if(command.mode) {
-                PrintColumn(out, command.name, maxLength);
-                PrintColumn(out, command.description);
-                out << std::endl;
-            }
-        }
+        out << table;
     }
 
     void ShowVersion(std::ostream &out)

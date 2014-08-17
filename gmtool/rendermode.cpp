@@ -10,6 +10,7 @@
 #include <boost/program_options/positional_options.hpp>
 
 #include <gmtool/renderer.h>
+#include <gmtool/table.h>
 
 #include <gm1/gm1.h>
 #include <gm1/gm1reader.h>
@@ -56,12 +57,13 @@ namespace gmtool
     void RenderMode::PrintUsage(std::ostream &out)
     {
         out << "Allowed render formats are:" << std::endl;
+
+        Table table;
+        table.AppendColumn("Format", Alignment::Left);
         for(const RenderFormat &format : mFormats) {
-            out.width(3);
-            out << ' ';
-            out << format.name;
-            out << std::endl;
+            table.AppendRow({format.name});
         }
+        out << table;
     }
 
     const core::Color RenderMode::DefaultTransparent() const
@@ -93,19 +95,18 @@ namespace gmtool
     
     int RenderMode::Exec(const ModeConfig &cfg)
     {
-        cfg.verbose << "Reading file " << mInputFile << std::endl;
-
         int flags = gm1::GM1Reader::NoFlags;
         if(mRenderTileOnly) {
             cfg.verbose << "Set TileOnly flag ON" << std::endl;
             flags |= gm1::GM1Reader::TileOnly;
+        } else {
+            cfg.verbose << "Set TileOnly flag OFF" << std::endl;
         }
         
+        cfg.verbose << "Reading file " << mInputFile << std::endl;
         gm1::GM1Reader reader(mInputFile, flags);
-
         cfg.verbose << "Collection contains " << reader.NumEntries() << " entries" << std::endl;
-
-        cfg.verbose << reader.GetEntryReader().GetName() << std::endl;
+        cfg.verbose << "Using ReaderType: " << reader.GetEntryReader().GetName() << std::endl;
         
         if(mEntryIndex >= reader.NumEntries()) {
             throw std::runtime_error("Entry index is out of range");
@@ -116,21 +117,20 @@ namespace gmtool
         }
 
         if(DefaultTransparent() != mTransparentColor) {
-            cfg.verbose << "Use transparent: " << mTransparentColor << std::endl;
             reader.SetTransparentColor(mTransparentColor);
         }
+        cfg.verbose << "Use transparent: " << mTransparentColor << std::endl;
         
         core::Image entry = reader.ReadEntry(mEntryIndex);
 
+        boost::filesystem::ofstream fout;
+        std::ostringstream dummy;
+        
         std::ostream *out = nullptr;
 
-        std::ostringstream dummy;
         if(mEvalSizeOnly) {
             out = &dummy;
-        }
-
-        boost::filesystem::ofstream fout;
-        if(!mEvalSizeOnly) {
+        } else {
             if(mOutputFile.empty()) {
                 throw std::runtime_error("You should specify --output option");
             }
@@ -151,21 +151,20 @@ namespace gmtool
         SetupTransparentColor(entry, mTransparentColor);
 
         cfg.verbose << "Find appropriate format" << std::endl;
-        const RenderFormat *result = nullptr;
-        for(const RenderFormat &format : mFormats) {
-            if(format.name == mFormat)
-                result = &format;
+        const RenderFormat *format = nullptr;
+        for(const RenderFormat &candidate : mFormats) {
+            if(candidate.name == mFormat)
+                format = &candidate;
         }
 
-        if(result == nullptr) {
+        if(format == nullptr) {
             throw std::runtime_error("No format with such name");
         }
 
-        cfg.verbose << "Do render" << std::endl;
-        result->renderer->RenderToStream(*out, entry);
+        cfg.verbose << "Perform rendering" << std::endl;
+        format->renderer->RenderToStream(*out, entry);
 
         if(mEvalSizeOnly) {
-            cfg.verbose << "Printing size" << std::endl;
             out->seekp(0, std::ios_base::end);
             cfg.stdout << out->tellp() << std::endl;
         }

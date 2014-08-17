@@ -8,65 +8,24 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 
+#include <gmtool/table.h>
 #include <gm1/gm1reader.h>
 
 namespace po = boost::program_options;
 
 namespace
 {
-    std::ostringstream dummy;
-    
-    std::ostream& LeftPadded(std::ostream &out, int padding)
+    template<class T>
+    std::vector<std::string> ToString(const std::vector<T> &xs)
     {
-        out.width(padding);
-        out << std::right;
-        return out;
-    }
-        
-    template<class T> std::string ToString(T t)
-    {
-        dummy.str("");
-        dummy << t;
-        return dummy.str();
-    }
-    
-    std::vector<std::string> GetEntryCells(int index, const gm1::EntryHeader &header)
-    {
-        using namespace std;
-        return vector<string>
-        {
-            ToString<int>(index),
-            ToString<int>(header.width),
-            ToString<int>(header.height),
-            ToString<int>(header.posX),
-            ToString<int>(header.posY),
-            ToString<int>(header.group),
-            ToString<int>(header.groupSize),
-            ToString<int>(header.tileY),
-            ToString<int>(header.tileOrient),
-            ToString<int>(header.hOffset),
-            ToString<int>(header.boxWidth),
-            ToString<int>(header.flags)
-        };
-    }
-
-    std::vector<std::string> GetHeadings()
-    {
-        return std::vector<std::string>
-        {
-            "###",
-            "Width",
-            "Height",
-            "PosX",
-            "PosY",
-            "Group",
-            "GroupSize",
-            "TileY",
-            "Orientation",
-            "Offset",
-            "BoxWidth",
-            "Flags"
-        };
+        std::ostringstream oss;
+        std::vector<std::string> result(xs.size());
+        for(size_t i = 0; i < xs.size(); ++i) {
+            oss.str("");
+            oss << xs[i];
+            result[i] = oss.str();
+        }
+        return result;
     }
 }
 
@@ -80,12 +39,12 @@ namespace gmtool
             ;
         opts.add(mode);
     }
-    
+
     void ListMode::GetPositionalOptions(boost::program_options::positional_options_description &unnamed)
     {
         unnamed.add("file", 1);
     }
-    
+
     int ListMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
@@ -93,37 +52,57 @@ namespace gmtool
 
         ShowEntryList(cfg.stdout, reader);
         cfg.verbose << reader.NumEntries() << " total" << std::endl;
-        
+
         return EXIT_SUCCESS;
+    }
+
+    std::vector<std::string> GetRow(int index, const gm1::EntryHeader &header)
+    {
+        return ToString<int> ({
+            index,
+            header.width,
+            header.height,
+            header.posX,
+            header.posY,
+            header.group,
+            header.groupSize,
+            header.tileY,
+            header.tileOrient,
+            header.hOffset,
+            header.boxWidth,
+            header.flags
+        });
+    }
+
+    std::vector<std::pair<std::string, Alignment>> GetHeader()
+    {
+        return {
+            {"#", Alignment::Right},
+            {"Width", Alignment::Right},
+            {"Height", Alignment::Right},
+            {"PosX", Alignment::Right},
+            {"PosY", Alignment::Right},
+            {"Group", Alignment::Right},
+            {"GroupSize", Alignment::Right},
+            {"TileY", Alignment::Right},
+            {"Orientation", Alignment::Left},
+            {"Offset", Alignment::Right},
+            {"BoxWidth", Alignment::Right},
+            {"Flags", Alignment::Left}
+        };
     }
     
     void ShowEntryList(std::ostream &out, const gm1::GM1Reader &reader)
     {
-        std::vector<std::vector<std::string>> cells;
-        cells.reserve(reader.NumEntries() + 1 /** header **/);
-
-        std::vector<std::string> heading = GetHeadings();
-        std::vector<size_t> width(heading.size(), 0);
-        cells.emplace_back(std::move(heading));
-
-        for(size_t index = 0; index < reader.NumEntries(); ++index) {
-            cells.emplace_back(
-                std::move(
-                    GetEntryCells(
-                        index, reader.EntryHeader(index))));
+        Table table;
+        table.ShowHeader(true);
+        for(const auto &h : GetHeader()) {
+            table.AppendColumn(h.first, h.second);
         }
-
-        for(const auto &row : cells) {
-            for(size_t i = 0; i < width.size(); ++i) {
-                width[i] = std::max(width[i], row[i].length());
-            }
+        for(size_t i = 0; i < reader.NumEntries(); ++i) {
+            table.AppendRow(GetRow(i, reader.EntryHeader(i)));
         }
-
-        for(const auto &row : cells) {
-            for(size_t i = 0; i < width.size(); ++i) {
-                LeftPadded(out, width[i] + 1) << row[i];
-            }
-            out << std::endl;
-        }
+        
+        out << table;
     }
 }
