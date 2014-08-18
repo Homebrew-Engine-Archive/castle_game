@@ -17,6 +17,7 @@ set (SRCS
   unpackmode.cpp
   renderer.cpp
   table.cpp
+  tileoptions.cpp
 )
 
 set (RENDERERS

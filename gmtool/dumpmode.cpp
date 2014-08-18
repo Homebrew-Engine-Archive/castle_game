@@ -21,9 +21,8 @@ namespace gmtool
         po::options_description mode("Dump mode");
         mode.add_options()
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
-            ("index", po::value(&mEntryIndex)->required(), "Set entry index")
-            ("tile-only", po::bool_switch(&mTileOnly), "Dump first 512 bytes of entry")
-            ("box-only", po::bool_switch(&mBoxOnly), "Dump entry skipping 512 bytes at the beginning")
+            ("i,index", po::value(&mEntryIndex)->required(), "Set entry index")
+            ("tile-mode", po::value(&mTileRenderMode)->default_value(TileRenderMode::Default), "What part of tile will be dumped (default, tile or box)")
             ;
         opts.add(mode);
     }
@@ -38,55 +37,50 @@ namespace gmtool
         cfg.verbose << "Reading file " << mInputFile << std::endl;
         gm1::GM1Reader reader(mInputFile);
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
-
         cfg.verbose << "Using ReaderType: " << reader.GetEntryReader().GetName() << std::endl;
 
         if(mEntryIndex >= reader.NumEntries()) {
             throw std::runtime_error("Entry index is out of range");
         }
 
-        if(mTileOnly && mBoxOnly) {
-            throw std::runtime_error("--tile-only and --box-only cannot be specified together");
-        }
+        int64_t offset = 0;                              // an offset from the beginning of entry
+        int64_t size = reader.EntrySize(mEntryIndex);    // bytes count to be dumped
 
-        if(reader.GetReaderType() != gm1::ReaderType::TileBox) {
-            if(mTileOnly) {
-                cfg.verbose << "--tile-only ignored since incompatible data class" << std::endl;
-            }
-            if(mBoxOnly) {
-                cfg.verbose << "--box-only ignored since incompatible encoding" << std::endl;
-            }
-        }
-
-        int64_t size = reader.EntrySize(mEntryIndex);
-        int64_t offset = 0;
-        
-        /** Checking and choping entry size **/
-        if(reader.GetReaderType() == gm1::ReaderType::TileBox) {
-            /** impossible or should be checked earlier? **/
+        // apply TileRenderMode if possible
+        if(reader.GetDataClass() == gm1::DataClass::TileBox) {
+            cfg.verbose << "Set tile render mode to " << mTileRenderMode << std::endl;
+            
             if(size < gm1::TileBytes) {
                 std::ostringstream oss;
                 oss << "Entry size is less than " << gm1::TileBytes;
                 throw std::runtime_error(oss.str());
             }
-            
-            if(mTileOnly) {
+
+            switch(mTileRenderMode) {
+            case TileRenderMode::Tile:
                 size = gm1::TileBytes;
                 offset = 0;
-
                 cfg.verbose << "Dump tile data of size " << size << " bytes" << std::endl;
+                break;
                 
-            } else if(mBoxOnly) {
-                if(size == gm1::TileBytes) {
+            case TileRenderMode::Box:
+                if(size <= gm1::TileBytes) {
                     throw std::runtime_error("No data to dump");
                 }
                 size = reader.EntrySize(mEntryIndex) - gm1::TileBytes;
                 offset = gm1::TileBytes;
-
                 cfg.verbose << "Dump box of size " << size << " bytes" << std::endl;
-            } else {
+                break;
+                
+            case TileRenderMode::Default:
                 cfg.verbose << "Dump whole entry data of size " << size << " bytes" << std::endl;
+                break;
+                
+            default:
+                throw std::runtime_error("bad tile render mode");
             }
+        } else {
+            cfg.verbose << "Tile render mode ignored since incompatible data class" << std::endl;
         }
 
         cfg.stdout.write(reader.EntryData(mEntryIndex) + offset, size);

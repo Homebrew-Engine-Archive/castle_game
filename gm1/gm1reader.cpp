@@ -185,9 +185,14 @@ namespace gm1
         mIsOpened = false;
     }
     
+    DataClass GM1Reader::GetDataClass() const
+    {
+        return gm1::GetDataClass(mHeader.dataClass);
+    }
+
     ReaderType GM1Reader::GetReaderType() const
     {
-        switch(GetDataClass(mHeader.dataClass)) {
+        switch(GetDataClass()) {
         case DataClass::TGX16:
             return ReaderType::TGX16;
             

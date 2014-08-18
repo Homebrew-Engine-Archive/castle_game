@@ -1,8 +1,10 @@
 #ifndef DUMPMODE_H_
 #define DUMPMODE_H_
 
-#include <gmtool/mode.h>
 #include <boost/filesystem/path.hpp>
+
+#include <gmtool/mode.h>
+#include <gmtool/tileoptions.h>
 
 namespace gmtool
 {
@@ -10,8 +12,7 @@ namespace gmtool
     {
         boost::filesystem::path mInputFile;
         size_t mEntryIndex;
-        bool mTileOnly;
-        bool mBoxOnly;
+        TileRenderMode mTileRenderMode;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);

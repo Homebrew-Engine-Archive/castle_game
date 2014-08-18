@@ -78,6 +78,7 @@ namespace gm1
         const gm1::EntryHeader& EntryHeader(size_t index) const;
         const core::Palette& Palette(size_t index) const;
         const gm1::Header& Header() const;
+        DataClass GetDataClass() const;
         ReaderType GetReaderType() const;
         size_t NumEntries() const;
         size_t NumPalettes() const;

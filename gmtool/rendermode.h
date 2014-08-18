@@ -8,6 +8,7 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include <gmtool/tileoptions.h>
 #include <gmtool/mode.h>
 
 #include <core/color.h>
@@ -35,7 +36,7 @@ namespace gmtool
         core::Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
         bool mEvalSizeOnly = false;
-        std::string mTileRenderMode;
+        TileRenderMode mTileRenderMode;
 
         const core::Color DefaultTransparent() const;
         
