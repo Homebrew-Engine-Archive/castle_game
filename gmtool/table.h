@@ -15,30 +15,28 @@ namespace gmtool
     {
     public:
         Column(const std::string &title, Alignment alignment, unsigned indent)
-            : mAlign(alignment)
-            , mWidth(0)
+            : mTitle(title)
+            , mAlign(alignment)
+            , mWidth(title.length())
             , mIndent(indent)
-            , mValues() {
-            Append(title);
-        }
+            { }
 
-        void Append(const std::string &cell);
+        void Extend(unsigned width);
         void PrintHeader(std::ostream &out) const;
-        void Print(std::ostream &out, unsigned row) const;
+        void PrintCell(std::ostream &out, const std::string &text) const;
         
     private:
+        const std::string mTitle;
         Alignment mAlign;
         unsigned mWidth;
         unsigned mIndent;
-        std::vector<std::string> mValues;
     };
 
     class Table
     {
     public:
         Table(const std::vector<Column> &columns = std::vector<Column>())
-            : mRowsCount(0)
-            , mColumns(columns) {}
+            : mColumns(columns) {}
 
         void AppendRow(const std::vector<std::string> &row);
         void AppendColumn(const std::string &text, Alignment alignment = Alignment::Left, unsigned indent = DefaultTableIndent);
@@ -46,7 +44,7 @@ namespace gmtool
         void Print(std::ostream &out) const;
         
     private:
-        unsigned mRowsCount;
+        std::vector<std::vector<std::string>> mCells;
         std::vector<Column> mColumns;
     };
 }

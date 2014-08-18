@@ -49,9 +49,9 @@ namespace gmtool
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
         gm1::GM1Reader reader(mInputFile);
+        cfg.verbose << reader.NumEntries() << " total" << std::endl;
 
         ShowEntryList(cfg.stdout, reader);
-        cfg.verbose << reader.NumEntries() << " total" << std::endl;
 
         return EXIT_SUCCESS;
     }
@@ -104,5 +104,6 @@ namespace gmtool
 
         table.PrintHeader(out);
         table.Print(out);
+        table.PrintHeader(out);
     }
 }
