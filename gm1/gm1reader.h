@@ -30,11 +30,25 @@ namespace gm1
     enum class ReaderType
     {
         TGX16,
+        ///< related to compressed images, some kinds of animation and fonts
+            
         TGX8,
+        ///< applicable to palettized animation only
+            
         Font,
+        ///< special purpose font decoder
+            
         TileBox,
+        ///< general purpose tile decoder
+            
+        Box,
+        ///< TileBox without Tile
+            
         Tile,
+        ///< TileBox without Box
+
         Bitmap
+        ///< Every kind of uncompressed images
     };
     
     class GM1Reader
@@ -45,7 +59,8 @@ namespace gm1
             NoFlags = 0,
             Cached = 1,
             CheckSizeCategory = 2,
-            TileOnly = 4
+            SkipTile = 4,
+            SkipBox = 8
         };
 
         explicit GM1Reader(const boost::filesystem::path& = boost::filesystem::path(), int flags = NoFlags);

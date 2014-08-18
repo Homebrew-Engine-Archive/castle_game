@@ -22,6 +22,14 @@
 #include <core/rect.h>
 #include <core/rw.h>
 
+namespace
+{
+    const char *kDefault = "default";
+    const char *kTile = "tile";
+    const char *kBox = "box";
+    const char *kTileRenderModes = "What part of tile will be rendered (default, tile or box)";
+}
+
 namespace po = boost::program_options;
 
 namespace gmtool
@@ -43,7 +51,7 @@ namespace gmtool
             ("palette,p",         po::value(&mPaletteIndex),                                             "Set palette index for 8-bit entries")
             ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()),    "Set background color in #AARRGGBB format")
             ("print-size-only",   po::bool_switch(&mEvalSizeOnly),                                       "Do not perform real rendering, but eval and print size")
-            ("tile-only",         po::bool_switch(&mRenderTileOnly),                                     "Render only 30x16 tile rhombus if appreciated")
+            ("tile-render",       po::value(&mTileRenderMode)->default_value(kDefault),                  kTileRenderModes)
             ;
         opts.add(mode);
     }
@@ -96,11 +104,14 @@ namespace gmtool
     int RenderMode::Exec(const ModeConfig &cfg)
     {
         int flags = gm1::GM1Reader::NoFlags;
-        if(mRenderTileOnly) {
-            cfg.verbose << "Set TileOnly flag ON" << std::endl;
-            flags |= gm1::GM1Reader::TileOnly;
+        if(mTileRenderMode == kTile) {
+            cfg.verbose << "TileRenderMode set to tile-only" << std::endl;
+            flags |= gm1::GM1Reader::SkipBox;
+        } else if(mTileRenderMode == kBox) {
+            cfg.verbose << "TileRenderMode set to box-only" << std::endl;
+            flags |= gm1::GM1Reader::SkipTile;
         } else {
-            cfg.verbose << "Set TileOnly flag OFF" << std::endl;
+            cfg.verbose << "TileRenderMode set to default" << std::endl;
         }
         
         cfg.verbose << "Reading file " << mInputFile << std::endl;

@@ -110,6 +110,24 @@ namespace
             return "Tile";
         }
     };
+
+    /**
+     * \brief TileBox reader which skips tile.
+     */
+    class Box : public gm1::GM1EntryReader
+    {
+    protected:
+        int Width(const gm1::EntryHeader &header) const {
+            return header.boxWidth;
+        }
+
+        void ReadImage(std::istream &in, size_t numBytes, gm1::EntryHeader const&, core::Image &surface) const;
+
+    public:
+        virtual std::string GetName() const {
+            return "Box";
+        }
+    };
     
     /**
      * \tile Uncompressed images. 
@@ -223,6 +241,12 @@ namespace
     {
         ReadTile(in, surface);
     }
+
+    void Box::ReadImage(std::istream &in, size_t numBytes, const gm1::EntryHeader &header, core::Image &surface) const
+    {
+        in.seekg(gm1::TileBytes, std::ios_base::cur);
+        tgx::DecodeImage(in, numBytes - gm1::TileBytes, surface);
+    }
 }
 
 namespace gm1
@@ -295,6 +319,9 @@ namespace gm1
         case ReaderType::Tile:
             return GM1EntryReader::Ptr(new Tile);
 
+        case ReaderType::Box:
+            return GM1EntryReader::Ptr(new Box);
+            
         case ReaderType::Bitmap:
             return GM1EntryReader::Ptr(new Bitmap);
 

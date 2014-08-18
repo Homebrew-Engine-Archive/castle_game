@@ -195,8 +195,10 @@ namespace gm1
             return ReaderType::TGX8;
                 
         case DataClass::TileBox:
-            if(mFlags & GM1Reader::TileOnly) {
+            if(mFlags & GM1Reader::SkipBox) {
                 return ReaderType::Tile;
+            } else if(mFlags & GM1Reader::SkipTile) {
+                return ReaderType::Box;
             } else {
                 return ReaderType::TileBox;
             }
