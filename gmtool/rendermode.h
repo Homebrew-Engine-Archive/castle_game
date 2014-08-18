@@ -10,6 +10,7 @@
 
 #include <gmtool/tileoptions.h>
 #include <gmtool/mode.h>
+#include <gmtool/imagewriter.h>
 
 #include <core/color.h>
 
@@ -17,11 +18,6 @@ namespace core
 {
     class Image;
     class Palette;
-}
-
-namespace gmtool
-{
-    class RenderFormat;
 }
 
 namespace gmtool

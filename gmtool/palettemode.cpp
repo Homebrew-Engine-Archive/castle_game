@@ -61,7 +61,7 @@ namespace gmtool
         }
         
         if(mPaletteIndex >= reader.NumPalettes()) {
-            throw std::logic_error("Palette index is out of range");
+            throw std::runtime_error("Palette index is out of range");
         }
 
         const core::Palette &palette = reader.Palette(mPaletteIndex);

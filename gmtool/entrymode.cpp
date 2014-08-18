@@ -37,7 +37,7 @@ namespace gmtool
         cfg.verbose << "Collection has " << reader.NumEntries() << " entries" << std::endl;
         
         if(mEntryIndex >= reader.NumEntries()) {
-            throw std::logic_error("Entry index is out of range");
+            throw std::runtime_error("Entry index is out of range");
         }
 
         const gm1::EntryHeader &header = reader.EntryHeader(mEntryIndex);

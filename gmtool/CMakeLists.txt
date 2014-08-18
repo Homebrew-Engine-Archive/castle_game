@@ -7,6 +7,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 set (SRCS
   main.cpp
+  engine.cpp
   entrymode.cpp
   dumpmode.cpp
   rendermode.cpp
@@ -15,14 +16,14 @@ set (SRCS
   listmode.cpp
   packmode.cpp
   unpackmode.cpp
-  renderer.cpp
+  imagewriter.cpp
   table.cpp
   tileoptions.cpp
 )
 
-set (RENDERERS
-  renderers/bitmap.cpp
-  renderers/tgxrenderer.cpp
+set (WRITERS
+  imagewriters/bitmapwriter.cpp
+  imagewriters/tgximagewriter.cpp
 )
 
 find_package (Boost 1.46 REQUIRED COMPONENTS program_options)
@@ -48,7 +49,7 @@ int main() {
 
 if (HAVE_SDL2_IMAGE_PNG)
   message (STATUS "PNG support was found in SDL2_image")
-  set (RENDERERS ${RENDERERS} renderers/pngrenderer.cpp)
+  set (WRITERS ${WRITERS} imagewriters/pngimagewriter.cpp)
 else ()
   set (HAVE_SDL2_IMAGE_PNG 0)
 endif ()
@@ -57,6 +58,6 @@ configure_file (
   ${CMAKE_CURRENT_SOURCE_DIR}/config_${PROJECT_NAME}.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config_${PROJECT_NAME}.h)
 
-add_executable (${TARGET} ${SRCS} ${RENDERERS})
+add_executable (${TARGET} ${SRCS} ${WRITERS})
 
 target_link_libraries (${TARGET} ${BOOST_PROGRAM_OPTIONS} ${BOOST_LIBRARIES} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${GM1LIB} ${TGXLIB} ${CORELIB})

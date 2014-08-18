@@ -9,7 +9,7 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 
-#include <gmtool/renderer.h>
+#include <gmtool/imagewriter.h>
 #include <gmtool/table.h>
 
 #include <gm1/gm1.h>
@@ -128,9 +128,7 @@ namespace gmtool
         
         std::ostream *out = nullptr;
 
-        if(mEvalSizeOnly) {
-            out = &dummy;
-        } else {
+        if(!mEvalSizeOnly) {
             if(mOutputFile.empty()) {
                 throw std::runtime_error("You should specify --output option");
             }
@@ -139,6 +137,8 @@ namespace gmtool
                 throw std::runtime_error(strerror(errno));
             }
             out = &fout;
+        } else {
+            out = &dummy;
         }
         
         cfg.verbose << "Setting up palette" << std::endl;
@@ -153,8 +153,9 @@ namespace gmtool
         cfg.verbose << "Find appropriate format" << std::endl;
         const RenderFormat *format = nullptr;
         for(const RenderFormat &candidate : mFormats) {
-            if(candidate.name == mFormat)
+            if(candidate.name == mFormat) {
                 format = &candidate;
+            }
         }
 
         if(format == nullptr) {
@@ -162,7 +163,7 @@ namespace gmtool
         }
 
         cfg.verbose << "Perform rendering" << std::endl;
-        format->renderer->RenderToStream(*out, entry);
+        format->writer->Write(*out, entry);
 
         if(mEvalSizeOnly) {
             out->seekp(0, std::ios_base::end);

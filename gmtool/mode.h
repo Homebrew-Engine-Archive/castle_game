@@ -22,15 +22,6 @@ namespace gmtool
 {
     struct ModeConfig
     {
-        bool helpRequested;
-        ///< Has user specified --help option.
-        
-        bool versionRequested;
-        ///< Has user requested --version.
-        
-        bool verboseRequested;
-        ///< Has user asked for --verbose.
-        
         std::ostream &verbose;
         std::ostream &stdout;
     };
