@@ -19,5 +19,5 @@ namespace gmtool
     };
 }
 
-#endif  // ENTRYMODE_H_
+#endif // ENTRYMODE_H_
  

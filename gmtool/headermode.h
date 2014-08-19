@@ -2,9 +2,7 @@
 #define HEADERMODE_H_
 
 #include <iostream>
-
 #include <gmtool/mode.h>
-
 #include <boost/filesystem/path.hpp>
  
 namespace gmtool

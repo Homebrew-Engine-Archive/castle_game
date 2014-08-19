@@ -4,9 +4,8 @@
 #include <iosfwd>
 #include <memory>
 
-/**
-   boost::filesystem::operator>> overload for boost::filesystem::path
-**/
+// Overload of operator>> for boost::filesystem::path.
+// Placed here to hide default implementation.
 #include <gmtool/path_validator.h>
 
 namespace boost
@@ -42,7 +41,6 @@ namespace gmtool
         ///< Exactly the same as GetOptions but for the positional options.
         
         virtual int Exec(const ModeConfig &config) = 0;
-        ///< 
     };
 }
 

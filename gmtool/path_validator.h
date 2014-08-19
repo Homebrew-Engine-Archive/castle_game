@@ -4,15 +4,12 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 
-/**
-   \brief Overload for boost::filesystem::path
-   It is a little workaround of handling paths with spaces.
-**/
-
 namespace boost
 {
     namespace filesystem
     {
+        /// Special case overload for boost::filesystem::path. It is a little
+        /// workaround of handling paths that contain spaces.
         inline std::istream& operator>>(std::istream &is, path &path)
         {
             path::string_type str;
