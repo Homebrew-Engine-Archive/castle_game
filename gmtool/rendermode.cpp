@@ -43,7 +43,7 @@ namespace gmtool
             ("palette,p",         po::value(&mPaletteIndex),                                             "Set palette index for 8-bit entries")
             ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()),    "Set background color in #AARRGGBB format")
             ("print-size-only",   po::bool_switch(&mEvalSizeOnly),                                       "Do not perform real rendering, but eval and print size")
-            ("tile-render",       po::value(&mTileRenderMode)->default_value(TileRenderMode::Default),   "What part of tile will be rendered (default, tile or box)")
+            ("tile-part",         po::value(&mTilePart)->default_value(TilePart::Both),                  "What part of tile will be rendered (tile, box or both)")
             ;
         opts.add(mode);
     }
@@ -96,12 +96,12 @@ namespace gmtool
     int RenderMode::Exec(const ModeConfig &cfg)
     {
         int flags = gm1::GM1Reader::NoFlags;
-        if(mTileRenderMode == TileRenderMode::Tile) {
+        if(mTilePart == TilePart::Tile) {
             flags |= gm1::GM1Reader::SkipBox;
-        } else if(mTileRenderMode == TileRenderMode::Box) {
+        } else if(mTilePart == TilePart::Box) {
             flags |= gm1::GM1Reader::SkipTile;
         }
-        cfg.verbose << "TileRenderMode set to " << mTileRenderMode << std::endl;
+        cfg.verbose << "Tile part setting set to " << mTilePart << std::endl;
         
         cfg.verbose << "Reading file " << mInputFile << std::endl;
         gm1::GM1Reader reader(mInputFile, flags);

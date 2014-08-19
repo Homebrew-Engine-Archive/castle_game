@@ -22,7 +22,7 @@ namespace gmtool
         mode.add_options()
             ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
             ("i,index", po::value(&mEntryIndex)->required(), "Set entry index")
-            ("tile-mode", po::value(&mTileRenderMode)->default_value(TileRenderMode::Default), "What part of tile will be dumped (default, tile or box)")
+            ("tile-part", po::value(&mTilePart)->default_value(TilePart::Both), "What part of tile will be dumped (tile, box or both)")
             ;
         opts.add(mode);
     }
@@ -46,9 +46,9 @@ namespace gmtool
         int64_t offset = 0;                              // an offset from the beginning of entry
         int64_t size = reader.EntrySize(mEntryIndex);    // bytes count to be dumped
 
-        // apply TileRenderMode if possible
+        // apply TilePart setting if possible
         if(reader.GetDataClass() == gm1::DataClass::TileBox) {
-            cfg.verbose << "Set tile render mode to " << mTileRenderMode << std::endl;
+            cfg.verbose << "Set tile part setting to " << mTilePart << std::endl;
             
             if(size < gm1::TileBytes) {
                 std::ostringstream oss;
@@ -56,14 +56,14 @@ namespace gmtool
                 throw std::runtime_error(oss.str());
             }
 
-            switch(mTileRenderMode) {
-            case TileRenderMode::Tile:
+            switch(mTilePart) {
+            case TilePart::Tile:
                 size = gm1::TileBytes;
                 offset = 0;
                 cfg.verbose << "Dump tile data of size " << size << " bytes" << std::endl;
                 break;
                 
-            case TileRenderMode::Box:
+            case TilePart::Box:
                 if(size <= gm1::TileBytes) {
                     throw std::runtime_error("No data to dump");
                 }
@@ -72,15 +72,15 @@ namespace gmtool
                 cfg.verbose << "Dump box of size " << size << " bytes" << std::endl;
                 break;
                 
-            case TileRenderMode::Default:
+            case TilePart::Both:
                 cfg.verbose << "Dump whole entry data of size " << size << " bytes" << std::endl;
                 break;
                 
             default:
-                throw std::runtime_error("bad tile render mode");
+                throw std::runtime_error("bad tile part");
             }
         } else {
-            cfg.verbose << "Tile render mode ignored since incompatible data class" << std::endl;
+            cfg.verbose << "Tile part setting is ignored since incompatible data class" << std::endl;
         }
 
         cfg.stdout.write(reader.EntryData(mEntryIndex) + offset, size);

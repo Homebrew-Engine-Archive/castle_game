@@ -4,7 +4,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <gmtool/mode.h>
-#include <gmtool/tileoptions.h>
+#include <gmtool/tilepart.h>
 
 namespace gmtool
 {
@@ -12,7 +12,7 @@ namespace gmtool
     {
         boost::filesystem::path mInputFile;
         size_t mEntryIndex;
-        TileRenderMode mTileRenderMode;
+        TilePart mTilePart;
     public:
         void GetOptions(boost::program_options::options_description&);
         void GetPositionalOptions(boost::program_options::positional_options_description&);

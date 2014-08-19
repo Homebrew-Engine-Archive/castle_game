@@ -18,7 +18,7 @@ set (SRCS
   unpackmode.cpp
   imagewriter.cpp
   table.cpp
-  tileoptions.cpp
+  tilepart.cpp
 )
 
 set (WRITERS
