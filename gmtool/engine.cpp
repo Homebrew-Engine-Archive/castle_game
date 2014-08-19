@@ -81,23 +81,18 @@ namespace gmtool
 
     int Engine::Exec(int argc, const char *argv[])
     {
-        bool helpRequested = false;
-        bool versionRequested = false;
-        bool allowVerbose = false;
-        std::string modeName;
-
         po::options_description visible("Allowed options");
         visible.add_options()
-            ("help,h", po::bool_switch(&helpRequested), "produce help message")
-            ("version", po::bool_switch(&versionRequested), "show version")
-            ("verbose,v", po::bool_switch(&allowVerbose), "allow verbose messages")
+            ("help,h", po::bool_switch(&mHelpRequested), "produce help message")
+            ("version", po::bool_switch(&mVersionRequested), "show version")
+            ("verbose,v", po::bool_switch(&mVerboseRequested), "allow verbose messages")
             ;
 
         std::vector<std::string> extras;
         po::options_description overall;
         overall.add(visible);
         overall.add_options()
-            ("mode", po::value(&modeName))
+            ("mode", po::value(&mModeName))
             ("extras", po::value(&extras))
             ;
 
@@ -123,7 +118,7 @@ namespace gmtool
         po::store(parsed, vars);
         po::notify(vars);
 
-        if(versionRequested) {
+        if(mVersionRequested) {
             ShowVersion(std::cout);
             return EXIT_SUCCESS;
         }
@@ -134,28 +129,27 @@ namespace gmtool
 
         const std::vector<Command> &commands = GetCommandList();
         
-        if(modeName.empty()) {
-            if(helpRequested) {
+        if(mModeName.empty()) {
+            if(mHelpRequested) {
                 ShowUsage(std::cout);
                 std::cout << visible << std::endl;
                 ShowCommandList(std::cout, commands);
                 return EXIT_SUCCESS;
-            }
-            throw std::runtime_error("Command required but missing");
-        }
-
-        const Command *command = nullptr;
-        for(const Command &lookup : commands) {
-            if(lookup.name == modeName) {
-                command = &lookup;
+            } else {
+                throw std::runtime_error("Command required but missing");
             }
         }
 
-        if(command != nullptr) {
+        const auto command = std::find_if(commands.begin(), commands.end(),
+                                          [this](const Command &command) {
+                                              return mModeName == command.name;
+                                          });
+
+        if(command != commands.end()) {
             po::options_description opts;
             command->mode->GetOptions(opts);
 
-            if(helpRequested) {
+            if(mHelpRequested) {
                 std::cout << opts << std::endl;
                 command->mode->PrintUsage(std::cout);
                 return EXIT_SUCCESS;
@@ -175,7 +169,7 @@ namespace gmtool
 
             // Dummy stream for dull verbosity.
             std::ostream null(nullptr);
-            std::ostream &verbose = (allowVerbose ? std::clog : null);
+            std::ostream &verbose = (mVerboseRequested ? std::clog : null);
             return command->mode->Exec({verbose, std::cout});
         } else {
             throw std::runtime_error("No command with such name");
