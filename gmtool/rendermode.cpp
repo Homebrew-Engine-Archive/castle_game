@@ -150,25 +150,22 @@ namespace gmtool
         cfg.verbose << "Setting up transparency" << std::endl;
         SetupTransparentColor(entry, mTransparentColor);
 
-        cfg.verbose << "Find appropriate format" << std::endl;
-        const RenderFormat *format = nullptr;
-        for(const RenderFormat &candidate : mFormats) {
-            if(candidate.name == mFormat) {
-                format = &candidate;
-            }
-        }
+        const auto format = std::find_if(mFormats.begin(), mFormats.end(),
+                                         [this](const RenderFormat &format) {
+                                             return format.name == mFormat;
+                                         });
 
-        if(format == nullptr) {
+        if(format != mFormats.end()) {
+            cfg.verbose << "Perform rendering" << std::endl;
+            format->writer->Write(*out, entry);
+
+            if(mEvalSizeOnly) {
+                out->seekp(0, std::ios_base::end);
+                cfg.stdout << out->tellp() << std::endl;
+            }
+            return EXIT_SUCCESS;
+        } else {
             throw std::runtime_error("No format with such name");
         }
-
-        cfg.verbose << "Perform rendering" << std::endl;
-        format->writer->Write(*out, entry);
-
-        if(mEvalSizeOnly) {
-            out->seekp(0, std::ios_base::end);
-            cfg.stdout << out->tellp() << std::endl;
-        }
-        return EXIT_SUCCESS;
     }
 }

@@ -123,12 +123,9 @@ namespace gmtool
             return EXIT_SUCCESS;
         }
 
-        // Here we merge unrecognized positional and non-positional options.
-        // Further we can parse it again using more appreciate command parser.
         std::copy(extras.begin(), extras.end(), std::back_inserter(unparsed));
 
         const std::vector<Command> &commands = GetCommandList();
-        
         if(mModeName.empty()) {
             if(mHelpRequested) {
                 ShowUsage(std::cout);

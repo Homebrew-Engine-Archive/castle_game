@@ -23,7 +23,7 @@ namespace gmtool
         
         virtual void Write(SDL_RWops *dst, const core::Image &surface) const;
         virtual void Write(std::ostream &out, const core::Image &surface) const;
-        ///< default implementation through SDL_RWops
+        ///< default implementation through SDL_RWops overload
     };
     
     struct RenderFormat
@@ -32,7 +32,6 @@ namespace gmtool
         ImageWriter::Ptr writer;
     };
 
-    /// Lists all availble writers tagged with their names
     std::vector<RenderFormat> RenderFormats();
 }
 
