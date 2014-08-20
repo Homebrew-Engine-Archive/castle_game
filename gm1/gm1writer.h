@@ -1,5 +1,5 @@
-#ifndef gm1WRITER_H_
-#define gm1WRITER_H_
+#ifndef GM1WRITER_H_
+#define GM1WRITER_H_
 
 #include <iosfwd>
 
@@ -19,4 +19,4 @@ namespace gm1
     std::ostream& WritePalette(std::ostream&, const core::Palette &palette);
 }
 
-#endif // gm1WRITER_H_
+#endif // GM1WRITER_H_
