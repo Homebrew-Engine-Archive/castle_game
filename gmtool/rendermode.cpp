@@ -109,32 +109,9 @@ namespace gmtool
                                              return format.name == mFormat;
                                          });
         
-        if(format != mFormats.end()) {            
-            boost::filesystem::ofstream fout;
-            if(!mEvalSizeOnly) {
-                fout.open(mOutputFile, std::ios_base::binary | std::ios_base::out);
-                if(!fout) {
-                    throw std::runtime_error(strerror(errno));
-                }
-            }
-
-            // Only for evaluating result size
-            std::ostringstream dummy;
-
-            std::ostream *out;
-            if(mEvalSizeOnly) {
-                out = &dummy;
-            } else {
-                out = &fout;
-            }
-            
+        if(format != mFormats.end()) {
             cfg.verbose << "Perform rendering" << std::endl;
-            format->writer->Write(*out, entry);
-
-            if(mEvalSizeOnly) {
-                out->seekp(0, std::ios_base::end);
-                cfg.stdout << out->tellp() << std::endl;
-            }
+            format->writer->Write(cfg.stdout, entry);
             return EXIT_SUCCESS;
         } else {
             throw std::runtime_error("No format with such name");

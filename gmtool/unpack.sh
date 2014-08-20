@@ -48,5 +48,5 @@ echo Unpacking into "$DIR"
 for I in `seq 0 $((NUM_ENTRIES-1))`;
 do
     OUTPUT=`printf "$DIR/%.5d.$FTYPE" $I`;
-    $GMTOOL render -f$FTYPE -i$I -p$PALETTE -o"$OUTPUT" --transparent-color="${TRANSPARENT}" -- "$FILE";
+    $GMTOOL render -f$FTYPE -i$I -p$PALETTE --transparent-color="${TRANSPARENT}" -- "$FILE" | dd of="$OUTPUT" >& /dev/null
 done;
