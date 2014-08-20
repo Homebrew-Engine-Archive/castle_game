@@ -25,13 +25,11 @@ namespace gmtool
     class RenderMode : public Mode
     {
         boost::filesystem::path mInputFile;
-        boost::filesystem::path mOutputFile;
         std::string mFormat;
         size_t mEntryIndex = 0;
         size_t mPaletteIndex = 0;
         core::Color mTransparentColor;
         std::vector<RenderFormat> mFormats;
-        bool mEvalSizeOnly = false;
         TilePart mTilePart;
 
         const core::Color DefaultTransparent() const;
