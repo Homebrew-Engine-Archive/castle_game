@@ -2,11 +2,7 @@
 
 #include "config_gmtool.h"
 
-#include <cstdlib>
-#include <cstdint>
-
 #include <algorithm>
-#include <sstream>
 #include <stdexcept>
 
 #include <boost/program_options/variables_map.hpp>
@@ -143,33 +139,39 @@ namespace gmtool
                                           });
 
         if(command != commands.end()) {
-            po::options_description opts;
-            command->mode->GetOptions(opts);
-
-            if(mHelpRequested) {
-                std::cout << opts << std::endl;
-                command->mode->PrintUsage(std::cout);
-                return EXIT_SUCCESS;
-            }
-
-            po::positional_options_description unnamed;
-            command->mode->GetPositionalOptions(unnamed);
-
-            po::parsed_options parsed = po::command_line_parser(unparsed)
-                .options(opts)
-                .positional(unnamed)
-                .run();
-
-            po::variables_map vars;
-            po::store(parsed, vars);
-            po::notify(vars);
-
-            // Dummy stream for dull verbosity.
-            std::ostream null(nullptr);
-            std::ostream &verbose = (mVerboseRequested ? std::clog : null);
-            return command->mode->Exec({verbose, std::cout});
+            return RunMode(*command->mode, unparsed);
         } else {
             throw std::runtime_error("No command with such name");
         }
+    }
+
+    int Engine::RunMode(Mode &mode, const std::vector<std::string> &tokens)
+    {
+        po::options_description opts;
+        mode.GetOptions(opts);
+
+        if(mHelpRequested) {
+            std::cout << opts << std::endl;
+            mode.PrintUsage(std::cout);
+            return EXIT_SUCCESS;
+        }
+
+        po::positional_options_description unnamed;
+        mode.GetPositionalOptions(unnamed);
+
+        po::parsed_options parsed = po::command_line_parser(tokens)
+            .options(opts)
+            .positional(unnamed)
+            .run();
+
+        po::variables_map vars;
+        po::store(parsed, vars);
+        po::notify(vars);
+
+        // Dummy stream for dull verbosity.
+        std::ostream null(nullptr);
+        std::ostream &verbose = (mVerboseRequested ? std::clog : null);
+        ModeConfig config {verbose, std::cout};
+        return mode.Exec(config);
     }
 }
