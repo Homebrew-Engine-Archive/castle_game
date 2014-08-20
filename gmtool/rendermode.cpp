@@ -2,12 +2,9 @@
 
 #include <string>
 #include <sstream>
-#include <memory>
 #include <cstring>
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
 
 #include <gmtool/imagewriter.h>
 #include <gmtool/table.h>
@@ -22,36 +19,12 @@
 #include <core/rect.h>
 #include <core/rw.h>
 
-namespace po = boost::program_options;
-
 namespace gmtool
 {
     RenderMode::~RenderMode() throw() = default;
     RenderMode::RenderMode()
     {
         mFormats = RenderFormats();
-    }
-    
-    void RenderMode::GetOptions(po::options_description &opts)
-    {
-        po::options_description mode("Render mode");
-        mode.add_options()
-            ("file",              po::value(&mInputFile)->required(),                                    "Set GM1 filename")
-            ("index,i",           po::value(&mEntryIndex)->required(),                                   "Set entry index")
-            ("output,o",          po::value(&mOutputFile),                                               "Set output image filename")
-            ("format,f",          po::value(&mFormat)->default_value(mFormats.front().name),             "Set render file format")
-            ("palette,p",         po::value(&mPaletteIndex),                                             "Set palette index for 8-bit entries")
-            ("transparent-color", po::value(&mTransparentColor)->default_value(DefaultTransparent()),    "Set background color in #AARRGGBB format")
-            ("print-size-only",   po::bool_switch(&mEvalSizeOnly),                                       "Do not perform real rendering, but eval and print size")
-            ("tile-part",         po::value(&mTilePart)->default_value(TilePart::Both),                  "What part of tile will be rendered (tile, box or both)")
-            ;
-        opts.add(mode);
-    }
-    
-    void RenderMode::GetPositionalOptions(po::positional_options_description &unnamed)
-    {
-        unnamed.add("file", 1);
-        unnamed.add("output", 1);
     }
 
     void RenderMode::PrintUsage(std::ostream &out)
@@ -107,8 +80,7 @@ namespace gmtool
         gm1::GM1Reader reader(mInputFile, flags);
         cfg.verbose << "Collection contains " << reader.NumEntries() << " entries" << std::endl;
         cfg.verbose << "Using ReaderType: " << reader.GetEntryReader().GetName() << std::endl;
-        
-        if(mEntryIndex >= reader.NumEntries()) {
+                    if(mEntryIndex >= reader.NumEntries()) {
             throw std::runtime_error("Entry index is out of range");
         }
 
@@ -123,24 +95,6 @@ namespace gmtool
         
         core::Image entry = reader.ReadEntry(mEntryIndex);
 
-        boost::filesystem::ofstream fout;
-        std::ostringstream dummy;
-        
-        std::ostream *out = nullptr;
-
-        if(!mEvalSizeOnly) {
-            if(mOutputFile.empty()) {
-                throw std::runtime_error("You should specify --output option");
-            }
-            fout.open(mOutputFile, std::ios_base::binary | std::ios_base::out);
-            if(!fout) {
-                throw std::runtime_error(strerror(errno));
-            }
-            out = &fout;
-        } else {
-            out = &dummy;
-        }
-        
         cfg.verbose << "Setting up palette" << std::endl;
         SetupPalette(entry, reader.Palette(mPaletteIndex));
         
@@ -154,8 +108,26 @@ namespace gmtool
                                          [this](const RenderFormat &format) {
                                              return format.name == mFormat;
                                          });
+        
+        if(format != mFormats.end()) {            
+            boost::filesystem::ofstream fout;
+            if(!mEvalSizeOnly) {
+                fout.open(mOutputFile, std::ios_base::binary | std::ios_base::out);
+                if(!fout) {
+                    throw std::runtime_error(strerror(errno));
+                }
+            }
 
-        if(format != mFormats.end()) {
+            // Only for evaluating result size
+            std::ostringstream dummy;
+
+            std::ostream *out;
+            if(mEvalSizeOnly) {
+                out = &dummy;
+            } else {
+                out = &fout;
+            }
+            
             cfg.verbose << "Perform rendering" << std::endl;
             format->writer->Write(*out, entry);
 

@@ -5,9 +5,6 @@
 #include <string>
 #include <iostream>
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/positional_options.hpp>
-
 #include <gmtool/table.h>
 #include <gm1/gm1reader.h>
 
@@ -31,20 +28,6 @@ namespace
 
 namespace gmtool
 {
-    void ListMode::GetOptions(boost::program_options::options_description &opts)
-    {
-        po::options_description mode("List mode");
-        mode.add_options()
-            ("file", po::value(&mInputFile)->required(), "Set .gm1 filename")
-            ;
-        opts.add(mode);
-    }
-
-    void ListMode::GetPositionalOptions(boost::program_options::positional_options_description &unnamed)
-    {
-        unnamed.add("file", 1);
-    }
-
     int ListMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;

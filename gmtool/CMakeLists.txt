@@ -19,6 +19,7 @@ set (SRCS
   unpackmode.cpp
   imagewriter.cpp
   table.cpp
+  modeoptions.cpp
   tilepart.cpp
 )
 
