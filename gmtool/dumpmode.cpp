@@ -9,8 +9,31 @@
 #include <gm1/gm1reader.h>
 #include <gm1/gm1.h>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+
+#include "modes.h"
+
+namespace po = boost::program_options;
+
 namespace gmtool
 {
+    void DumpMode::GetOptions(boost::program_options::options_description &opts)
+    {
+        po::options_description mode("Dump mode");
+        mode.add_options()
+            (kFile, po::value(&mInputFile)->required(), "Set .gm1 filename")
+            (kIndex, po::value(&mEntryIndex)->required(), "Set entry index")
+            (kTilePart, po::value(&mTilePart)->default_value(TilePart::Both), "What part of tile will be dumped (tile, box or both)")
+            ;
+        opts.add(mode);
+    }
+    
+    void DumpMode::GetPositionalOptions(boost::program_options::positional_options_description &unnamed)
+    {
+        unnamed.add(kFile, 1);
+    }    
+
     int DumpMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;

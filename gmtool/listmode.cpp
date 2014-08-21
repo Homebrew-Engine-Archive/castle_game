@@ -8,6 +8,11 @@
 #include <gmtool/table.h>
 #include <gm1/gm1reader.h>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+
+#include "modes.h"
+
 namespace po = boost::program_options;
 
 namespace
@@ -28,6 +33,20 @@ namespace
 
 namespace gmtool
 {
+    void ListMode::GetOptions(boost::program_options::options_description &opts)
+    {
+        po::options_description mode("List mode");
+        mode.add_options()
+            (kFile, po::value(&mInputFile)->required(), "Set .gm1 filename")
+            ;
+        opts.add(mode);
+    }
+
+    void ListMode::GetPositionalOptions(boost::program_options::positional_options_description &unnamed)
+    {
+        unnamed.add(kFile, 1);
+    }    
+
     int ListMode::Exec(const ModeConfig &cfg)
     {
         cfg.verbose << "Reading file " << mInputFile << std::endl;
@@ -42,19 +61,19 @@ namespace gmtool
     std::vector<std::string> GetRow(int index, const gm1::EntryHeader &header)
     {
         return ToString<int> ({
-            index,
-            header.width,
-            header.height,
-            header.posX,
-            header.posY,
-            header.group,
-            header.groupSize,
-            header.tileY,
-            header.tileOrient,
-            header.hOffset,
-            header.boxWidth,
-            header.flags
-        });
+                index,
+                    header.width,
+                    header.height,
+                    header.posX,
+                    header.posY,
+                    header.group,
+                    header.groupSize,
+                    header.tileY,
+                    header.tileOrient,
+                    header.hOffset,
+                    header.boxWidth,
+                    header.flags
+                    });
     }
 
     std::vector<std::pair<std::string, Alignment>> GetHeader()

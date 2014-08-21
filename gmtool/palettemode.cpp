@@ -9,8 +9,32 @@
 #include <gm1/gm1writer.h>
 #include <gm1/gm1reader.h>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+
+#include "modes.h"
+
+namespace po = boost::program_options;
+
 namespace gmtool
 {
+    void PaletteMode::GetOptions(po::options_description &opts)
+    {
+        po::options_description mode("Palette mode");
+        mode.add_options()
+            (kFile,     po::value(&mInputFile)->required(), "Set .gm1 filename")
+            (kPalette,  po::value(&mPaletteIndex),          "Set palette index")
+            (kBinary,   po::bool_switch(&mBinary),          "Dump palette in binary")
+            (kCount,    po::bool_switch(&mCountRequested),  "Print palettes count")
+            ;
+        opts.add(mode);
+    }
+
+    void PaletteMode::GetPositionalOptions(po::positional_options_description &unnamed)
+    {
+        unnamed.add(kFile, 1);
+    }
+
     std::ostream& PrintPalette(std::ostream &out, const core::Palette &palette)
     {
         int column = 0;

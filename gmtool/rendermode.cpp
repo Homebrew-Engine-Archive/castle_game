@@ -19,12 +19,38 @@
 #include <core/rect.h>
 #include <core/rw.h>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+
+#include "modes.h"
+
+namespace po = boost::program_options;
+
 namespace gmtool
 {
     RenderMode::~RenderMode() throw() = default;
     RenderMode::RenderMode()
     {
         mFormats = RenderFormats();
+    }
+
+    void RenderMode::GetOptions(po::options_description &opts)
+    {
+        po::options_description mode("Render mode");
+        mode.add_options()
+            (kFile,               po::value(&mInputFile)->required(),                                    "Set .gm1 filename")
+            (kIndex,              po::value(&mEntryIndex)->required(),                                   "Set entry index to render")
+            (kFormat,             po::value(&mFormat)->default_value(mFormats.front().name),             "Set render file format")
+            (kPalette,            po::value(&mPaletteIndex),                                             "Set palette index for 8-bit entries")
+            (kTransparentColor,   po::value(&mTransparentColor)->default_value(DefaultTransparent()),    "Set background color in #AARRGGBB format")
+            (kTilePart,           po::value(&mTilePart)->default_value(TilePart::Both),                  "It can be tile, box or both")
+            ;
+        opts.add(mode);
+    }
+    
+    void RenderMode::GetPositionalOptions(po::positional_options_description &unnamed)
+    {
+        unnamed.add(kFile, 1);
     }
 
     void RenderMode::PrintUsage(std::ostream &out)

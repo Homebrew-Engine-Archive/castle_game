@@ -8,19 +8,10 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 set (SRCS
   ${SRCS}
   main.cpp
-  engine.cpp
-  entrymode.cpp
-  dumpmode.cpp
-  rendermode.cpp
-  headermode.cpp
-  palettemode.cpp
-  listmode.cpp
-  packmode.cpp
-  unpackmode.cpp
   imagewriter.cpp
   table.cpp
-  modeoptions.cpp
   tilepart.cpp
+  modes.cpp
 )
 
 set (SRCS
