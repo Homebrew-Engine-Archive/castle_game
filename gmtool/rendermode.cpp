@@ -137,7 +137,13 @@ namespace gmtool
         
         if(format != mFormats.end()) {
             cfg.verbose << "Perform rendering" << std::endl;
-            format->writer->Write(cfg.stdout, entry);
+            // We must buffer any changes on output stream since
+            // some writers (like SDL_SaveBMP_RW) may seek backward on stream.
+            // This behavior is not working with std::cout.
+            // Consider mess with std::streambuf instead.
+            std::ostringstream temp;
+            format->writer->Write(temp, entry);
+            cfg.stdout << temp.str();
             return EXIT_SUCCESS;
         } else {
             throw std::runtime_error("No format with such name");
