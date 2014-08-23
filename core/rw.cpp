@@ -66,14 +66,23 @@ namespace
         return 0;
     }
     
-    std::ios_base::seekdir ConvertSeekDirection(int whence)
+    bool ConvertSeekDirection(int whence, std::ios_base::seekdir &dir)
     {
         switch(whence) {
-        case RW_SEEK_SET: return std::ios_base::beg;
-        case RW_SEEK_END: return std::ios_base::end;
+        case RW_SEEK_SET:
+            dir = std::ios_base::beg;
+            return true;
+        
+        case RW_SEEK_END:
+            dir = std::ios_base::end;
+            return true;
+
         case RW_SEEK_CUR: 
+            dir = std::ios_base::cur;
+            return true;
+
         default:
-            return std::ios_base::cur;
+            return false;
         }
     }
     
@@ -82,11 +91,14 @@ namespace
     {
         StreamModel &stream = *reinterpret_cast<StreamModel*>(context->hidden.unknown.data1);
 
-        SeekStream<StreamModel>(stream, offset, ConvertSeekDirection(whence));
-        
-        const int64_t pos = TellStream<StreamModel>(stream);
-        // ok, if stream failbit is up pos is -1
-        return pos;
+        std::ios_base::seekdir seekdir;
+        if(ConvertSeekDirection(whence, seekdir)) {
+            SeekStream<StreamModel>(stream, offset, seekdir);
+            // if SeekStream set failbit then TellStream returns -1
+            return TellStream<StreamModel>(stream);
+        }
+
+        return -1;
     }
 
     template<class StreamModel>
