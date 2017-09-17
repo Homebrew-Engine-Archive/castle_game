@@ -9,6 +9,7 @@
 #include <core/palette.h>
 #include <core/image.h>
 
+#include <game/fontengine.h>
 #include <game/renderengine.h>
 #include <game/vfs.h>
 
@@ -28,20 +29,16 @@ namespace castle
 {
     namespace render
     {
-        class FontEngine;
-    }
-
-    namespace render
-    {
         class Renderer
         {
         public:
+            Renderer(Renderer const&) = delete;
+            Renderer& operator=(Renderer const&) = delete;
+            Renderer(Renderer&&) = delete;
+            Renderer& operator=(Renderer&&) = delete;
+
             explicit Renderer();
-            Renderer(Renderer const&);
-            Renderer& operator=(Renderer const&);
-            Renderer(Renderer&&);
-            Renderer& operator=(Renderer&&);
-            virtual ~Renderer();
+            virtual ~Renderer() = default;
 
             void BeginFrame();
             void EndFrame();

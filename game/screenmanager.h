@@ -39,12 +39,13 @@ namespace castle
             std::unique_ptr<ui::TextArea> mInfoArea;
         
         public:
+            ScreenManager(ScreenManager&&) = delete;
+            ScreenManager& operator=(ScreenManager&&) = delete;
+            ScreenManager(ScreenManager const&) = delete;
+            ScreenManager& operator=(ScreenManager const&) = delete;
+
             explicit ScreenManager();
-            ScreenManager(ScreenManager&&);
-            ScreenManager& operator=(ScreenManager&&);
-            ScreenManager(ScreenManager const&);
-            ScreenManager& operator=(ScreenManager const&);
-            virtual ~ScreenManager();
+            virtual ~ScreenManager() = default;
 
             void ToggleConsole();
         

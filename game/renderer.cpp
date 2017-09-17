@@ -13,6 +13,9 @@
 #include <game/softwarerenderengine.h>
 #include <game/sdlrenderengine.h>
 
+
+#include <game/ttf_init.h>
+
 namespace
 {
     const int MaxOpacity = 0xff;
@@ -41,12 +44,6 @@ namespace castle
 {
     namespace render
     {
-        Renderer::Renderer(Renderer const&) = delete;
-        Renderer& Renderer::operator=(Renderer const&) = delete;
-        Renderer::Renderer(Renderer&&) = default;
-        Renderer& Renderer::operator=(Renderer&&) = delete;
-        Renderer::~Renderer() = default;
-    
         Renderer::Renderer()
             : mRenderEngine(new SoftwareRenderEngine)
             , mFontEngine(new FontEngine)

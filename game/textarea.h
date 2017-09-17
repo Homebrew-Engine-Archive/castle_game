@@ -10,11 +10,12 @@
 #include <core/color.h>
 #include <core/size.h>
 
+#include <game/textlayout.h>
+
 namespace castle
 {
     namespace render
     {
-        class TextLayout;
         class Renderer;
     }
     
@@ -23,12 +24,13 @@ namespace castle
         class TextArea
         {
         public:
+            TextArea(TextArea const&) = delete;
+            TextArea& operator=(TextArea const&) = delete;
+            TextArea(TextArea&&) =default;
+            TextArea& operator=(TextArea&&) = default;
+
             explicit TextArea();
-            TextArea(TextArea const&);
-            TextArea& operator=(TextArea const&);
-            TextArea(TextArea&&);
-            TextArea& operator=(TextArea&&);
-            virtual ~TextArea();
+            virtual ~TextArea() = default;
             
             std::string const& Text() const;
             void SetText(const std::string &text);

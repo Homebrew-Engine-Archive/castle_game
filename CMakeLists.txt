@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ggdb3")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ggdb3 -fpermissive")
 
 include (CheckCXXCompilerFlag)
 
@@ -43,15 +43,15 @@ include_directories (${SDL2_INCLUDE_DIR})
 
 include (FindSDL2_ttf)
 find_package (SDL2_ttf REQUIRED)
-include_directories (${SDL2TTF_INCLUDE_DIR})
+include_directories (${SDL2_TTF_INCLUDE_DIRS})
 
 include (FindSDL2_gfx)
 find_package (SDL2_gfx REQUIRED)
-include_directories (${SDL2GFX_INCLUDE_DIR})
+include_directories (${SDL2_GFX_INCLUDE_DIRS})
 
 include (FindSDL2_image)
 find_package (SDL2_image REQUIRED)
-include_directories (${SDL2IMAGE_INCLUDE_DIR})
+include_directories (${SDL2_IMAGE_INCLUDE_DIRS})
 
 ## see http://wiki.libsdl.org/SDL_SetMainReady
 add_definitions (-DSDL_MAIN_HANDLED)

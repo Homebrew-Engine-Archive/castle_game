@@ -8,12 +8,6 @@ namespace castle
 {
     namespace ui
     {
-        ScreenManager::ScreenManager(ScreenManager&&) = delete;
-        ScreenManager& ScreenManager::operator=(ScreenManager&&) = delete;
-        ScreenManager::ScreenManager(ScreenManager const&) = delete;
-        ScreenManager& ScreenManager::operator=(ScreenManager const&) = delete;
-        ScreenManager::~ScreenManager() = default;
-        
         ScreenManager::ScreenManager()
             : mConsole(*this)
             , mMenuMain(*this)

@@ -5,9 +5,10 @@
 #include <string>
 
 #include <game/vfs.h>
+#include <game/fontdata.h>
 
 class TTFInitializer;
-class FontData;
+//class FontData;
 
 namespace core
 {
@@ -36,12 +37,13 @@ namespace castle
         class FontEngine
         {
         public:
+            FontEngine(FontEngine const&) = delete;
+            FontEngine& operator=(FontEngine const&) = delete;
+            FontEngine(FontEngine&&) = delete;
+            FontEngine& operator=(FontEngine&&) = delete;
+
             explicit FontEngine();
-            FontEngine(FontEngine const&);
-            FontEngine& operator=(FontEngine const&);
-            FontEngine(FontEngine&&);
-            FontEngine& operator=(FontEngine&&);
-            virtual ~FontEngine();
+            virtual ~FontEngine() = default;
 
             bool DrawText(RenderEngine &engine, const core::Point &target, const core::Font &font, const std::string &text, const core::Color &fg, const core::Color &bg) const;
             bool CouldRender(const core::Font &font, const std::string &text) const;

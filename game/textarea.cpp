@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include <game/textlayout.h>
 #include <game/fontengine.h>
 #include <game/renderer.h>
 
@@ -16,12 +15,6 @@ namespace castle
 {
     namespace ui
     {
-        TextArea::TextArea(TextArea const&) = delete;
-        TextArea& TextArea::operator=(TextArea const&) = delete;
-        TextArea::TextArea(TextArea&&) = default;
-        TextArea& TextArea::operator=(TextArea&&) = default;
-        TextArea::~TextArea() = default;
-        
         TextArea::TextArea()
             : mTextLayout(new render::TextLayout)
             , mText()

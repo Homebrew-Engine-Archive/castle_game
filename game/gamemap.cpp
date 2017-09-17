@@ -183,7 +183,7 @@ namespace castle
     
         void GenerateTestMap(Map &map)
         {
-            std::default_random_engine rnd((int)&map);
+            std::default_random_engine rnd((std::size_t)(&map));
             std::uniform_int_distribution<> heightDist(0, 20);
             std::uniform_int_distribution<> landscapeDist(0, 16);
             std::uniform_int_distribution<> raindropDist(0, 100);
